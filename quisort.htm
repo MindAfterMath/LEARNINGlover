@@ -1,0 +1,109 @@
+<html>
+<head>
+<script type="text/javascript">
+function quickSort(A, left, right, nest)  
+{
+ 	var i = left, j = right;
+ 	var tmp;
+ 	if (nest == 0)
+ 	{
+ 		text = "";
+ 		count = 0;
+ 	}
+  	var pivot = A[Math.floor((left + right) / 2)];
+  	while (i <= j)
+  	{
+ 		while (A[i] < pivot)
+ 			i++;
+  		while (A[j] > pivot)
+ 			j--;
+  		if (i <= j)
+  		{
+ 			tmp = A[i];
+ 			A[i] = A[j];
+ 			A[j] = tmp;
+ 			i++;
+ 			j--;
+ 			count ++;
+ 			if (document.getElementById("show").checked)
+ 			{
+ 				text += count + ") A = {";
+ 				for (k = 0; k < A.length-1; k++)
+ 				{
+ 					if (k == (i-1) || k == (j+1))
+ 						text += "<b>" + A[k] + "</b>, ";
+ 					else
+ 						text += A[k] + ", ";
+ 				}
+ 				if (k == (j+1))
+ 					text += "<b>" + A[k] + "</b>}<br>";
+ 				else
+ 					text += A[k] + "}<br>";
+ 			}
+  		}
+ 	}
+  	if (left < j)
+ 	{
+ 		if (document.getElementById("show").checked)
+ 		{
+ 			text += "calling quicksort(";
+ 			for (k = left; k < j; k++)
+ 				text += A[k] + ", ";
+ 			text += A[k];
+ 	 		text += ")// This is the left side <br>";
+ 		}
+ 		A = quickSort(A, left, j, nest+1);
+ 	}
+  	if (i < right)
+ 	{
+ 		if (document.getElementById("show").checked)
+ 		{
+ 			text += "calling quicksort(";
+ 			for (k = i; k < right; k++)
+ 				text += A[k] + ", ";
+ 			text += A[k];
+ 	 		text += ")// This is the rightside <br>";
+ 		}
+  		A = quickSort(A, i, right, nest+1);
+ 	}
+  	return A; 
+}
+</script>
+</head>
+<body>
+<h2>Quick Sort Algorithm</h2>
+<p>
+</p>
+<form name=data id=data>
+ <input type=button onclick="javascript:location.reload(true)" value="New Problem"><br>
+ <TEXTAREA style="WIDTH: 350px; HEIGHT: 150px" id=list cols=41 rows=6 name=list></TEXTAREA><br>
+ <input type="checkbox" name="show" id="show">Show Work?
+ <input type="button" value="Sort" onclick="ans = quickSort(A, 0, A.length-1, 0); document.getElementById('output').innerHTML = text + '<br>' + ans;">  
+</FORM> 
+<script type="text/javascript"> 
+A = []; 
+size = Math.floor(Math.random()*10)+1; 
+for (i = 0; i < 5*size; i++)
+	A[i] = Math.floor(Math.random()*201);
+text = ""; 
+left = []; 
+right = []; 
+n = []; 
+mid = []; 
+result = []; 
+for (i = 0; i < A.length; i++) 
+{
+ 	if (i < A.length - 1)
+ 		text += A[i] + ", ";
+ 	else
+ 		text += A[i]; 
+}
+ 
+document.getElementById("list").value = text; 
+text = ""; 
+</SCRIPT>
+
+<p name="output" id="output">
+</p>
+</body>
+</html>

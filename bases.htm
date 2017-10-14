@@ -1,0 +1,76 @@
+<html>
+<head>
+<meta name="keywords" content="algorithm, computer science, JavaScript, programming, number, convert, binary, octal, hexadecimal" />
+<meta name="description" content="This is a program that converts numbers between different formats. " />
+<title>Number Base Converter</title>
+<script type="text/javascript">
+function main()
+{
+	var digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+	var num = document.getElementById("input").value;
+	var numBase = parseInt(document.getElementBtId("inpBase").value);
+	var feas = true;
+
+	for (var i = 0; i < num.length && feas; i++)
+	{
+		if (parseInt(num[i]) >= numBase)
+		{
+			feas = false;
+		}
+	}
+	
+	var ans = 
+}
+
+</script>
+</head>
+<body>
+<h3>Number Base Converter</h3>
+<p>This converter will take a number of any base between 2 and 16 and convert it to any base between 2 and 16. </p>
+<table>
+<tr>
+  <td><label>Input :</label></td>
+  <td><input name="input" id="input"></td>
+  <td><select name="inpBase" id="inpBase">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+        <option value="13">13</option>
+        <option value="14">14</option>
+        <option value="15">15</option>
+        <option value="16">16</option>
+      </select>
+  </td>
+  <td><label>Output :</label></td>
+  <td><input name="output" id="output"></td>
+  <td><select name="outBase" id="outBase">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+        <option value="13">13</option>
+        <option value="14">14</option>
+        <option value="15">15</option>
+        <option value="16">16</option>
+      </select>
+  </td>
+</tr>
+</table>
+<input type="button" onclick="change()">
+</body>
+</html>

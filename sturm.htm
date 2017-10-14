@@ -1,0 +1,361 @@
+<html>
+<head>
+<script type="text/javascript"> 
+function newPoly(deg)
+{
+	var i;
+	var poly = new Object();
+	poly.coeffs = new Array();
+	poly.deg = deg;
+ 
+	for (i = 0; i <= deg; i++)
+	{
+		poly.coeffs[i] = 0;
+	}
+	
+	return poly;
+}
+ 
+function generate(n)
+{
+	var i;
+	var poly = new Object();
+	poly.coeffs = new Array();
+	poly.deg = n;
+ 
+	for (i = 0; i <= n; i++)
+	{
+		sign = Math.floor(Math.random()*2);
+		if (sign == 0)
+			sign = -1;
+		do
+		{
+			if (i > 0)
+			{
+				poly.coeffs[i] = sign*Math.floor(Math.random()*25);
+			}
+			else 
+			{
+				poly.coeffs[i] = 1;
+			}
+		}
+		while(i == 0 && poly.coeffs[i] == 0);
+	}
+	
+	return poly;
+}
+
+function polyadd(poly1, poly2, showWk)
+{
+	var newPoly1;
+	var newPoly2;
+	
+	if (poly1.deg < poly2.deg)
+	{
+		newPoly1 = newPoly(poly2.deg);
+		for (var i = 0; i < poly2.deg - poly1.deg; i++)
+			newPoly1.coeffs[i] = 0;
+		for (var i = poly2.deg - poly1.deg; i <= poly2.deg; i++)
+			newPoly1.coeffs[i] = poly1.coeffs[i - (poly2.deg - poly1.deg)];
+		newPoly2 = poly2;
+	}
+	else
+	{
+		newPoly2 = newPoly(poly1.deg);
+		for (var i = 0; i < poly1.deg - poly2.deg; i++)
+			newPoly2.coeffs[i] = 0;
+		for (var i = poly1.deg - poly2.deg; i <= poly1.deg; i++)
+		{
+			newPoly2.coeffs[i] = poly2.coeffs[i - (poly1.deg - poly2.deg)];
+		}
+		newPoly1 = poly1;
+	}
+	
+	
+	var ans = new Object();
+	ans.deg = newPoly1.deg;
+	ans.coeffs = new Array(ans.deg);
+
+	for (var i = 0; i <= ans.deg; i++)
+	{
+		ans.coeffs[i] = newPoly1.coeffs[i] + newPoly2.coeffs[i];
+	}
+		
+	return ans;
+}
+
+function polymult(poly1, poly2, showWk)
+{
+	var sol = new Array();
+	var sum = new Object();
+
+	sum.deg = (parseFloat(poly1.deg) + parseFloat(poly2.deg));
+	sum.coeffs = new Array(sum.deg+1);
+	for (var j = 0; j < sum.coeffs.length; j++)
+		sum.coeffs[j] = 0;
+	var temp = new Array();
+	var text = "";
+	var shift = 0;
+		
+	for (var i = 0; i <= poly1.deg; i++)
+	{
+		sol[i] = new Array();
+		for (var j = 0; j <= poly2.deg; j++)
+		{
+			sol[i][j + shift] = poly1.coeffs[i]*poly2.coeffs[j];
+			sum.coeffs[j+shift] += sol[i][j+shift];
+		}
+		
+		for (var j = parseFloat(poly2.deg) + parseFloat(1); j+shift < (parseFloat(poly1.deg) + parseFloat(poly2.deg) + parseFloat(1)); j++)
+			sol[i][j+shift] = 0;
+		
+		for (var j = 0; j < shift; j++)
+			sol[i][j] = 0;
+		shift++;
+	}
+		
+	return sum;
+}
+
+function polydiv(poly1, poly2)
+{
+	var ans = newPoly(poly1.deg - poly2.deg);
+	var work = new Array();
+//	var text = "inside polydiv<br>";
+//	text += display(poly1) + ", with deg = " + poly1.deg + "<br>";
+//	text += display(poly2) + ", with deg = " + poly2.deg + "<br>";
+//	text += "ans.deg = " + ans.deg + "<br>";
+	var count = 0;
+	
+	for (var i = 0; i <= ans.deg; i++)
+	{
+		ans.coeffs[i] = parseFloat(poly1.coeffs[i]) / parseFloat(poly2.coeffs[0]);
+//		text += poly1.coeffs[i] + " / " + poly2.coeffs[0] + "<br>";
+		var temp1 = newPoly(poly1.deg - poly2.deg - i);
+		temp1.coeffs[0] = ans.coeffs[i];
+//		text += "temp1 = " + display(temp1) + "<br>";
+		var temp2 = polymult(temp1, poly2);
+		for (var j = 0; j <= temp2.deg; j++)
+		{
+			temp2.coeffs[j] = -1*temp2.coeffs[j];
+		}
+		
+//		text += "temp2.deg = " + temp2.deg + "<br>";
+
+		poly1 = polyadd(poly1, temp2);
+//		text += "poly1 = " + poly1.coeffs + "<br>";
+		count++;
+	}
+	poly1.deg -= count;
+	for (var i = 0; i < poly1.coeffs.length; i++)
+	{
+		poly1.coeffs[i] = poly1.coeffs[i+count];
+	}
+	poly1.coeffs.length -= count;
+	
+//	text += "poly1 = " + poly1.coeffs + "<br>";
+	
+	var toRet = new Array();
+	toRet[0] = ans;
+	toRet[1] = poly1;
+	
+//	text += "leaving polydiv<br>";
+	
+//	document.getElementById("output").innerHTML += text;
+
+	return toRet;
+}
+ 
+function display(poly)
+{
+	var text = "";
+	var out = false;
+	
+	for (var i = 0; i < poly.deg; i++)
+	{
+		if (poly.coeffs[i] < 0)
+		{
+			if (Number.isInteger(poly.coeffs[i]))
+			{
+				text += "- " + (-1*poly.coeffs[i]) + "x<sup>" + (poly.coeffs.length-1-i) + "</sup> + ";
+				out = true;
+			}
+			else
+			{
+				text += "- " + (-1*poly.coeffs[i]).toFixed(4) + "x<sup>" + (poly.coeffs.length-1-i) + "</sup> + ";
+				out = true;
+			}
+		}
+		else if (poly.coeffs[i] > 0)
+		{
+			if (Number.isInteger(poly.coeffs[i]))
+			{
+				text += (poly.coeffs[i]) + "x<sup>" + (poly.coeffs.length-1-i) + "</sup> + ";
+				out = true;
+			}
+			else
+			{
+				text += (poly.coeffs[i]).toFixed(4) + "x<sup>" + (poly.coeffs.length-1-i) + "</sup> + ";
+				out = true;
+			}
+		}
+	}
+ 
+	if (poly.coeffs[i] < 0)
+	{
+		if (Number.isInteger(poly.coeffs[i]))
+		{
+			text += "- " + (-1*poly.coeffs[i]);
+			out = true;
+		}
+		else
+		{
+			text += "- " + (-1*poly.coeffs[i]).toFixed(4);
+			out = true;
+		}
+	}
+	else if (poly.coeffs[i] > 0)
+	{
+		if (Number.isInteger(poly.coeffs[i]))
+		{
+			text += (poly.coeffs[i]);
+			out = true;
+		}
+		else
+		{
+			text += (poly.coeffs[i]).toFixed(4);
+			out = true;
+		}
+	}
+	else
+	{
+		text = text.substring(0, text.length-2);
+	}
+	
+	if (!out)
+	{
+		text = "0";
+	}
+		
+	text = text.replace(/\+\ \-/g, "-");
+ 
+	return text;
+}
+ 
+function init()
+{
+	var ans = new Array();
+	var k1, k2;
+	do
+	{
+		k1 = Math.floor(Math.random()*10);
+	}
+	while (k1 < 3);
+	
+	ans[0] = generate(k1);
+	
+	do
+	{
+		k2 = Math.floor(Math.random()*10);
+	}
+	while (k2 >= k1);
+	
+	ans[1] = generate(k2);
+	
+	return ans;
+}
+ 
+function polyDeriv(poly)
+{
+	var ans = new Object();
+	if (poly.deg > 0)
+	{
+		ans.deg = poly.deg - 1;
+	}
+	else
+	{
+		ans.deg = poly.deg;
+	}
+	
+	ans.coeffs = new Array(ans.deg+1);
+	
+	for (var i = 0; i < ans.coeffs.length; i++)
+	{
+		ans.coeffs[i] = poly.coeffs[i]*(poly.deg - i);
+	}
+	
+	if (ans.deg == 0 && poly.deg == 9)
+	{
+		ans.coeffs[0] = 0;
+	}
+	
+	return ans;
+}
+ 
+ 
+function strum(poly)
+{
+	var polySeq = new Array();
+	var i = 0;
+	var text = "";
+	
+	polySeq[0] = poly;
+	polySeq[1] = polyDeriv(polySeq[0]);
+	
+	text += display(polySeq[0]) + "<br>";
+	text += display(polySeq[1]) + "<br>";
+	
+	do
+	{
+//		text += "i = " + i + ", polySeq.length = " + polySeq.length + "<br>";
+		var ans = polydiv(polySeq[i], polySeq[i+1]);
+		var quot = ans[0];
+		var rem = ans[1];
+		var cnst = newPoly(0);
+		cnst.coeffs[0] = -1;
+//		text += display(polySeq[i]) + " % " + display(polySeq[i+1]) + " = " + display(rem) + "<br>";
+//		text += display(rem) + " * " + display(cnst) + " = ";
+		rem = polymult(cnst, rem);
+//		text += display(rem) + "<br>";
+		polySeq[polySeq.length] = rem;
+//		text += display(quot) + "\t" + quot.deg + "<br>";
+		text += display(rem) + "<br>";
+		i++;
+	}
+	while(rem.deg > 0);
+	
+	document.getElementById("output").innerHTML += text;
+}
+</script>
+</head>
+<body>
+<p name="input" id="input"></p>
+<form>
+  Poly Degree: 
+  <select name="pdeg" id="pdeg">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+  </select>
+  <input type="button" value="New Poly" onclick="document.getElementById('input').innerHTML = '';poly1=generate(document.getElementById('pdeg').value);document.getElementById('input').innerHTML += display(poly1) + '<br>';"><br>
+  <input type="button" value="Differentiate" onclick="poly1 = polyDeriv(poly1); document.getElementById('output').innerHTML += 'ans = ' + display(poly1) + '<br>';"><br>
+  <input type="button" value="Strum" onclick="strum(poly1);"><br>
+  <input type="button" value="Clear Work" onclick="document.getElementById('output').innerHTML=''">
+</form>
+<script type="text/javascript"> 
+var poly1, temp;
+var ans = init();
+poly1 = ans[0];
+document.getElementById("input").innerHTML += display(poly1) + "<br>";
+//main();
+</script>
+<p name="output" id="output"></p>
+</body>
+</html>

@@ -1,0 +1,827 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="term, frequency, inverse, document, frequency, cosine, similarity, hierarchal, clustering, kruskal, text, mining" />
+<meta name="description" content="This page lists quotes and uses the TF-IDF technique to group them together by their similarity. " />
+<title>Term Frequency-Inverse Document Frequency at LEARNINGlover.com</title>
+<style>
+.table-header-rotated th.row-header{
+  width: auto;
+}
+
+.table-header-rotated td{
+  width: 40px;
+  border-top: 1px solid #dddddd;
+  border-left: 1px solid #dddddd;
+  border-right: 1px solid #dddddd;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.table-header-rotated th.rotate-45{
+  height: 80px;
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  position: relative;
+  vertical-align: bottom;
+  padding: 0;
+  font-size: 12px;
+  line-height: 0.8;
+}
+
+.table-header-rotated th.rotate-45 > div{
+  position: relative;
+  top: 0px;
+  left: 40px; /* 80 * tan(45) / 2 = 40 where 80 is the height on the cell and 45 is the transform angle*/
+  height: 100%;
+  -ms-transform:skew(-45deg,0deg);
+  -moz-transform:skew(-45deg,0deg);
+  -webkit-transform:skew(-45deg,0deg);
+  -o-transform:skew(-45deg,0deg);
+  transform:skew(-45deg,0deg);
+  overflow: hidden;
+  border-left: 1px solid #dddddd;
+  border-right: 1px solid #dddddd;
+  border-top: 1px solid #dddddd;
+}
+
+.table-header-rotated th.rotate-45 span {
+  -ms-transform:skew(45deg,0deg) rotate(315deg);
+  -moz-transform:skew(45deg,0deg) rotate(315deg);
+  -webkit-transform:skew(45deg,0deg) rotate(315deg);
+  -o-transform:skew(45deg,0deg) rotate(315deg);
+  transform:skew(45deg,0deg) rotate(315deg);
+  position: absolute;
+  bottom: 30px; /* 40 cos(45) = 28 with an additional 2px margin*/
+  left: -25px; /*Because it looked good, but there is probably a mathematical link here as well*/
+  display: inline-block;
+  // width: 100%;
+  width: 85px; /* 80 / cos(45) - 40 cos (45) = 85 where 80 is the height of the cell, 40 the width of the cell and 45 the transform angle*/
+  text-align: left;
+  // white-space: nowrap; /*whether to display in one line or not*/
+}
+</style>
+<script type="text/javascript">
+var maxNo = 207;
+var M = 1000000;
+var clusters = new Array();
+var labels = new Array();
+function init()
+{
+	var list = new Array();
+	var words;
+
+	var text = "<ol>";
+	var arr = new Array();
+	var len = arr.length; arr[len] = new Array(); arr[len][0] = "Genesis 1:1"; arr[len][1] = "In the beginning God created the heavens and the earth.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Deuteronomy 6:6-7"; arr[len][1] = "You shall teach them diligently to your Children and you shall talk to them when you sit in your house, and when you walk by the way, and when you lie down, and when you rise.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Deuteronomy 31:6"; arr[len][1] = "Be strong and courageous. Do not be afraid or terrified because of them, for the Lord your God goes with you; he will never leave you nor forsake you.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 Samuel 1:27"; arr[len][1] = "I prayed for this child and the Lord has granted me what I asked of Him.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 Samuel 16:7"; arr[len][1] = "The Lord does not look at the things people look at. People look at the outward appearance, but the Lord looks at the heart.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "2 Samuel 22:4"; arr[len][1] = "I call upon the Lord, who is worthy to be praised, and I am saved from my enemies.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Job 31:13"; arr[len][1] = "If I have denied justice to any of my servants, whether male or female, when they had a grievance against me, what will i do when God confronts? What will I answer when called to account?";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 9:1-2"; arr[len][1] = "I will give thanks to the Lord with my whole heart; I will recount all of your wonderful deeds. I will be glad and exult in You; I will sing praise to your name, O Most High.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 18:2"; arr[len][1] = "The Lord is my rock, my fortress, my deliverer, my God, my stronghold in whom I take refuge, my shield, the glory of my salvation, and my high tower.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 19:14"; arr[len][1] = "May the words of my mouth and the meditation of my heart be pleasing in Your sight, Lord, my Rock, and my Redeemer.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 25:4-5"; arr[len][1] = "Show me Your ways, Lord, teach me Your paths. Guide me in Your truth and teach me, for You are God my savior, and my hope is in You all day long.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 28:7"; arr[len][1] = "The Lord is my strength and my shield; my heart trusted in Him and I am helped; therefore my heart greatly rejoices; and with my song I will praise Him.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 35:13-14"; arr[len][1] = "I wore sackcloth; I afflicted myself with fasting; I prayed with head bowed on my chest. I went about as though I grieved for my friend or my brother; as one who laments his mother, I bowed down in mourning.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 37:4"; arr[len][1] = "Delight yourself in the Lord and He will give you the desires of your heart.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 46:10"; arr[len][1] = "Be still and know that I am God";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 51:10"; arr[len][1] = "Create in me a pure heart, O God, and renew a steadfast spirit within me.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 56:3-4"; arr[len][1] = "When I am afraid, I put my trust in you. In God, whose Word I praise, in God I trust; I shall not be afraid. What can flesh do to me?";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 61:2"; arr[len][1] = "From the end of the earth will I cry to you, When my heart is overwhelmed. Lead me to the rock that is higher than I.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 91:11"; arr[len][1] = "For He will command His angels concerning you to guard you in all your ways.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 93:4"; arr[len][1] = "Mightier than the waves of the sea is His love for you.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 118:24"; arr[len][1] = "This is the day that the Lord has made; let us rejoice and be glad in it.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 120:1"; arr[len][1] = "I took my troubles to the Lord; I cried out to Him and He answered my prayer.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 127:3"; arr[len][1] = "Children are a gift from the Lord; they are a reward from Him.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Psalm 147:3"; arr[len][1] = "He heals the brokenhearted and binds up their wounds.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Proverbs 3:5-6"; arr[len][1] = "Trust in the Lord with all your heart; do not depend on your own understand. Seek his will in all you do, and he will show you which path to take.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Proverbs 3:5-7"; arr[len][1] = "Trust in the Lord with all your heart; Do not depend on your own understanding. Seek his will in all you do, and he will show you which path to take. Don't be impressed with your own wisdom.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Proverbs 3:6"; arr[len][1] = "The Lord is my God. In all thy ways acknowledge Him and He shall direct thy pahts";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Proverbs 4:23"; arr[len][1] = "Above all else, guard your heart for everything you do flows from it.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Proverbs 16:7"; arr[len][1] = "When a man's ways please the Lord, He makes even his enemies to be at peace with him.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Proverbs 22:6"; arr[len][1] = "Train up a child in the way they should go, and when they grow old they will not depart from it.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Proverbs 31:30"; arr[len][1] = "Charm is deceptive and beauty disappear, but a woman who honors the Lord should be praised.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Ecclesiastes 11:8"; arr[len][1] = "Be grateful for every year you live. No matter how long you live, remember that you will be dead much longer. There is nothing at all to look forward to.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Isaiah 40:31"; arr[len][1] = "But they that wait upon the Lord shall renew their strength; they shall mount up with wings as eagles; they shall run and not be weary; and they shall walk and not faint.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Jeremiah 17:14"; arr[len][1] = "Heal me, O Lord, and I shall be healed; save me, and I shall be saved, for You are my praise.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Jeremiah 29:11"; arr[len][1] = "For I know the plans I have for you. Plans to prosper you, not harm you. Plans to give you a hope and a future.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 5:3"; arr[len][1] = "Blessed are the poor in spirit, For theirs is the kingdom of heaven.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 5:4"; arr[len][1] = "Blessed are those who mourn, For they shall be comforted.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 5:5"; arr[len][1] = "Blessed are the meek, For they shall inherit the earth.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 5:6"; arr[len][1] = "Blessed are those who hunger and thirst for righteousness, For they shall be filled.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 5:7"; arr[len][1] = "Blessed are the merciful, For they shall obtain mercy.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 5:8"; arr[len][1] = "Blessed are the pure in heart, For they shall see God.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 5:9"; arr[len][1] = "Blessed are the peacemakers, For they shall be called sons of God.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 5:10"; arr[len][1] = "Blessed are those who are persecuted for righteousness sake, For theirs is the kingdom of heaven.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 5:14-16"; arr[len][1] = "You are the light of the world. A town built on a hill cannot be hidden. Neither do people light a lamp and put it under a bowl. Instead they put it on its stand, and it gives light to everyone in the house. In the same way, let your light shine before others, that they may see your good deeds and glorify your Father in Heaven.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 5:16"; arr[len][1] = "Let your light shine before others that they may see your good deeds and glorify your Father in Heaven.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 5:44"; arr[len][1] = "But I say unto you, Love your enemies, bless them that curse you, do good to them that hate you, and pray for them which despitefully use you, and persecute you.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 6:21"; arr[len][1] = "Where your treasure is, there your heart will be also.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Matthew 6:33"; arr[len][1] = "But seek first the kingdom of God and His righteousness, and all these things shall be added to you.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Mark 7:37"; arr[len][1] = "Anyone who welcomes a little child like this on my behalf welcomes me and anyone who welcomes me welcomes not only me but also my Father who sent me.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Mark 8:36"; arr[len][1] = "For what shall it profit a man, if he shall gain the whole world, and lose his own soul?";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Luke 1:17"; arr[len][1] = "And he will go before him in the spirit and power of Elijah to turn the hearts of the fathers to the children and the disobedient to the wisdom of the just, to make ready for the Lord a people prepared.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Luke 8:16"; arr[len][1] = "No one after lighting a lamp covers it with a jar or puts it under a bed, but puts it on a stand, so that those who enter may see the light.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "John 3:16"; arr[len][1] = "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "John 14:6"; arr[len][1] = "Jesus answered, ?I am the way and the truth and the life. No one comes to the Father except through me.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "John 14:8"; arr[len][1] = "If God is all you have, you have all you need.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "John 16:33"; arr[len][1] = "These things I have spoken to you, so that you may have peace. In the world you have tribulation, but take courage; I have overcome the world.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Romans 1:16"; arr[len][1] = "For I am not ashamed of the Gospel, for it is the power of God for the salvation of everyone who believes.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Romans 5:5"; arr[len][1] = "Hope does not disappoint us, because God has poured out his love into our hearts by the Holy Spirit whom He has given us.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Romans 8:28"; arr[len][1] = "and we know that all things work together for the good to those who love God to those who are called according to His purpose.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Romans 8:32-35"; arr[len][1] = "If God is for us, who can be against us? He who did not spare His own Son, but gave him up for us all - how will he not also, along with him, graciously give us all things? Who will bring any charge against those whom God has chosen? It is God who justifies. Who is he that condemns? Christ Jesus, who died - more than that, who was raised to life - is at the right hand of God and is also interceding for us. Who shall separate us from the love of Christ?";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Romans 8:38"; arr[len][1] = "Neither height nor depth, not anything else in all creation will be able to separate us from the love of God that is in Christ Jesus our Lord.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Romans 12:2"; arr[len][1] = "Do not conform to the patterns of this world but be transformed by the renewing of your mind";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Romans 12:21"; arr[len][1] = "Don't let evil defeat you but defeat evil with good.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 Corinthians 2:5"; arr[len][1] = "Your Faith should not be in the wisdom of men, but in the power of God.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 Corinthians 13:1"; arr[len][1] = "If I could speak any language in heaven or on earth but didn't love other, I would be making meaningless noise like a loud gong or a clanging cymbal.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 Corinthians 13:2"; arr[len][1] = "If I had the gift of prophesy, and if I knew all the mysteries of the future and knew everything, but didn't love others, what good would I be? And if I had the gift of faith so that I could speak to a mountain and make it move, without love I would be no good to anybody.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 Corinthians 13:3"; arr[len][1] = "If I give everything I have to the poor and even sacrificed my body, I could boast about it, but if I didn't love others, I would be of no value whatsoever.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 Corinthians 13:4-7"; arr[len][1] = "Love is patient and kind. Love is not jealous or boastful or proud or rude. Love does not demand its own way. Love is not irritable, and keeps no record of when it has been wronged. It is never glad about injustice but rejoices whenever the truth wins out. Lover never gives up, never loses faith, is always hopeful, and endures -through every circumstance";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 Corinthians 10:13"; arr[len][1] = "God is faithful and He will not allow you to be tempted beyond what you are able, but with temptation He will also provide a way of escape, so that you are able to bear it.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 Corinthians 16:13-14"; arr[len][1] = "Be on your guard. Stand firm in faith. Be courageous. Be strong. Do everything in love";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 Corinthians 16:14"; arr[len][1] = "Let all you do be done in love";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "2 Corinthians 5:17"; arr[len][1] = "Therefore if anyone is in Christ, there is a new creation; old things have passed away, and look, new things have come.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "2 Corinthians 12:10"; arr[len][1] = "When you've done everything you can do, that's when God will step in and do what you can't do.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "2 Corinthians 13:14"; arr[len][1] = "The grace of the Lord Jesus Christ and the love of God, and the fellowship of the Holy Spirit, be with you all.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Galatians 4:3-5"; arr[len][1] = "We were like children; We were like slaves to the basic spiritual principles of this world. But when the right time came, God sent his Son, born of a woman, subject to the law. God sent him to buy freedom for us who were slaves to the law, so that he could adopt us as His very own children.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Galatians 5:22"; arr[len][1] = "But the fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faithfulness, gentleness & self control.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Ephesians 4:2-3"; arr[len][1] = "Be completely humble and gently; Be patient, bearing with one another in love. Make every effort to keep the unity of the spirit through the bond of peace.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Ephesians 5:8"; arr[len][1] = "For once you were full of darkness, but now you have light from the Lord. So live as people of the light.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Ephesians 5:19 - 21"; arr[len][1] = "19 speaking to one another in psalms, hymns, and spiritual songs, singing and making music to the Lord in your heart. 20 giving thanks always for everything to God the Father in the name of our Lord Jesus Christ, 21 submitting to one another in the fear of Christ.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Ephesians 6:1"; arr[len][1] = "Children, obey your parents in the Lord for this is right.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Philippians 1:6"; arr[len][1] = "being confident of this, that he who began a good work in you will carry it on to completion until the day of Christ Jesus.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Philippians 4:8"; arr[len][1] = "Finally, brethren, whatever things are true, whatever things are noble, whatever things are just, whatever things are pure, whatever things are lovely, whatever things are of good report, if there is any virtue and if there is anything praiseworthy? meditate on these things.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Philippians 4:4-9"; arr[len][1] = "Rejoice in the Lord always. I will say it again: Rejoice! Let your graciousness be known to everyone. The Lord is near. Don't worry about anything, but in everything through prayer and petition with thanksgiving, let your requests be made known to God. And the peace of God, which surpasses every thought, will guard your hearts and your minds in Christ Jesus. Finally brothers, whatever is true, whatever is honorable, whatever is just, whatever is pure, whatever is lovely, whatever is commendable - if there is any moral excellence and if there is any praise - dwell on these things. Do what you have learned and received and heard and seen in me, and the God of peace will be with you.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Philippians 4:5-7"; arr[len][1] = "Let your reasonableness be known to everyone. The Lord is at hand; do not be anxious about anything, but in everything by prayer and supplication with thanksgiving let your requests be made known to God. And the peace of God, which surpasses all understanding, will guard your hearts and your minds in Christ Jesus.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Philippians 4:6"; arr[len][1] = "Do not be anxious about anything, but in everything by prayer and supplication with thanksgiving let your requests be made known to God.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Philippians 4:13"; arr[len][1] = "I can do all things through Christ who strengthens me.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 Thessalonians 5:14"; arr[len][1] = "Brothers and sisters, we urge you to warn those who are lazy. Encourage those who are timid. Take tender care of those who are weak. Be patient with everyone.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "2 Timothy 1:7"; arr[len][1] = "For God has not given us a spirit of fear and timidity, but of power, love, and self-discipline.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "2 Timothy 3:12-13"; arr[len][1] = "In fact, everyone who wants to live a Godly life in Christ Jesus will be persecuted, while evildoers and impostors will go from bad to worse, deceiving and being deceived.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "2 Timothy 3:16"; arr[len][1] = "All scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness,";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Hebrews 4:12"; arr[len][1] = "For the word of God is living and effective and sharper than any two-edged sword, penetrating as far as to divide soul, spirit, joints and marrow; it is a judge of the ideas and thoughts of the heart.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "Hebrews 12:1-2"; arr[len][1] = "Wherefore seeing we also are compassed about with so great a cloud of witness, let us lay aside every weight, and sin which doth so easily beset us, and let us run with patience the race that is set before us, looking unto Jesus the author and finisher of our faith; who for the joy that was set before Him endured the cross, despising the shame and is set down at the right hand of the throne of God.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "James 1:2-4"; arr[len][1] = "Consider it pure joy whenever you face trials of many kinds, because you know that the testing of your faith develops perseverance. Perseverance must finish its work so that you may be mature and complete, not lacking anything.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "James 1:12"; arr[len][1] = "Blessed is the one who perseveres under trial because, having stood the test, that person will receive the crown of life that the Lord has promised to those who love Him.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "James 2:14-26"; arr[len][1] = "What does it profit, my brethren, if someone says he has faith but does not have works? Can faith save him? If a brother or sister is naked and destitute of daily food, and one of you says to them, \"Depart in peace, be warmed and filled,\" but you do not give them the things which are needed for the body, what does it profit? Thus also faith by itself, if it does not have works, is dead. 18 But someone will say, \"You have faith, and I have works.\" Show me your faith without your works, and I will show you my faith by my works. You believe that there is one God. You do well. Even the demons believe?and tremble! But do you want to know, O foolish man, that faith without works is dead? Was not Abraham our father justified by works when he offered Isaac his son on the altar? Do you see that faith was working together with his works, and by works faith was made perfect? And the scripture was fulfilled which says, \"Abraham believed God, and it was accounted to him for righteousness.\" And he was called the friend of God. You see then that a man is justified by works, and not by faith only. Likewise, was not Rahab the harlot also justified by works when she received the messengers and sent them out another way? For as the body without the spirit is dead, so faith without works is dead also.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 John 4:16"; arr[len][1] = "God is love and he who abides in love abides in God and God in him.";
+	len = arr.length; arr[len] = new Array(); arr[len][0] = "1 John 4:20"; arr[len][1] = "If anyone says, \"I love God\", yet hates his brother, he is a liar. For anyone who does not love his brother, whom he has seen, cannot love God, whom he has not seen.";
+	
+	for (var i = 0; i < arr.length; i++)
+	{
+		list[list.length] = i;
+		text += "<li>" + arr[i];
+	}
+
+	text += "</ol>";
+
+	words = getWds(arr);
+
+	var ans = new Array();
+	ans[0] = arr;
+	ans[1] = words;
+
+	document.getElementById("input").innerHTML = text;
+	document.getElementById("dispSim").hidden = true;
+	document.getElementById("values").hidden = true;
+	document.getElementById("values").options.length = 0;
+	document.getElementById("output").innerHTML = "";
+
+	return ans;
+}
+
+function levDist(wd1, wd2)
+{
+	mat = new Array();
+	
+	if (wd1.length == 0 || wd2.length == 0)
+	{
+		return ;
+	}
+
+	for (var i = 0; i < wd1.length; i++)
+	{
+		mat[i] = new Array();
+		for (var j = 0; j < wd2.length; j++)
+		{
+			mat[i][j] = 0;
+		}
+	}
+	
+	for (var i = 0; i < wd1.length; i++)
+	{
+		mat[i][0] = i;
+	}
+	
+	for (var j = 0; j < wd2.length; j++)
+	{
+		mat[0][j] = j;
+	}
+	
+	for (var i = 1; i < wd1.length; i++)
+	{
+		for (var j = 1; j < wd2.length; j++)
+		{
+			if (wd1[i] == wd2[j])
+			{
+				mat[i][j] = Math.min(mat[i-1][j] + 1, mat[i][j-1]+1, mat[i-1][j-1]);
+			}
+			else
+			{
+				mat[i][j] = Math.min(mat[i-1][j] + 1, mat[i][j-1]+1, mat[i-1][j-1]+1);
+			}
+		}
+	}
+	
+	return mat[wd1.length - 1][wd2.length - 1];
+}
+
+function common()
+{
+	var cmn = new Array("a", "able", "about", "above", "abroad", "according", "accordingly", "across", "actually", "adj", "after", "afterwards", "again", "against", "ago", "ahead", "aint", "all", "allow", "allows", "almost", "alone", "along", "alongside", "already", "also", "although", "always", "am", "amid", "amidst", "among", "amongst", "an", "and", "another", "any", "anybody", "anyhow", "anyone", "anything", "anyway", "anyways", "anywhere", "apart", "appear", "appreciate", "appropriate", "are", "arent", "around", "as", "as", "aside", "ask", "asking", "associated", "at", "available", "away", "awfully", 
+"back", "backward", "backwards", "be", "became", "because", "become", "becomes", "becoming", "been", "before", "beforehand", "begin", "behind", "being", "believe", "below", "beside", "besides", "best", "better", "between", "beyond", "both", "brief", "but", "by", 
+"came", "can", "cannot", "cant", "cant", "caption", "cause", "causes", "certain", "certainly", "changes", "clearly", "cmon", "co", "co.", "com", "come", "comes", "concerning", "consequently", "consider", "considering", "contain", "containing", "contains", "corresponding", "could", "couldnt", "course", "cs", "currently", 
+"dare", "darent", "definitely", "described", "despite", "did", "didnt", "different", "directly", "do", "does", "doesnt", "doing", "done", "dont", "down", "downwards", "during", 
+"each", "edu", "eg", "eight", "eighty", "either", "else", "elsewhere", "end", "ending", "enough", "entirely", "especially", "et", "etc", "even", "ever", "evermore", "every", "everybody", "everyone", "everything", "everywhere", "ex", "exactly", "example", "except", 
+"fairly", "far", "farther", "few", "fewer", "fifth", "first", "five", "followed", "following", "follows", "for", "forever", "former", "formerly", "forth", "forward", "found", "four", "from", "further", "furthermore", 
+"get", "gets", "getting", "given", "gives", "go", "goes", "going", "gone", "got", "gotten", "greetings", 
+"had", "hadnt", "half", "happens", "hardly", "has", "hasnt", "have", "havent", "having", "he", "hed", "hell", "hello", "help", "hence", "her", "here", "hereafter", "hereby", "herein", "heres", "hereupon", "hers", "herself", "hes", "hi", "him", "himself", "his", "hither", "hopefully", "how", "howbeit", "however", "hundred", 
+"id", "ie", "if", "ignored", "ill", "im", "immediate", "in", "inasmuch", "inc", "inc", "indeed", "indicate", "indicated", "indicates", "inner", "inside", "insofar", "instead", "into", "inward", "is", "isnt", "it", "itd", "itll", "its", "its", "itself", "ive", "i", 
+"just", 
+"k", "keep", "keeps", "kept", "know", "known", "knows", 
+"last", "lately", "later", "latter", "latterly", "least", "less", "lest", "let", "lets", "like", "liked", "likely", "likewise", "little", "look", "looking", "looks", "low", "lower", "ltd", 
+"made", "mainly", "make", "makes", "many", "may", "maybe", "maynt", "me", "mean", "meantime", "meanwhile", "merely", "might", "mightnt", "mine", "minus", "miss", "more", "moreover", "most", "mostly", "mr", "mrs", "much", "must", "mustnt", "myself", 
+"name", "namely", "nd", "near", "nearly", "necessary", "need", "neednt", "needs", "neither", "never", "neverf", "neverless", "nevertheless", "new", "next", "nine", "ninety", "no", "nobody", "non", "none", "nonetheless", "noone", "noone", "nor", "normally", "not", "nothing", "notwithstanding", "novel", "now", "nowhere", 
+"obviously", "of", "off", "often", "oh", "ok", "okay", "old", "on", "once", "one", "ones", "ones", "only", "onto", "opposite", "or", "other", "others", "otherwise", "ought", "oughtnt", "our", "ours", "ourselves", "out", "outside", "over", "overall", "own", 
+"particular", "particularly", "past", "per", "perhaps", "placed", "please", "plus", "possible", "presumably", "probably", "provided", "provides", "que", "quite", "qv", 
+"rather", "rd", "re", "really", "reasonably", "recent", "recently", "regarding", "regardless", "regards", "relatively", "respectively", "right", "round", 
+"said", "same", "saw", "say", "saying", "says", "second", "secondly", "see", "seeing", "seem", "seemed", "seeming", "seems", "seen", "self", "selves", "sensible", "sent", "serious", "seriously", "seven", "several", "shall", "shant", "she", "shed", "shes", "should", "shouldnt", "since", "six", "so", "some", "somebody", "someday", "somehow", "someone", "something", "sometime", "sometimes", "somewhat", "somewhere", "soon", "sorry", "specified", "specify", "specifying", "still", "sub", "such", "sup", "sure", 
+"take", "taken", "taking", "tell", "tends", "th", "than", "thank", "thanks", "thanx", "that", "thatll", "thats", "thats", "thatve", "the", "their", "theirs", "them", "themselves", "then", "thence", "there", "thereafter", "thereby", "thered", "therefore", "therein", "therell", "therere", "theres", "theres", "thereupon", "thereve", "these", "they", "theyd", "theyll", "theyre", "theyve", "thing", "things", "think", "third", "thirty", "this", "thorough", "thoroughly", "those", "though", "three", "through", "throughout", "thru", "thus", "till", "to", "together", "too", "took", "toward", "towards", "tried", "tries", "truly", "try", "trying", "ts", "twice", "two", 
+"un", "under", "underneath", "undoing", "unfortunately", "unless", "unlike", "unlikely", "until", "unto", "up", "upon", "upwards", "us", "use", "used", "useful", "uses", "using", "usually", 
+"v", "value", "various", "versus", "very", "via", "viz", "vs", 
+"want", "wants", "was", "wasnt", "way", "we", "wed", "welcome", "well", "went", "were", "werent", "weve", "what", "whatever", "whatll", "whats", "whatve", "when", "whence", "whenever", "where", "whereafter", "whereas", "whereby", "wherein", "wheres", "whereupon", "wherever", "whether", "which", "whichever", "while", "whilst", "whither", "who", "whod", "whoever", "whole", "wholl", "whom", "whomever", "whos", "whose", "why", "will", "willing", "wish", "with", "within", "without", "wonder", "wont", "would", "wouldnt", 
+"yes", "yet", "you", "youd", "youll", "your", "youre", "yours", "yourself", "yourselves", "youve", 
+"zero");
+
+	return cmn;
+}
+
+function getWds(docs)
+{
+	var words = new Array();
+	var cmn = common();
+
+	for (var i = 0; i < docs.length; i++)
+	{
+		var currWds = docs[i][1].split(" ");
+		for (var j = 0; j < currWds.length; j++)
+		{
+			currWds[j] = currWds[j].replace(new RegExp("[^a-zA-Z]"), "");
+
+			currWds[j] = currWds[j].toLowerCase();
+//			if (currWds[j] != "" && words.indexOf(currWds[j]) == -1 && cmn.indexOf(currWds[j]) == -1)
+			if (currWds[j] != "" && words.indexOf(currWds[j]) == -1)
+			{
+				words[words.length] = currWds[j];
+			}
+		}
+
+//		for (var j = 0; j < currWds.length - 1; j++)
+//		{
+//			if (currWds[j] != "" && currWds[j+1] != "" && words.indexOf(currWds[j] + " " + currWds[j+1]) == -1)
+//			{
+//				words[words.length] = currWds[j] + " " + currWds[j+1];
+//			}
+//		}
+	}
+	
+	return words;
+}
+
+function tfidf(docs, words)
+{
+	var mtrx = new Array();
+	var found = new Array();
+	var sum = new Array();
+	
+	for (var i = 0; i < docs.length; i++)
+	{
+		mtrx[i] = new Array();
+		found[i] = new Array();
+		for (var j = 0; j < words.length; j++)
+		{
+			mtrx[i][j] = 0;
+			found[i][j] = 0;
+			var doc = docs[i][1].split(" ");
+			for (var k = 0; k < doc.length; k++)
+			{
+				doc[k] = doc[k].replace(new RegExp("[^a-zA-Z]"), "");
+
+				doc[k] = doc[k].toLowerCase();
+//				if (doc[k] == words[j] || (k+1 < doc.length && doc[k] + " " + doc[k+1] == words[j]))
+//				if (doc[k] == words[j])
+				if (levDist(doc[k], words[j]) == 0)
+				{
+					mtrx[i][j] ++;
+					found[i][j] = 1;
+				}
+			}
+		}
+	}
+	
+	mtrx[docs.length] = new Array();
+	
+	for (var j = 0; j < words.length; j++)
+	{
+		sum[j] = 0;
+		for (var i = 0; i < docs.length; i++)
+		{
+			sum[j] += found[i][j];
+		}
+		mtrx[docs.length][j] = 1 + Math.log(sum[j]);
+	}
+	
+	for (var i = 0; i < docs.length; i++)
+	{
+		var sumD = 0;
+		for (var j = 0; j < words.length; j++)
+		{
+			if (sum[j] > 0)
+			{
+				var idf = (Math.log(docs.length / (sum[j])));
+				mtrx[i][j] = (mtrx[i][j] * idf);
+				sumD += mtrx[i][j]; 
+			}
+			else
+			{
+				mtrx[i][j] = 0;
+				sumD += 0; 
+			}
+		}
+		
+		for (var j = 0; j < words.length; j++)
+		{
+			mtrx[i][j] = mtrx[i][j] / sumD;
+		}
+	}
+	
+	return mtrx;
+}
+
+function cosSim(row1, row2)
+{
+	var sum = 0;
+	var norm1 = 0;
+	var norm2 = 0;
+	var sim = 0;
+	
+	for (var i = 0; i < row1.length; i++)
+	{
+		sum += row1[i]*row2[i];
+	}
+	
+	for (var i = 0; i < row1.length; i++)
+	{
+		norm1 += row1[i]*row1[i];
+		norm2 += row2[i]*row2[i];
+
+	}
+	
+	norm1 = Math.sqrt(norm1);
+	norm2 = Math.sqrt(norm2);
+	
+	sim = sum / (norm1 * norm2);
+	
+	return sim;
+}
+
+function maxHash(row)
+{
+	var max = 0;
+	var maxLoc = 0;
+	
+	for (var i = 0; i < row.length; i++)
+	{
+		if (row[i] > max)
+		{
+			max = row[i];
+			maxLoc = i;
+		}
+	}
+	
+	
+	return maxLoc;
+}
+
+function meanHash(row)
+{
+	var mean = 0;
+	var meanLoc = 0;
+	var count = 0;
+	
+	for(var i = 0; i < row.length; i++)
+	{
+		if (row[i] > 0)
+		{
+			mean += i*row[i];
+		}
+	}
+	
+	return Math.round(mean);
+}
+
+function clearRect()
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#c3c3c3";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	return;
+}
+
+function EucDist(point1, point2)
+{
+	var i, j, sumSq = 0;
+
+	if (point1.length != point2.length)
+		return M;
+
+	for (i = 0; i < point1.length; i++)
+		sumSq += Math.pow(Math.abs(point1[i] - point2[i]), 2);
+
+	return Math.sqrt(sumSq);
+}
+
+function dispPts(input)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.clearRect(0, 0, c.width, c.height);
+	ctx.fillStyle="#000000";
+
+	for (i = 0; i < input.length; i++)
+	{
+		ctx.beginPath();
+		ctx.arc(input[i][0],c.height-input[i][1],5,0,Math.PI*2,true);
+		ctx.closePath();
+		ctx.fill();
+//		alert("point " + i + ": " + input[i][0] + ", " + input[i][1] + " drawn.");
+	}
+}
+
+function Kruskal(A, minVal)
+{
+	var B = new Array();
+	for (var i = 0; i < A.length; i++)
+	{
+		B[i] = new Array();
+		
+		for (var j = 0; j < A.length; j++)
+		{
+			B[i][j] = A[i][j];
+				 if (A[i][j] == 0)
+					A[i][j] = M;
+		}
+	}
+
+	
+	//Each node is initially in its own tree (lookup). 
+	var T = new Array();
+	var lookup = new Array();
+	for (var i = 0; i < A.length; i++)
+	{
+		T[i] = [i];
+		lookup[i] = i;
+	}
+	
+
+	var E = new Array();
+	var sum = 0;
+	var last = -1;
+	var m;
+
+	while (last > minVal || last == -1)
+	{
+		//First find the maximum weight edge. 
+		m = -1;
+
+		for (var i = 0; i < A.length; i++)
+		{
+			for (var j = 0; j < i; j++)
+			{
+//				alert(A[i][j] + " vs " + minVal);
+				if (A[i][j] > m && lookup[i] != lookup[j] && A[i][j] < M && A[i][j] > minVal)
+				{
+					m = A[i][j];
+					u = i;
+					v = j;
+				}
+			}
+		}
+		
+		if (m == -1)
+			last = minVal;
+		else
+		{
+			initLen = T[lookup[u]].length;
+			initLook = lookup[u];
+			for (var i = initLen - 1; i >= 0; i--)
+			{
+				T[lookup[v]][T[lookup[v]].length] = T[initLook][i];
+				lookup[T[initLook][i]] = lookup[v];
+			}
+			E[E.length] = u;
+			E[E.length] = v;
+			last = A[u][v];
+			A[u][v] = M;
+			A[v][u] = M;
+			sum += m;
+		}
+	}
+	
+	for (var i = 0; i < T.length; i++)
+	{
+		for (var j = 0; j < T[i].length; j++)
+		{
+			if (T[i][j] != i)
+			{
+				T[T[i][j]] = "";
+			}
+		}
+	}
+
+	E[E.length] = sum;
+
+	for (var i = 0; i < A.length; i++)
+	{
+		for (var j = 0; j < A.length; j++)
+		{
+			A[i][j] = B[i][j];
+		}
+	}
+	
+	return T;
+}
+
+function dispClusters(items, k, clusters, labels)
+{
+	var text = "<table>";
+	var i, j;
+
+	for (i = 0; i < clusters.length; i++)
+	{
+		text += "<tr><td width=150><b>Cluster " + i + ":</b></td>";
+		text += "<td width=150><b>(" + Math.round(clusters[i][0]*100)/100 + ", " +
+		Math.round(clusters[i][1]*100)/100 + ")</b></td>";
+		for (j = 0; j < items.length; j++)
+			if (labels[j] == i)
+				text += "<td width=150>(" + items[j][0] + ", " + items[j][1] + ")</td>";
+		text += "</tr>";
+	}
+
+	text += "</table>";
+	return text;
+}
+
+function postProcess1(docs, words)
+{
+	var mtrx = tfidf(docs, words);
+	var sim = new Array();
+	var inp = new Array();
+	var clusters = new Array();
+	var labels = new Array();
+	var list = new Array();
+	maxNo = 25;
+	
+	var text = "Relevant TF-IDF:";
+//	text += "<tr>";	
+//	for (var i1 = 0; i1 < words.length; i1++)
+//	{
+//		if (mtrx[mtrx.length-1][i1] > 1)
+//			text += "<td>" + words[i1] + "</td>";
+//	}
+//	text += "</tr>";
+	
+	for (var i1 = 0; i1 < mtrx.length-1; i1++)
+	{
+		text += "<table><tr><td></td>";
+		for (var i2 = 0; i2 < mtrx[i1].length; i2++)
+		{
+			if (mtrx[i1][i2] > 0)
+				text += "<td>" + words[i2] + "</td>";
+		}
+		text += "</tr><tr><td>" + docs[i1][0] + "</td>";
+		for (var i2 = 0; i2 < mtrx[i1].length; i2++)
+		{
+			if (mtrx[i1][i2] > 0)
+			{
+				text += "<td style='background:rgba(0, 0, 255, " + mtrx[i1][i2].toFixed(3) + ");'>" + mtrx[i1][i2].toFixed(3) + "</td>";
+			}
+		}
+		text += "</tr><tr><td></td>";
+		for (var i2 = 0; i2 < mtrx[i1].length; i2++)
+		{
+			if (mtrx[i1][i2] > 0.05)
+			{
+				text += "<td style='background:rgba(0, 0, 255, " + mtrx[i1][i2].toFixed(3) + ");'>1</td>";
+			}
+			else if (mtrx[i1][i2] > 0)
+			{
+				text += "<td style='background:rgba(0, 0, 255, " + mtrx[i1][i2].toFixed(3) + ");'>0</td>";
+			}
+		}
+		text += "</tr></table>";
+	}
+	
+	text += "</table><br>";
+	text += "Similarity Matrix for Quotes: <div class='scrollable-table'><table class='table table-striped table-header-rotated'>";
+	text += "<thead><tr><th></th>";
+	for (var i2 = 0; i2 < mtrx.length-1; i2++)
+	{
+		text += "<th class='rotate-45'><div><span>" + docs[i2][0] + "</span></div></th>";
+	}
+	text += "</tr></thead>";
+	for (var i1 = 0; i1 < mtrx.length-1; i1++)
+	{
+		sim[i1] = new Array();
+		text += "<tr><td>" + docs[i1][0] + "</td>";
+		for (var i2 = 0; i2 < mtrx.length-1; i2++)
+		{
+			sim[i1][i2] = cosSim(mtrx[i1], mtrx[i2]);
+			text += "<td style='background:rgba(255, 0, 0, " + sim[i1][i2].toFixed(3) + ");'>" + sim[i1][i2].toFixed(3)+ "</td>";
+			if (list.indexOf(sim[i1][i2].toFixed(3)) == -1 && sim[i1][i2].toFixed(3) != 0)
+			{
+				list[list.length] = sim[i1][i2].toFixed(3);
+			}
+		}
+		text += "</tr>";
+//		docHash[i1] = maxHash(mtrx[i1]);
+	}
+	
+	list = sort(list);
+	
+	text += "</table>";
+
+	var select = document.getElementById("values");
+	select.options.length = 0;
+	for (var i = 0; i < list.length; i++)
+	{
+		select.options[select.options.length] = new Option(list[i], list[i]);
+	}
+	select.options[select.options.length-1].selected = true;
+	select.hidden = false;
+	document.getElementById("dispSim").hidden = false;
+	
+//	labels = Kruskal(mtrx);
+//	text += 'Final Configuration:<br>';
+//	text += dispClusters(mtrx, labels);
+	document.getElementById('output').innerHTML = text;
+	
+	return sim;
+}
+
+function sort(list)
+{
+	for (var i = 0; i < list.length; i++)
+	{
+		for (var j = i; j < list.length; j++)
+		{
+			if (list[i] < list[j])
+			{
+				var temp = list[i];
+				list[i] = list[j];
+				list[j] = temp;
+			}
+		}
+	}
+	
+	return list;
+}
+
+function kmeans(items, mtrx, k, maxno)
+{
+	var minDist;
+	var changed;
+	var iter;
+	var pos;
+	var chosen = new Array();
+//	var maxDist = new Array();
+	text = "";
+	var clusters = new Array();
+	var labals = new Array();
+
+	for (var i = 0; i < items.length; i++)
+	{
+		chosen[i] = 0;
+	}
+
+	for (var i = 0; i < k; i++)
+	{
+		do
+		{
+			pos = Math.floor(Math.random() * items.length);
+		}
+		while (chosen[pos] != 0);
+
+		clusters[i] = new Array();
+
+		clusters[i] = pos;
+		chosen[pos] = 1;
+//		maxDist[i] = 0;
+	}
+
+	for (var i = 0; i < items.length; i++)
+	{
+		pos = M;
+		posD = M;
+		for (var j = 0; j < k; j++)
+		{
+			dist_curr = mtrx[i][clusters[j]];
+			if (dist_curr < posD)
+			{
+				posD = dist_curr;
+				pos = j;
+			}
+		}
+		labels[i] = pos;
+	}
+
+	changed = false;
+	iter = 0;
+
+	do
+	{
+		for (var i = 0; i < k; i++)
+		{
+			clusters[i] = Math.floor(Math.random() * labels.length);
+		}
+
+		for (var i = 0; i < items.length; i++)
+		{
+			pos = M;
+			posD = M;
+
+			for (var j = 0; j < k; j++)
+			{
+				dist_curr = mtrx[i][clusters[j]];
+				if (dist_curr < posD)
+				{
+					posD = dist_curr;
+					pos = j;
+				}
+			}
+
+			if (pos != labels[i])
+			{
+				labels[i] = pos;
+				changed = true;
+			}
+		}
+		iter++;
+	} while (changed == true && iter <= maxno);
+
+	return labels;
+}
+
+function postProcess2(docs, mtrx, k)
+{
+//	document.getElementById('output').innerHTML = "";
+	var labels = kmeans(docs, mtrx, k, 1000)
+	var text = "Final Configuration:<br>";
+	for (var lbl = 0; lbl < k; lbl++)
+	{
+		text += "Cluster " + lbl + ") ";
+		for (var i = 0; i < labels.length; i++)
+		{			
+			if (labels[i] == lbl)
+			{
+				text += docs[i][0] + ", ";
+			}
+		}
+		text += "<br>";
+	}
+	document.getElementById('output').innerHTML += text;
+}
+</script>
+</head>
+<body>
+<h3><center>Term Frequency-Inverse Document Frequency</center></h3>
+<p></p>
+<p name="input" id="input"></p>
+<input type=button onclick="prob = init()" value="New Problem">
+<input type="button" value="Calculate TF-IDF" onclick="sim = postProcess1(prob[0], prob[1])">
+<select name="values" id="values" hidden></select>
+<input type="button" value="Display Similarities" onclick="postProcess2(prob[0], sim, 25)" name="dispSim" id="dispSim" hidden>
+<p name="output" id="output">
+<script type="text/javascript">
+var prob = init();
+var sim;
+</script>
+</body>
+</html>

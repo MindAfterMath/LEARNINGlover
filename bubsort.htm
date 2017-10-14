@@ -1,0 +1,70 @@
+<html>
+<head>
+<script type="text/javascript">
+function bubbleSort(A) 
+{
+ 	count = 0;
+ 	text = "";
+ 	if (document.getElementById("show").checked)
+ 		text += count + ") A = " + A + "<br>";
+  	var i, j;
+  	for (i = 0; i < A.length; i++)
+ 		left[i] = A[i];
+  	for (i = left.length-1; i >= 0; i--)
+ 	{
+ 		swap = 0;
+ 		for(j = 1; j <= i; j++)
+ 			if (left[j-1] > left[j])
+ 			{
+ 				temp = left[j-1];
+ 				left[j-1] = left[j];
+ 				left[j] = temp;
+ 				swap ++;
+ 			}
+ 		if (swap)
+ 		{
+ 			count ++;
+ 			if (document.getElementById("show").checked)
+ 				text += count + ") left = " + left + "<br>";
+ 		}
+ 	}
+  	return left; 
+}
+</script>
+</head>
+<body>
+<h2>Bubble Sort Algorithm</h2>
+<p>
+</p>
+<form name=data id=data>
+ <input type=button onclick="javascript:location.reload(true)" value="New Problem"><br>
+ <TEXTAREA style="WIDTH: 350px; HEIGHT: 150px" id=list cols=41 rows=6 name=list></TEXTAREA><br>
+ <input type="checkbox" name="show" id="show">Show Work?
+ <input type="button" value="Sort" onclick="ans = bubbleSort(A); document.getElementById('output').innerHTML = text + '<br>' + ans;">  
+</FORM> 
+<script type="text/javascript"> 
+A = []; 
+size = Math.floor(Math.random()*10)+1; 
+for (i = 0; i < 5*size; i++)
+	A[i] = Math.floor(Math.random()*201);
+text = ""; 
+left = []; 
+right = []; 
+n = []; 
+mid = []; 
+result = []; 
+for (i = 0; i < A.length; i++) 
+{
+ 	if (i < A.length - 1)
+ 		text += A[i] + ", ";
+ 	else
+ 		text += A[i]; 
+}
+ 
+document.getElementById("list").value = text; 
+text = ""; 
+</SCRIPT>
+<p name="output" id="output">
+</p>
+</body>
+</html>

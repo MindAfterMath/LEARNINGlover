@@ -1,0 +1,872 @@
+<html>
+<head>
+<script type="text/javascript">
+function init(cube)
+{
+	var i;
+
+	for (i = 0; i < 9; i++)
+		cube[i] = "<input style='background-color: #FF9900; width:25px'>";
+	for (i = 9; i < 18; i++)
+		cube[i] = "<input readonly style='background-color: #FFFFFF; width:25px'>";
+	for (i = 18; i < 27; i++)
+		cube[i] = "<input readonly style='background-color: #0000FF; width:25px'>";
+	for (i = 27; i < 36; i++)
+		cube[i] = "<input readonly style='background-color: #FFFF00; width:25px'>";
+	for (i = 36; i < 45; i++)
+		cube[i] = "<input readonly style='background-color: #FF0000; width:25px'>";
+	for (i = 45; i < 54; i++)
+		cube[i] = "<input readonly style='background-color: #00FF00; width:25px'>";
+
+	return cube;
+}
+
+function rdown(cube)
+{
+	var temp = cube[2];
+	cube[2] = cube[47];
+	cube[47] = cube[38];
+	cube[38] = cube[20];
+	cube[20] = temp;
+	
+	temp = cube[5];
+	cube[5] = cube[50];
+	cube[50] = cube[41];
+	cube[41] = cube[23];
+	cube[23] = temp;
+	
+	temp = cube[8];
+	cube[8] = cube[53];
+	cube[53] = cube[44];
+	cube[44] = cube[26];
+	cube[26] = temp;
+
+	temp = cube[27];
+	cube[27] = cube[29];
+	cube[29] = cube[35];
+	cube[35] = cube[33];
+	cube[33] = temp;
+
+	temp = cube[28];
+	cube[28] = cube[32];
+	cube[32] = cube[34];
+	cube[34] = cube[30];
+	cube[30] = temp;
+
+	return cube;
+}
+
+function rup(cube)
+{
+	var temp = cube[2];
+	cube[2] = cube[20];
+	cube[20] = cube[38];
+	cube[38] = cube[47];
+	cube[47] = temp;
+	
+	temp = cube[5];
+	cube[5] = cube[23];
+	cube[23] = cube[41];
+	cube[41] = cube[50];
+	cube[50] = temp;
+	
+	temp = cube[8];
+	cube[8] = cube[26];
+	cube[26] = cube[44];
+	cube[44] = cube[53];
+	cube[53] = temp;
+
+	temp = cube[27];
+	cube[27] = cube[33];
+	cube[33] = cube[35];
+	cube[35] = cube[29];
+	cube[29] = temp;
+	
+	temp = cube[28];
+	cube[28] = cube[30];
+	cube[30] = cube[34];
+	cube[34] = cube[32];
+	cube[32] = temp;
+
+	return cube;
+}
+
+function ldown(cube)
+{
+	var temp = cube[0];
+	cube[0] = cube[45];
+	cube[45] = cube[36];
+	cube[36] = cube[18];
+	cube[18] = temp;
+	
+	temp = cube[3];
+	cube[3] = cube[48];
+	cube[48] = cube[39];
+	cube[39] = cube[21];
+	cube[21] = temp;
+	
+	temp = cube[6];
+	cube[6] = cube[51];
+	cube[51] = cube[42];
+	cube[42] = cube[24];
+	cube[24] = temp;
+
+	temp = cube[9];
+	cube[9] = cube[15];
+	cube[15] = cube[17];
+	cube[17] = cube[11];
+	cube[11] = temp;
+	
+	temp = cube[10];
+	cube[10] = cube[12];
+	cube[12] = cube[16];
+	cube[16] = cube[14];
+	cube[14] = temp;
+	
+	return cube;
+}
+
+function lup(cube)
+{
+	var temp = cube[0];
+	cube[0] = cube[18];
+	cube[18] = cube[36];
+	cube[36] = cube[45];
+	cube[45] = temp;
+	
+	temp = cube[3];
+	cube[3] = cube[21];
+	cube[21] = cube[39];
+	cube[39] = cube[48];
+	cube[48] = temp;
+	
+	temp = cube[6];
+	cube[6] = cube[24];
+	cube[24] = cube[42];	
+	cube[42] = cube[51];
+	cube[51] = temp;
+
+	temp = cube[9];
+	cube[9] = cube[11];
+	cube[11] = cube[17];
+	cube[17] = cube[15];
+	cube[15] = temp;
+	
+	temp = cube[10];
+	cube[10] = cube[14];
+	cube[14] = cube[16];
+	cube[16] = cube[12];
+	cube[12] = temp;
+	
+	return cube;
+}
+
+function tright(cube)
+{
+	var temp = cube[29];
+	cube[29] = cube[20];
+	cube[20] = cube[11];
+	cube[11] = cube[53];
+	cube[53] = temp;
+	
+	temp = cube[28];
+	cube[28] = cube[19];
+	cube[19] = cube[10];
+	cube[10] = cube[52];
+	cube[52] = temp;
+
+	temp = cube[27];
+	cube[27] = cube[18];
+	cube[18] = cube[ 9];
+	cube[ 9] = cube[51];
+	cube[51] = temp;
+	
+	temp = cube[2];
+	cube[ 2] = cube[ 8];
+	cube[ 8] = cube[ 6];
+	cube[ 6] = cube[ 0];
+	cube[ 0] = temp;
+	
+	temp = cube[5];
+	cube[ 5] = cube[ 7];
+	cube[ 7] = cube[ 3];
+	cube[ 3] = cube[ 1];
+	cube[ 1] = temp;
+	
+	return cube;
+}
+
+function tleft(cube)
+{
+	var temp = cube[29];
+	cube[29] = cube[53];
+	cube[53] = cube[11];
+	cube[11] = cube[20];
+	cube[20] = temp;
+	
+	temp = cube[28];
+	cube[28] = cube[52];
+	cube[52] = cube[10];
+	cube[10] = cube[19];
+	cube[19] = temp;
+	
+	temp = cube[27];
+	cube[27] = cube[51];
+	cube[51] = cube[ 9];
+	cube[ 9] = cube[18];
+	cube[18] = temp;
+	
+	temp = cube[2];
+	cube[ 2] = cube[ 0];
+	cube[ 0] = cube[ 6];
+	cube[ 6] = cube[ 8];
+	cube[ 8] = temp;
+	
+	temp = cube[5];
+	cube[ 5] = cube[ 1];
+	cube[ 1] = cube[ 3];
+	cube[ 3] = cube[ 7];
+	cube[ 7] = temp;
+	
+	return cube;
+}
+
+function bright(cube)
+{
+	var temp = cube[35];
+	cube[35] = cube[26];
+	cube[26] = cube[17];
+	cube[17] = cube[45];
+	cube[45] = temp;
+	
+	temp = cube[34];
+	cube[34] = cube[25];
+	cube[25] = cube[16];
+	cube[16] = cube[46];
+	cube[46] = temp;
+	
+	temp = cube[33];
+	cube[33] = cube[24];
+	cube[24] = cube[15];
+	cube[15] = cube[47];
+	cube[47] = temp;
+		
+	temp = cube[38];
+	cube[38] = cube[36];
+	cube[36] = cube[42];
+	cube[42] = cube[44];
+	cube[44] = temp;
+	
+	temp = cube[37];
+	cube[37] = cube[39];
+	cube[39] = cube[43];
+	cube[43] = cube[41];
+	cube[41] = temp;
+
+	return cube;
+}
+
+function bleft(cube)
+{
+	var temp = cube[35];
+	cube[35] = cube[45];
+	cube[45] = cube[17];
+	cube[17] = cube[26];
+	cube[26] = temp;
+	
+	temp = cube[34];
+	cube[34] = cube[46];
+	cube[46] = cube[16];
+	cube[16] = cube[25];
+	cube[25] = temp;
+	
+	temp = cube[33];
+	cube[33] = cube[47];
+	cube[47] = cube[15];	
+	cube[15] = cube[24];
+	cube[24] = temp;
+		
+	temp = cube[38];
+	cube[38] = cube[44];
+	cube[44] = cube[42];
+	cube[42] = cube[36];
+	cube[36] = temp;
+	
+	temp = cube[37];
+	cube[37] = cube[41];
+	cube[41] = cube[43];
+	cube[43] = cube[39];
+	cube[39] = temp;
+	
+	return cube;
+}
+
+function frontcw(cube)
+{
+	var temp = cube[27];
+	cube[27] = cube[ 6];
+	cube[ 6] = cube[17];
+	cube[17] = cube[38];
+	cube[38] = temp;
+	
+	temp = cube[30];
+	cube[30] = cube[ 7];
+	cube[ 7] = cube[14];
+	cube[14] = cube[37];
+	cube[37] = temp;
+	
+	temp = cube[33];
+	cube[33] = cube[ 8];
+	cube[ 8] = cube[11];
+	cube[11] = cube[36];
+	cube[36] = temp;
+	
+	temp = cube[20];
+	cube[20] = cube[18];
+	cube[18] = cube[24];
+	cube[24] = cube[26];
+	cube[26] = temp;
+	
+	temp = cube[23];
+	cube[23] = cube[19];
+	cube[19] = cube[21];
+	cube[21] = cube[25];
+	cube[25] = temp;
+
+	return cube;
+}
+
+function frontccw(cube)
+{
+	var temp = cube[27];
+	cube[27] = cube[38];
+	cube[38] = cube[17];
+	cube[17] = cube[ 6];
+	cube[ 6] = temp;
+	
+	temp = cube[30];
+	cube[30] = cube[37];
+	cube[37] = cube[14];
+	cube[14] = cube[ 7];
+	cube[ 7] = temp;
+	
+	temp = cube[33];
+	cube[33] = cube[36];
+	cube[36] = cube[11];
+	cube[11] = cube[ 8];
+	cube[ 8] = temp;
+	
+	temp = cube[20];
+	cube[20] = cube[26];
+	cube[26] = cube[24];
+	cube[24] = cube[18];
+	cube[18] = temp;
+	
+	temp = cube[23];
+	cube[23] = cube[25];
+	cube[25] = cube[21];
+	cube[21] = cube[19];
+	cube[19] = temp;
+	
+	return cube;
+}
+
+function backcw(cube)
+{
+	var temp = cube[29];
+	cube[29] = cube[ 0];
+	cube[ 0] = cube[15];
+	cube[15] = cube[44];
+	cube[44] = temp;
+	
+	temp = cube[32];
+	cube[32] = cube[ 1];
+	cube[ 1] = cube[12];
+	cube[12] = cube[43];
+	cube[43] = temp;
+	
+	temp = cube[35];
+	cube[35] = cube[ 2];
+	cube[ 2] = cube[ 9];
+	cube[ 9] = cube[42];
+	cube[42] = temp;
+	
+	temp = cube[47];
+	cube[47] = cube[53];
+	cube[53] = cube[51];
+	cube[51] = cube[45];
+	cube[45] = temp;
+	
+	temp = cube[50];
+	cube[50] = cube[52];
+	cube[52] = cube[48];
+	cube[48] = cube[46];
+	cube[46] = temp;
+	
+	return cube;
+}
+
+function backccw(cube)
+{
+	var temp = cube[29];
+	cube[29] = cube[44];
+	cube[44] = cube[15];
+	cube[15] = cube[ 0];
+	cube[ 0] = temp;
+	
+	temp = cube[32];
+	cube[32] = cube[43];
+	cube[43] = cube[12];
+	cube[12] = cube[ 1];
+	cube[ 1] = temp;
+	
+	temp = cube[35];
+	cube[35] = cube[42];
+	cube[42] = cube[ 9];
+	cube[ 9] = cube[ 2];
+	cube[ 2] = temp;
+	
+	temp = cube[47];
+	cube[47] = cube[45];
+	cube[45] = cube[51];
+	cube[51] = cube[53];
+	cube[53] = temp;
+	
+	temp = cube[50];
+	cube[50] = cube[46];
+	cube[46] = cube[48];
+	cube[48] = cube[52];
+	cube[52] = temp;
+	
+	return cube;
+}
+
+function disp(cube)
+{
+	var output = "<table>";
+	output += "<tr><td>  </td><td>  </td><td>";
+	output += "</td><td>" + cube[29] + "</td><td>" + cube[32] + "</td><td>" + cube[35] + "</td><td>  </td><td>  </td><td>";
+	output += "</td><td>  </td><td>  </td><td>  </td></tr>";
+	output += "<tr><td>  </td><td>  </td><td>";
+	output += "</td><td>" + cube[28] + "</td><td>" + cube[31] + "</td><td>" + cube[34] + "</td><td>  </td><td>  </td><td>";
+	output += "</td><td>  </td><td>  </td><td>  </td></tr>";
+	output += "<tr><td>  </td><td>  </td><td>";
+	output += "</td><td>" + cube[27] + "</td><td>" + cube[30] + "</td><td>" + cube[33] + "</td><td>  </td><td>  </td><td>";
+	output += "</td><td>  </td><td>  </td><td>  </td></tr>";
+	output += "<tr><td>" + cube[2] + "</td><td>" + cube[5] + "</td><td>" + cube[8] + "</td><td>" + cube[20] + "</td><td>" + cube[23] + "</td><td>" + cube[26] + "</td><td>" + cube[38] + "</td><td>" + cube[41] + "</td><td>" + cube[44] + "</td><td>" + cube[47] + "</td><td>" + cube[50] + "</td><td>" + cube[53] + "</td></tr>";
+	output += "<tr><td>" + cube[1] + "</td><td>" + cube[4] + "</td><td>" + cube[7] + "</td><td>" + cube[19] + "</td><td>" + cube[22] + "</td><td>" + cube[25] + "</td><td>" + cube[37] + "</td><td>" + cube[40] + "</td><td>" + cube[43] + "</td><td>" + cube[46] + "</td><td>" + cube[49] + "</td><td>" + cube[52] + "</td></tr>";
+	output += "<tr><td>" + cube[0] + "</td><td>" + cube[3] + "</td><td>" + cube[6] + "</td><td>" + cube[18] + "</td><td>" + cube[21] + "</td><td>" + cube[24] + "</td><td>" + cube[36] + "</td><td>" + cube[39] + "</td><td>" + cube[42] + "</td><td>" + cube[45] + "</td><td>" + cube[48] + "</td><td>" + cube[51] + "</td></tr>";
+	output += "<tr><td>  </td><td>  </td><td></td><td>" + cube[11] + "</td><td>" + cube[14] + "</td><td>" + cube[17] + "</td><td>  </td><td>  </td><td></td><td>  </td><td>  </td><td>  </td></tr>";
+	output += "<tr><td>  </td><td>  </td><td></td><td>" + cube[10] + "</td><td>" + cube[13] + "</td><td>" + cube[16] + "</td><td>  </td><td>  </td><td></td><td>  </td><td>  </td><td>  </td></tr>";
+	output += "<tr><td>  </td><td>  </td><td>  </td><td>" + cube[9] + "</td><td>" + cube[12] + "</td><td>" + cube[15] + "</td><td>  </td><td>  </td><td>  </td><td></td><td>  </td><td>  </td></tr>";
+	output += "</table>";
+	
+	document.getElementById("rubiks").innerHTML = output;
+}
+</script>
+</head>
+<body>
+<center>
+<p name="rubiks" id="rubiks"></p>
+<!--
+<table bordercolor="#000000" cellpadding=0 cellspacing=0 border=1>
+<tr><td colspan=2>
+<center>
+Original:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>29</td><td>32</td><td>35</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>28</td><td>31</td><td>34</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>27</td><td>30</td><td>33</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td> 2</td><td> 5</td><td>
+8</td><td>20</td><td>23</td><td>26</td><td>38</td><td>41</td><td>44</td><td>47</td><td>50</td><td>53</td></tr>
+<tr><td> 1</td><td> 4</td><td>
+7</td><td>19</td><td>22</td><td>25</td><td>37</td><td>40</td><td>43</td><td>46</td><td>49</td><td>52</td></tr>
+<tr><td> 0</td><td> 3</td><td>
+6</td><td>18</td><td>21</td><td>24</td><td>36</td><td>39</td><td>42</td><td>45</td><td>48</td><td>51</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>11</td><td>14</td><td>17</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>10</td><td>13</td><td>16</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td>
+9</td><td>12</td><td>15</td><td>  </td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td></tr>
+</table>
+</center>
+</td></tr>
+<tr><td>
+Right Down:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>35</td><td>34</td><td>33</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>32</td><td>31</td><td>30</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>29</td><td>28</td><td>27</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>47</td><td>50</td><td>53</td><td> 2</td><td> 5</td><td>
+8</td><td>20</td><td>23</td><td>26</td><td>38</td><td>41</td><td>44</td></tr>
+<tr><td> 1</td><td> 4</td><td>
+7</td><td>19</td><td>22</td><td>25</td><td>37</td><td>40</td><td>43</td><td>46</td><td>49</td><td>52</td></tr>
+<tr><td> 0</td><td> 3</td><td>
+6</td><td>18</td><td>21</td><td>24</td><td>36</td><td>39</td><td>42</td><td>45</td><td>48</td><td>51</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>11</td><td>14</td><td>17</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>10</td><td>13</td><td>16</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td>
+9</td><td>12</td><td>15</td><td>  </td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td></tr>
+</table>
+</td><td>
+Right Up:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>27</td><td>28</td><td>29</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>30</td><td>31</td><td>32</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>33</td><td>34</td><td>35</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>20</td><td>23</td><td>26</td><td>38</td><td>41</td><td>44</td><td>47</td><td>50</td><td>53</td><td>
+2</td><td> 5</td><td> 8</td></tr>
+<tr><td> 1</td><td> 4</td><td>
+7</td><td>19</td><td>22</td><td>25</td><td>37</td><td>40</td><td>43</td><td>46</td><td>49</td><td>52</td></tr>
+<tr><td> 0</td><td> 3</td><td>
+6</td><td>18</td><td>21</td><td>24</td><td>36</td><td>39</td><td>42</td><td>45</td><td>48</td><td>51</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>11</td><td>14</td><td>17</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>10</td><td>13</td><td>16</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td>
+9</td><td>12</td><td>15</td><td>  </td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td></tr>
+</table>
+</td></tr>
+<tr><td>
+Left Down:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>29</td><td>32</td><td>35</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>28</td><td>31</td><td>34</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>27</td><td>30</td><td>33</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td> 2</td><td> 5</td><td>
+8</td><td>20</td><td>23</td><td>26</td><td>38</td><td>41</td><td>44</td><td>47</td><td>50</td><td>53</td></tr>
+<tr><td> 1</td><td> 4</td><td>
+7</td><td>19</td><td>22</td><td>25</td><td>37</td><td>40</td><td>43</td><td>46</td><td>49</td><td>52</td></tr>
+<tr><td>45</td><td>48</td><td>51</td><td> 0</td><td> 3</td><td>
+6</td><td>18</td><td>21</td><td>24</td><td>36</td><td>39</td><td>42</td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td>
+9</td><td>10</td><td>11</td><td>  </td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>12</td><td>13</td><td>14</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>15</td><td>16</td><td>17</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+</table>
+</td><td>
+Left Up:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>29</td><td>32</td><td>35</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>28</td><td>31</td><td>34</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>27</td><td>30</td><td>33</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td> 2</td><td> 5</td><td>
+8</td><td>20</td><td>23</td><td>26</td><td>38</td><td>41</td><td>44</td><td>47</td><td>50</td><td>53</td></tr>
+<tr><td> 1</td><td> 4</td><td>
+7</td><td>19</td><td>22</td><td>25</td><td>37</td><td>40</td><td>43</td><td>46</td><td>49</td><td>52</td></tr>
+<tr><td>18</td><td>21</td><td>24</td><td>36</td><td>39</td><td>42</td><td>45</td><td>48</td><td>51</td><td>
+0</td><td> 3</td><td> 6</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>17</td><td>16</td><td>15</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>14</td><td>13</td><td>12</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td>11</td><td>10</td><td>
+9</td><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td><td>
+</td></tr>
+</table>
+</td></tr>
+<tr><td>
+Top Right:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>20</td><td>32</td><td>35</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>19</td><td>31</td><td>34</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>18</td><td>30</td><td>33</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td> 8</td><td> 7</td><td>
+6</td><td>11</td><td>23</td><td>26</td><td>38</td><td>41</td><td>44</td><td>47</td><td>50</td><td>29</td></tr>
+<tr><td> 5</td><td> 4</td><td>
+3</td><td>10</td><td>22</td><td>25</td><td>37</td><td>40</td><td>43</td><td>46</td><td>49</td><td>28</td></tr>
+<tr><td> 2</td><td> 1</td><td> 0</td><td>
+9</td><td>21</td><td>24</td><td>36</td><td>39</td><td>42</td><td>45</td><td>48</td><td>27</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>53</td><td>14</td><td>17</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>52</td><td>13</td><td>16</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>51</td><td>12</td><td>15</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+</table>
+</td><td>
+Top Left:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>53</td><td>32</td><td>35</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>52</td><td>31</td><td>34</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>51</td><td>30</td><td>33</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td> 0</td><td> 1</td><td>
+2</td><td>29</td><td>23</td><td>26</td><td>38</td><td>41</td><td>44</td><td>47</td><td>50</td><td>11</td></tr>
+<tr><td> 3</td><td> 4</td><td>
+5</td><td>28</td><td>22</td><td>25</td><td>37</td><td>40</td><td>43</td><td>46</td><td>49</td><td>10</td></tr>
+<tr><td> 6</td><td> 7</td><td>
+8</td><td>27</td><td>21</td><td>24</td><td>36</td><td>39</td><td>42</td><td>45</td><td>48</td><td>
+9</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>20</td><td>14</td><td>17</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>19</td><td>13</td><td>16</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>18</td><td>12</td><td>15</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+</table>
+</td></tr>
+<tr><td>
+Bottom Right:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>29</td><td>32</td><td>26</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>28</td><td>31</td><td>25</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>27</td><td>30</td><td>24</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td> 2</td><td> 5</td><td>
+8</td><td>20</td><td>23</td><td>17</td><td>36</td><td>37</td><td>38</td><td>33</td><td>50</td><td>53</td></tr>
+<tr><td> 1</td><td> 4</td><td>
+7</td><td>19</td><td>22</td><td>16</td><td>39</td><td>40</td><td>41</td><td>34</td><td>49</td><td>52</td></tr>
+<tr><td> 0</td><td> 3</td><td>
+6</td><td>18</td><td>21</td><td>15</td><td>42</td><td>43</td><td>44</td><td>35</td><td>48</td><td>51</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>11</td><td>14</td><td>45</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>10</td><td>13</td><td>46</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td>
+9</td><td>12</td><td>47</td><td>  </td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td></tr>
+</table>
+</td><td>
+Bottom Left:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>29</td><td>32</td><td>45</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>28</td><td>31</td><td>46</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>27</td><td>30</td><td>47</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td> 2</td><td> 5</td><td>
+8</td><td>20</td><td>23</td><td>35</td><td>44</td><td>43</td><td>42</td><td>15</td><td>50</td><td>53</td></tr>
+<tr><td> 1</td><td> 4</td><td>
+7</td><td>19</td><td>22</td><td>34</td><td>41</td><td>40</td><td>39</td><td>16</td><td>49</td><td>52</td></tr>
+<tr><td> 0</td><td> 3</td><td>
+6</td><td>18</td><td>21</td><td>33</td><td>38</td><td>37</td><td>36</td><td>17</td><td>48</td><td>51</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>11</td><td>14</td><td>26</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>10</td><td>13</td><td>25</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td>
+9</td><td>12</td><td>24</td><td>  </td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td></tr>
+</table>
+</td></tr>
+<tr><td>
+Front CW:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>29</td><td>32</td><td>35</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>28</td><td>31</td><td>34</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td> 6</td><td> 7</td><td>
+8</td><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td><td>
+</td></tr>
+<tr><td> 2</td><td>
+5</td><td>11</td><td>18</td><td>19</td><td>20</td><td>27</td><td>41</td><td>44</td><td>47</td><td>50</td><td>53</td></tr>
+<tr><td> 1</td><td>
+4</td><td>14</td><td>21</td><td>22</td><td>23</td><td>30</td><td>40</td><td>43</td><td>46</td><td>49</td><td>52</td></tr>
+<tr><td> 0</td><td>
+3</td><td>17</td><td>24</td><td>25</td><td>26</td><td>33</td><td>39</td><td>42</td><td>45</td><td>48</td><td>51</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>36</td><td>37</td><td>38</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>10</td><td>13</td><td>16</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td>
+9</td><td>12</td><td>15</td><td>  </td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td></tr>
+</table>
+</td><td>
+Front CCW:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>29</td><td>32</td><td>35</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>28</td><td>31</td><td>34</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>38</td><td>37</td><td>36</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td> 2</td><td>
+5</td><td>33</td><td>26</td><td>25</td><td>24</td><td>17</td><td>41</td><td>44</td><td>47</td><td>50</td><td>53</td></tr>
+<tr><td> 1</td><td>
+4</td><td>30</td><td>23</td><td>22</td><td>21</td><td>14</td><td>40</td><td>43</td><td>46</td><td>49</td><td>52</td></tr>
+<tr><td> 0</td><td>
+3</td><td>27</td><td>20</td><td>19</td><td>18</td><td>11</td><td>39</td><td>42</td><td>45</td><td>48</td><td>51</td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td> 8</td><td> 7</td><td>
+6</td><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td><td>
+</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>10</td><td>13</td><td>16</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td>
+9</td><td>12</td><td>15</td><td>  </td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td></tr>
+</table>
+</td></tr>
+<tr><td>
+Back CW:
+<table>
+<tr><td>  </td><td>  </td><td>  </td><td> 0</td><td> 1</td><td>
+2</td><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td><td>
+</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>28</td><td>31</td><td>34</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>27</td><td>30</td><td>33</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td> 9</td><td> 5</td><td>
+8</td><td>20</td><td>23</td><td>26</td><td>38</td><td>41</td><td>29</td><td>53</td><td>52</td><td>51</td></tr>
+<tr><td>12</td><td> 4</td><td>
+7</td><td>19</td><td>22</td><td>25</td><td>37</td><td>40</td><td>32</td><td>50</td><td>49</td><td>48</td></tr>
+<tr><td>15</td><td> 3</td><td>
+6</td><td>18</td><td>21</td><td>24</td><td>36</td><td>39</td><td>35</td><td>47</td><td>46</td><td>45</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>11</td><td>14</td><td>17</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>10</td><td>13</td><td>16</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>42</td><td>43</td><td>44</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+</table>
+</td><td>
+Back CCW:
+<table>
+<tr><td>  </td><td>  </td><td>
+</td><td>44</td><td>43</td><td>42</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>28</td><td>31</td><td>34</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>27</td><td>30</td><td>33</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>35</td><td> 5</td><td>
+8</td><td>20</td><td>23</td><td>26</td><td>38</td><td>41</td><td>15</td><td>45</td><td>46</td><td>47</td></tr>
+<tr><td>32</td><td> 4</td><td>
+7</td><td>19</td><td>22</td><td>25</td><td>37</td><td>40</td><td>12</td><td>48</td><td>49</td><td>50</td></tr>
+<tr><td>29</td><td> 3</td><td>
+6</td><td>18</td><td>21</td><td>24</td><td>36</td><td>39</td><td>
+9</td><td>51</td><td>52</td><td>53</td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>11</td><td>14</td><td>17</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>
+</td><td>10</td><td>13</td><td>16</td><td>  </td><td>  </td><td>
+</td><td>  </td><td>  </td><td>  </td></tr>
+<tr><td>  </td><td>  </td><td>  </td><td> 2</td><td> 1</td><td>
+0</td><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td><td>
+</td></tr>
+</table>
+</td></tr>
+</table>-->
+<form name="form1" id="form1">
+<input type="button" value="Reset" onclick="cube = init(cube);disp(cube);"><br>
+<br>
+<input type="button" value="Right Down" onclick="cube = rdown(cube);disp(cube);"><br>
+<input type="button" value="Right Up" onclick="cube = rup(cube);disp(cube);"><br>
+<input type="button" value="Left Down" onclick="cube = ldown(cube);disp(cube);"><br>
+<input type="button" value="Left Up" onclick="cube = lup(cube);disp(cube);"><br>
+<input type="button" value="Top Right" onclick="cube = tright(cube);disp(cube);"><br>
+<input type="button" value="Top Left" onclick="cube = tleft(cube);disp(cube);"><br>
+<input type="button" value="Bottom Right" onclick="cube = bright(cube);disp(cube);"><br>
+<input type="button" value="Bottom Left" onclick="cube = bleft(cube);disp(cube);"><br>
+<input type="button" value="Front CW" onclick="cube = frontcw(cube);disp(cube);"><br>
+<input type="button" value="Front CCW" onclick="cube = frontccw(cube);disp(cube);"><br>
+<input type="button" value="Back CW" onclick="cube = backcw(cube);disp(cube);"><br>
+<input type="button" value="Back CCW" onclick="cube = backccw(cube);disp(cube);"><br>
+</form>
+<script type="text/javascript">
+var cube = new Array();
+cube = init(cube);
+disp(cube);
+</script>
+</center>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta name="keywords" content="algorithm, computer science, greedy, JavaScript, independent set, math, operations research, programming, backtracking, puzzle" />
+<meta name="description" content="" />
+<title>Maximum Independent Set Puzzle at LEARNINGlover.com</title>
+<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+        display: inline;
+}
+</style>
+<script type="text/javascript">
+function generate(words)
+{
+	text = "":
+	var left = new Array();
+	var right = new Array();
+	var rem0 = new Array();
+	var rem1 = new Array();
+	for (var i = 0; i < words.length; i++)
+	{
+		rem0[i] = i;
+		rem1[i] = i;
+	}
+	
+	for (var i = 0; i < words.length; i++)
+	{
+		var loc = Math.floor(Math.random() * rem0.length());
+		left[left.length] = words[loc][0];
+		rem0[loc] = rem0[rem0.length-1];
+		rem0.length--;
+		
+		loc = Math.floor(Math.random() * rem1.length());
+		right[right.length] = words[loc][1];
+		rem1[loc] = rem1[rem1.length-1;
+		rem1.length--;
+	}
+	
+	for (var i = 0; i < words.length; i++)
+	{
+		text += "<tr><td>" + left[i] + "</td><td>" + right[i] + "</td></tr>";
+	}
+	
+	document.getElementById("data").innerHTML = text;
+}
+</script>
+</head>
+<body>
+<h3><center>Math Definitions Program</center></h3>
+<p></p>
+<p>When I learned what math really was, I changed the way I took notes in math classes. Instead of focusing so much on numbers and formulas, I spent a lot more of my time focusing on definitions and theorems. This program allows users to test their knowledge of math definitions by providing a list of terms and definitions and giving users a matching game where the objective is to match each term with its corresponding definition. Users will click on a term on the left and a definition on the right (that corresponds to the term) and press submit. If the term and definition match, then the two will be removed from the set. The user should continue until all terms and definitions have been matched. </p>
+<form name="data" id="data">
+<table id="defs" name="defs">
+</table>
+<p name="output"  id="output"></p>
+<script type="text/javascript">
+var P = new Array();
+var R = new Array();
+var X = new Array();
+var A = generate();
+var A2 = compliment(A);
+
+var userAns = new Array();
+var sets = new Array();
+var forest = init(A);
+function todo()
+{
+	sets = new Array();
+	BKAlg(A2, R, P, X, 0);
+	var ans = getMaxIndep();
+	document.getElementById('output').innerHTML += 'A maximum independent set for this graph is ' + ans + ' with a length of ' + ans.length + '<br /> ';
+}
+
+drawGraph(forest);
+</script><br>
+<input type="button" onclick="todo()"; value= "Solve">
+</FORM>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<html>
+<head>
+<style>
+textarea {
+  width: 300px;
+  height: 150px;
+}
+</style>
+<script type="text/javascript">
+function ngrams()
+{
+	var docs = document.getElementById("input").value.split("\n");
+
+	var queue = [];
+	var ratios = {};
+	var counts = {};
+
+	var splChar;
+	if (document.getElementById('parse').value == 1)
+	{
+		splChar = " ";
+	}
+	else if (document.getElementById('parse').value == 2)
+	{
+		splChar = "";
+	}
+	
+	for (var i = 0; i < docs.length; i++)
+    {
+		docs[i] = docs[i].replace(/\\n/g, "\n");
+		docs[i] = docs[i].replace(/\\r/g, "\r");
+		docs[i] = "[ " + docs[i] + " ]";
+    	var wds = docs[i].split(splChar);
+		for (var j = 0; j < wds.length; j++)
+        {
+        	if (queue.indexOf(wds[j]) == -1 && wds[j].trim() != "")
+            {
+				queue.push(wds[j]);
+			}
+		}
+	}
+		
+	while (queue.length > 0)
+	{
+		for (curr = 0; curr < queue.length; curr++)
+		{
+			ratios[queue[curr]] = {};
+			counts[queue[curr]] = 0;
+			ratios[queue[curr]]["___finished___"] = false;
+			var wdLen = queue[curr].split(splChar).length;
+			
+			for (var i = 0; i < docs.length; i++)
+			{
+				var wds = docs[i].split(splChar);
+				var locs = [];
+				var last = 0;
+				while (wds.indexOf(queue[curr], last) != -1)
+				{
+					locs.push(wds.indexOf(queue[curr], last));
+					last += wds.indexOf(queue[curr], last) + 1;
+				}
+				
+/*				last = 0;
+				while (docs[i].indexOf(queue[curr] + splChar, last) != -1)
+				{
+					locs.push(docs[i].indexOf(queue[curr] + splChar, last));
+					last += docs[i].indexOf(queue[curr] + splChar, last) + 1;
+				}
+				
+				last = 0;
+				while (docs[i].indexOf(splChar + queue[curr], last) != -1)
+				{
+					locs.push(docs[i].indexOf(splChar + queue[curr], last));
+					last += docs[i].indexOf(splChar + queue[curr], last) + 1;
+				}*/
+				
+//				alert(queue[curr] + " - " + i + " - " + locs);
+								
+				for (var loc = 0; loc < locs.length; loc++)
+				{
+					if (locs[loc] + wdLen < wds.length)
+					{
+						if (!(wds[locs[loc] + wdLen] in ratios[queue[curr]]))
+						{
+							ratios[queue[curr]][wds[locs[loc] + wdLen]] = 1.0;
+							counts[queue[curr]] += 1;
+						}
+						else
+						{
+							ratios[queue[curr]][wds[locs[loc] + wdLen]] += 1.0;
+							counts[queue[curr]] += 1;
+						}
+					}
+				}
+			}
+		}
+		
+		queue = [];
+		
+		for (var word1 in ratios)
+		{
+			for (var word2 in ratios[word1])
+			{
+				if (ratios[word1]["___finished___"] == false)
+				{
+					ratios[word1][word2] = ratios[word1][word2] / counts[word1];
+				}
+				
+				if (ratios[word1][word2] >= parseFloat(document.getElementById('thresh').value) && !(word1 + splChar + word2 in ratios))
+				{
+					len1 = word1.split(splChar).length;
+					len2 = word2.split(splChar).length;
+					if (len1 + len2 <= parseInt(document.getElementById('maxNum').value))
+					{
+						queue.push(word1 + splChar + word2);
+					}
+				}
+			}
+			ratios[word1]["___finished___"] = true;
+		}
+	}
+	
+	var out = "<table>";
+	var count1 = 0;
+	var count2 = 0;
+	for (word1 in ratios)
+	{
+		for (word2 in ratios[word1])
+		{
+			count1++;
+			if (word2 != "___finished___")
+			{
+				out += "<tr style='background-color:rgba(255, 0, 0, " + ratios[word1][word2] + ");'><td>" + word1 + splChar + word2 + "</td><td>" + ratios[word1][word2].toFixed(4) + "</td><td>" + counts[word1] + "</td></tr>";
+				if (ratios[word1][word2] >= parseFloat(document.getElementById("thresh").value))
+				{
+					count2++;
+				}
+			}
+		}
+	}
+	out += "</table>";
+	
+	out = "<div>Total Number of Words: " + count1 + "</div><div>Number Above Threshold: " + count2 + "</div>" + out;
+	
+	document.getElementById("output").innerHTML = out;
+}
+</script>
+</head>
+<body>
+<textarea id="input"></textarea><br>
+<input type="button" value="Calculate" onclick="ngrams()"><br>
+<span>Threshold: </span><select id="thresh">
+	<option value="0.1">0.1</option>
+	<option value="0.2">0.2</option>
+	<option value="0.3">0.3</option>
+	<option value="0.4">0.4</option>
+	<option value="0.5" selected>0.5</option>
+	<option value="0.6">0.6</option>
+	<option value="0.7">0.7</option>
+	<option value="0.8">0.8</option>
+	<option value="0.9">0.9</option>
+</select>
+<span>Parse by What: </span><select id="parse">
+	<option value="1" selected>by Word</option>
+	<option value="2">by Character</option>
+</select>
+<span>Max Length: </span><select id="maxNum">
+	<option value="1">1</option>
+	<option value="2">2</option>
+	<option value="3">3</option>
+	<option value="4" selected>4</option>
+	<option value="5">5</option>
+	<option value="6">6</option>
+	<option value="7">7</option>
+	<option value="8">8</option>
+	<option value="9">9</option>
+	<option value="10">10</option>
+	<option value="11">11</option>
+	<option value="12">12</option>
+	<option value="13">13</option>
+	<option value="14">14</option>
+	<option value="15">15</option>
+	<option value="16">16</option>
+	<option value="17">17</option>
+	<option value="18">18</option>
+	<option value="19">19</option>
+	<option value="20">20</option>
+</select>
+<div id="output"></div>
+</body>
+</html>

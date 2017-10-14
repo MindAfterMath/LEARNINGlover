@@ -1,0 +1,346 @@
+<html>
+<head>
+<style type="text/css">
+table.grid
+{
+	border: 0.1em solid;
+	border-collapse:collapse;
+}
+
+td.grid
+{
+	border: 0.1em solid;
+	width: 2em;
+}
+
+th.grid
+{
+	border: 0.1em solid;
+}
+
+table.outer
+{
+	border-collapse:collapse;
+	border: 0.1em solid;
+	border-spacing: 0px;
+}
+
+td.outer
+{
+	padding: 0px;
+	border: 0.1em solid;
+	width: 2em;
+}
+
+table.inner
+{
+	width:100%;
+	border-collapse:collapse;
+	border: none;
+}
+
+span
+{
+	cursor:pointer;
+	color:blue;
+	text-decoration:underline;
+}
+</style>
+<script type="text/javascript">
+function generate(rows, clms)
+{
+//Begin with an empty grid
+	var grid = [];
+	for (var i = 0; i < rows; i++)
+	{
+		grid[i] = [];
+	}
+
+//Create an array for the remaining cells that can be blacked out.
+//Initially, this array will contain every cell of the grid.
+	var poss = [];
+	for (var i = 0; i < rows; i++)
+	{
+		for (var j = 0; j < clms; j++)
+		{
+			poss.push(i + "\t" + j);
+			grid[i][j] = 1;
+		}
+	}
+
+	while (poss.length > 1)
+	{
+		console.log("poss = " + poss);
+//Radomly select an element of poss
+		var loc = Math.floor(Math.random() * poss.length);
+		var vals = poss[loc].split("\t");
+		grid[vals[0]][vals[1]] = 0;
+		console.log("cell chosen is " + poss[loc]);
+		console.log("vals[0] = " + vals[0]);
+		console.log("vals[1] = " + vals[1]);
+		console.log("rows = " + rows);
+		console.log("clms = " + clms);
+		console.log("removing " + poss[loc]);
+		poss.splice(loc, 1);
+		if (!connected(grid))
+		{
+			grid[vals[0]][vals[1]] = 1;
+			console.log("case 1: loc = " + loc + "\tposs = " + poss + "\tposs[loc] = " + poss[loc] + "\tposs.length = " + poss.length);
+//			poss.splice(loc, 1);
+			continue;
+		}
+
+		if (vals[0] > 0)
+		{
+			var nrow = vals[0] - 1;
+			var loc2 = poss.indexOf(nrow + "\t" + vals[1]);
+			if (loc2 != -1)
+			{
+//				console.log("case 2: " + loc2 + "\t" + poss + "\t" + poss[loc2] + "\t" + poss.length);
+				console.log("case 2: removing " + poss[loc2]);
+				poss.splice(loc2, 1);
+			}
+		}
+		if (vals[0] < rows)
+		{
+			var nrow = parseInt(vals[0]) + 1;
+			var loc2 = poss.indexOf(nrow + "\t" + vals[1]);
+			if (loc2 != -1)
+			{
+//				console.log("case 3: " + loc2 + "\t" + poss + "\t" + poss[loc2] + "\t" + poss.length);
+				console.log("attempting " + nrow + "\t" + vals[1]);
+				console.log("case 3: removing " + poss[loc2]);
+				poss.splice(loc2, 1);
+			}
+		}
+		if (vals[1] > 0)
+		{
+			var nclm = vals[1] - 1;
+			var loc2 = poss.indexOf(vals[0] + "\t" + nclm);
+			if (loc2 != -1)
+			{
+//				console.log("case 4: " + loc2 + "\t" + poss + "\t" + poss[loc2] + "\t" + poss.length);
+				console.log("case 4: removing " + poss[loc2]);
+				poss.splice(loc2, 1);
+			}
+		}
+		if (vals[1] < clms)
+		{
+			var nclm = parseInt(vals[1]) + 1;
+			var loc2 = poss.indexOf(vals[0] + "\t" + nclm);
+			if (loc2 != -1)
+			{
+//				console.log("case 5: " + loc2 + "\t" + poss + "\t" + poss[loc2] + "\t" + poss.length);
+				console.log("attempting " + vals[0] + "\t" + nclm[1]);
+				console.log("case 5: removing " + poss[loc2]);
+				poss.splice(loc2, 1);
+			}
+		}
+
+//		for (var i = 0; i < rows; i++)
+//		{
+//			for (var j = 0; j < clms; j++)
+//			{
+//
+//			}
+//		}
+	}
+	return grid;
+}
+
+function connected(grid)
+{
+	var rows = grid.length;
+	var clms = grid[0].length;
+	var cmpt = [];
+	var black = [];
+
+	for (var i = 0; i < rows && cmpt.length == 0; i++)
+	{
+		for (var j = 0; j < clms && cmpt.length == 0; j++)
+		{
+			if (grid[i][j] == 1)
+			{
+				cmpt.push(i + "\t" + j);
+			}
+			else
+			{
+				black.push(i + "\t" + j);
+			}
+		}
+	}
+
+	for (var i = 0; i < cmpt.length; i++)
+	{
+		var cell = cmpt[i].split("\t");
+		var prevR = cell[0] - 1;
+		var prevC = cell[1] - 1;
+		var nextR = parseInt(cell[0]) + 1;
+		var nextC = parseInt(cell[1]) + 1;
+
+		if (prevR >= 0 &&
+		cmpt.indexOf(prevR + "\t" + cell[1]) == -1 &&
+		black.indexOf(prevR + "\t" + cell[1]) == -1 &&
+		grid[prevR][cell[1]] == 1)
+		{
+			cmpt.push(prevR + "\t" + cell[1]);
+		}
+		else if (prevR >= 0 && 
+		black.indexOf(prevR + "\t" + cell[1]) == -1 && 
+		cmpt.indexOf(prevR + "\t" + cell[1]) == -1)
+		{
+			black.push(prevR + "\t" + cell[1]);
+		}
+
+		if (nextR < rows &&
+		cmpt.indexOf(nextR + "\t" + cell[1]) == -1 &&
+		black.indexOf(nextR + "\t" + cell[1]) == -1 &&
+		grid[nextR][cell[1]] == 1)
+		{
+			cmpt.push(nextR + "\t" + cell[1]);
+		}
+		else if (nextR < rows && black.indexOf(nextR + "\t" + cell[1]) == -1 && cmpt.indexOf(nextR + "\t" + cell[1]) == -1)
+		{
+			black.push(nextR + "\t" + cell[1]);
+		}
+
+		if (prevC >= 0 &&
+		cmpt.indexOf(cell[0] + "\t" + prevC) == -1 &&
+		black.indexOf(cell[0] + "\t" + prevC) == -1 &&
+		grid[cell[0]][prevC] == 1)
+		{
+			cmpt.push(cell[0] + "\t" + prevC);
+		}
+		else if (prevC >= 0 && black.indexOf(cell[0] + "\t" + prevC) == -1 && cmpt.indexOf(cell[0] + "\t" + prevC) == -1)
+		{
+			black.push(cell[0] + "\t" + prevC);
+		}
+
+		if (nextC < clms &&
+		cmpt.indexOf(cell[0] + "\t" + nextC) == -1 &&
+		black.indexOf(cell[0] + "\t" + nextC) == -1 &&
+		grid[cell[0]][nextC] == 1)
+		{
+			cmpt.push(cell[0] + "\t" + nextC);
+		}
+		else if (nextC < clms && black.indexOf(cell[0] + "\t" + nextC) == -1 && cmpt.indexOf(cell[0] + "\t" + nextC) == -1)
+		{
+			black.push(cell[0] + "\t" + nextC);
+		}
+	}
+
+	console.log("cmpt = " + cmpt);
+	console.log("black = " + black);
+	console.log("cmpt.length = " + cmpt.length + "\tblack.length = " + black.length);
+
+	if (cmpt.length + black.length == rows * clms)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+function changecolor(id)
+{
+	if (document.getElementById(id).style.background == "#0000FF" ||
+		document.getElementById(id).style.background == "rgb(0, 0, 255)" ||
+		document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 0, 255)" ||
+		document.getElementById(id).style.background == "rgb(0, 0, 255) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#FF0000";
+	}
+	else if (document.getElementById(id).style.background == "#FF0000" ||
+			 document.getElementById(id).style.background == "rgb(255, 0, 0)" ||
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)" ||
+			 document.getElementById(id).style.background == "rgb(255, 0, 0) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#FFFFFF";
+	}
+	else
+	{
+		document.getElementById(id).style.background = "#0000FF";
+	}
+}
+
+function removeCells(grid)
+{
+	var rows = grid.length;
+	var clms = grid[0].length;
+	var newGrid1 = [];
+	var newGrid2 = [];
+	
+	for (var i = 0; i < rows; i++)
+	{
+		newGrid1[i] = [];
+		newGrid2[i] = [];
+		for (var j = 0; j < clms; j++)
+		{
+			if (grid[i][j] == 1)
+			{
+				poss.push(i + "\t" + j);
+			}
+			newGrid1[i][j] = grid[i][j];
+			newGrid2[i][j] = grid[i][j];
+		}
+	}
+	
+	var loc = Math.floor(Math.random() * poss.length);
+	
+}
+</script>
+</head>
+<body>
+<table id="wrapper"><tr><td id="content"></td></tr></table>
+<script type="text/javascript">
+var sizeArr = [];
+sizeArr.push("4\t4");
+sizeArr.push("4\t6");
+sizeArr.push("7\t7");
+sizeArr.push("8\t10");
+sizeArr.push("10\t10");
+
+var size = sizeArr[Math.floor(Math.random() * sizeArr.length)].split("\t");
+size[0] = parseInt(size[0]);
+size[1] = parseInt(size[1]);
+
+var out = "<table class='grid'>";
+out += "<tr><td class='grid'></td>";
+for (var j = 0; j < size[1]; j++)
+{
+	out += "<td class='grid'>" + j + "</td>";
+}
+out += "</tr>";
+for (var i = 0; i < size[0]; i++)
+{
+	out += "<tr><td class='grid'>" + i + "</td>";
+	for (var j = 0; j < size[1]; j++)
+	{
+		out += "<td class='grid' id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\")'></td>";
+	}
+	out += "</tr>";
+}
+out += "</table>";
+document.getElementById("content").innerHTML = out;
+
+var grid = generate(size[0], size[1]);
+
+for (var i = 0; i < size[0]; i++)
+{
+	for (var j = 0; j < size[1]; j++)
+	{
+		if (grid[i][j] == 0)
+		{
+			document.getElementById(i + "_" + j).style.backgroundColor = "#FF0000";
+		}
+		else if (grid[i][j] == 1)
+		{
+			document.getElementById(i + "_" + j).style.backgroundColor = "#0000FF";
+		}
+	}
+}
+</script>
+</body>
+</html>

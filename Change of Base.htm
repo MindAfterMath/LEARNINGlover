@@ -1,0 +1,59 @@
+
+<!-- saved from url=(0053)http://www.math.rutgers.edu/~erowland/changebase.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"><title>Change of Base</title>
+<meta name="author" value="Eric Rowland">
+<meta name="description" value="A JavaScript program which changes the base representation of an integer from one base to another.">
+<meta name="keywords" value="Javascript, program, base changer"><script language="javascript" src="./Change of Base_files/layout.js"></script><script language="javascript">header("Change of Base");</script></head>
+<body bgcolor="white" text="black" link="3366ff" alink="3366ff" vlink="3366ff" style="margin:0" leftmargin="0" rightmargin="0" topmargin="0" bottommargin="0" marginwidth="0" marginheight="0"><table width="100%" cellspacing="0" border="0" bgcolor="black"><tbody><tr><td><center><font size="1"><br></font><font color="3366ff" size="6"><b>Change of Base</b></font><font size="1"><br>&nbsp;</font></center></td></tr></tbody></table><table width="100%" cellspacing="10"><tbody><tr><td>
+
+<script language="javascript">
+function change(s) {
+	a=s.a.value/1;
+	b=s.b.value/1;
+	if(a!=""&&b!=""&&s.n.value!="") {
+		if(s.n.value.charAt(0)!="[") {
+			n=s.n.value/1;
+			j=new Array(Math.floor(Math.LOG10E*Math.log(n))+1);
+			for(i=j.length;i>0;i--) {
+				j[j.length-i]=Math.floor(n/Math.pow(10,i-1));
+				n%=Math.pow(10,i-1);
+			}
+			n=j;
+		}
+		else n=eval(s.n.value);
+		k=0;
+		for(i=n.length;i>0;i--) k+=n[n.length-i]*Math.pow(a,i-1);
+		n=k;
+		j=new Array(Math.floor(Math.log(n)/Math.log(b))+1);
+		for(i=j.length;i>0;i--) {
+			j[j.length-i]=Math.floor(n/Math.pow(b,i-1));
+			n%=Math.pow(b,i-1);
+		}
+		n=j;
+		k=1;
+		for(i=0;i<n.length;i++) k*=(n[i]<10);
+		if(k) {
+			k=0;
+			for(i=n.length;i>0;i--) k+=n[n.length-i]*Math.pow(10,i-1);
+			n=k;
+		}
+		if(typeof n=="object") n="["+n+"]";
+		s.r.value=n;
+	}
+}
+</script><form method="post">
+(Express bases in base 10.)
+<br>Positive integer (<a href="javascript:alert('Examples of correct formats:\n2179                     (All place values are <10 in base 10.)\n[2,17,9]            (Some place values are >10 in base 10.)')">examples</a>) <input type="text" name="n" size="10"> in base <input type="text" name="a" size="4">, converted to base <input type="text" name="b" size="4"> is <input type="text" name="r" size="10">.
+<br><input type="button" value="Convert" onclick="change(this.form);">
+</form>
+
+<!-- Start of StatCounter Code -->
+<script type="text/javascript" language="javascript">
+var sc_project=371526;
+var sc_partition=1;
+</script>
+<script type="text/javascript" language="javascript" src="./Change of Base_files/counter.js"></script><span class="statcounter"><a class="statcounter" href="http://www.statcounter.com/" target="_blank"><img src="./Change of Base_files/t.php" alt="StatCounter - Free Web Tracker and Counter" border="0"></a></span>
+<noscript>&lt;a href="http://www.statcounter.com/free_web_stats.html" target="_blank"&gt;&lt;img src="http://c2.statcounter.com/counter.php?sc_project=371526&amp;amp;java=0" alt="live web statistics" border="0"&gt;&lt;/a&gt;</noscript>
+<!-- End of StatCounter Code -->
+
+<script language="javascript">footer();</script></td></tr></tbody></table><a id="footer"></a><table width="100%" cellspacing="0" bgcolor="black"><tbody><tr><td align="center"><font size="2"><b><a href="http://www.math.rutgers.edu/~erowland/investigations.html#projects"><font color="55e800">Projects</font></a><img src="./Change of Base_files/bullet.gif" width="11" height="6"><a href="http://www.math.rutgers.edu/~erowland/investigations.html#expositions"><font color="ff8c00">Expositions</font></a><br><a href="http://www.math.rutgers.edu/~erowland/pascalssimplices-project.html"><font color="55e800">Pascal's Simplices</font></a> <font color="3366ff">•</font> <a href="http://www.math.rutgers.edu/~erowland/pythagoreantriples-project.html"><font color="55e800">Pythagorean Triples</font></a> <font color="3366ff">•</font> <a href="http://www.math.rutgers.edu/~erowland/polygons-project.html"><font color="55e800">Regular Polygons</font></a><br><a href="http://www.math.rutgers.edu/~erowland/polyhedra-project.html"><font color="55e800">Regular Polyhedra</font></a> <font color="3366ff">•</font> <a href="http://www.math.rutgers.edu/~erowland/polytopes-project.html"><font color="55e800">Regular Polytopes</font></a> <font color="3366ff">•</font> <a href="http://www.math.rutgers.edu/~erowland/sumsofpowers-project.html"><font color="55e800">Sums of Consecutive Powers</font></a><br><a href="http://www.math.rutgers.edu/~erowland/induction.html"><font color="3366ff">Mathematical Induction</font></a> <font color="3366ff">•</font> <a href="http://www.math.rutgers.edu/~erowland/modulararithmetic.html"><font color="3366ff">Modular Arithmetic</font></a> <font color="3366ff">•</font> <a href="http://www.math.rutgers.edu/~erowland/polynomialequations.html"><font color="3366ff">Polynomial Equations</font></a><br><a href="http://www.math.rutgers.edu/~erowland/investigations.html"><font color="3366ff">Investigations</font></a> <font color="3366ff">•</font> <a href="http://www.math.rutgers.edu/~erowland/calculators.html"><font color="3366ff">Calculators</font></a> <font color="3366ff">•</font> <a href="http://www.math.rutgers.edu/~erowland/books.html"><font color="3366ff">Popular Books</font></a><br><a href="http://www.math.rutgers.edu/~erowland/index.html"><font color="3366ff">Eric S. Rowland</font></a></b></font></td></tr></tbody></table></body></html>

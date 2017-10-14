@@ -1,0 +1,870 @@
+<html>
+<head>
+<meta name="keywords" content="knapsack, greedy, dynamic, dynamic programming, approximation, mathematics, math, computer science, algorithms, javascript, script, operations research, animation, programming" /><meta name="description" content="This page introduces users to the well known Knapsack Problem, as well as considering two approaches to solve the problem. " /><title>Knapsack Problems at LEARNINGlover.com</title>
+<script type="text/javascript">
+function generate()
+{
+	var numItems = Math.floor(Math.random()*10) + 5;
+	var bagSize = Math.floor(Math.random()*90) + 10;
+	var profits = new Array();
+	var weights = new Array();
+	var ans = new Array();
+	
+	for (var i = 0; i < numItems; i++)
+	{
+		profits[i] = Math.floor(Math.random()*bagSize*2)+1;
+		do
+		{
+			weights[i] = Math.floor(Math.random()*bagSize*2)+1;
+		}
+		while (weights[i] > bagSize);
+	}
+	
+	ans[0] = numItems;
+	ans[1] = bagSize;
+	ans[2] = profits;
+	ans[3] = weights;
+	
+	return ans;
+}
+
+function init()
+{
+	var prob = generate();
+	var output = "";
+	
+	output += "Consider the following instance of the knapsack problem. <br>";
+	output += "We have a bag of size " + prob[1] + " units. <br>";
+	output += "We also have a set of " + prob[0] + " items. <br>";
+	output += "Each of these itmes has its own size and its own value. <br>";
+	output += "We would like to fit the most valuable combination of items as possible into the bag. <br>";
+	output += "Because these items must go into the bag, their sum cannot exceed the size of the bag. <br>";
+	output += "Here are the properties of the items: ";
+	output += "<p name='items' id='items'>";
+	output += "<table>";
+	output += "<tr><td>Item</td><td>Size</td><td>Value</td></tr>";
+	for (var i = 0; i < prob[0]; i++)
+	{
+		output += "<tr><td>" + (i+1) + "</td><td>" + prob[3][i] + "</td><td>" + prob[2][i] + "</td></tr>";
+	}
+	output += "</table>";
+	output += "</p>";
+	
+	document.getElementById("input").innerHTML = output;
+	document.getElementById("output").innerHTML = "";
+	
+	points = drawProb(prob);
+	
+	return prob;
+}
+
+function sortDec(arr2d)
+{
+	var temp
+	for (var i = 0; i < arr2d.length; i++)
+	for (var j = i+1; j < arr2d.length; j++)
+	{
+		if (arr2d[i][1] < arr2d[j][1])
+		{
+			temp = arr2d[i];
+			arr2d[i] = arr2d[j];
+			arr2d[j] = temp;
+		}
+	}
+	
+	return arr2d;
+}
+
+function EucDist(point1_x, point1_y, point2_x, point2_y)
+{
+	var i, j, sumSq = 0;
+
+	sumSq += Math.pow(point1_x - point2_x, 2);
+	sumSq += Math.pow(point1_y - point2_y, 2);
+
+	return Math.sqrt(sumSq);
+}
+
+
+function used(points, num1, num2, size)
+{
+	var i, ans = false;
+	for (i = 0; i < points.length && ans == false; i++)
+	{
+//		alert("(" + points[i][0] + ", " + points[i][1] + ") vs (" + num1 + ", " + num2 + "), " + EucDist(points[i][0], points[i][1], num1, num2));
+		if (EucDist(points[i][0], points[i][1], num1, num2) < 2)
+			ans = true;
+	}
+
+	return ans;
+}
+
+function drawProb(prob)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect (0, 0, c.width, c.height);
+	points = new Array();
+	var i, num1, num2;
+	var size = new Array();
+	
+	for (i = 0; i < prob[0]; i++)
+	{
+		points[i] = new Array();
+		size[i] = Math.floor(prob[3][i]/5)+10;
+		do
+		{
+			num1 = Math.floor(Math.random()*((c.width-30)/30) + 1);
+			num2 = Math.floor(Math.random()*((c.height-30)/30) + 1);
+		}
+		while (used(points, num1, num2, size[i]));
+		
+		points[i][0] = num1;
+		points[i][1] = num2;
+	}
+		
+	for (i = 0; i < prob[0]; i++)
+	{
+		ctx.strokeStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(30*points[i][0],30*points[i][1],size[i],0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(30*points[i][0],30*points[i][1],size[i],0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(prob[2][i],30*points[i][0]-3*(Math.floor(Math.log(prob[2][i])/Math.log(10))+1),30*points[i][1]+4);
+	}
+	
+	return points;
+}
+
+function drawSol(prob, sol)
+{
+	if (sol[1] == "," || sol[2] == ",")
+		sol = sol.split(", ");
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var size = new Array();
+
+	for (var i = 0; i < prob[0]; i++)
+	{
+		size[i] = Math.floor(prob[3][i]/5)+10;
+		var ans = false;
+		for (var j = 0; j < sol.length && !ans; j++)
+		{
+			if (sol[j] == (i+1))
+			{
+				ans = true;
+			}
+		}
+		
+		if (!ans)
+		{
+			ctx.strokeStyle="#FF0000";
+			ctx.fillStyle="#FF0000";
+		}
+		else
+		{
+			ctx.strokeStyle="#00FF00";
+			ctx.fillStyle="#00FF00";
+		}
+		ctx.beginPath();
+		ctx.arc(30*points[i][0],30*points[i][1],size[i],0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.beginPath();
+		ctx.arc(30*points[i][0],30*points[i][1],size[i],0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(prob[2][i],30*points[i][0]-3*(Math.floor(Math.log(prob[2][i])/Math.log(10))+1),30*points[i][1]+4);
+	}
+	
+	return points;
+}
+
+
+function greedy(prob)
+{
+	var output = "";
+	var input = "";
+	var show = document.getElementById("show").checked;
+	document.getElementById("output").innerHTML = "";
+
+	input += "Consider the following instance of the knapsack problem. <br>";
+	input += "We have a bag of size " + prob[1] + " units. <br>";
+	input += "We also have a set of " + prob[0] + " items. <br>";
+	input += "Each of these itmes has its own size and its own value. <br>";
+	input += "We would like to fit the most valuable combination of items as possible into the bag. <br>";
+	input += "Because these items must go into the bag, their sum cannot exceed the size of the bag. <br>";
+	input += "Here are the properties of the items: ";
+
+	var itms = "";
+	var ratios = new Array();
+	
+	itms += "<table>";
+	itms += "<tr><td>Item</td><td>Size</td><td>Value</td><td>Ratio</td></tr>";
+	for (var i = 0; i < prob[0]; i++)
+	{
+		ratios[i] = new Array();
+		ratios[i][0] = i+1;
+		ratios[i][1] = prob[2][i] / prob[3][i];
+		itms += "<tr><td>" + (i+1) + "</td><td>" + prob[3][i] + "</td><td>" + prob[2][i] + "</td><td>" + (Math.round(ratios[i][1]*100)/100) + "</td></tr>";
+	}
+	itms += "</table>";
+
+	input += itms;
+
+	if (show)
+	{
+		output += "The greedy approach to the knapsack problem works by computing the ratio of value to weight of each item. <br>";
+		output += "The items are then sorted in decreasing order of this ratio. <br>";
+		output += "While there are still items that can fit into the bag, the item with the highest ratio that can fit into the bag is chosen. <br>";
+	}
+
+	var chosen = new Array();
+	var total = 0;
+	var tval = 0;
+	
+	ratio = sortDec(ratios);
+	
+	for (var i = 0; i < prob[0]; i++)
+	{
+		if (show)
+			output += "Item " + ratio[i][0] + " has the highest remaining ratio of " + (Math.round(ratio[i][1]*100)/100) + ".<br>";
+		if (prob[3][ratio[i][0]-1] + total <= prob[1])
+		{
+			if (show)
+				output += "This item can fit into the bag so we select it. <br>";
+			chosen[chosen.length] = ratio[i][0];
+			total += prob[3][ratio[i][0]-1];
+			tval += prob[2][ratio[i][0]-1];
+		}
+		else
+		{
+			if (show)
+				output += "This item is too large to fit into the bag, so we cannot select it. <br>";
+		}
+		if (show)
+			output += "<br>";
+	}
+	
+	drawSol(prob, chosen);
+	
+	output += "So the set of items we selected is {" + chosen + "}, with a total value of " + tval + ". <br>";
+	
+	document.getElementById("output").innerHTML += output;
+	document.getElementById("input").innerHTML = input;
+}
+
+function solveLPR(prob)
+{
+	var output = "";
+	var show = document.getElementById("show").checked;
+	document.getElementById("output").innerHTML = "";
+	
+	if (show)
+	{
+		output += "In the Linear Program, we create a variable x<sub>i</sub> for each item i<br>. ";
+		output += "The objective function is to maximize the total value, which is the sum of the values chosen. <br>";
+		output += "The (only) constraint is to ensure that the chosen items fit into the knapsack. <br>";
+	}
+	
+	var c = new Array();
+//	for (var i = 0; i < prob[0]; i++)
+//		c[i] = prob[2][i];
+		
+	var A = new Array();
+//	A[0] = prob[3];
+	A[0] = new Array();
+	
+	var b = new Array();
+	b[0] = prob[1];
+	
+	var ineq = new Array();
+	ineq[0] = -1;
+	for (var i = 0; i < prob[0]; i++)
+	{
+		c[i] = prob[2][i];
+		b[i+1] = 1;
+		ineq[i+1] = -1;
+		A[i+1] = new Array();
+		for (var j = 0; j < prob[0]; j++)
+		{
+			A[0][j] = prob[3][j];
+
+			if (j == i)
+				A[i+1][j] = 1;
+			else
+				A[i+1][j] = 0;
+		}
+	}
+	var opt = 1;
+	var bds = new Array();
+	for (var i = 0; i < prob[0]; i++)
+		bds[i] = 1;
+			
+	dispIP(opt, c, A, b, ineq, bds);
+	
+	var ans = new Array();
+	ans[0] = opt;
+	ans[1] = c;
+	ans[2] = A;
+	ans[3] = b;
+	ans[4] = ineq;
+	ans[5] = bds;
+	
+	var sol = simplex(ans);
+	var tval  = 0;
+	for (var i = 0; i < sol.length; i++)
+		tval += prob[2][sol[i]-1]
+	
+	output += "So the set of items we selected is {" + sol + "}, with a total value of " + tval + ". <br>";
+	
+	drawSol(prob, sol);
+	document.getElementById("output").innerHTML += output;
+}	
+
+function dynamic(prob)
+{
+	var output = "";
+	var show = document.getElementById("show").checked;
+	document.getElementById("output").innerHTML = "";
+	if (show)
+	{
+		output += "The Dynamic Programming approach to the knapsack problem works by understanding that to solve a knapsack problem with <i>n</i> items and a bag of size <i>M</i> means that we also need to optimally solve a problem with fewer items and a smaller bag size. <br>";
+		output += "This means that we can reach an optimal solution by solving each of these subproblems. <br>";
+	}
+	
+	var dpfnct = new Array();
+	var chosen = new Array();
+	
+	for (var i = 0; i <= prob[0]; i++)
+	{
+		dpfnct[i] = new Array();
+		chosen[i] = new Array();
+		for (var j = 0; j <= prob[1]; j++)
+		{
+			dpfnct[0][j] = 0;
+			chosen[0][j] = "";
+		}
+	}	
+
+	var tval = 0;
+	
+	if (show)
+	{
+		output += "We can represent this by the following table:<br>";
+		output += "<table>";
+		output += "<tr><td></td>";
+		for (i = 0; i <= prob[0]; i++)
+			output += "<td>first " + i + " items</td>"
+		output += "</tr>";
+	}
+	
+	for (var i = 1; i <= prob[0]; i++)
+		for (var j = 0; j <= prob[1]; j++)
+		{
+			if (j >= prob[3][i-1])
+			{
+				dpfnct[i][j] = maxim(dpfnct[i-1][j], dpfnct[i-1][j-prob[3][i-1]] + prob[2][i-1]);
+				if (dpfnct[i][j] == dpfnct[i-1][j])
+				{
+					chosen[i][j] = chosen[i-1][j];
+				}
+				else
+				{
+					chosen[i][j] = chosen[i-1][j-prob[3][i-1]];
+					if (chosen[i][j] == "")
+						chosen[i][j] = i;
+					else
+						chosen[i][j] += ", " + i;
+				}	
+			}
+			else
+			{
+				dpfnct[i][j] = dpfnct[i-1][j];
+				chosen[i][j] = chosen[i-1][j];
+			}
+		}
+	
+	if (show)	
+	{
+		for (var j = 0; j <= prob[1]; j++)
+		{
+			output += "<tr>";
+			output += "<td>bag size = " + j + "</td>";
+			for (var i = 0; i <= prob[0]; i++)
+			{
+				output += "<td>" + dpfnct[i][j] + "</td>";
+			}
+			output += "</tr>";
+		}
+	
+		output += "</table>";
+	}
+	
+	drawSol(prob, chosen[prob[0]][prob[1]]);
+	
+	output += "So the set of items we selected is {" + chosen[prob[0]][prob[1]] + "}, with a total value of " + dpfnct[prob[0]][prob[1]] + ". <br>";
+	document.getElementById("output").innerHTML += output;
+}
+
+function maxim(a, b)
+{
+	if (a > b)
+		return a;
+	else
+		return b;
+}
+
+function simplex(probset)
+{
+	var opt = probset[0], c = probset[1], A = probset[2], b = probset[3], ineq = probset[4], bds = probset[5];
+	var corig = [];
+	var text = "";
+	var rcost = [];
+	var ratio = 1000000;
+	var minrow = -1;
+	var sol = new Array();
+
+	var ans = toStdFrm(opt, c, A, b, ineq, bds, show);
+
+	for (i = 0; i < c.length; i++)
+		corig[i] = c[i];
+
+	var basic = initSol(opt, c, ans, b, ineq, bds, show);
+
+	for (i = 0; i < basic.length; i++)
+		if (c[basic[i]] != 0)
+			for (j = 0; j < ans[i].length; j++)
+				c[j] -= ans[i][j] * c[basic[i]];
+	
+	do
+	{
+		optloc = -1;
+
+		for (i = 0; i < c.length; i++)
+			if (opt == 1 && c[i] > 0 && (optloc == -1 || c[i] > c[optloc]))
+				optloc = i;
+			else if (opt == 0 && c[i] < 0 && (optloc == -1 || c[i] < c[optloc]))
+				optloc = i;
+		if (optloc != -1)
+		{
+			ratio = 1000000;
+			minrow = -1;
+
+			for (i = 0; i < ans.length; i++)
+			{
+				if (ans[i][optloc] > 0 && (b[i] / ans[i][optloc]) < ratio)
+				{
+					ratio = b[i] / ans[i][optloc];
+					minrow = i;
+				}
+			}
+
+			if (minrow != -1)
+			{
+				denom = ans[minrow][optloc];
+
+				for (j = 0; j < ans[minrow].length; j++)
+				{
+					ans[minrow][j] = ans[minrow][j] / denom;
+				}
+				b[minrow] = b[minrow] / denom;
+
+				for (i = 0; i < ans.length; i++)
+				{
+					denom = ans[i][optloc];
+					if (i != minrow)
+					{
+						for (j = 0; j < ans[i].length; j++)
+						{
+							ans[i][j] -= ans[minrow][j] * denom;
+						}
+						b[i] -= b[minrow] * denom;
+					}
+				}
+
+				denom = c[optloc];
+				for (j = 0; j < c.length; j++)
+					c[j] -= ans[minrow][j] * denom;
+
+				basic[minrow] = optloc;
+			}
+			else
+				text += "None of the rows of this matrix constrain this variable, and so our solution is unbounded.<br>";
+		}
+		else
+		{
+			text += "The optimal basis is ";
+			for (i = 0; i < basic.length-1; i++)
+				if (basic[i] < prob[0])
+				{
+					text += "x<sub>" + (basic[i]+1) + "</sub> = " + (Math.round(b[i]*100)/100) + ", ";
+					if ((Math.round(b[i]*100)/100) == 1)
+						sol[sol.length] = basic[i]+1;
+				}
+			if (basic[i] < prob[0])
+			{
+				text += "x<sub>" + (basic[i]+1) + "</sub> = " + (Math.round(b[i]*100)/100) + "<br>";
+				if ((Math.round(b[i]*100)/100) == 1)
+					sol[sol.length] = basic[i]+1;
+			}
+
+			var artbasic = false;
+			for (i = 0; i < basic.length; i++)
+				if (corig[basic[i]] == 10000000 || corig[basic[i]] == -10000000)
+					artbasic = true;
+ 
+			if (artbasic)
+				text += "This solution is not feasible, though, because we still have an artificial variable in our basis. <br>";
+			else
+			{
+				j = 0;
+				for (i = 0; i < basic.length; i++)
+				{
+					j += corig[basic[i]] * b[i];
+				}
+				text += "The objective function value of this solution is " + (Math.round(j*100)/100) + "<br>";
+			}
+		}
+
+	} while (optloc != -1 && minrow != -1);
+
+	document.getElementById('output').innerHTML += text;
+	
+	return sol;
+}
+
+function dispIP(opt, c, A, b, ineq, bds)
+{
+	var text = "";
+
+	if (opt) 
+		text += "Maximize ";
+	else
+		text += "Minimize ";
+
+	for (i = 0; i < c.length; i++)
+	{
+		if (i < c.length-1 && c[i] != 0)
+			text += c[i] + "x<sub>" + (i+1) + "</sub> + ";
+		else if (c[i] != 0)
+			text += c[i] + "x<sub>" + (i+1) + "</sub><br>";
+	}
+
+	text += "Subject to <br>";
+
+	if (text.indexOf("+ Subject to") != -1)
+		text = text.replace("+ Subject to", "<br>Subject to");
+
+	for (i = 0; i < A.length; i++)
+	{
+		for (j = 0; j < A[i].length; j++)
+		{
+			if (j < A[i].length-1 && A[i][j] != 0)
+				text += A[i][j] + "x<sub>" + (j+1) + "</sub> + ";
+			else if (A[i][j] != 0)
+			{
+				text += A[i][j] + "x<sub>" + (j+1) + "</sub>";
+			}
+		}
+
+		if (ineq[i] == -1)
+			text += " <= " + b[i] + "<br>";
+		else if (ineq[i] == 0)
+			text += " = " + b[i] + "<br>";
+		else
+			text += " >= " + b[i] + "<br>";
+
+		if (text.indexOf("+  <=") != -1)
+			text = text.replace("+  <=", " <= ");
+		if (text.indexOf("+  =") != -1)
+			text = text.replace("+  =", " = ");
+		if (text.indexOf("+  >=") != -1)
+			text = text.replace("+  >=", " >= ");
+	}
+
+	while (text.indexOf("+ -") != -1)
+	{
+		text = text.replace("+ -", "- ");
+	}
+
+	for (i = 0; i < bds.length; i++)
+	{
+		text += "x<sub>" + (i+1) + "</sub> >= 0<br>";
+	}
+	
+	document.getElementById('output').innerHTML += text;
+}
+
+function backtrack(prob, sol, rem)
+{
+	document.getElementById("output").innerHTML += "inside backtrack, prob = " + prob + ", sol = " + sol + ", rem = " + rem + "<br>";
+	var cellVal;
+	var possLoc;
+	var found = false;
+	var totVal = 0;
+	var totSze = 0;
+	for (var i = 0; i < sol.length; i++)
+	{
+		totVal += prob[2][sol[i]-1];
+		totSze += prob[3][sol[i]-1];
+	}
+	
+	var poss = new Array();
+	
+	if (rem.length > 0)
+	{
+		document.getElementById("output").innerHTML += "rem.length > 0<br>";
+		for (var i = 0; i < rem.length; i++)
+		{
+//			document.getElementById("output").innerHTML += "rem[" + i + "] = " + rem[i] + "<br>";
+			var loc = -1;
+			for (j = 0; j < sol.length && loc == -1; j++)
+				if (sol[j] == rem[i])
+					loc = i;
+				
+			if (prob[1] - totSze >= prob[3][rem[i]-1] && loc == -1)
+			{
+//				document.getElementById("output").innerHTML += rem[i] + " is being added to poss. <br>";
+				poss[poss.length] = rem[i];
+			}
+		}
+		
+		document.getElementById("output").innerHTML += "poss = " + poss + "<br>";
+		var ans = new Array();
+	
+		if (poss.length > 0)
+		{
+			var loc = sol.length;
+			for (var i = 0; i < poss.length; i++)
+			{
+//				document.getElementById("output").innerHTML += "poss[" + i + "] = " + poss[i] + "<br>";
+//				alert("before, sol = " + sol);
+				sol[loc] = poss[i];
+//				alert("after, sol = " + sol);
+				var loc1 = rem.indexOf(poss[i]);
+				var rem1 = new Array();
+				for (var j = 0; j < rem.length; j++)
+					rem1[j] = rem[j];
+				rem1[loc1] = rem1[rem1.length-1];
+				rem1.length--;
+				
+				ans[i] = backtrack(prob, sol, rem1);
+				document.getElementById("output").innerHTML += "ans[" + i + "] = " + ans[i] + "<br>";
+			}
+			
+			document.getElementById("output").innerHTML += "ans = " + ans + "<br>";
+			sol.length--;
+			ans[ans.length] = new Array();
+			ans[ans.length-1][0] = totVal;
+			ans[ans.length-1][1] = sol;
+			
+//			alert("ans[1] = " + ans[1]);
+			
+			var max = -1;
+			for (var i = 0; i < ans.length; i++)
+				if (max == -1 || ans[i][0] > ans[max][0])
+					max = i;
+			
+			document.getElementById("output").innerHTML += "1) ans[max] = " + ans[max] + "<br>"
+			
+			return ans[max];
+		}
+		else
+		{
+			document.getElementById("output").innerHTML += "poss.length = 0<br>";
+			var ans = new Array();
+			ans[0] = totVal;
+			ans[1] = sol;
+		
+			document.getElementById("output").innerHTML += "2) ans = " + ans + "<br>";
+			return ans;
+		}
+	}
+	else
+	{
+		document.getElementById("output").innerHTML += "rem.length = 0<br>";
+		var ans = new Array();
+		ans[0] = totVal;
+		ans[1] = sol;
+		
+		document.getElementById("output").innerHTML += "3) ans = " + ans + "<br>";
+		return ans;
+	}
+}
+
+function toStdFrm(opt, c, A, b, ineq, bds, show)
+{
+	var B = [];
+
+	for (i = 0; i < A.length; i++)
+	{
+		B[i] = [];
+
+		for (j = 0; j < A[0].length; j++)
+			B[i][j] = A[i][j];
+	}
+
+	var text = "";
+
+	for (i = 0; i < bds.length; i++)
+	{
+		if (bds[i] == 0)
+		{
+			for (k = 0; k < B.length; k++)		
+			for (j = B[k].length-1; j > i; j--)	
+			{
+				{
+					B[k][j+1] = B[k][j];
+				}
+				c[j+1] = c[j];
+				bds[j+1] = bds[j];
+			}
+
+			for (k = 0; k < B.length; k++)
+			{
+				B[k][j+1] = -1*B[k][j];
+			}
+			bds[i] = 1;
+			bds[i+1] = 1;
+			c[i+1] = -1*c[j];
+		}
+		else if (bds[i] == -1)
+		{
+			for (k = 0; k < B.length; k++)
+				B[k][i] = -1*B[k][i];
+
+			c[i] = -1*c[i];
+			bds[i] = 1;
+		}
+	}
+
+	for (i = 0; i < b.length; i++)
+	{
+		if (b[i] < 0)
+		{
+			for (j = 0; j < B[i].length; j++)
+				B[i][j] = -1*B[i][j];
+			b[i] = -1*b[i];
+			ineq[i] = -1*ineq[i];
+		}
+	}
+
+	for (i = 0; i < ineq.length; i++)
+	{
+		place = B[i].length;
+		if (ineq[i] == -1)
+		{
+			for (j = 0; j < B.length; j++)
+				B[j][place] = 0;
+			B[i][place] = 1;
+			ineq[i] = 0;
+			bds[place] = 1;
+			c[place] = 0;
+		}
+		else if (ineq[i] == 1)
+		{
+			for (j = 0; j < B.length; j++)
+			{
+				B[j][place] = 0;
+				B[j][place+1] = 0;
+			}
+			B[i][place] = -1;
+			B[i][place+1] = 1;
+			ineq[i] = 0;
+			bds[place] = 1;
+			bds[place+1] = 1;
+			c[place] = 0;
+			if (opt)
+				c[place+1] = -10000000;
+			else
+				c[place+1] = 10000000;
+		}
+		else if (ineq[i] == 0)
+		{
+			for (j = 0; j < B.length; j++)
+				B[j][place] = 0;
+			B[i][place] = 1;
+			ineq[i] = 0;
+			bds[place] = 1;
+			if (opt)
+				c[place] = -10000000;
+			else
+				c[place] = 10000000;
+		}
+	}
+
+	return B;
+}
+
+function initSol(opt, c, A, b, ineq, bds, show)
+{
+/*
+Input: A linear Program in Standard form
+Output: The columns of the matrix that represent the initial basis, as well as an updated matrix that contains the necessary row operations to make these columns into elements of the Basis matrix. 
+Method: 
+ - If a row has a slack variable, that column is in the basis. 
+ - If a row has a surplus variable, add an artificial variable and add that column to the basis. 
+ - If a row has neither a slack or surplus variable, add an artificial variable and add that column to the basis. 
+ - I shouldn't need to check if a variable is a slack variable more than once, so calling isSlackVar on each row and column is redundant. 
+*/
+	var i, j, k, basis = [], poss = 1;
+
+	for (i = 0; i < A.length; i++)
+	{
+		basis[i] = -1;
+		for (j = 0; j < A[i].length && basis[i] == -1; j++)
+		{
+			if (A[i][j] == 1)
+			{
+				poss = 1;
+				for (k = 0; k < A.length && poss; k++)
+				{
+					if (A[k][j] != 0 && k != i)
+					{
+						poss = 0;
+					}
+				}
+			}
+			else
+				poss = 0;
+
+			if (poss)
+			{
+				basis[i] = j;
+			}
+		}
+	}
+	return basis;
+}
+
+
+</script>
+</head>
+<body>
+<p>
+<p name="input" id="input"></p>
+<input type="button" value="Greedy Algorithm" onclick="greedy(prob)">
+<input type="button" value="DP Algorithm" onclick="dynamic(prob)">
+<input type="button" value="Solve LP Relax" onclick="solveLPR(prob)">
+<input type="button" value="Backtracking" onclick="var sol=new Array(); var rem = new Array(); for (i = 0; i < prob[0]; i++) rem[i] = (i+1);ans = backtrack(prob, sol, rem);document.getElementById('output').innerHTML += 'The solution is ' + ans[1] + '<br>';">
+<input type="checkbox" name="show" id="show"> Show Work?<br>
+<input type="button" value="New Problem" onclick="prob = init()"><br>
+<canvas id="myCanvas" width="550" height="350" style="border:1px solid #d3d3d3;"></canvas>
+<p name="output" id="output">output</p>
+<script type="text/javascript">
+var prob = init();
+var points;
+var lprelax;
+</script>
+</body>
+</html>

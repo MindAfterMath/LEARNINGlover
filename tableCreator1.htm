@@ -1,0 +1,41 @@
+<html>
+<head>
+<script type="text/javascript">
+function getInput()
+{
+	return document.getElementById("list").value;
+}
+
+function create()
+{
+	var list = new Array();
+	var text = getInput();
+	var textList = text.split("\n");
+	var i;
+	
+	for (i = 0; i < textList.length; i++)
+	{
+		var curr = textList[i];
+		var loc1 = curr.indexOf("(");
+		var loc2 = curr.indexOf(", ", loc1);
+		var key1 = curr.substring(loc1+1, loc2);
+		loc1 = curr.indexOf(", ", loc2);
+		var key2 = curr.substring(loc2+1, loc1);
+		loc2 = curr.indexOf(")", loc1);
+		var value = curr.substring(loc2+1, loc2);
+		
+	}
+}
+</script>
+</head>
+<body>
+<p>
+<TEXTAREA style="WIDTH: 350px; HEIGHT: 150px" id=list cols=41 rows=6 name=list></TEXTAREA>
+<input type="button" value="Submit" onclick="create()">
+</p>
+<script type="text/javascript">
+</script>
+<p name="output" id="output">
+</p>
+</body>
+</html>

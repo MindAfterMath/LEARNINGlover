@@ -1,0 +1,392 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta name="keywords" content="algorithm, computer science, greedy, JavaScript, clique, math, operations research, programming, backtracking, puzzle" />
+<meta name="description" content="" />
+<title>Ford Warshall Algorithm</title>
+<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+	display: inline;
+}
+</style>
+<script type="text/javascript">
+function generate()
+{
+     var numNodes = Math.floor(Math.random()*20)+5;
+     var numArcs = Math.floor(Math.random()*((numNodes*(numNodes-1)/4) - numNodes)) + numNodes;
+     var graph = new Array(numNodes);
+     var tree = new Array();
+     var otherNodes = new Array();
+     var count = 0;
+     
+     for (var i = 0; i < numNodes; i++)
+     {
+          graph[i] = new Array(numNodes);
+          for (var j = 0; j < numNodes; j++)
+          {
+               graph[i][j] = Number.MAX_VALUE;
+          }
+     }
+     
+     tree[0] = 0;
+     for (var i = 1; i < numNodes; i++)
+     {
+          otherNodes[i-1] = i;
+     }
+     
+     while(tree.length < numNodes)
+     {
+          var inside = Math.floor(Math.random()*tree.length);
+          var outside = Math.floor(Math.random()*otherNodes.length);
+          
+          graph[tree[inside]][otherNodes[outside]] = 1;
+          graph[otherNodes[outside]][tree[inside]] = 1;
+          
+          tree[tree.length] = otherNodes[outside];
+     
+          otherNodes[outside] = otherNodes[otherNodes.length-1];
+          otherNodes.length--;
+     
+          count++;
+     }
+          
+     while (count < numArcs)
+     {
+          var loc1, loc2;
+     
+          do
+          {
+               var loc1 = Math.floor(Math.random()*numNodes);
+               var loc2;
+               var poss = new Array();
+               for (var i = 0; i < graph.length; i++)
+               {
+                    if (graph[loc1][i] == Number.MAX_VALUE && i != loc1)
+                    {
+                         poss[poss.length] = i;
+                    }
+               }
+
+               loc2 = Math.floor(Math.random()*poss.length);
+          }
+          while (poss.length == 0);
+          
+          graph[loc1][poss[loc2]] = 1;
+          graph[poss[loc2]][loc1] = 1;
+          count++;
+     }
+     
+     return graph;
+}
+
+function drawGraph(graph)
+{
+     var c = document.getElementById ('myCanvas');
+     var ctx = c.getContext('2d');
+
+     ctx.clearRect(0, 0, c.width, c.height);
+     
+     for (var i = 0; i < graph.edges.length; i++)
+     {
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = '#000000';
+          ctx.beginPath();
+          ctx.moveTo(graph.nodes[graph.edges[i][0]].xVal, graph.nodes[graph.edges[i][0]].yVal);
+          ctx.lineTo(graph.nodes[graph.edges[i][1]].xVal, graph.nodes[graph.edges[i][1]].yVal);
+          ctx.stroke();
+     }
+     
+     for (var i = 0; i < graph.nodes.length; i++)
+     {
+          ctx.strokeStyle='#000000';
+          ctx.beginPath();
+          ctx.arc(graph.nodes[i].xVal, graph.nodes[i].yVal, 20, 0*Math.PI, 2*Math.PI);
+          ctx.stroke();
+
+          ctx.fillStyle = '#c9c9c9';
+          
+          ctx.beginPath();
+          ctx.arc(graph.nodes[i].xVal, graph.nodes[i].yVal, 20, 0*Math.PI, 2*Math.PI);
+          ctx.fill();
+
+          ctx.fillStyle='#000000';
+          ctx.font='10px Arial';
+          if (graph.nodes[i].value == 0)
+          {
+               ctx.fillText(graph.nodes[i].value, graph.nodes[i].xVal-3*(Math.floor(Math.log(graph.nodes[i].value+1)/Math.log(20))+1), graph.nodes[i].yVal+2);
+          }
+          else
+          {
+               ctx.fillText(graph.nodes[i].value, graph.nodes[i].xVal-3*(Math.floor(Math.log(graph.nodes[i].value)/Math.log(20))+1), graph.nodes[i].yVal+2);
+          }
+     }
+}
+
+function init(A)
+{
+     var graph = new Object();
+     graph.edges = new Array();
+     graph.nodes = new Array();
+     
+     var theta = new Array();
+     var x = new Array();
+     var y = new Array();
+     
+     for (var i = 0; i < A.length; i++)
+     {
+          theta[i] = (2*Math.PI*i) / A.length;
+          
+          graph.nodes[i] = new Object;
+          graph.nodes[i].value = i;
+          graph.nodes[i].xVal = 255*Math.cos(theta[i]) + 275;
+          graph.nodes[i].yVal = 255*Math.sin(theta[i]) + 275;
+          graph.nodes[i].label = '';
+          graph.nodes[i].bfsDist = Number.MAX_VALUE;
+          graph.nodes[i].queue = [];
+          graph.nodes[i].adding = [];
+          graph.nodes[i].dfsDist = -1;
+          
+          for (var j = 0; j < A[i].length; j++)
+          {
+               if (A[i][j] != Number.MAX_VALUE)
+               {
+                    var len = graph.edges.length;
+                    graph.edges[len] = new Array();
+                    graph.edges[len][0] = i;
+                    graph.edges[len][1] = j;
+               }
+          }          
+     }
+     
+     drawGraph(graph);
+     
+     return graph;
+}
+
+function fordWarsh(graph)
+{
+	var dist = [];
+	var nxt = [];
+	
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		nxt[i] = [];
+		for (var j = 0; j < graph.nodes.length; j++)
+		{
+			nxt[i][j] = Number.MAX_VALUE;
+		}
+	}
+	
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		dist[i] = [];
+		for (var j = 0; j < graph.nodes.length; j++)
+		{
+			dist[i][j] = Number.MAX_VALUE;
+		}
+		
+		for (var j = 0; j < graph.edges.length; j++)
+		{
+			if (graph.edges[j][0] == i)
+			{
+				dist[i][graph.edges[j][1]] = 1;
+				nxt[i][graph.edges[j][1]] = graph.edges[j][1];
+			}
+			else if (graph.edges[j][1] == i)
+			{
+				dist[i][graph.edges[j][0]] = 1;
+				nxt[i][graph.edges[j][0]] = graph.edges[j][0];
+			}
+		}
+	}
+	
+	for (var k = 0; k < graph.nodes.length; k++)
+	{
+		for (var i = 0; i < graph.nodes.length; i++)
+		{
+			for (var j = 0; j < graph.nodes.length; j++)
+			{
+				if (dist[i][k] + dist[k][j] < dist[i][j])
+				{
+					dist[i][j] = dist[i][k] + dist[k][j];
+					nxt[i][j] = nxt[i][k];
+				}
+			}
+		}
+	}
+	
+	paths = [];
+	
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		paths[i] = [];
+		for (var j = 0; j < graph.nodes.length; j++)
+		{
+			if (j == i)
+			{
+				continue;
+			}
+			
+			if (nxt[i][j] == Number.MAX_VALUE)
+			{
+				continue;
+			}
+			
+			paths[i][j] = [];
+			paths[i][j].push(i);
+			var start = i;
+			while (start != j)
+			{
+				start = nxt[start][j];
+				paths[i][j].push(start);
+			}
+		}
+	}
+
+	return paths;
+}
+
+function postProcess()
+{
+	var paths = fordWarsh(graph); 
+	var text = "";
+//	text += '<table>'; 
+//	for (var i = 0; i < graph.nodes.length; i++) 
+//	{
+//		text += '<tr>'; 
+//		for (var j = 0; j < graph.nodes.length; j++) 
+//			text += '<td>' + paths[i][j] + '</td>'; 
+//		text += '</tr>'; 
+//	} 
+//	text += "</table>";
+	
+	text += "<select id='from'>";
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		text += "<option value=" + i + ">" + i + "</option>";
+	}
+	text += "</select>";
+	
+	text += "<select id='to'>";
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		text += "<option value=" + i + ">" + i + "</option>";
+	}
+	text += "</select>";
+	
+	text += "<input type='button' value='Draw Path' id='btn'>";
+	
+	document.getElementById('output').innerHTML += text;
+	document.getElementById('btn').onclick = function(){drawPath(paths[document.getElementById('from').value][document.getElementById('to').value])};
+//	document.getElementById('output').innerHTML += 'The shortest paths of are ' + text + '<br>'
+}
+
+function drawPath(path)
+{
+	drawGraph(graph);
+	
+	var c = document.getElementById ('myCanvas');
+	var ctx = c.getContext('2d');
+	
+	for (var i = 0; i < path.length - 1; i++)
+	{
+		ctx.lineWidth = 3;
+		ctx.strokeStyle = '#0000FF';
+		ctx.beginPath();
+		ctx.moveTo(graph.nodes[path[i]].xVal, graph.nodes[path[i]].yVal);
+		ctx.lineTo(graph.nodes[path[i + 1]].xVal, graph.nodes[path[i + 1]].yVal);
+		ctx.stroke();
+	}
+	
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		ctx.strokeStyle='#000000';
+		ctx.beginPath();
+		ctx.arc(graph.nodes[i].xVal, graph.nodes[i].yVal, 20, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle = '#c9c9c9';
+          
+		ctx.beginPath();
+		ctx.arc(graph.nodes[i].xVal, graph.nodes[i].yVal, 20, 0*Math.PI, 2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle='#000000';
+		ctx.font='10px Arial';
+		if (graph.nodes[i].value == 0)
+		{
+			ctx.fillText(graph.nodes[i].value, graph.nodes[i].xVal-3*(Math.floor(Math.log(graph.nodes[i].value+1)/Math.log(20))+1), graph.nodes[i].yVal+2);
+		}
+		else
+		{
+			ctx.fillText(graph.nodes[i].value, graph.nodes[i].xVal-3*(Math.floor(Math.log(graph.nodes[i].value)/Math.log(20))+1), graph.nodes[i].yVal+2);
+		}
+	}
+}
+
+</script>
+</head>
+<body>
+<h3><center>Breadth First Search</center></h3>
+<p name="input" id="input"></p>
+<canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas>
+<script type="text/javascript">
+var colors = new Array();
+colors[0] = "#0000FF";
+colors[1] = "#00FF00";
+colors[2] = "#FF0000";
+colors[3] = "#00AAFF";
+colors[4] = "#005555";
+colors[5] = "#AA00AA";
+colors[6] = "#00AAAA";
+colors[7] = "#AAAA00";
+colors[8] = "#AA00FF";
+colors[9] = "#00FFFF";
+colors[10] = "#FFAA00";
+colors[11] = "#FF00FF";
+colors[12] = "#AAAAFF";
+colors[13] = "#D2691E";
+colors[14] = "#FFAAAA";
+colors[15] = "#4682BD";
+colors[16] = "#FFFF00";
+colors[17] = "#FFFFAA";
+colors[18] = "#0000AA";
+colors[19] = "#00AA00";
+colors[20] = "#AA0000";
+colors[21] = "#F0F8FF";
+colors[22] = "#F0F8FF";
+colors[23] = "#FAEBD7";
+colors[24] = "#DEB887";
+
+var A = generate();
+var graph = init(A);
+
+</script><br>
+<p>This is program generates a graph and calculates the Graph's Density.</p>
+<p>The density of a graph G = (V,E) measures how many edges are in set E compared to the maximum possible number of edges between vertices in set V. Density is calculated as follows:</p><br>
+<input type="button" value="Get Density" onclick="postProcess()">;<br>
+<p name="output"  id="output"></p>
+</body>
+</html>

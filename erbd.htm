@@ -1,0 +1,24 @@
+<html>
+<body>
+<h2>The Ground Delay Problem with Feasibility Windows (GDPFW)</h2>
+<h3>Introduction</h3>
+<p>Scheduling flights to arrive at an airport that is expecting bad weather is a problem that involves planning around uncertainty. The uncertainty in this case is the weather itself, both in terms of how much of an impact it will have on the number of flights the airport can handle and how long the weather will have this impact. To conquer this first question of the impact on the number of flights, airports generaly have to arrival capacities that they utilize, an optimal rate and a reduced rate. Both these rates a published reguarly and known well in advance of the actual bad weather. The second question centers around how long this bad weather will last. The approach that is generally taken in practice is to deterime from the meterological forecasts the longest possible duration of the bad weather, and have the airport operate under its reduce capacity for this time period by scheduling flights according to this worse case scenario. This means that we often arrive in a situatuion where the weather clears at the troubled airport earlier than our planning anticipated. One measurement for the effectiveness of our bad weather planning is how quickly we are able to return the airport to full utilization of its optimal capicity once the weather has cleared. Our goal is seek an assignment of flights to arrival slots when the airport capacity is reduced that minimizes the amount of time it takes for the airport returns to its optimal capicity when the bad weather clears. If we are given a probability distribution of the possible times that the weather will clear, then this can be calculated by measuring by the expected total delay of all flights landing at this airport over the longest possible duration of the bad weather.</p> 
+
+<h3>The Reduced Capacity Assignment Problem</h3>
+
+<p>The set of flights that are scheduled to land at an airport are published well in advance of any bad weather. Each flight has an assigned time when it is scheduled to land at our airport, which we call the <i>arrival slot</i> and denote by <b>a_k</b> for the flight <i>k</i>. The flights also have a length (in minutes), which is the duration of the flight from its origin airport to our airport, denoted by <b>l_k</b> for the flight <i>k</i>. When the airport capacity is reduced, one task is to reassign the flights to the reduced set of arrival time slots. Because the number of landing time slots has been reduced, some flights will experience delay. This can be set up as an assignment problem where a flight can be assigned to any available time after its originally scheduled arrival slot (a_k). If we would also like to place a limit on the amount of time a flight can be delayed, then we constrain this by saying the flight can be assigned to any arrival slot after its originally scheduled arrival slot, but whose deviation is still within the allowed limits. </p>
+
+<h3>The Uncertain Expected End Time Assignemnt Problem</h3>
+
+
+
+The Expected Earliest Solution
+
+
+Claim: 
+The Expected Earliest Solution gives an optimal solution to the Ground Delay Problem with Feasibility Windows
+
+<p>Suppose the Expected Earliest does not give an optimal solution. Then there exists a pivot available on the stage 1 solution to this problem. If this pivot is a degenerative pivot, then it does not change the stage 1 assignment to the problem and we will continue to pivot until we arrive at a non-degenerative pivot. In the case of a non-degenerative pivot, this implies that there exists an alternative solution to the stage 1 assignment problem that has an equal or lower objective function value than the Expected Earliest Solution. By the construction of our objective function, this means that the new solution will have an equal or lower expected average cost than the Expected Earliest Solution. Then there exists at least one scenario, t<sub>0</sub>, and a slot j<sub>0</sub> such that the new solution utilizes the slot j<sub>0</sub> in scenario t<sub>0</sub> that is earlier than the latest slot in scenario t<sub>0</sub> that the Expected Earliest Solution usilizes. Call this latest slot that is used by the Expected Earliest Solution in scenario t<sub>0</sub> the slot j<sub>1</sub>. Let k<sub>0</sub> be the flight that the new solution assigns to the slot j<sub>0</sub> in scenario t<sub>0</sub> and let k<sub>1</sub> be the flight that the Expected Earliest solution assigns to the slot j<sub>1</sub> in scenario t<sub>0</sub>. If k<sub>0</sub> = k<sub>1</sub> (aka we are talking about the same flight under two different assignments), then there is some </p>
+
+</body>
+</html>

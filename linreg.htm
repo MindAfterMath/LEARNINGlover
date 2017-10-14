@@ -1,0 +1,1038 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta name="keywords" content="vector, linear regression, linearly independent, javascript, script, mathematics, math, linear algebra, trend line" />
+<meta name="description" content="This procedure finds the linear regression equation and displays the trend line for a given vector" />
+<title>Linear Regression at LEARNINGlover.com</title>
+<script type="text/javascript">
+function GramSchmidt(A, show)
+{
+	var text = "";
+	var uVector = new Array();
+	var eVector = new Array();
+	var sum = new Array();
+
+	for (var i = 0; i < A.length; i++)
+	{
+		text += "i = " + i + "<br>";
+		uVector[i] = new Array()
+
+		for (var j = 0; j < A[i].length; j++)
+		{
+			sum[j] = 0;
+		}
+		
+		text += "sum = " + sum + "<br>";
+		for (var j = 0; j < i; j++)
+		{
+			temp = proj(eVector[j], A[i]);
+			for (var k = 0; k < temp.length; k++)
+			{
+				sum[k] += temp[k];
+			}
+			text += "proj<sub>e<sub>" + j + "</sub></sub>(" + A + "<sub>" + i + "</sub>) = " + proj(eVector[j], A[i]) + "<br>";
+		}
+		
+		for (var j = 0; j < A[i].length; j++)
+		{
+			uVector[i][j] = A[i][j] - sum[j];
+		}
+		text += "u[" + i + "] = " + A[i] + " - <img src='http://www.learninglover.com/chars/sum.gif'><sub>i = 0 to " + (i-1) + "</sub> proj<sub>e<sub>i</sub></sub>(" + A[i] + ") = " + uVector[i] + "<br>";
+		
+		var norm = normal(uVector[i]);
+		
+		eVector[i] = new Array();
+		
+		for (var j = 0; j < A[i].length; j++)
+		{
+			eVector[i][j] = uVector[i][j] / norm;
+		}
+		text += "e[" + i + "] = " + uVector[i] + " / ||" + uVector[i] + "|| = " + uVector[i] + " / " + norm + " = " + eVector[i] + "<br>";
+	}
+
+	if (show)
+	{
+		document.getElementById('output').innerHTML += text;
+	}
+
+	return uVector;
+}
+
+function multiply(A, B, show)
+{
+	var C = new Array(A.length);
+	
+	for (var i = 0; i < C.length; i++)
+	{
+		C[i] = new Array(B[0].length);
+	}
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		for (var j = 0; j < B[0].length; j++)
+		{
+			var sum = 0;
+			for (var k = 0; k < A[i].length; k++)
+			{
+				sum += A[i][k]*B[k][j];
+			}
+			
+			C[i][j] = sum;
+		}
+	}
+	
+	return C;
+}
+
+function transpose(A)
+{
+	var ATrans = new Array(A[0].length);
+	for (var i = 0; i < ATrans.length; i++)
+	{
+		ATrans[i] = new Array(A.length);
+		for (var j = 0; j < ATrans[i].length; j++)
+		{
+			ATrans[i][j] = A[j][i];
+		}
+	}
+	
+	return ATrans;
+}
+
+function mean(data)
+{
+	var size = data.length;
+	var sum = 0;
+	
+	for (var i = 0; i < data.length; i++)
+	{
+		sum += parseFloat(data[i]);
+	}
+	
+	return (sum / size);
+}
+
+function autocorr(lag, data)
+{
+	var numer = 0;
+	var denom = 0;
+	var mu = mean(data);
+	
+	for (var i = lag; i < data.length; i++)
+	{
+		numer += ((data[i] - mu)*(data[i-lag] - mu));
+	}
+
+	for (var i = 0; i < data.length; i++)
+	{
+		denom += (data[i] - mu)*(data[i] - mu);
+	}
+
+	return (numer / denom);
+}
+
+function multLinReg(X, y, show)
+{
+	var text = "";
+
+	//1. Conduct QR Decomposition of X = QR
+	var decomp = QRDecomp(X, show);
+	
+	text += "<table><tr><td>";
+	
+	text += "Q = <table>";
+	
+	for (var i = 0; i < decomp.Q.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < decomp.Q[i].length; j++)
+		{
+			text += "<td>" + decomp.Q[i][j].toFixed(3) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	text += "</td><td>";
+	
+	text += "R = <table>";
+	
+	for (var i = 0; i < decomp.R.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < decomp.R[i].length; j++)
+		{
+			text += "<td>" + decomp.R[i][j].toFixed(3) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	text += "</td></tr></table>";
+
+	//2. Compute Q^T y
+	var rhs = multiply(transpose(decomp.Q), y, show);
+	//3. Solve the triangular system R[beta] = Q^Ty for [beta]
+	
+	for (var i = 0; i < rhs.length; i++)
+	{
+		text += "rhs[" + i + "] = " + rhs[i][0].toFixed(3) + "<br>";
+	}
+
+	text += "<br>";
+	
+	text += dispSystem(decomp.R, rhs);
+
+	text += "<br>";
+	
+	var sol = GElim(decomp.R, rhs);
+//	
+//	for (var i = 0; i < sol.length; i++)
+//	{
+//		text += "<img src='http://learninglover.com/chars/beta.gif'><sub>" + (i+1) + "</sub> = " + sol[i].toFixed(3) + "<br>";
+//	}
+//
+//	text += "<br>";
+//
+//	text += "So the trend line evaluates to <br>";
+//	text += "y = ";
+//
+//	for (var i = 0; i < sol.length; i++)
+//	{
+//		text += sol[i].toFixed(4);
+//		if (i == 1)
+//		{
+//			text += "*x<br>";
+//		}
+//		else
+//		{
+//			text += " + ";
+//		}
+//	}
+	
+	if (show)
+	{
+		document.getElementById("output").innerHTML += text;
+	}
+	
+	return sol;
+}
+
+function GElim(A, b) 
+{ 
+	var x = new Array();
+	var rowmax;
+ 	var temp;
+
+	for (var i = 0; i < A.length; i++)
+ 	{
+		x[i] = 0;
+		//Find the Maximum element of row i. 
+		rowmax = i;
+ 		for (var j = i + 1; j < A[i].length; j++)
+		{
+			if (Math.abs(A[j][i]) > Math.abs(A[rowmax][i]))
+			{
+				rowmax = j;
+			}
+		}
+
+		if (rowmax != i)
+		{
+			for (var k = i; k < A[i].length; k++)
+			{
+				temp = A[i][k];
+				A[i][k] = A[rowmax][k];
+				A[rowmax][k] = temp;
+			}
+			
+			temp = b[i];
+			b[i] = b[rowmax];
+			b[rowmax] = temp;
+		}
+
+		if (Math.abs(A[i][i]) < 0.00001)
+		{
+			text += "The Matrix is singular, so we cannot perform Gaussian Elimination on this problem. ";
+			return FALSE;
+		}
+		
+		denom = A[i][i];
+		for (var k = i; k < A[i].length; k++)
+		{
+			A[i][k] = (A[i][k] / denom);
+		}
+		b[i] = b[i] / denom;
+
+		for (var j = i+1; j < A.length; j++)
+		{
+			b[j] -= (b[i] * A[j][i]);
+			for (var k = A[i].length-1; k >= i; k--)
+			{
+				A[j][k] -= (A[i][k] * A[j][i]);
+			}
+		}
+	}
+	
+	var text = "<table>";
+	for (var i = 0; i < A.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < A[i].length; j++)
+		{
+			text += "<td>" + A[i][j] + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	var text = "<table>";
+	for (var i = 0; i < b.length; i++)
+	{
+		text += "<tr>";
+		text += "<td>" + b[i][0] + "</td>";
+		text += "</tr>";
+	}
+	text += "</table>";
+	document.getElementById("output").innerHTML += "text = " + text;
+
+ 	for (var j = A.length-2; j >= 0; j--) 	
+	{
+		temp = 0.0; 		
+		for (var k = j+1; k < A.length; k++)
+		{
+			temp += A[j][k] * x[k];
+			alert("A[j][k] = " + A[j][k] + ", x[k] = " + x[k]);
+		}
+		alert("temp = " + temp);
+		x[j] = ((b[j]-temp) / A[j][j]); 	
+	} 	
+	
+	return x;
+}
+
+function dispSystem(A, b)
+{
+	var text = "";
+	
+	for (var i = 0; i < A.length; i++) 
+	{
+		for (var j = 0; j < A[i].length; j++)
+		{
+			if (A[i][j] != 0)
+			{
+				text += A[i][j].toFixed(3) + "x<sub>" + j + "</sub> + ";
+			}
+		}
+		
+		text += " = " + b[i][1].toFixed(3) + "<br>";
+	}
+	
+	return text;
+}
+
+function QRDecomp(A, show)
+{
+	var aVectors = transpose(A);	
+	var uVector = new Array();
+	var eVector = new Array();
+	var eVectorTxt = new Array();
+	var sum = new Array();
+	var text = "";
+
+	for (var i = 0; i < aVectors.length; i++)
+	{
+		uVector[i] = new Array()
+
+		for (var j = 0; j < aVectors[i].length; j++)
+		{
+			sum[j] = 0;
+		}
+		
+		for (var j = 0; j < i; j++)
+		{
+			temp = proj(eVector[j], aVectors[i]);
+			for (var k = 0; k < temp.length; k++)
+			{
+				sum[k] += temp[k];
+			}
+			proj(eVector[j], aVectors[i]) + "<br>";
+		}
+		
+		for (var j = 0; j < aVectors[i].length; j++)
+		{
+			uVector[i][j] = aVectors[i][j] - sum[j];
+		}
+		
+		var norm = normal(uVector[i]);
+		
+		eVector[i] = new Array();
+		eVectorTxt[i] = new Array();
+		
+		for (var j = 0; j < aVectors[i].length; j++)
+		{
+			eVector[i][j] = uVector[i][j] / norm;
+			eVectorTxt[i][j] = uVector[i][j] + " / " + norm;
+		}
+	}
+	
+	uVector = transpose(uVector);
+	eVector = transpose(eVector);
+	eVectorTxt = transpose(eVectorTxt);
+
+	var decomp = new Object();
+	decomp.Q = new Array();
+	
+	for (var i = 0; i < eVector.length; i++)
+	{
+		decomp.Q[i] = eVectorTxt[i];
+	}
+	
+	for (var i = 0; i < eVector.length; i++)
+	{
+		decomp.Q[i] = eVector[i];
+	}
+	
+	decomp.R = multiply(transpose(decomp.Q), A, false);
+	
+	QRCheck(decomp, aVectors);
+
+	text += "A = QR, where <table><tr><td>Q = </td><td>";
+	text += "<table>";
+
+	for (var i = 0; i < decomp.Q.length; i++) 
+	{
+		text += "<tr>";
+		for (var j = 0; j < decomp.Q[i].length; j++)
+		{
+			text += "<td>" + decomp.Q[i][j].toFixed(3) + "</td>";
+		}
+		
+		text += "</tr>";
+	}
+	
+	text += "</table></td></tr></table>";
+	text += "<table><tr><td>R = </td><td><table>";
+
+	for (var i = 0; i < decomp.R.length; i++) 
+	{
+		text += "<tr>";
+		for (var j = 0; j < decomp.R[i].length; j++)
+		{
+			text += "<td>" + decomp.R[i][j].toFixed(3) + "</td>";
+		}
+		
+		text += "</tr>";
+	}
+	text += "</table></tr></td></table>";
+	if (show)
+	{
+		document.getElementById("output").innerHTML += text;
+	}
+	return decomp;
+}
+
+function QRCheck(decomp, A)
+{
+	var text = "A = <table>";
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < A[i].length; j++)
+		{
+			text += "<td>" + A[i][j] + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>Q = <table>";
+	
+	for (var i = 0; i < decomp.Q.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < decomp.Q[i].length; j++)
+		{
+			text += "<td>" + decomp.Q[i][j].toFixed(3) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>R = <table>";
+	
+	for (var i = 0; i < decomp.R.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < decomp.R[i].length; j++)
+		{
+			text += "<td>" + decomp.R[i][j].toFixed(3) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table> QR = <table>";
+	var QR = multiply(decomp.Q, decomp.R, false);
+	
+	for (var i = 0; i < QR.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < QR[i].length; j++)
+		{
+			text += "<td>" + QR[i][j].toFixed(3) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+//	document.getElementById("output").innerHTML += text;
+}
+
+function proj(vec1, vec2)
+{
+	var denom = innerProd(vec1, vec1);
+	var numer = innerProd(vec1, vec2);
+	
+	var vec3 = new Array();
+	
+	for (var i = 0; i < vec1.length; i++)
+	{
+		vec3[i] = (numer / denom) * vec1[i];
+	}
+	
+//	document.getElementById("output").innerHTML += text;
+	
+	return vec3;
+}
+
+function innerProd(vec1, vec2)
+{
+	if (vec1.length == vec2.length)
+	{
+		var ans = 0;
+		for (var i = 0; i < vec1.length; i++)
+		{
+			ans += vec1[i] * vec2[i];
+		}
+		
+		return ans;
+	}
+}
+
+function normal(vec)
+{
+	var norm = 0;
+	for (var i = 0; i < vec.length; i++)
+	{
+		norm += vec[i]*vec[i];
+	}
+	norm = Math.sqrt(norm);
+	
+	return norm;
+}
+
+function postProcess(b, show)
+{
+	var text = "";
+	text += "<table><tr><td><b>x</b></td><td><b>y</b></td></tr>";
+	for (var i = 0; i < b.length; i++)
+	{
+		text += "<tr><td>" + b[i][0].toFixed(3) + "</td><td>" + b[i][1].toFixed(3) + "</td></tr>";
+	}
+	text += "</table>";
+	
+	var A = new Array(b.length);
+	for (var i = 0; i < b.length; i++)
+	{
+		A[i] = new Array();
+		A[i][0] = 1;
+		A[i][1] = b[i][0];
+	}
+
+	if (show)
+	{
+		text += "<table><tr><td>";	
+		text += "A = <table>";
+	
+		for (var i = 0; i < A.length; i++)
+		{
+			text += "<tr>";
+			for (var j = 0; j < A[i].length; j++)
+			{
+				text += "<td>" + A[i][j].toFixed(3) + "</td>";
+			}
+			text += "</tr>";
+		}
+		text += "</table>";
+		text += "</td><td>";
+		text += "<table><tr><td><img src='http://www.learninglover.com/chars/beta.gif'><sub>1</sub></td></tr><tr><td><img src='http://www.learninglover.com/chars/beta.gif'><sub>2</sub></td></tr></table>";
+		text += "</td><td> = </td><td>";
+		text += "<table>"
+	
+		for (var i = 0; i < b.length; i++)
+		{
+			text += "<tr><td>" + b[i][1].toFixed(3) + "</td></tr>";
+		}
+		text += "</table>";
+		text += "</td></tr></table>";
+	}
+	
+	sol = multLinReg(A, b, show);
+	
+	text += "f<sub>i</sub> = " + sol[0].toFixed(4) + " + " + sol[1].toFixed(3) + "*i<br>";
+
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("fitBtn").hidden = false;
+
+	drawLine(b, sol);	
+}
+
+function checkFit(b, sol, show)
+{
+	var text = "";
+
+	if (show)
+	{
+		text += "We would like to check the 'Goodness of Fit' of this model. To do this, we will perform the R-squared test<br>";
+		text += "To compute this we will calculate: <br>";
+		text += "<ol>";
+		text += "<li>SS<sub>tot</sub> = <img src='http://www.learninglover.com/chars/sum.gif'><sub>i = 1 to n</sub>(b<sub>i</sub> - <img src='http://learninglover.com/chars/bbar.jpg'>)<sup>2</sup>";
+		text += "<li>SS<sub>res</sub> = <img src='http://www.learninglover.com/chars/sum.gif'><sub>i = 1 to n</sub>(b<sub>i</sub> - f<sub>i</sub>)<sup>2</sup>";
+		text += "</ol>";
+
+		text += "The definition of the R-squared test is ";
+		text += "<table><tr><td>1 - </td><td><table><tr><td>SS<sub>res</sub></td></tr><tr><td><hr></td></tr><tr><td>SS<sub>tot</sub></td></tr></table></td></tr></table>";
+	}
+	
+	var sstot = 0;
+	var ssres = 0;
+	var dtamean = 0;
+
+	for (var i = 0; i < b.length; i++)
+	{
+		dtamean += parseFloat(b[i][0]);
+	}
+
+	dtamean = dtamean / b.length;
+
+	if (show)
+	{
+		text += "<img src='http://www.learninglover.com/chars/ybar.jpg'> = " + dtamean.toFixed(3) + "<br>";
+	}
+
+	var z = new Array();
+
+	for (var i = 0; i < b.length; i++)
+	{
+		z[i] = sol[1]*(i) + sol[0];
+		sstot += ((b[i][0] - dtamean)*(b[i][0] - dtamean));
+		ssres += ((b[i][0] - (sol[1]*(i) + sol[0]))*(b[i][0] - (sol[1]*(i) + sol[0])));
+	}
+	
+	if (show)
+	{
+		text += "SS<sub>tot</sub> = " + sstot.toFixed(3) + "<br>";
+		text += "SS<sub>res</sub> = " + ssres.toFixed(3) + "<br>";
+	}
+
+	var rsq = 1 - (ssres / sstot);
+
+	text += "The R-squared term for this linear regression is <br>";
+
+	text += "R-Squared: " + rsq.toFixed(3) + "<br>";
+
+	if (rsq < 0.5)
+	{
+		text += "This implies that we should not have too much faith in this linear regression. To see why, we must understand that this data represents a time series and not an independent data set (a player's results for this current week are influenced by how he's performed in previous weeks).<br>";
+		text += "We can also see this by looking at the autocorrelation of the residuals. <br><br>";
+		var ers = new Array();
+		ers = getErrors(b, sol);
+
+		text += "This trend line gives the following errors: <br>";
+		for (var i = 0; i < ers.length; i++)
+		{
+			text += "Error[" + (i+1) + "] = " + ers[i].toFixed(3) + "<br>";
+		}
+
+		text += "<br>";
+
+		text += "To check how accurate we can use this model to predict future events, we consider the autocorrelation of these errors: <br>";
+
+		var acr = new Array();
+		acr[0] = 1;
+		for (var i = 1; i < b.length - 1; i++)
+		{
+			var len = acr.length;
+			acr[len] = autocorr(i, ers);
+		}
+
+		for (var i = 0; i < acr.length; i++)
+		{
+			text += "autoCorrelation(" + i + ") = " + acr[i].toFixed(3) + "<br>";
+		}
+
+		text += "For linear regressions, we would the expected value of the autocorrelation of errors to be zero. We can see here that they are not. <br><br>";
+	}
+
+	document.getElementById("output").innerHTML += text;
+
+}
+
+function init()
+{
+	document.getElementById('fitBtn').hidden = true;
+	document.getElementById('output').innerHTML = '';
+
+	var numElts = document.getElementById('noElts').value;
+	var incDec = Math.floor(Math.random()*2);
+	var atZero = Math.floor(Math.random()*20) + 10;
+	var rate = Math.floor(Math.random()*5);
+	var vrnce;
+	do
+	{
+		vrnce = Math.floor(Math.random()*5);
+	}
+	while (vrnce == 0);
+	
+	var xMin = 0;
+	var xMax = Math.floor(Math.random()*25) + xMin + 5;
+	
+	if (!incDec)
+	{
+		incDec = -1;
+	}
+	
+	var b = new Array();
+	var text = "";
+	
+	text += "incDec = " + incDec + "<br>";
+	text += "atZero = " + atZero + "<br>";
+	text += "rate = " + rate + "<br>";
+	text += "vrnce = " + vrnce + "<br>";
+	
+	text += "<table><tr><td><b>x</b></td><td><b>y</b></td></tr>";
+	for (var i = 0; i < numElts; i++)
+	{
+		var noise = Math.random()*vrnce;
+		var len = b.length;
+		b[len] = new Array();
+		b[len][0] = Math.floor(Math.random()*(xMax - xMin)*100)/100;
+		b[len][1] = atZero + incDec*rate*b[len][0] + noise;
+		text += "<tr><td>" + b[len][0].toFixed(3) + "</td><td>" + b[len][1].toFixed(3) + "</td></tr>";
+	}
+	text += "</table>";
+	document.getElementById("output").innerHTML += text;
+	
+	drawPoints(b);
+	
+	return b;
+}
+
+function max_y(data)
+{
+	var mxm = Number.MIN_VALUE;
+	for (var i = 0; i < data.length;  i++)
+	{
+		if (parseFloat(data[i][1]) > mxm)
+		{
+			mxm = parseFloat(data[i][1]);
+		}
+	}
+	
+	return mxm;
+}
+
+function min_y(data)
+{
+	var mnm = Number.MAX_VALUE;
+	for (var i = 0; i < data.length;  i++)
+	{
+		if (parseFloat(data[i][1]) < mnm)
+		{
+			mnm = parseFloat(data[i][1]);
+		}
+	}
+	
+	return mnm;
+}
+
+function max_x(data)
+{
+	var mxm = Number.MIN_VALUE;
+	for (var i = 0; i < data.length;  i++)
+	{
+		if (parseFloat(data[i][0]) > mxm)
+		{
+			mxm = parseFloat(data[i][0]);
+		}
+	}
+	
+	return mxm;
+}
+
+function min_x(data)
+{
+	var mnm = Number.MAX_VALUE;
+	for (var i = 0; i < data.length;  i++)
+	{
+		if (parseFloat(data[i][0]) < mnm)
+		{
+			mnm = parseFloat(data[i][0]);
+		}
+	}
+	
+	return mnm;
+}
+
+function evalReg(beta, xVal)
+{
+	return (beta[0] + beta[1]*xVal);
+}
+
+function getErrors(data, beta)
+{
+	var errors = new Array();
+	
+	for (var i = 0; i < data.length; i++)
+	{
+		errors[i] = data[i][0] - evalReg(beta, i);
+	}
+	
+//	document.getElementById("output").innerHTML += "The Errors in this Regression are :<br>";
+//	
+//	for (var i = 0; i < errors.length; i++)
+//	{
+//		document.getElementById("output").innerHTML += (i+1) + ": " + errors[i].toFixed(3) + "<br>";
+//	}
+
+	return errors;
+}
+
+function drawPoints(data)
+{
+	var mxm_y = max_y(data);
+	var mnm_y = min_y(data);
+	var mxm_x = max_x(data);
+	var mnm_x = 0;
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	var vpp_y;
+	var vpp_x;
+	var numRows;
+	var loc_y;
+	var loc_x = 0;
+	
+	if (mnm_y < 0)
+	{
+		vpp_y = (mxm_y - mnm_y) / c.height;
+		numRows = Math.ceil(mxm_y - mnm_y);
+		loc_y = c.height - (mxm_y) / vpp_y;
+	}
+	else
+	{
+		vpp_y = (mxm_y) / c.height;
+		numRows = Math.ceil (mxm_y);
+		loc_y = 0;
+	}
+	
+	document.getElementById("output").innerHTML += "min_x = " + mnm_x.toFixed(3) + ", max_x = " + mxm_x.toFixed(3) + "<br>";
+	document.getElementById("output").innerHTML += "min_y = " + mnm_y.toFixed(3) + ", max_y = " + mxm_y.toFixed(3) + "<br>";
+	document.getElementById("output").innerHTML += "loc_x = " + loc_x + ", loc_y = " + loc_y + "<br>";
+	
+	vpp_x = (mxm_x - mnm_x) / c.width;
+	
+	document.getElementById("output").innerHTML += "vpp_x = " + vpp_x.toFixed(3) + ", vpp_y = " + vpp_y.toFixed(3) + "<br>";
+	numClms = Math.ceil(mxm_x - mnm_x);
+	
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect (0, 0, c.width, c.height);
+	
+	var xWidth = c.width / numClms;
+	var yHeight = c.height / numRows;
+	
+	document.getElementById("output").innerHTML += "xWidth = " + xWidth.toFixed(3) + ", yHeight = " + yHeight.toFixed(3) + "<br>";
+	
+	//Draw the axes
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(loc_x, 0);
+	ctx.lineTo(loc_x, c.height);
+	ctx.stroke();
+	
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(0, c.height - loc_y);
+	ctx.lineTo(c.width, c.height - loc_y);
+	ctx.stroke();
+	
+	//Draw the notches
+	for (var i = 0; i < c.height; i += yHeight)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(loc_x    , c.height - loc_y - i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y - i);
+		
+		ctx.moveTo(loc_x    , c.height - loc_y + i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y + i);
+		ctx.stroke();
+	}
+	
+	for (var i = 0; i < c.width; i += xWidth)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(i, c.height - loc_y + 5);
+		ctx.lineTo(i, c.height - loc_y - 5);
+		ctx.stroke();
+	}	
+	
+	for (var i = 0; i < data.length;  i++)
+	{
+		ctx.beginPath();
+		ctx.arc((data[i][0])*xWidth,c.height - data[i][1]*yHeight - loc_y,3,0,2*Math.PI);
+		ctx.stroke();
+	}
+}
+
+function drawLine(data, beta)
+{
+	var mxm_y = max_y(data);
+	var mnm_y = min_y(data);
+	var mxm_x = max_x(data);
+	var mnm_x = 0;
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	var vpp_y;
+	var vpp_x;
+	var numRows;
+	var loc_y;
+	var loc_x = 0;
+	
+	if (mnm_y < 0)
+	{
+		vpp_y = (mxm_y - mnm_y) / c.height;
+		numRows = Math.ceil(mxm_y - mnm_y);
+		loc_y = c.height - (mxm_y) / vpp_y;
+	}
+	else
+	{
+		vpp_y = (mxm_y) / c.height;
+		numRows = Math.ceil (mxm_y);
+		loc_y = 0;
+	}
+	
+	vpp_x = (mxm_x - mnm_x) / c.width;
+	
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect (0, 0, c.width, c.height);
+	
+	numClms = Math.ceil(mxm_x - mnm_x);
+	var xWidth = c.width / numClms;
+	var yHeight = c.height / numRows;
+	
+	//Draw the axes
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(loc_x, 0);
+	ctx.lineTo(loc_x, c.height);
+	ctx.stroke();
+	
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(0, c.height - loc_y);
+	ctx.lineTo(c.width, c.height - loc_y);
+	ctx.stroke();
+	
+	//Draw the notches
+	for (var i = 0; i < c.height; i += yHeight)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(loc_x    , c.height - loc_y - i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y - i);
+		
+		ctx.moveTo(loc_x    , c.height - loc_y + i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y + i);
+		ctx.stroke();
+	}
+	
+	for (var i = 0; i < c.width; i += xWidth)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(i, c.height - loc_y + 5);
+		ctx.lineTo(i, c.height - loc_y - 5);
+		ctx.stroke();
+	}	
+	
+	for (var i = 0; i < data.length;  i++)
+	{
+		ctx.beginPath();
+		ctx.arc((data[i][0])*xWidth,c.height - data[i][1]*yHeight - loc_y,3,0,2*Math.PI);
+		ctx.stroke();
+	}
+	
+	var pt0x = 0;
+	var pt0y = evalReg(beta, pt0x-1);
+	
+	var pt1x = data.length+1;
+	var pt1y = evalReg(beta, pt1x-1);
+
+	ctx.strokeStyle = "#3333ff";
+	ctx.beginPath();
+	ctx.moveTo(pt0x*xWidth, c.height - pt0y*yHeight - loc_y);
+	ctx.lineTo(pt1x*xWidth, c.height - pt1y*yHeight - loc_y);
+	ctx.stroke();
+
+	for (var i = 0; i < data.length;  i++)
+	{
+		ctx.strokeStyle = "#FFFF00";
+		ctx.beginPath();
+		ctx.moveTo((i+1)*xWidth, c.height - evalReg(beta, (i))*yHeight-loc_y);
+		ctx.lineTo((i+1)*xWidth, c.height - data[i][0]*yHeight - loc_y)
+		ctx.stroke();
+	}	
+}
+</script>
+</head>
+<body>
+<div id="content">
+  <h3><center>Linear Regression</center></h3>
+  <p>We will use the Linear Regression technique to generate trend lines for a randomly generated vector. We do this by solving the system of equations A<img src="http://learninglover.com/chars/beta.gif"> = b, where b is the randomly generated vector and A is the coefficient matrix <img src="http://learninglover.com/chars/beta.gif"><sub>1</sub> + <img src="http://learninglover.com/chars/beta.gif"><sub>2</sub> for each equation. <br><br>
+  Because A is a rectangular matrix, we will be able to solve this system by decomposing A into an orthogonal matrix Q and an upper triangular matrix R (using QR decomposition), i.e A = QR. <br><br>
+  Once we have decomposed the matrix, we can multiply both sides of the system of equations by Q<sup>T</sup> which by the definition of orthogonal matrices is the inverse of Q and we arrive at the system of linear equations R<img src="http://learninglover.com/chars/beta.gif"> = Q<sup>T</sup>b. <br><br>
+  We can then use back-substitution to solve the system of equations for the vector <img src="http://learninglover.com/chars/beta.gif">. 
+  </p>
+<form name="data" id="data">
+  <p name="input" id="input"></p>
+  <select name=noElts id=noElts onchange="b = init()">
+    <option value="25">25 Points</option>
+    <option value="50">50 Points</option>
+    <option value="100">100 Points</option>
+    <option value="200">200 Points</option>
+</select>
+<input type="button" value="Trend Line" id=button1 name=button1 onclick="postProcess(b, document.getElementById('show').checked)">
+  <input type="button" value="Check Fitness" id=fitBtn name=fitBtn onclick="checkFit(b, sol, document.getElementById('show').checked)">
+  Show Work <input type="checkbox" id="show" name="show"><br>
+  <center>
+    <canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas><br>
+    <input type="button" value="New Problem" id=button1 name=button1 onclick="b = init()">
+  </center>
+  <p name="output" id="output"></p>
+  <script type="text/javascript">
+    var sol;
+    var b = init();
+  </script>
+</FORM>
+<img src="/cgi-sys/Count.cgi?df=learni38-ctr1.dat|display=Counter|ft=6|md=5|frgb=100;139;216|dd=F">
+</div>
+ <!-- end #content -->
+</body>
+</html>

@@ -1,0 +1,394 @@
+<html>
+<head>
+<title>Bayes' Theorem</title>
+<script type="text/javascript">
+function clearRect()
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	return;
+}
+
+function display(set)
+{
+	var i, text = "";
+	text += "{";
+	for (i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+	}
+	text += "}";
+	
+	return text;
+}
+
+function dispClusters(items, k, clusters, labels)
+{
+	var text = "<table>";
+	var i, j;
+
+	for (i = 0; i < clusters.length; i++)
+	{
+		text += "<tr><td width=150><b>Cluster " + i + ":</b></td>";
+		text += "<td width=150><b>(" + Math.round(clusters[i][0]*100)/100 + ", " +
+		Math.round(clusters[i][1]*100)/100 + ")</b></td>";
+		for (j = 0; j < items.length; j++)
+			if (labels[j] == i)
+				text += "<td width=150>(" + items[j][0] + ", " + items[j][1] + ")</td>";
+		text += "</tr>";
+	}
+
+	text += "</table>";
+	return text;
+}
+
+function circlePts(input)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	for (i = 0; i < input.length; i++)
+	{
+		ctx.strokeStyle="#FF0000";
+		ctx.beginPath();
+		ctx.arc(input[i].xLoc, c.height-input[i].yLoc, 15, 0, Math.PI*2);
+		ctx.stroke();
+	}
+}
+
+function dispPts(input)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#000000";
+
+	for (i = 0; i < input.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(input[i].xLoc,c.height-input[i].yLoc,10,0,Math.PI*2);
+		ctx.stroke();
+
+		ctx.fillStyle=input[0].color;
+		ctx.beginPath();
+		ctx.arc(input[i].xLoc,c.height-input[i].yLoc,10,0,Math.PI*2);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(input[i].value, input[i].xLoc-3*(Math.floor(Math.log(input[i].value)/Math.log(10))+1), c.height-input[i].yLoc+4);
+	}
+}
+
+function drawLines(set)
+{
+	var i, j;
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	for (i = 0; i < set.length; i++)
+	{
+		ctx.strokeStyle = "#FF0000";
+		ctx.lineWidth = 2;
+		ctx.beginPath();
+		if (set[i].xLoc < 250)
+		{
+			ctx.moveTo(275, 20);
+			ctx.lineTo(set[i].xLoc + 30, 20);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc + 30, c.height-set[i].yLoc);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc + 15, c.height-set[i].yLoc);
+			ctx.stroke();
+		}
+		else
+		{
+			ctx.moveTo(275, 20);
+			ctx.lineTo(set[i].xLoc - 30, 20);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc - 30, c.height-set[i].yLoc);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc - 15, c.height-set[i].yLoc);
+			ctx.stroke();
+		}
+	}
+	
+	ctx.strokeStyle="#000000";
+	ctx.beginPath();
+	ctx.arc(275, 20,15,0,Math.PI*2);
+	ctx.stroke();
+
+	ctx.fillStyle="#FFFFFF";
+	ctx.beginPath();
+	ctx.arc(275,20,15,0,Math.PI*2);
+	ctx.fill();
+
+	ctx.fillStyle="#000000";
+	ctx.font="15px Arial";
+	ctx.fillText("A", 275-4*(Math.floor(Math.log(1)/Math.log(10))+1), 24);
+}
+
+function generate(univ, n)
+{
+	var A = new Array(n);
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*univ.length);
+		if (search(A, univ[next]) == -1)
+		{
+			A[i] = univ[next];
+		}
+		else
+			i--;
+	}
+	
+	return A;
+}
+
+function init(B, set1, set2, k1)
+{
+	B = new Array();
+	var univ = new Array();
+	var ans = new Array();
+	var text = "";
+	var i, j;
+	var total = new Array();
+	var A = new Array();
+	var colors = new Array();
+
+	colors[0] = "#0000FF";
+	colors[1] = "#00FF00";
+	colors[2] = "#FF0000";
+	colors[3] = "#00AAFF";
+	colors[4] = "#005555";
+	colors[5] = "#AA00AA";
+	colors[6] = "#00AAAA";
+	colors[7] = "#AAAA00";
+	colors[8] = "#AA00FF";
+	colors[9] = "#00FFFF";
+	colors[10] = "#FFAA00";
+	colors[11] = "#FF00FF";
+	colors[12] = "#AAAAFF";
+	colors[13] = "#D2691E";
+	colors[14] = "#FFAAAA";
+	colors[15] = "#4682BD";
+	colors[16] = "#FFFF00";
+	colors[17] = "#FFFFAA";
+	colors[18] = "#0000AA";
+	colors[19] = "#00AA00";
+	colors[20] = "#AA0000";
+	colors[21] = "#F0F8FF";
+	colors[22] = "#F0F8FF";
+	colors[23] = "#FAEBD7";
+	colors[24] = "#DEB887";
+	
+	for (i = 1; i < 100; i++)
+	{
+		univ[i-1] = i;
+	}
+	
+	var select = document.getElementById("sets");
+	
+	for (i = 0; i < k1; i++)
+	{
+		select.options[select.options.length] = new Option(i, i);
+		var k2 = Math.floor(Math.random()*6)+1;
+		var temp = generate(univ, k2);
+		B[i] = new Array();
+		for (j = 0; j < temp.length; j++)
+		{
+			B[i][j] = new Object();
+			if (j == 0)
+				B[i][j].color = colors[i];
+				
+			B[i][j].value = temp[j];
+			var loc1 = search(univ, B[i][j].value);
+			univ[loc1] = univ[univ.length-1];
+			univ.length--;
+			total[total.length] = B[i][j].value;
+		}
+		B[i] = setLocs(B[i]);
+		dispPts(B[i]);
+	}
+	
+	ans[0] = B;
+	
+	var k2 = Math.floor(Math.random()*10)+1;
+	var temp = generate(total, k2);
+/*	A = new Array();
+	for (i = 0; i < temp.length; i++)
+	{
+		A[i] = new Object();
+		A[i].value = temp[i];
+	}
+	A = setLocs(A);
+	circlePts(A);
+	drawLines(A);
+	
+	for (i = 0; i < k1; i++)
+	{
+		set1[i] = new Object();
+		set1[i].num = B[i].length;
+		set1[i].den = total.length;
+		
+		set2[i] = new Object();
+		set2[i].num = intersect(A, B[i]).length;
+		set2[i].den = B[i].length;
+	}
+*/	
+	ans[1] = set1;
+	ans[2] = set2;
+	ans[3] = total;
+//	ans[4] = A;
+		
+	text += "<table><tr><td></td>";
+	
+	for (var i = 0; i < k1; i++)
+		text += "<td bgcolor='" + colors[i] + "'>B<sub>" + i + "</sub></td>";
+	text += "</tr><tr><td>Pr(B<sub>i</sub>)</td>";
+
+	for (var i = 0; i < k1; i++)
+	{
+		if (i < set1.length - 1)		
+			text += "<td>" + set1[i].num + "/" + set1[i].den + "</td>";
+		else
+			text += "<td>" + set1[i].num + "/" + set1[i].den + "</td></tr>";
+	}
+
+	text += "<tr><td>Pr(A | B<sub>i</sub>)</td>";
+	for (var i = 0; i < set2.length; i++)
+	{
+		if (i < set2.length - 1)
+			text += "<td>" + set2[i].num + "/" + set2[i].den + "</td>";
+		else
+			text += "<td>" + set2[i].num + "/" + set2[i].den + "</td></tr>";
+	}
+	
+	document.getElementById("list").innerHTML = text;	
+	
+	return ans;
+}
+
+function intersect(set1, set2)
+{
+	var set3 = new Array();
+	var i, j;
+
+	for (i = 0; i < set2.length; i++)
+	{
+		for (j = 0; j < set1.length; j++)
+			if (set2[i].value == set1[j].value)
+				set3[set3.length] = set2[i].value;
+	}
+
+	return set3;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = -1;
+
+	for (i = 0; i < set.length && ans == -1; i++)
+		if (set[i] == elmnt)
+			ans = i;
+
+	return ans;
+}
+
+function setLocs(set)
+{
+	var c = document.getElementById("myCanvas");
+	var i, j, temp;
+		
+	for (i = 0; i < set.length; i++)
+	{
+			set[i].yLoc = (Math.floor(set[i].value / 10)) * 35 + 25;
+			set[i].xLoc = (set[i].value % 10) * 55 + 25;
+	}
+	return set;
+}
+
+function union(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+		set3[i] = set1[i];
+	
+	for (i = 0; i < set2.length; i++)
+	{
+		if (search(set3, set2[i]) != -1)
+			set3[set3.length] = set2[i];
+	}
+
+	return set3;
+}
+</script>
+</head>
+<body>
+<h3><center>Bayes' Theorem</center></h3><p><p>
+Bayes' Theorem evaluates the probability of an event 
+conditional upon another event of known probability having taken place. <br>
+<br>
+Suppose <b>B<sub>1</sub></b>, ..., <b>B<sub>n</sub></b> are a set of mutually exclusive 
+events coving the entire sample space and <b>A</b> is an event that has been observed. <br>
+<br>
+The probability that the event B<sub>j</sub> is the causal event giving rise to A, i.e. the 
+probability of B<sub>j</sub> conditional upon A, is given by Bayes' theorem, which states: <br>
+<center>
+<table><tr><td>Pr(B<sub>j</sub> | A) = </td><td><center>Pr(B<sub>j</sub>) Pr(A | B<sub>j</sub>)</center></td>
+</tr><tr><td></td><td style="border-top:solid 1px black;"><center><img src="http://www.learninglover.com/chars/csigma.gif"> Pr(B<sub>i</sub>) Pr(A | B<sub>i</sub>)</center></td></tr></table>
+</center>
+<ul>
+<li>A set of mutually exclusive sets is randomly generated (the number of sets also varies). These sets are called <i>B<sub>i</sub></i> for <i>i</i> <img src="http://www.learninglover.com/chars/in.gif"> (0, ..., n}.
+<li> A set <i>A</i> is randomly generated from the union of the <i>B<sub>i</sub></i>'s.
+<li> A table is displayed showing:
+<ul>
+<li>The <i>i</i> for each set on line 1. 
+<li>Pr(<i>B<sub>i</sub></i>) for each <i>i</i> on line 2.
+<li>Pr(<i>A</i> | <i>B<sub>i</sub></i>) for each <i>i</i> on line 3.
+</ul>
+<li>The user is given the option to select which of the mutually exclusive sets they would like to use to calculate the probability that this set caused the event <i>A</i>.
+<li>Once a set is chosen, the user clicks the "Calculate Conditional" button and Bayes' Theorem gives the result.
+<li>If the "show work" checkbox was checked, then the steps used in this calculation are also shown.
+<li>All work is done using fractions to give an idea of where the numbers come from.
+</ul>
+</p></p><p id=list name=list></p>
+<form name=data id=data>
+<input type="button" value="New Problem" onclick="clearRect();document.getElementById('output').innerHTML = '';k1 = Math.floor(Math.random()*8)+5;B = new Array();A = new Array();prob1 = new Array();prob2 = new Array();total = new Array();ans = init(B, prob1, prob2, k1);B = ans[0];prob1 = ans[1];prob2 = ans[2];total = ans[3];A = ans[4];">
+<label>Show Work?</label><input type="checkbox" id="show" name="show">
+<label>Set = </label><select name="sets" id="sets"></select><br> 
+<input type="button" value="Calculate Conditional" onclick="document.getElementById('output').innerHTML = '';ans = bayes(prob1, prob2, document.getElementById('sets').value); document.getElementById('output').innerHTML += 'Pr(B<sub>' + document.getElementById('sets').value + '</sub> | A) = ' + '<br>' + ans.num + '/' + ans.den;">  
+</FORM>
+<p name="output" id="output"></p>
+<canvas id="myCanvas" width="550" height="400" style="border:1px solid
+#c3c3c3;">
+Your browser does not support the canvas element.
+</canvas>
+<script type="text/javascript">
+	var k1 = Math.floor(Math.random()*8)+5;
+	var B = new Array();
+	var A = new Array();
+	var prob1 = new Array();
+	var prob2 = new Array();
+	var total = new Array();
+	var ans = init(B, prob1, prob2, k1);
+	B = ans[0];
+	prob1 = ans[1];
+	prob2 = ans[2];
+	total = ans[3];
+	A = ans[4];
+</script></body>
+</html>

@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Probability: Sample Spaces at LEARNINGlover.com</title>
+<script type="text/javascript">
+function generate(space, n)
+{
+	var rem = new Array(space.length)
+
+	for (var zen = 0; zen < space.length; zen++)
+	{
+		rem[zen] = space[zen];
+	}
+
+	var A = new Array(n);
+	for (var zen = 0; zen < n; zen++)
+	{
+		var next = Math.floor(Math.random()*rem.length);
+		A[zen] = rem[next];
+		rem[next] = rem[rem.length-1];
+		rem.length--;
+	}
+
+	return A;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = false;
+
+	for (i = 0; i < set.length && !ans; i++)
+		if (set[i] == elmnt)
+			ans = true;
+
+	return ans;
+}
+
+function union(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+		set3[i] = set1[i];
+	
+	for (i = 0; i < set2.length; i++)
+	{
+		if (!search(set3, set2[i]))
+			set3[set3.length] = set2[i];
+	}
+
+	return set3;
+}
+
+function intersect(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		if (search(set2, set1[i]))
+			set3[set3.length] = set1[i];
+	}
+
+	return set3;
+}
+
+function diff(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		if (!search(set2, set1[i]))
+			set3[set3.length] = set1[i];
+	}
+
+	return set3;
+}
+
+function symmDiff(set1, set2)
+{
+	var set3 = new Array();
+	var set4 = new Array();
+
+	set3 = union(set1, set2);
+	set4 = intersect(set1, set2);
+	
+	set3 = diff(set3, set4);
+
+	return set3;
+}
+
+function cartProd(set1, set2)
+{
+	var set3 = new Array()
+	var i, j;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		set3[i] = new Array();
+		for (j = 0; j < set2.length; j++)
+		{
+			set3[i][j] = "(" + set1[i] + ", " + set2[j] + ")";
+		}
+		set3[i][j] = "<br>";
+	}
+
+	return set3;
+}
+
+function init(space, n)
+{
+	var prob = new Object();
+	prob.space = new Array(n);
+	for (var zen = 0; zen < n; zen++)
+	{
+		prob.space[zen] = zen+1;
+	}
+	
+	var text = "";	
+	text += "<table><tr><td><div name='sspace' id='sspace'>space = {";
+	for (var zen = 0; zen < prob.space.length; zen++)
+	{
+		if (zen < prob.space.length - 1)
+		{
+			text += prob.space[zen] + ", ";
+		}
+		else
+		{
+			text += prob.space[zen];
+		}
+	}
+	text += "}</div></td><td><input type='button' value='Generate New Sample Space' onclick='ans=init(space, n)'></td></tr>";
+	
+	prob.numEvents = Math.floor(Math.random()*3)+2;
+	prob.sets = new Array(prob.numEvents);
+
+	for (var zen = 0; zen < prob.numEvents; zen++)
+	{
+		var setSize = Math.floor(Math.random()*prob.space.length);
+		prob.sets[zen] = generate(prob.space, setSize);
+		text += "<tr><td><div name='set" + zen + "' id='set" + zen + "'>set<sub>" + zen + "</sub> = {";
+		for (var yin = 0; yin < prob.sets[zen].length; yin++)
+		{
+			if (yin < prob.sets[zen].length - 1)
+			{
+				text += prob.sets[zen][yin] + ", ";
+			}
+			else
+			{
+				text += prob.sets[zen][yin];
+			}
+		}
+		text += "}</div></td><td><input type='button' value='Generate New Set" + "<sub>" + zen + "</sub>' onclick='setSize = Math.floor(Math.random()*ans.space.length); ans.sets[" + zen + "] = generate(ans.space, setSize); document.getElementById(\"set" + zen + "\").innerHTML=\"set<sub>" + zen + "</sub> = {\" + ans.sets[" + zen + "] + \"}\";'></td></tr>";
+	}
+	
+	text += "</table>";
+
+	document.getElementById("list").innerHTML = text;
+	return prob;
+}
+
+function retreive(set, start, finish)
+{
+	var i;
+	var ans = new Array();
+	for (i = start; i < finish; i++)
+		ans[ans.length] = set[i];
+
+	return ans;
+}
+
+function operate(set1, set2) 
+{
+ 	if (document.getElementById("alg").value == 1)
+ 		ans = union(set1, set2);
+ 	else if (document.getElementById("alg").value == 2)
+ 		ans = intersect(set1, set2);
+ 	else if (document.getElementById("alg").value == 3)
+ 		ans = diff(set1, set2);
+ 	else if (document.getElementById("alg").value == 4)
+ 		ans = symmDiff(set1, set2);
+ 	else if (document.getElementById("alg").value == 5)
+ 		ans = cartProd(set1, set2);
+  	return ans;
+}
+
+function disp(set)
+{
+	var text = "<table><tr><td width='50'>";
+	text += "set = </td><td>{";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+	}
+	text += "}</td></tr></table>";
+
+	return text;
+}
+</script>
+</head>
+<body>
+<h3><center>Probability: Sample Spaces</center></h3>
+<p>A group of friends enjoy sitting on the porch and watching the cars that come by as they do their homework. While each student is looking at their work, they will look up from time to time to notice the cars passing by and will make a note of the color of that car. Once they've finished working, they all compare the colors to see how diverse their set is. </p>
+<p>Understanding Set Theory is fundamental to understanding advanced mathematics. Iv wrote these scripts so that users could begin to play with the different set operations that are taught in a basic set theory course. Here, the sets are limited to positive integers and we're only looking at a few operations, in particular the union, intersection, difference, symmetric difference, and cross product of two sets. I will explain what each of these is below. <br>
+<br>
+The <b>union</b> of the sets S<sub>1</sub> and S<sub>2</sub> is the set S<sub>1</sub> [union] S<sub>2</sub>, which contains the elements that are in S<sub>1</sub> or S<sub>2</sub> (or in both). <br>
+Note: S<sub>1</sub> [union] S<sub>2</sub> is the same as S<sub>2</sub> [union] S<sub>1</sub>. <br>
+<br>
+The <b>intersection</b> of the sets S<sub>1</sub> and S<sub>2</sub> is the set S<sub>1</sub> [intersect] S<sub>2</sub>, which contains the elements that are in BOTH S<sub>1</sub> and S<sub>2</sub>. <br>
+Note: S<sub>1</sub> [intersect] S<sub>2</sub> is the same as S<sub>2</sub> [intersect] S<sub>1</sub>. <br>
+<br>
+The <b>difference</b> between the sets S<sub>1</sub> and S<sub>2</sub> is the set S<sub>1</sub> / S<sub>2</sub>, which contains the elements that are in S<sub>1</sub> and not in S<sub>2</sub>. <br>. 
+Note. S<sub>1</sub> / S<sub>2</sub> IS NOT the same as S<sub>2</sub> / S<sub>1</sub>. <br>
+Note. S<sub>1</sub> / S<sub>2</sub> is the same as S<sub>1</sub> [intersect] [not]S<sub>2</sub>. <br>
+<br>
+The <b>symmetric difference</b> between the sets S<sub>1</sub> and S<sub>2</sub> is the set S<sub>1</sub> [symm diff] S<sub>2</sub>, which contains the elements that are in S<sub>1</sub> and not in S<sub>2</sub>, or the elements that are in S<sub>2</sub> and not in S<sub>1</sub>. <br>
+Note. S<sub>1</sub> [symm diff] S<sub>2</sub> is the same as S<sub>2</sub> [symm diff] S<sub>1</sub>. <br>
+Note. S<sub>1</sub> [symm diff] S<sub>2</sub> is the same as (S<sub>1</sub> [intersect] [not] S<sub>2</sub>) [union] (S<sub>2</sub> [intersect] [not] S<sub>1</sub>). <br>
+<br>
+The <b>cartesian product</b> of the two sets S<sub>1</sub> and S<sub>2</sub> is the set of all ordered pairs <i>(a, b)</i>, where <i>a</i> [in] S<sub>1</sub> and <i>b</i> [in] S<sub>2</sub>. </p>
+<table><tr><td>Numerator</td></tr><tr><td><hr></td></tr><tr><td>Denominator</td></tr></table>
+<table><tr><td>Numerator<hr>Denominator</td></tr></table>
+<div style="display: inline-block;">Numerator<hr>Denominator</div>
+<form name=data id=data> 
+<input type=button onclick="k1 = Math.floor(Math.random()*25);k2 = Math.floor(Math.random()*25);ans = init(set1, k1, set2, k2);set1 = retreive(ans, 0, k1);set2 = retreive(ans, k1, k1+k2);document.getElementById('output').innerHTML = '';" value="New Problem"><br> 
+<p id=list name=list></p> 
+<select name="alg" id="alg">
+ <option value=1 selected>Union</OPTION>
+ <option value=2>Intersection</OPTION>
+ <option value=3>Difference</OPTION>
+ <option value=4>Symmetric Difference</OPTION>
+ <option value=5>Cartesian Product</OPTION>
+</SELECT><br> 
+<input type="button" value="Operate" onclick="ans = operate(set1, set2); document.getElementById('output').innerHTML = disp(ans);">  </FORM>
+<script type="text/javascript">
+var space = new Array();
+var n = Math.floor(Math.random()*30)+10;
+var ans = init(space, n);
+</script>
+<p name="output" id="output">
+</p>
+</body>
+</html>

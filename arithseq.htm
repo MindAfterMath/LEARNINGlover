@@ -1,0 +1,161 @@
+<html>
+<head>
+<title>Arithmetic Sequences</title>
+<script type="text/javascript">
+function generate(first, diff, terms)
+{
+	var ans = new Array();
+	var i;
+	ans[0] = first;
+	for (i = 1; i < terms; i++)
+		ans[i] = ans[0] + i*diff;
+	
+	return ans;
+}
+
+function init()
+{
+	var first = Math.floor(Math.random()*50);
+	var fsign = Math.floor(Math.random()*2);
+	if (!fsign)
+		first *= -1;
+	
+	var diff = Math.floor(Math.random()*10);
+	var dsign = Math.floor(Math.random()*2);
+	if (!dsign)
+		diff *= -1;
+	
+	var seq = generate(first, diff, 6);
+	
+	document.getElementById("input").innerHTML += disp(seq) + "<br><br>";
+	
+	var pos = Math.floor(Math.random()*20);
+	var ques = Math.floor(Math.random()*3);
+	
+	switch (ques)
+	{
+	case 0:
+		document.getElementById("input").innerHTML += "What is term a<sub>" + pos + "</sub> of this sequence ";
+		break;
+	case 1:
+		document.getElementById("input").innerHTML += "What is sum S<sub>" + pos + "</sub> of this sequence ";
+		break;
+	case 2: 
+		document.getElementById("input").innerHTML += "What is the common difference? ";
+		break;
+	}
+	
+	var ans = new Array();
+	ans[0] = seq;
+	ans[1] = ques;
+	ans[2] = pos;
+	
+	return ans;
+//	ans = solve(ques, seq);
+}
+
+function disp(seq)
+{
+	var output = "";
+	var i;
+	
+	for (i = 0; i < seq.length; i++)
+	{
+		output += seq[i];
+		if (i < seq.length - 1)
+			output += " + ";
+	}
+	
+	return output;
+}
+
+function solve(ques, seq, n)
+{
+	var ans = "";
+	switch (ques)
+	{
+	case 0:
+		ans += "The formula for term a<sub>n</sub> of a sequence is a<sub>n</sub> = a<sub>1</sub> + d*(n - 1)<br>";
+		ans += "This evaluates to: <br>";
+		ans += term(seq, n);
+		ans += "<br>";
+		break;
+	case 1:
+		ans += "The formula for sum S<sub>n</sub> of a sequence is S<sub>n</sub> = n(a<sub>1</sub> + a<sub>n</sub>)/2 = n[2*a<sub>1</sub> + d*(n - 1)]/2<br>";
+		ans += "This evaluates to: <br>";
+		ans += sum(seq, n);
+		ans += "<br>";
+		break;
+	case 2: 
+		ans += "To calculate the common difference in an arithmetic sequence, we need to subtract any two terms. <br>";
+		ans += "By subtracting the first two terms we get: <br>";
+		ans += getDiff(seq);
+		ans += "<br>";
+		break;
+	}
+	
+	document.getElementById("output").innerHTML += ans;
+}
+
+function term(seq, n)
+{
+	var diff = 0;
+	var first = 0;
+	
+	if (seq.length > 1)
+		first = seq[0];
+		
+	if (seq.length > 2)
+		diff = seq[1] - seq[0];
+	
+	var ans = first + (n - 1)*diff;
+	
+	return ans;
+}
+
+function sum(seq, n)
+{
+	var diff = 0;
+	var first = 0;
+	
+	if (seq.length > 1)
+		first = seq[0];
+		
+	if (seq.length > 2)
+		diff = seq[1] - seq[0];
+		
+	var ans = (1/2)*n*(2*first + (n-1)*diff);
+
+	return ans;
+}
+
+function getDiff(seq)
+{
+	var diff = 0;
+	
+	if (seq.length > 2)
+		diff = seq[1] - seq[0];
+		
+	return diff;
+}
+
+function clearAll()
+{
+	document.getElementById("input").innerHTML = "";
+	document.getElementById("output").innerHTML = "";
+}
+</script>
+</head>
+<body>
+<p name="input" id="input"></p>
+<input type="button" onclick="solve(ques, seq, pos);" value="Solve">
+<input type="button" onclick="clearAll();ans = init();seq = ans[0]; ques=ans[1]; pos = ans[2];" value="New Problem">
+<script type="text/javascript">
+var ans = init();
+var seq = ans[0];
+var ques = ans[1];
+var pos = ans[2];
+</script>
+<p name="output" id="output"></p>
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta name="keywords" content="algorithm, computer science, greedy, JavaScript, clique, math, operations research, programming, backtracking, puzzle" />
+<meta name="description" content="" />
+<title>Clustering Based Graph Drawing</title>
+<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+	display: inline;
+}
+</style>
+<script type="text/javascript">
+var M_VAL = 50000;
+function generate()
+{
+	var numNodes = Math.floor(Math.random()*20)+5;
+	var numArcs = Math.floor(Math.random()*((numNodes*(numNodes-1)/4) - numNodes)) + numNodes;
+	var graph = new Array(numNodes);
+	var tree = new Array();
+	var otherNodes = new Array();
+	var count = 0;
+	
+	for (var i = 0; i < numNodes; i++)
+	{
+		graph[i] = new Array(numNodes);
+		for (var j = 0; j < numNodes; j++)
+		{
+			graph[i][j] = M_VAL;
+		}
+	}
+	
+	tree[0] = 0;
+	for (var i = 1; i < numNodes; i++)
+	{
+		otherNodes[i-1] = i;
+	}
+	
+	while(tree.length < numNodes)
+	{
+		var inside = Math.floor(Math.random()*tree.length);
+		var outside = Math.floor(Math.random()*otherNodes.length);
+		
+		graph[tree[inside]][otherNodes[outside]] = 1;
+		graph[otherNodes[outside]][tree[inside]] = 1;
+		
+		tree[tree.length] = otherNodes[outside];
+	
+		otherNodes[outside] = otherNodes[otherNodes.length-1];
+		otherNodes.length--;
+	
+		count++;
+	}
+		
+	while (count < numArcs)
+	{
+		var loc1, loc2;
+	
+		do
+		{
+			var loc1 = Math.floor(Math.random()*numNodes);
+			var loc2;
+			var poss = new Array();
+			for (var i = 0; i < graph.length; i++)
+			{
+				if (graph[loc1][i] == M_VAL && i != loc1)
+				{
+					poss[poss.length] = i;
+				}
+			}
+
+			loc2 = Math.floor(Math.random()*poss.length);
+		}
+		while (poss.length == 0);
+		
+		graph[loc1][poss[loc2]] = 1;
+		graph[poss[loc2]][loc1] = 1;
+		count++;
+	}
+	
+	return graph;
+}
+
+function init(A)
+{
+	var graph = new Object();
+	graph.edges = new Array();
+	graph.nodes = new Array();
+	
+	var theta = new Array();
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		theta[i] = (2*Math.PI*i) / A.length;
+		
+		graph.nodes[i] = new Object;
+		graph.nodes[i].value = i;
+		
+		for (var j = 0; j < A[i].length; j++)
+		{
+			if (A[i][j] != M_VAL)
+			{
+				var len = graph.edges.length;
+				graph.edges[len] = new Array();
+				graph.edges[len][0] = i;
+				graph.edges[len][1] = j;
+			}
+		}		
+	}
+	
+	drawGraph(graph);
+	
+	return graph;
+}
+
+function setCoords(graph, clusters)
+{
+	var bigTheta = new Array();
+	var bigCen = new Array();
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		bigTheta[i] = (2*Math.PI*i) / clusters.length;
+		bigCen[i] = new Array();
+		bigCen[i][0] = 200*Math.cos(bigTheta[i]) + 275;
+		bigCen[i][1] = 200*Math.sin(bigTheta[i]) + 275;
+		
+		var lilTheta = new Array();
+		var inside = new Array();
+		var outside = new Array();
+			
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			var node = clusters[i][j];
+			
+			if (graph.nodes[node].degree != 1)
+			{
+				inside[inside.length] = node;
+			}
+			else
+			{
+				outside[outside.length] = node;
+			}
+		}
+		
+		for (var j = 0; j < inside.length; j++)
+		{
+			var node = inside[j];
+			lilTheta[j] = (2*Math.PI*j) / inside.length;
+			graph.nodes[node].xVal = bigCen[i][0] + 125 * Math.cos(lilTheta[j]) + 275;
+			graph.nodes[node].yVal = bigCen[i][1] + 125 * Math.sin(lilTheta[j]) + 275;
+		}
+		
+		for (var j = 0; j < outside.length; j++)
+		{
+			var node = outside[j];
+			var neigh = graph.nodes[node].neighs[0];
+			graph.nodes[node].xVal = graph.nodes[neigh].xVal + 25;
+			graph.nodes[node].yVal = graph.nodes[neigh].yVal + 25;
+		}
+	}
+	
+	return graph;
+}
+
+function drawGraph(graph)
+{
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.clearRect(0, 0, c.width, c.height);
+	
+	for (var i = 0; i < graph.edges.length; i++)
+	{
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(graph.nodes[graph.edges[i][0]].xVal, graph.nodes[graph.edges[i][0]].yVal);
+		ctx.lineTo(graph.nodes[graph.edges[i][1]].xVal, graph.nodes[graph.edges[i][1]].yVal);
+		ctx.stroke();
+	}
+	
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(graph.nodes[i].xVal, graph.nodes[i].yVal, 20, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle = "#c9c9c9";
+		
+		ctx.beginPath();
+		ctx.arc(graph.nodes[i].xVal, graph.nodes[i].yVal, 20, 0*Math.PI, 2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		if (graph.nodes[i].value == 0)
+		{
+			ctx.fillText(graph.nodes[i].value, graph.nodes[i].xVal-3*(Math.floor(Math.log(graph.nodes[i].value+1)/Math.log(20))+1), graph.nodes[i].yVal+2);
+		}
+		else
+		{
+			ctx.fillText(graph.nodes[i].value, graph.nodes[i].xVal-3*(Math.floor(Math.log(graph.nodes[i].value)/Math.log(20))+1), graph.nodes[i].yVal+2);
+		}
+	}
+}
+
+function dispMtrx(A, frac)
+{	
+	var text = "<table>";
+	text += "<tr>";
+	for (var j = 0; j < A.length; j++)
+	{
+		text += "<td>" + j + "</td>";
+	}
+	text += "</tr>";
+
+	for (var i = 0; i < A.length; i++)
+	{	
+		for (var j = 0; j < A.length; j++)
+		{
+			if (A[i][j] != M_VAL)
+			{
+				if (frac)
+				{
+					text += "<td>" + A[i][j].toFixed(4)+ "</td>";
+				}
+				else
+				{
+					text += "<td>" + A[i][j]+ "</td>";
+				}
+			}	
+			else
+			{
+				text += "<td>-</td>";
+			}
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+
+	return text;
+}
+
+function cosSim(vec1, vec2)
+{
+    var num = 0;
+    var den1 = 0;
+    var den2 = 0;
+    for (var i = 0; i < vec1.length; i++)
+    {
+		if (vec1 != M_VAL && vec2 != M_VAL)
+		{
+			num += vec1[i]*vec2[i];
+			den1 += vec1[i] * vec1[i];
+			den2 += vec2[i] * vec2[i];
+		}
+    }
+    den1 = Math.sqrt(den1);
+    den2 = Math.sqrt(den2)
+    var ans = num / (den1 * den2);
+
+    return ans;
+}
+
+function process(A)
+{
+	document.getElementById("output").innerHTML = "";
+	var text = "";
+	
+	text += dispMtrx(A, 0);
+	
+	var clusters = kmeans(A, document.getElementById("start").value, 100);
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		text += "Cluster " + i + ")";
+		text += "<table>";
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			var node = clusters[i][j];
+			text += "<tr><td>" + node + "</td>";
+			for (var k = 0; k < A[node].length; k++)
+			{
+				if (A[node][k] != M_VAL)
+				{
+					text += "<td>" + A[node][k]+ "</td>";
+				}	
+				else
+				{
+					text += "<td>-</td>";
+				}
+			}
+			text += "</tr>";
+		}
+		text += "</table>";
+	}
+	
+	var graph = init(A);
+	graph = setCoords(graph, clusters);
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		text += "Cluster " + i + ") <br>";
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			var node = clusters[i][j];
+			text += "node " + graph.nodes[node].value + ": (" + graph.nodes[node].xVal + ", " + graph.nodes[node].yVal + ")<br>";
+		}
+	}
+	
+	drawGraph(graph)
+	
+	document.getElementById("output").innerHTML += text;
+}
+
+function kmeans(distMtrx, k, maxno)
+{
+	var minDist;
+	var changed;
+	var iter;
+	var pos;
+	var posL;
+//	var chosen = new Array();
+	var maxDist = new Array();
+	var labels = new Array(distMtrx.length);
+	var clusters = new Array(k);
+	var centers = new Array(k);
+	var rem = new Array();
+	
+	for (var i = 0; i < distMtrx.length; i++)
+	{
+		rem[i] = i;
+	}
+	text = "";
+
+	for(var i = 0; i < k; i++)
+	{
+		posL = Math.floor(Math.random()*rem.length);
+		pos = rem[posL];
+		rem[posL] = rem[rem.length-1];
+		rem.length--;
+
+//		centers[i] = pos;
+		clusters[i] = new Array();
+		clusters[i][0] = pos;
+		maxDist[i] = 0;
+		
+//		text += "rem = " + rem + "<br>";
+	}
+
+	for (var i = 0; i < rem.length; i++)
+	{
+		pos = Math.floor(Math.random()*clusters.length);
+
+		labels[i] = pos;
+		clusters[pos][clusters[pos].length] = rem[i];
+	}
+	
+	for (var i = 0; i < k; i++)
+	{
+		centers[i] = new Array();
+		for (var j = 0; j < distMtrx.length; j++)
+		{
+			centers[i][j] = 0;
+		}
+		
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			var node = clusters[i][j];
+			for (var j1 = 0; j1 < distMtrx.length; j1++)
+			{
+				if (A[node][j1] != M_VAL)
+				{
+					if (clusters[i].indexOf(j1) != -1)
+					{
+						if (node < j1)
+						{
+							centers[i][j1]++;
+							centers[i][node]++;
+//							deg[j1]++;
+//							deg[node]++;
+						}
+					}
+					else
+					{
+						centers[i][j1]++;
+						centers[i][node]++;
+//						deg[j1]++;
+//						deg[node]++;
+					}
+				}
+			}
+		}
+	}
+	
+	var relDeg = new Array();		
+	for (var i = 0; i < distMtrx.length; i++)
+	{
+		relDeg[i] = 0;
+	}
+	
+	for (var i = 0; i < centers.length; i++)
+	{
+		for (var j1 = 0; j1 < centers[i].length; j1++)
+		{
+			relDeg[j1] += centers[i][j1];
+		}
+	}
+	
+	for (var i = 0; i < centers.length; i++)
+	{
+		for (var j1 = 0; j1 < centers[i].length; j1++)
+		{
+			centers[i][j1] = centers[i][j1] / relDeg[j1];
+		}
+	}
+	
+	text += "Initial Configuration: <br>";
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		text += "Cluster " + i + ": <br>";
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			var node = clusters[i][j];
+			text += node + ") ";
+			for (var j1 = 0; j1 < distMtrx[node].length; j1++)
+			{
+				if (distMtrx[node][j1] != M_VAL)
+				{
+					text += j1 + ", ";
+				}
+			}
+			text += "<br>";
+		}
+		text += "<br>";
+	}
+	
+	for (var i = 0; i < centers.length; i++)
+	{
+		text += "Center " + i + ":(";
+		for (var j = 0; j < centers[i].length; j++)
+		{
+			text += centers[i][j].toFixed(4) + ", ";
+		}
+		text += "<br>";
+	}
+	
+
+	changed = false;
+	iter = 0;
+
+	do
+	{
+		for (var i = 0; i < k; i++)
+		{
+//			centers[i] = clusters[i][Math.floor(Math.random() * clusters[i].length)];
+			maxDist[i] = 0;
+			clusters[i] = new Array();
+			labels[centers[i]] = i;
+		}
+
+		for (var i = 0; i < distMtrx.length; i++)
+		{
+			pos = M_VAL;
+			posD = 0;
+			for (var j = 0; j < k; j++)
+			{
+				if (centers[j][i] > posD)
+				{
+					posD = centers[j][i];
+					pos = j;
+				}
+				
+//				text += "node " + i + " has " + posD + " probability degree in cluster " + j + " and is being reassigned there.<br>";
+			}
+			
+			labels[i] = pos;
+			clusters[pos][clusters[pos].length] = i;
+			changed = true;
+		}
+		iter++;
+		
+		for (var i = 0; i < k; i++)
+		{
+			centers[i] = new Array();
+			for (var j = 0; j < distMtrx.length; j++)
+			{
+				centers[i][j] = 0;
+			}
+			
+			for (var j = 0; j < clusters[i].length; j++)
+			{
+				var node = clusters[i][j];
+				for (var j1 = 0; j1 < distMtrx.length; j1++)
+				{
+					if (distMtrx[node][j1] != M_VAL)
+					{
+						if (clusters[i].indexOf(j1) != -1)
+						{
+							if (node < j1)
+							{
+								centers[i][j1]++;
+								centers[i][node]++;
+							}
+						}
+						else
+						{
+							centers[i][j1]++;
+							centers[i][node]++;
+						}
+					}
+				}
+			}
+		}
+		
+		var relDeg = new Array();		
+		for (var i = 0; i < distMtrx.length; i++)
+		{
+			relDeg[i] = 0;
+		}
+		
+		for (var i = 0; i < centers.length; i++)
+		{
+			for (var j1 = 0; j1 < centers[i].length; j1++)
+			{
+				relDeg[j1] += centers[i][j1];
+			}
+		}
+		
+		for (var i = 0; i < centers.length; i++)
+		{
+			for (var j1 = 0; j1 < centers[i].length; j1++)
+			{
+				centers[i][j1] = centers[i][j1] / relDeg[j1];
+			}
+		}
+
+	} while (changed == true && iter <= maxno);
+	
+	document.getElementById("output").innerHTML += text;
+	
+	return clusters;
+}
+
+function newProb()
+{
+	document.getElementById("output").innerHTML = "";
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.clearRect(0, 0, c.width, c.height);
+	var A = generate();
+	var sel = document.getElementById("start");
+	for (var i = 1; i < A.length; i++)
+	{
+		sel.options[sel.options.length] = new Option(i + " Clusters", i);
+	}
+	document.getElementById("input").innerHTML = dispMtrx(A, 0);
+	
+	return A;
+}
+</script>
+</head>
+<body>
+<h3><center>Depth First Search</center></h3>
+<p></p>
+<p>This is program that labels a graph using the Depth First Search Algorithm</p>
+<p></p>
+<form name="data" id="data">
+<input type="hidden" id="numNodes" name="numNodes">
+<p name="input" id="input"></p>
+<label>Number of Clusters: </label><select name="start" id="start"></select><br>
+<input type="button" onclick="process(A); " value="Draw Graph">
+<input type="button" onclick="A = newProb(); " value="New Problem"><br>
+<script type="text/javascript">
+var A = generate();
+var sel = document.getElementById("start");
+for (var i = 1; i < A.length; i++)
+{
+	sel.options[sel.options.length] = new Option(i + " Clusters", i);
+}
+document.getElementById("input").innerHTML = dispMtrx(A, 0);
+</script>
+<canvas name="myCanvas"  id="myCanvas" width=1000 height=1000 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas>
+<p name="output"  id="output"></p>
+<br>
+<br>
+</FORM>
+</body>
+</html>

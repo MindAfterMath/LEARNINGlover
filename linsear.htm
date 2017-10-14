@@ -1,0 +1,99 @@
+<html>
+<head>
+<script type="text/javascript">
+function generate(n)
+{
+	var A = new Array(n);
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*100);
+		if (!linsear(A, next))
+			A[i] = next;
+		else
+			i--;
+	}
+
+	return A;
+}
+
+function linsear(set, elmnt)
+{
+	var i;
+	var ans = false;
+
+	for (i = 0; i < set.length && !ans; i++)
+		if (set[i] == elmnt)
+			ans = true;
+
+	return ans;
+}
+
+function init(set, k1)
+{
+	var set = generate(k1);
+	var ans = new Array();
+	var torf = Math.floor((Math.random())*2);
+	var elmnt;
+	if (!torf)
+		elmnt = Math.floor((Math.random())*100);
+	else
+	{
+		elmnt = Math.floor((Math.random())*k1);
+		elmnt = set[elmnt];
+	}
+	var text = "";
+
+	text += "k1 = " + k1 + "\n";
+	
+	text += "set = {";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+		ans[ans.length] = set[i];
+	}
+	text += "}\n";
+
+	text += "element = " + elmnt + "\n";
+	ans[ans.length] = elmnt;
+	
+	document.getElementById("list").value = text;
+	document.getElementById("output").innerHTML = "";
+	return ans;
+}
+
+function retreive(set, start, finish)
+{
+	var i;
+	var ans = new Array();
+	for (i = start; i < finish; i++)
+		ans[ans.length] = set[i];
+
+	return ans;
+}
+</script>
+</head>
+<body>
+<p>
+</p>
+<form name=data id=data> 
+<input type=button onclick="k1 = Math.floor(Math.random()*25);ans = init(set1, k1);set1 = retreive(ans, 0, k1);elmnt = retreive(ans, k1, k1+1);" value="New Problem"><br> 
+<TEXTAREA style="WIDTH: 350px; HEIGHT: 150px" id=list cols=41 rows=6 name=list></TEXTAREA><br>
+<input type="checkbox" name="show" id="show">Show Work?
+<input type="button" value="Linear Search" onclick="ans = linsear(set1, elmnt); document.getElementById('output').innerHTML = ans;">  
+</FORM>
+<script type="text/javascript">
+var k1 = Math.floor(Math.random()*20)+5;
+var set1 = new Array();
+var elmnt;
+var ans = init(set1, k1);
+set1 = retreive(ans, 0, k1);
+elmnt = retreive(ans, k1, k1+1);
+</script>
+<p name="output" id="output">
+</p>
+</body>
+</html>

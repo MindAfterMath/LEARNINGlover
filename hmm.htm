@@ -1,0 +1,627 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<script type="text/javascript">
+function newHMM(numDie, stateBhv, diceWght)
+{
+	var model = new Object();
+	model.numStates = numDie;
+	model.sigma = new Array();
+	for (var i = 1; i <= 6; i++)
+	{
+		model.sigma[i-1] = i;
+	}
+	
+	model.initProbs = new Array(numDie + 1);
+	for (var i = 0; i < numDie; i++)
+	{
+		model.initProbs[i] = (1 / (numDie));
+	}
+	
+	model.transProbs = new Array(model.numStates);
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		model.transProbs[i] = new Array(model.numStates);
+		for (var j = 0; j < model.numStates; j++)
+		{	
+			if (stateBhv == 0)
+			{
+				if (i == j)
+				{
+					model.transProbs[i][j] = 0.9;
+				}
+				else
+				{
+					model.transProbs[i][j] = (1/(numDie-1))*0.10;
+				}
+			}
+			else if (stateBhv == 1)
+			{
+				model.transProbs[i][j] = 1 / (numDie);
+			}
+			else
+			{
+				if (i != j)
+				{
+					model.transProbs[i][j] = (1/numDie)*0.9;
+				}
+				else
+				{
+					model.transProbs[i][j] = 0.10;
+				}
+			}
+		}
+	}
+	
+	model.emissProbs = new Array(model.numStates);
+	for (var i = 0; i < model.numStates; i++)
+	{
+		model.emissProbs[i] = new Array(model.sigma.length);
+		for (var j = 0; j < model.sigma.length; j++)
+		{
+			if (diceWght == 0)
+			{
+				if (j < (6 - i))
+					model.emissProbs[i][j] = 1 / (6 + i);
+				else
+					model.emissProbs[i][j] = 2 / (6 + i);
+			}
+			else if (diceWght == 1)
+			{
+				var dice = new Array;
+				dice[0] = 0; dice[1] = 1; dice[2] = 2; dice[3] = 3; dice[4] = 4; dice[5] = 5;
+				for (var k = 0; k < i; k++)
+				{
+					var loc = Math.floor(Math.random()*6);
+					model.emissProbs[i][dice[loc]] = 2 / (6 + i);
+					dice[loc] = dice[dice.length-1];
+					dice.length--;
+				}
+				
+				for (var k = 0; k < dice.length; k++)
+				{
+					model.emissProbs[i][dice[k]] = 1 / (6 + i);
+				}
+//				model.emissProbs[i][j] = 1 / 6;
+			}
+			else
+			{
+				if (j < i)
+					model.emissProbs[i][j] = 2 / (6 + i);
+				else
+					model.emissProbs[i][j] = 1 / (6 + i);
+			}
+		}
+	}
+	
+	return model;
+}
+
+function fwdAlg(model, observ)
+{
+	var numPeriods = observ.length;
+	
+	/*
+	alpha_{t, i} is the probability that the model has output the initial 
+	t observations, given that the current state is state i. 
+	*/
+	var alpha = new Array(numPeriods);
+	
+	for (var i = 0; i < alpha.length; i++)
+	{
+		alpha[i] = new Array(model.numStates);
+	}
+	
+	/*
+	We know that alpha_{1, j} = initProb_j * emissProb_{j, observ_1}
+	*/
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		alpha[0][i] = model.initProbs[i] * model.emissProbs[i][observ[0]-1];
+	}
+	
+	/*
+	Now for the recursion. 
+	We know that for all N states and all times before T, 
+	alpha_{t+1, j} = b_{j, observ_{t+1}} * (\sum_{i = 1 to N} alpha_{t, i}) * transProb_{i, j}
+	*/
+	
+	for (var t = 1; t < numPeriods; t++)
+//	for (var t = 0; t < numPeriods-1; t++)
+	{
+		for (var j = 0; j < model.numStates; j++)
+		{
+			var temp = 0;
+			for (var i = 0; i < model.numStates; i++)
+			{
+				temp += alpha[t-1][i] * model.transProbs[i][j];
+//				temp += alpha[t][i] * model.transProbs[i][j];
+			}
+			alpha[t][j] = model.emissProbs[j][model.sigma.indexOf(observ[t])] * temp;
+//			alpha[t+1][j] = model.emissProbs[j][model.sigma.indexOf(observ[t+1])] * temp;
+		}
+	}
+		
+	return alpha;
+}
+
+function bkwdAlg(model, observ)
+{
+	var numPeriods = observ.length;
+
+	/*
+	alpha_{t, i} is the probability that the model has output the final 
+	t observations, given that the current state is state i. 
+	*/	
+	var beta = new Array(numPeriods);
+	
+	for (var i = 0; i < beta.length; i++)
+	{
+		beta[i] = new Array(model.numStates);
+	}
+	
+	/*
+	First, we initialize the variables. 
+	We know that for all N states and all times before T, 
+	beta_{T, i} = 1
+	*/
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		beta[numPeriods-1][i] = 1;
+	}
+	
+	/*
+	Now for the recursion. 
+	We know that for all N states and all times before T, 
+	beta_{t, i} = sum_{j in States} beta_{t+1, j} * transProbs_{i, j} * emissProbs_{j, observ_{j, t+1}
+	*/
+	
+	for (var t = numPeriods-2; t >= 0; t--)
+	{
+		for (var i = 0; i < model.numStates; i++)
+		{
+			beta[t][i] = 0;
+			for (var j = 0; j < model.numStates; j++)
+			{
+				beta[t][i] += beta[t+1][j] * model.transProbs[i][j] * model.emissProbs[j][observ[t+1]-1];
+			}
+		}
+	}
+	
+	return beta;
+}
+
+function baumWelch(model, observ, iter)
+{
+	var numPeriods = observ.length;
+	var newModel = new Object;
+	var alpha, beta, gamma, squiggly;
+	newModel.numStates = model.numStates;
+	newModel.sigma = model.sigma;
+	var text = "";
+	
+	for (var s = 0; s < iter; s++)
+	{	
+		alpha = fwdAlg(model, observ);
+		beta = bkwdAlg(model, observ);
+		
+		for (var i = 0; i < alpha.length; i++)
+		{
+			text += "alpha[" + i + "] = ";
+			for (var j = 0; j < alpha[i].length; j++)
+			{
+				text +=  alpha[i][j].toFixed(16) + ", ";
+			}
+			text += "<br>";
+		}
+		
+		for (var i = 0; i < beta.length; i++)
+		{
+			text += "beta[" + i + "] = ";
+			for (var j = 0; j < beta[i].length; j++)
+			{
+				text +=  beta[i][j].toFixed(16) + ", ";
+			}
+			text += "<br>";
+		}
+		document.getElementById("output").innerHTML += text;
+		gamma = gammaVars(alpha, beta);
+		
+		squiggly = squigglyVars(model, alpha, beta, observ);
+		
+	//	[pi bar]_{i} = gamma_{1, i}
+		newModel.initProbs = new Array(newModel.numStates);
+		for (var i = 0; i < newModel.numStates; i++)
+		{
+			newModel.initProbs[i] = gamma[0][i];
+		}
+		
+	//	[a bar]_{i, j} = Sigma_{t = 1 to T-1} (squiggly_{t, i, j}) / Sigma_{t = 1 to T - 1} (gamma_{t, i} 1 <= i <= N, 1 <= j <= N
+		newModel.transProbs = new Array(newModel.numStates);
+		for (var i = 0; i < newModel.numStates; i++)
+		{
+			newModel.transProbs[i] = new Array(newModel.numStates);
+		}
+		
+		for (var i = 0; i < newModel.numStates; i++)
+		{
+			var temp1 = 0;
+			for (var t = 0; t < numPeriods-1; t++)
+			{
+				temp1 += gamma[t][i];
+			}
+			
+			for (var j = 0; j < newModel.numStates; j++)
+			{
+				var temp2 = 0;
+				for (var t = 0; t < numPeriods-1; t++)
+				{
+					temp2 += squiggly[t][i][j];
+				}
+								
+				if (temp1 != 0)
+				{
+					newModel.transProbs[i][j] = temp2 / temp1;
+				}
+				else
+				{
+					newModel.transProbs[i][j] = 0;
+				}
+			}
+		}
+		
+	//	[b bar]_{j, k} = Sigma_{t = 1 to T, o_t = o_k} gamma_{t, j} / Sigma_{t = 1 to T} gamma_{t, j}, 1 <= j <= N, 1 <= k <= M
+		newModel.emissProbs = new Array(newModel.numStates);
+		for (var j = 0; j < newModel.numStates; j++)
+		{
+			newModel.emissProbs[j] = new Array(newModel.sigma.length);
+		}
+		
+		for (var j = 0; j < newModel.numStates; j++)
+		{
+			for (var k = 0; k < newModel.sigma.length; k++)
+			{
+				var temp1 = 0;
+				var temp2 = 0;
+				
+				for (var t = 0; t < numPeriods; t++)
+				{
+					if (newModel.sigma[k] == observ[t])
+						temp1 += gamma[t][j];
+					temp2 += gamma[t][j];
+				}
+				if (temp2 != 0)
+				{
+					newModel.emissProbs[j][k] = temp1 / temp2;
+				}
+				else
+				{
+					newModel.emissProbs[j][k] = 0;
+				}
+			}
+		}
+	}
+
+	return newModel;
+}
+
+function gammaVars(alpha, beta)
+//	gamma_{t, i} = (alpha_{t, i} * beta_{t, i}) / (Sigma_{j = 1 to N} (alpha_{t, j} * beta_{t, j})
+{
+	var numPeriods = alpha.length; 
+	var gamma = new Array(numPeriods);
+	
+	for (var i = 0; i <gamma.length; i++)
+	{
+		gamma[i] = new Array(alpha[i].length);
+	}
+	
+	for (var t = 0; t < numPeriods; t++)
+	{
+		for (var i = 0; i < gamma[t].length; i++)
+		{
+			gamma[t][i] = (alpha[t][i] * beta[t][i]);
+			var temp = 0;
+			for (var j = 0; j < gamma[i].length; j++)
+			{
+				temp += (alpha[t][j] * beta[t][j]);
+			}
+			gamma[t][i] = gamma[t][i] / temp;
+//			document.getElementById("output").innerHTML += "gamma[" + t + "][" + i + "] = " + gamma[t][i] + "<br>";
+		}
+	}
+	
+	return gamma;
+}
+
+function squigglyVars(model, alpha, beta, observ)
+{
+	var out = "";
+//	xi_{t, i, j} = (alpha_{t, i} * a_{i, j} * beta_{t+1, j} + b_{j, o_{t+1}}) / (Sigma_{i' = 1 to N} Sigma_{j' = 1 to N} (alpha_{t, i'} * a_{i', j'} * beta_{t+1, j'} * b_{j', o_{t+1}}))
+	var numPeriods = observ.length;
+	var squiggly = new Array(numPeriods);
+	for (var t = 0; t < numPeriods; t++)
+	{
+		squiggly[t] = new Array(model.numStates);
+		for (var i = 0; i < squiggly[t].length; i++)
+		{
+			squiggly[t][i] = new Array(model.numStates);
+		}
+	}
+	
+	for (var t = 0; t < numPeriods-1; t++)
+	{
+		for (var i = 0; i < squiggly[t].length; i++)
+		{
+			for (var j = 0; j < squiggly[t][i].length; j++)
+			{
+				squiggly[t][i][j] = alpha[t][i] * model.transProbs[i][j] * beta[t+1][j] * model.emissProbs[j][model.sigma.indexOf(observ[t+1])];
+				var temp = 0;
+				for (i1 = 0; i1 < model.numStates; i1++)
+				{
+					for (j1 = 0; j1 < model.numStates; j1++)
+					{
+						temp += alpha[t][i1] * model.transProbs[i1][j1] * beta[t+1][j1] * model.emissProbs[j1][model.sigma.indexOf(observ[t+1])];
+					}
+				}
+				squiggly[t][i][j] = squiggly[t][i][j] / temp;
+//				out += "squiggly[" + t + "][" + i + "][" + j + "] = " + squiggly[t][i][j] + "<br>";
+			}
+		}
+	}
+	
+//	document.getElementById("output").innerHTML += out;
+	return squiggly;
+}
+
+function genDie()
+{
+	var numDie = Math.floor(Math.random()*4) + 2;
+	var likely = new Array(6*numDie);
+	
+	//First, we need to generate the die. 
+	for (var i = 0; i < numDie; i++)
+	{
+		var fair = Math.floor(Math.random()*2);
+		if (fair)
+		{
+			for (var j = 0; j < 6; j++)
+			{
+				if (j == 0)
+				{
+					likely[i*6 + j] = (1/6);
+				}
+				else
+				{
+					likely[i*6 + j] = (1/6) + likely[i*6 + j - 1];
+				}
+			}
+		}
+		else
+		{
+			var sum = 0;
+			for (var j = 0; j < 6; j++)
+			{
+				if (j == 0)
+				{
+					likely[i*6 + j] = Math.floor(Math.random()*6)+1;
+				}
+				else
+				{
+					likely[i*6 + j] = Math.floor(Math.random()*6)+1 + likely[i*6 + j-1];
+				}
+			}
+			
+			sum = likely[i*6+(j-1)];
+			
+			for (var j = 0; j < 6; j++)
+			{
+				likely[i*6+j] = likely[i*6+j] / sum;
+			}
+		}
+	}
+
+	return likely;
+}
+
+function genOutput(likely)
+{	
+	var numDie = Math.floor(likely.length / 6);
+	var roll;
+	//Next, we need to roll the die
+	var dieRolled = Math.floor(Math.random()*numDie);
+
+	var temp = Math.random();
+		
+	if (temp >= 0 && temp <= likely[dieRolled*6+0])
+	{
+		roll = 1;
+	}
+	else if (temp > likely[dieRolled*6+0] && temp <= likely[dieRolled*6+1])
+	{
+		roll = 2;
+	}
+	else if (temp > likely[dieRolled*6+1] && temp <= likely[dieRolled*6+2])
+	{
+		roll = 3;
+	}
+	else if (temp > likely[dieRolled*6+2] && temp <= likely[dieRolled*6+3])
+	{
+		roll = 4;
+	}
+	else if (temp > likely[dieRolled*6+3] && temp <= likely[dieRolled*6+4])
+	{
+		roll = 5;
+	}
+	else if (temp > likely[dieRolled*6+4] && temp <= likely[dieRolled*6+5])
+	{
+		roll = 6;		
+	}
+	
+	return roll;
+}
+
+function dispHMM(model, disp)
+{
+//	model = newHMM(die.length/6, document.getElementById('stateTrans').value, document.getElementById('emissTrans').value);
+	var text = "<table>";
+	var initMtrx = "<table>";
+	initMtrx += "<tr>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		initMtrx += "<td>" + i + "</td>";
+	}
+	initMtrx += "</tr><tr>";
+	var sum = 0;
+	for (var i = 0; i < model.numStates; i++)
+	{
+		sum += model.initProbs[i];
+		initMtrx += "<td>" + model.initProbs[i].toFixed(4) + "</td>";
+	}
+	initMtrx += "</tr>";
+	initMtrx += "</table>";
+	
+	var transMtrx = "<table>";
+	transMtrx += "<tr><td></td>";
+    for (var j = 0; j < model.numStates; j++)
+    {
+        transMtrx += "<td>" + j + "</td>";
+    }
+    transMtrx += "</tr>";
+
+    var emissMtrx = "<table>";
+	emissMtrx += "<tr><td></td>";
+    for (var j = 0; j < model.sigma.length; j++)
+    {
+        emissMtrx += "<td>" + model.sigma[j] + "</td>";
+    }
+    emissMtrx += "</tr>";
+    
+    for (var i = 0; i < model.numStates; i++)
+    {
+		transMtrx += "<tr><td>" + i + "</td>";
+        for (var j = 0; j < model.numStates; j++)
+        {
+			transMtrx += "<td>" + model.transProbs[i][j].toFixed(4) + "</td>";
+        }
+        transMtrx += "</tr>";
+
+		emissMtrx += "<tr><td>" + i + "</td>";
+        for (var j = 0; j < model.sigma.length; j++)
+        {
+			emissMtrx += "<td>" + model.emissProbs[i][j].toFixed(4) + "</td>";
+        }
+        emissMtrx += "</tr>"; 
+    }
+
+	transMtrx += "</table>";
+	emissMtrx += "</table>";
+
+	text += "<tr><td>Initial Probabilities</td><td>" + initMtrx + "</td></tr><tr><td>Transition Matrix</td><td>" + transMtrx + "</td></tr><tr><td>Emission Matrix</td><td>" + emissMtrx + "</td></tr></table>";
+	
+	if (disp == 1)
+	{
+		document.getElementById("output").innerHTML = text;
+	}
+	else
+		return text;
+}
+
+function dispRolls(roll)
+{
+	for (var j = 0; j < roll.length; j++)
+	{
+		document.getElementById("input").innerHTML += roll[j];
+		if (j < roll.length - 1)
+		{
+			document.getElementById("input").innerHTML += ", ";
+		}
+	}
+	document.getElementById("input").innerHTML += "<br>";
+}
+
+function postProcess()
+{
+	model = newHMM(die.length/6, document.getElementById('stateTrans').value, document.getElementById('emissTrans').value);
+	model = baumWelch(model, roll, document.getElementById('numIter').value);
+	
+	document.getElementById("output").innerHTML += "The result of the BaumWelch Algorithm is: <br>";
+	var ans = dispHMM(model, 0);
+	document.getElementById("output").innerHTML += ans;
+}
+
+function init()
+{
+	document.getElementById("input").innerHTML = ""; 
+	var die = genDie();
+	var numPeriods = Math.floor(Math.random()*20)+5;
+	var roll = new Array();
+	for (var i = 0; i < numPeriods; i++)
+	{
+		roll[i] = genOutput(die);
+	}
+	var ans = new Array();
+	
+	document.getElementById("input").innerHTML += "Assume the casio has " + (die.length/6) + " different die. You are interested in determining the weights of the different die as well as how often the casio changes die. "
+	document.getElementById("input").innerHTML += "To help answer this question, you constructed 9 Hidden Markov Models, with each state corresponding to the likelihood that the casino used a given dice. <br>";
+	document.getElementById("input").innerHTML += "Each of these models has its own set of transition probabilities between states and its own set of emission probabilities. <br><br>";
+	document.getElementById("input").innerHTML += "There were " + numPeriods + " rolls that went as follows.<br>";
+	dispRolls(roll);
+	document.getElementById("input").innerHTML += "Which model do you think generated this set of rolls? ";
+	ans[0] = die;
+	ans[1] = numPeriods;
+	ans[2] = roll;
+
+	return ans;
+}
+
+</script>
+</head><body><h3><center>Hidden Markov Modeks: The Baum-Welch Algorithm</center></h3><p><p>Given an output sequence and a Hidden Markov Model, the Baum-Welch algorithm 
+seeks to improve the given model to one that is could have more likely 
+generated te given output sequence. It does so by using both the <a href="">
+Forward Algorithm</a> and the <a href="">Backward Algorithm</a> and using the 
+output of these two algorithms to create two temporary variables which can then
+be used to improve the initial probabilities, the transition probabilities, and 
+the emission probabilities. </p>
+<p>To implement this algorithm, I'll use the example of a dice roller who 
+claims to have fair die. Given a sequence of observations we will consider a 
+few HMMs to see the probability that the sequence we observe was generated by 
+cartain types of loaded dice. </p>
+<p>You will also /have the option of how many iterations to implement the Baum-
+Welch algorithm. </p></p><p id="input" name="input"></p>
+<script type="text/javascript">
+var ans = init();
+var die = ans[0];
+var numPeriods = ans[1];
+var roll = ans[2];
+var model;
+</script>
+<form>
+<select name="stateTrans" id="stateTrans">
+<option value="0">Dealer Repeatedly Uses Same Dice</option>
+<option value="1">Dealer Uniformly Changes Die</option>
+<option value="2">Dealer Rarely Uses Same Dice</option>
+</select>
+
+<select name="emissTrans" id="emissTrans">
+<option value="0">Larger Numbers Are More Likely</option>
+<option value="1">All Numbers Are Randomly Likely</option>
+<option value="2">Smaller Numbers Are More Likely</option>
+</select>
+
+<select name="numIter" id="numIter">
+<option value="5">5</option>
+<option value="10">10</option>
+<option value="15">15</option>
+</select>
+
+<input type="button" value="Submit" onclick="postProcess()" name="Create" id="Create"><br>
+<input type="button" value="Display Model" onclick="model = newHMM(die.length/6, document.getElementById('stateTrans').value, document.getElementById('emissTrans').value);dispHMM(model, 1)" name="Create" id="Create">
+<input type="button" value="New Problem" onclick="ans = init(); die = ans[0]; numPeriods = ans[1]; roll = ans[2]; document.getElementById('output').innerHTML = ''" name="Create" id="Create">
+
+
+</form>
+<p id="output" name="output"></p>
+</body></html>

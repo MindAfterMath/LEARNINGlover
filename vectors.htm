@@ -1,0 +1,114 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<script type='text/javascript'>
+function vector_add(v, w)
+{
+	var ans = new Array();
+	
+	for (var i = 0; i < v.length; i++)
+	{
+		ans[i] = v[i] + w[i];
+	}
+	
+	return ans;
+}
+
+function vector_diff(v, w)
+{
+	var ans = new Array();
+	
+	for (var i = 0; i < v.length; i++)
+	{
+		ans[i] = v[i] - w[i];
+	}
+	
+	return ans;
+}
+
+function vector_sum(vectors)
+{
+	var ans = vectors[0];
+	
+	for (var i = 1; i < vectors.length; i++)
+	{
+		ans = vector_add(ans, vectors[i]);
+	}
+	
+	return ans;
+}
+
+function scalar_mult(c, v)
+{
+	var ans = new Array();
+	
+	for (var i = 0; i < v.length; i++)
+	{
+		ans[i] = c * v[i];
+	}
+	
+	return ans;
+}
+
+function vector_mean(vectors)
+{
+	var len = vectors.length;
+	
+	return scalarMult(1/len, vector_sum(vectors));
+}
+
+function median(v)
+{
+	var len = v.length;
+	var sorted_v = Array.sort(v);
+	midpoint = Math.floor(n / 2);
+	
+	if (n % 2 == 1)
+	{
+		return sorted_v[midpoint];
+	}
+	else
+	{
+		var lo = midpoint - 1;
+		var hi = midpoint;
+		return (sorted_v[lo] + sorted_v[hi]) / 2;
+	}
+}
+
+function quantile(x, p)
+{
+	var pIndex = parseInt(p * x.length);
+	return Array.sort(x)[p_index];
+}
+
+function dot(v, w)
+{
+	var ans = new Array();
+	
+	for (var i = 0; i < v.length; i++)
+	{
+		ans[i] = v[i] * w[i];
+	}
+	
+	return ans;
+}
+
+function sum_of_squares(v)
+{
+	return dot(v, v);
+}
+
+function magnitude(v)
+{
+	return Math.sqrt(sum_of_squares(v));
+}
+
+function squared_distance(v, w)
+{
+	return sum_of_squares(vector_sub(v, w));
+}
+
+function distance(v, w)
+{
+	return magnitude(vector_sub(v, w));
+}
+</script></head><body></body></html>

@@ -1,0 +1,74 @@
+function fordWarsh(graph)
+{
+	var dist = {};
+	var nxt = {};
+	
+	for (var v1 in graph)
+	{
+		nxt[v1] = {};
+		for (var v2 in graph)
+		{
+			nxt[v1][v2] = Number.POSITIVE_INFINITY; 
+		}
+	}
+	
+	for (var v1 in graph)
+	{
+		dist[v1] = {};
+		for (var v2 in graph)
+		{
+			dist[v1][v2] = Number.POSITIVE_INFINITY;
+		}
+		
+		for (var v2 in graph[v1])
+		{
+			dist[v1][v2] = 1;
+			nxt[v1][v2] = v2;
+		}
+	}
+	
+	for (var k in graph)
+	{
+		for (var i in graph)
+		{
+			for (var j in graph)
+			{
+				if (dist[i][k] + dist[k][j] < dist[i][j])
+				{
+					dist[i][j] = dist[i][k] + dist[k][j];
+					nxt[i][j] = nxt[i][k];
+				}
+			}
+		}
+	}
+	
+	var paths = {};
+	for (var i in graph)
+	{
+		paths[i] = {};
+		for (var j in graph)
+		{
+			if (j == i)
+			{
+				continue;
+			}
+			
+			if (nxt[i][j] == Number.POSITIVE_INFINITY)
+			{
+				continue;
+			}
+			
+			paths[i][j] = [];
+			paths[i][j].push(i);
+			var start = i;
+			
+			while (start != j)
+			{
+				start = nxt[start][j];
+				paths[i][j].push(start);
+			}
+		}	
+	}
+	
+	return paths;
+}

@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC -//W3C//DTD XHTML 1.0 Strict//EN http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd>
+<html>
+<head>
+<title>Temperature Converter</title>
+</head>
+<body>
+<label>Please Enter a temperature in Celsius</label>
+<input id="inputTemp">
+<input type="button" onclick="convert()" value="Submit">
+<p id="output"></p>
+<script type="text/javascript">
+function convert()
+{
+	var temp1 = document.getElementById("inputTemp").value;
+	var temp2 = (9/5) * temp1 + 32;
+	document.getElementById("output").innerHTML = "The Temperature in Farenheight is " + temp2 + "<br>";
+}
+</script>
+</body>
+</html>

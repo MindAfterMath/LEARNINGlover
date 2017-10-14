@@ -1,0 +1,526 @@
+<html>
+<head>
+<script type="text/javascript">
+function getName(poss, name)
+/*
+poss is an array and name is a possible element. This function searches for this element in the poss array 
+and if it is not present, adds it at the end of the array. The function returns teh index where the element is
+located. 
+*/
+{
+	var index = poss.indexOf(name);
+	if (index < 0)
+	{
+		index = poss.length;
+		poss[index] = name;
+	}
+
+	return index;
+}
+
+function linsear(set, elmnt)
+/*
+set is an array and elmnt is a possible element. This function returns the index of the element in set. 
+If the element is not present, it returns -1. 
+*/
+{
+	var ans = -1;
+
+	for (var i = 0; i < set.length && ans == -1; i++)
+	//iterate through the array (set) until we change ans. 
+	{
+		if (set[i] == elmnt)
+		{
+			ans = i;
+		}
+	}
+	
+	return ans;
+}
+
+function getLocs(poss, data, clmn)
+{
+	var names = new Array();
+	var index;
+	var element;
+	
+	//First, build a list of the names used in the column clmn of every row of the data set, data. 
+	for (var i = 0; i < data.length; i++)
+	//Iterate through each row of data. 
+	{
+		element = poss[clmn][data[i][clmn]];
+		//data[i][clmn] returns the element found at the given cell. 
+		//poss[clmn][data[i][clmn]] returns the name of that element. 
+		index = linsear(names, element);
+		//linsear searches names for the given element. 
+		if (index < 0)
+		{
+			names[names.length] = element;
+		}
+		//if the element was not found, we add it to the end of names. 
+	}
+	
+	//Now, we search the array poss[clmn] for each element in the names array. 
+	var locs = new Array();
+	for (var i = 0; i < names.length; i++)
+	{
+		element = names[i];
+		locs[i] = linsear(poss[clmn], element);
+	}
+
+	return locs;
+}
+
+function matchArr(data, clmn, val)
+{
+	var subset = new Array();
+	var temp;
+	var ans = new Array();
+
+	for (var i = 0; i < data.length; i++)
+	//iterate through each row of data. 
+	{
+		if (data[i][clmn] == val)
+		//We're checking if the given element in the row and column of data is equal to the value (val). 
+		{
+			temp = subset.length;
+			subset[temp] = new Array();
+			//if so, we're adding a new array at the end of the subset array. 
+			for (var j = 0; j < data[i].length; j++)
+			{
+				subset[temp][j] = data[i][j];
+				//the new array will be equal to the entire row of data where the value matched. 
+			}
+		
+			ans[ans.length] = i;
+		}
+	}
+	
+	return subset;
+}
+
+function entropy1(numPoss, data, clmn)
+{
+	var numRows = data.length;
+	var ans = 0;
+
+	if (data.length == 0)
+	{
+		return 0;
+	}
+		
+	for (var i = 0; i < numPoss; i++)
+	{
+		var count = 0;
+		for (j = 0; j < data.length; j++)
+		{
+			if (data[j][clmn] == i)
+			{
+				count++;
+			}
+		}
+		
+		var prob = count / data.length;
+
+		if (count > 0)
+		{
+			ans += -prob * (Math.log(prob) / Math.log(2));
+		}
+	}
+	
+	return ans;
+}
+
+function entropy2(numPoss, clmn)
+{	
+	var ans = 0;
+
+	if (clmn.length == 0)
+	{
+		return 0;
+	}
+
+	for (var i = 0; i < numPoss; i++)
+	{
+	    var count = 0;
+	    for (var j = 0; j < clmn.length; j++)
+		{
+			if (clmn[j] == i)
+			{
+				count++;
+			}
+		}
+
+		var prob = count / clmn.length;
+		
+	    if (count > 0)
+		{
+			ans += -prob * (Math.log(prob) / Math.log(2));
+		}
+	}
+	
+	return ans;
+}
+
+function used(node, attr)
+{
+	var ans;
+	if (node.offsets != null && node.bestAttr == attr)
+	{
+		ans = true;
+	}
+	else if (node.parent == null)
+	{
+		ans = false;
+	}
+	else
+	{
+		ans = used(node.parent, attr);
+	}
+	
+	return ans;
+}
+
+function decomp(tree)
+{
+	var optEnt = 0;
+	var sel = false;
+	var chosenAttr = 0;
+
+	var numRows = tree.root.data.length;
+	var inputCnt = tree.poss.length - 1;
+
+	var numPoss;
+	var avgEnt = 0, subEnt;
+	var subset = new Array();
+
+	for (var i = 0; i < tree.root.data.length; i++)
+	{
+		subset[i] = tree.root.data[i][tree.poss.length-1];
+	}
+	
+	tree.root.entr = entropy2(tree.poss[tree.poss.length-1].length, subset);
+	
+	document.getElementById("output").innerHTML += "The overall entropy is " + tree.root.entr + "<br>";
+	
+	if (tree.root.entr != 0)
+	{
+		for (var i = 0; i < inputCnt; i++)
+		{
+			numPoss = tree.poss[i].length;
+			avgEnt = 0;
+			
+			if (!used(tree.root, i))
+			{
+				for (var j = 0; j < numPoss; j++)
+				{
+					subset = matchArr(tree.root.data, i, j);
+					
+					if (subset.length > 0)
+					{
+						subEnt = entropy1(tree.poss[i].length, subset, tree.poss.length-1);
+						avgEnt += subEnt * subset.length;
+					}
+				}
+
+				avgEnt = avgEnt / numRows;
+				avgEnt = tree.root.entr - avgEnt;
+				
+				document.getElementById("output").innerHTML += "Column " + i + "'s Information Gain is " + avgEnt + "<br>";
+
+				if (!sel)
+				{
+					sel = true;
+					optEnt = avgEnt;
+					chosenAttr = i;
+				}
+				else
+				{
+					if (avgEnt > optEnt)
+					{
+						sel = true;
+						optEnt = avgEnt;
+						chosenAttr = i;
+					}
+				}
+			}
+		}
+
+		if (sel)
+		{
+			document.getElementById("output").innerHTML += "Chosen Attribute is Column " + chosenAttr + "<br>";
+			
+			numPoss = tree.poss[chosenAttr].length;
+			tree.root.bestAttr = chosenAttr;
+			tree.root.offsets = new Array(numPoss);
+
+			for (var j = 0; j < numPoss; j++)
+			{
+				tree.root.offsets[j] = new Object();
+				tree.root.offsets[j].root = new Object();
+				tree.root.offsets[j].root.parent = tree.root;
+				tree.root.offsets[j].root.data = matchArr(tree.root.data, chosenAttr, j);
+				tree.root.offsets[j].root.bestAttr = j;
+				tree.root.offsets[j].poss = tree.poss;
+				tree.root.offsets[j].names = tree.names;
+			}
+
+			for (var j = 0; j < numPoss; j++)
+			{
+				decomp(tree.root.offsets[j]);
+			}
+
+			tree.root.data = null;
+		}
+	}
+	
+	return tree;
+}
+
+function createData(tree)
+{
+	tree = new Object();
+	tree.size = Math.floor(Math.random()*10)+5;
+	var rows = Math.floor(Math.random()*5)+15;
+
+	tree.poss = new Array();
+	tree.names = new Array(tree.size);
+	var i, j;
+
+	for (i = 0; i < tree.size; i++)
+	{
+		var possMax  = Math.floor(Math.random()*5)+2;
+		tree.poss[i] = new Array();
+		for (var j = 0; j < possMax; j++)
+			tree.poss[i][j] = j;
+		tree.names[i] = "Column " + (i+1);
+	}
+	
+	tree.root = new Object();
+	tree.root.data = new Array();
+
+	for (i = 0; i < rows; i++)
+	{
+		tree.root.data[i] = new Array();
+		for (j = 0; j < tree.size; j++)
+			tree.root.data[i][j] = Math.floor(Math.random()*tree.poss[j].length);
+	}
+
+/*	tree.size = 5;
+	rows = 14;
+	tree.poss.length = tree.size;
+
+	tree.poss[0] = new Array();possMax = 3;for (j = 0; j < possMax; j++)tree.poss[0][j] = j;tree.names[0] = "Column " + (1);
+	tree.poss[1] = new Array();possMax = 3;for (j = 0; j < possMax; j++)tree.poss[1][j] = j;tree.names[1] = "Column " + (2);
+	tree.poss[2] = new Array();possMax = 2;for (j = 0; j < possMax; j++)tree.poss[2][j] = j;tree.names[2] = "Column " + (3);
+	tree.poss[3] = new Array();possMax = 2;for (j = 0; j < possMax; j++)tree.poss[3][j] = j;tree.names[3] = "Column " + (4);
+	tree.poss[4] = new Array();possMax = 2;for (j = 0; j < possMax; j++)tree.poss[4][j] = j;tree.names[4] = "Column " + (5);
+
+	tree.root = new Object();
+	tree.root.data = new Array();
+	tree.root.data[ 0] = new Array(); tree.root.data[ 0][0] = 0;	tree.root.data[ 0][1] = 0;	tree.root.data[ 0][2] = 	0;	tree.root.data[ 0][3] = 	0;	tree.root.data[ 0][4] = 	0;
+	tree.root.data[ 1] = new Array(); tree.root.data[ 1][0] = 0;	tree.root.data[ 1][1] = 0;	tree.root.data[ 1][2] = 	0;	tree.root.data[ 1][3] = 	1;	tree.root.data[ 1][4] = 	0;
+	tree.root.data[ 2] = new Array(); tree.root.data[ 2][0] = 1;	tree.root.data[ 2][1] = 0;	tree.root.data[ 2][2] = 	0;	tree.root.data[ 2][3] = 	0;	tree.root.data[ 2][4] = 	1;
+	tree.root.data[ 3] = new Array(); tree.root.data[ 3][0] = 2;	tree.root.data[ 3][1] = 1;	tree.root.data[ 3][2] = 	0;	tree.root.data[ 3][3] = 	0;	tree.root.data[ 3][4] = 	1;
+	tree.root.data[ 4] = new Array(); tree.root.data[ 4][0] = 2;	tree.root.data[ 4][1] = 2;	tree.root.data[ 4][2] = 	1;	tree.root.data[ 4][3] = 	0;	tree.root.data[ 4][4] = 	1;
+	tree.root.data[ 5] = new Array(); tree.root.data[ 5][0] = 2;	tree.root.data[ 5][1] = 2;	tree.root.data[ 5][2] = 	1;	tree.root.data[ 5][3] = 	1;	tree.root.data[ 5][4] = 	0;
+	tree.root.data[ 6] = new Array(); tree.root.data[ 6][0] = 1;	tree.root.data[ 6][1] = 2;	tree.root.data[ 6][2] = 	1;	tree.root.data[ 6][3] = 	1;	tree.root.data[ 6][4] = 	1;
+	tree.root.data[ 7] = new Array(); tree.root.data[ 7][0] = 0;	tree.root.data[ 7][1] = 1;	tree.root.data[ 7][2] = 	0;	tree.root.data[ 7][3] = 	0;	tree.root.data[ 7][4] = 	0;
+	tree.root.data[ 8] = new Array(); tree.root.data[ 8][0] = 0;	tree.root.data[ 8][1] = 2;	tree.root.data[ 8][2] = 	1;	tree.root.data[ 8][3] = 	0;	tree.root.data[ 8][4] = 	1;
+	tree.root.data[ 9] = new Array(); tree.root.data[ 9][0] = 2;	tree.root.data[ 9][1] = 1;	tree.root.data[ 9][2] = 	1;	tree.root.data[ 9][3] = 	0;	tree.root.data[ 9][4] = 	1;
+	tree.root.data[10] = new Array(); tree.root.data[10][0] = 0;	tree.root.data[10][1] = 1;	tree.root.data[10][2] = 	1;	tree.root.data[10][3] = 	1;	tree.root.data[10][4] = 	1;
+	tree.root.data[11] = new Array(); tree.root.data[11][0] = 1;	tree.root.data[11][1] = 1;	tree.root.data[11][2] = 	0;	tree.root.data[11][3] = 	1;	tree.root.data[11][4] = 	1;
+	tree.root.data[12] = new Array(); tree.root.data[12][0] = 1;	tree.root.data[12][1] = 0;	tree.root.data[12][2] = 	1;	tree.root.data[12][3] = 	0;	tree.root.data[12][4] = 	1;
+	tree.root.data[13] = new Array(); tree.root.data[13][0] = 2;	tree.root.data[13][1] = 1;	tree.root.data[13][2] = 	0;	tree.root.data[13][3] = 	1;	tree.root.data[13][4] = 	0;
+*/	
+/*
+	tree.size = 14;
+	rows = 9;
+
+	tree.poss[0] = new Array();possMax = 6;for (j = 0; j < possMax; j++)tree.poss[0][j] = j;tree.names[0] = "Column " + (1);
+	tree.poss[1] = new Array();possMax = 6;for (j = 0; j < possMax; j++)tree.poss[1][j] = j;tree.names[1] = "Column " + (2);
+	tree.poss[2] = new Array();possMax = 6;for (j = 0; j < possMax; j++)tree.poss[2][j] = j;tree.names[2] = "Column " + (3);
+	tree.poss[3] = new Array();possMax = 4;for (j = 0; j < possMax; j++)tree.poss[3][j] = j;tree.names[3] = "Column " + (4);
+	tree.poss[4] = new Array();possMax = 4;for (j = 0; j < possMax; j++)tree.poss[4][j] = j;tree.names[4] = "Column " + (5);
+	tree.poss[5] = new Array();possMax = 6;for (j = 0; j < possMax; j++)tree.poss[5][j] = j;tree.names[5] = "Column " + (6);
+	tree.poss[6] = new Array();possMax = 5;for (j = 0; j < possMax; j++)tree.poss[6][j] = j;tree.names[6] = "Column " + (7);
+	tree.poss[7] = new Array();possMax = 6;for (j = 0; j < possMax; j++)tree.poss[7][j] = j;tree.names[7] = "Column " + (8);
+	tree.poss[8] = new Array();possMax = 3;for (j = 0; j < possMax; j++)tree.poss[8][j] = j;tree.names[8] = "Column " + (9);
+	tree.poss[9] = new Array();possMax = 5;for (j = 0; j < possMax; j++)tree.poss[9][j] = j;tree.names[9] = "Column " + (10);
+	tree.poss[10] = new Array();possMax = 5;for (j = 0; j < possMax; j++)tree.poss[10][j] = j;tree.names[10] = "Column " + (11);
+	tree.poss[11] = new Array();possMax = 3;for (j = 0; j < possMax; j++)tree.poss[11][j] = j;tree.names[11] = "Column " + (12);
+	tree.poss[12] = new Array();possMax = 2;for (j = 0; j < possMax; j++)tree.poss[12][j] = j;tree.names[12] = "Column " + (13);
+	tree.poss[13] = new Array();possMax = 4;for (j = 0; j < possMax; j++)tree.poss[13][j] = j;tree.names[13] = "Column " + (14);
+
+	tree.root = new Object();
+	tree.root.data = new Array();
+	tree.root.data[0] = new Array(); tree.root.data[0][0] = 5;	tree.root.data[0][1] = 1;	tree.root.data[0][2] = 	4;	tree.root.data[0][3] = 	3;	tree.root.data[0][4] = 	1;	tree.root.data[0][5] = 	2;	tree.root.data[0][6] = 	0;	tree.root.data[0][7] = 	3;	tree.root.data[0][8] = 	0;	tree.root.data[0][9] = 	1;	tree.root.data[0][10] = 	1;	tree.root.data[0][11] = 	1;	tree.root.data[0][12] = 	0;	tree.root.data[0][13] = 	2;
+	tree.root.data[1] = new Array(); tree.root.data[1][0] = 4;	tree.root.data[1][1] = 3;	tree.root.data[1][2] = 	1;	tree.root.data[1][3] = 	1;	tree.root.data[1][4] = 	3;	tree.root.data[1][5] = 	2;	tree.root.data[1][6] = 	3;	tree.root.data[1][7] = 	0;	tree.root.data[1][8] = 	1;	tree.root.data[1][9] = 	0;	tree.root.data[1][10] = 	2;	tree.root.data[1][11] = 	1;	tree.root.data[1][12] = 	0;	tree.root.data[1][13] = 	3;
+	tree.root.data[2] = new Array(); tree.root.data[2][0] = 0;	tree.root.data[2][1] = 5;	tree.root.data[2][2] = 	0;	tree.root.data[2][3] = 	0;	tree.root.data[2][4] = 	0;	tree.root.data[2][5] = 	1;	tree.root.data[2][6] = 	3;	tree.root.data[2][7] = 	1;	tree.root.data[2][8] = 	1;	tree.root.data[2][9] = 	2;	tree.root.data[2][10] = 	1;	tree.root.data[2][11] = 	0;	tree.root.data[2][12] = 	1;	tree.root.data[2][13] = 	1;
+	tree.root.data[3] = new Array(); tree.root.data[3][0] = 1;	tree.root.data[3][1] = 3;	tree.root.data[3][2] = 	3;	tree.root.data[3][3] = 	1;	tree.root.data[3][4] = 	3;	tree.root.data[3][5] = 	2;	tree.root.data[3][6] = 	0;	tree.root.data[3][7] = 	3;	tree.root.data[3][8] = 	1;	tree.root.data[3][9] = 	4;	tree.root.data[3][10] = 	2;	tree.root.data[3][11] = 	0;	tree.root.data[3][12] = 	0;	tree.root.data[3][13] = 	2;
+	tree.root.data[4] = new Array(); tree.root.data[4][0] = 4;	tree.root.data[4][1] = 0;	tree.root.data[4][2] = 	1;	tree.root.data[4][3] = 	1;	tree.root.data[4][4] = 	1;	tree.root.data[4][5] = 	4;	tree.root.data[4][6] = 	1;	tree.root.data[4][7] = 	3;	tree.root.data[4][8] = 	1;	tree.root.data[4][9] = 	0;	tree.root.data[4][10] = 	1;	tree.root.data[4][11] = 	1;	tree.root.data[4][12] = 	1;	tree.root.data[4][13] = 	2;
+	tree.root.data[5] = new Array(); tree.root.data[5][0] = 5;	tree.root.data[5][1] = 0;	tree.root.data[5][2] = 	2;	tree.root.data[5][3] = 	2;	tree.root.data[5][4] = 	0;	tree.root.data[5][5] = 	5;	tree.root.data[5][6] = 	4;	tree.root.data[5][7] = 	3;	tree.root.data[5][8] = 	0;	tree.root.data[5][9] = 	4;	tree.root.data[5][10] = 	0;	tree.root.data[5][11] = 	2;	tree.root.data[5][12] = 	1;	tree.root.data[5][13] = 	0;
+	tree.root.data[6] = new Array(); tree.root.data[6][0] = 3;	tree.root.data[6][1] = 0;	tree.root.data[6][2] = 	5;	tree.root.data[6][3] = 	0;	tree.root.data[6][4] = 	3;	tree.root.data[6][5] = 	0;	tree.root.data[6][6] = 	3;	tree.root.data[6][7] = 	0;	tree.root.data[6][8] = 	1;	tree.root.data[6][9] = 	2;	tree.root.data[6][10] = 	0;	tree.root.data[6][11] = 	2;	tree.root.data[6][12] = 	1;	tree.root.data[6][13] = 	1;
+	tree.root.data[7] = new Array(); tree.root.data[7][0] = 1;	tree.root.data[7][1] = 1;	tree.root.data[7][2] = 	3;	tree.root.data[7][3] = 	2;	tree.root.data[7][4] = 	0;	tree.root.data[7][5] = 	0;	tree.root.data[7][6] = 	0;	tree.root.data[7][7] = 	2;	tree.root.data[7][8] = 	1;	tree.root.data[7][9] = 	4;	tree.root.data[7][10] = 	1;	tree.root.data[7][11] = 	2;	tree.root.data[7][12] = 	1;	tree.root.data[7][13] = 	3;
+	tree.root.data[8] = new Array(); tree.root.data[8][0] = 2;	tree.root.data[8][1] = 1;	tree.root.data[8][2] = 	1;	tree.root.data[8][3] = 	3;	tree.root.data[8][4] = 	3;	tree.root.data[8][5] = 	0;	tree.root.data[8][6] = 	2;	tree.root.data[8][7] = 	5;	tree.root.data[8][8] = 	2;	tree.root.data[8][9] = 	2;	tree.root.data[8][10] = 	0;	tree.root.data[8][11] = 	1;	tree.root.data[8][12] = 	1;	tree.root.data[8][13] = 	1;
+*/	
+	return tree;
+}
+
+function dispData(tree)
+{
+	var i, j, text = "";
+
+	text = "<table><tr>";
+
+	for (i = 0; i < tree.poss.length; i++)
+		text += "<td><b>" + tree.poss[i].length + "</b></td>";
+	text += "</tr><tr>";
+	
+	for (i = 0; i < tree.root.data.length; i++)
+	{
+		for (j = 0; j < tree.root.data[i].length; j++)
+			text += "<td>" + tree.root.data[i][j] + "</td>";
+		text += "</tr><tr>";
+	}
+	text += "</tr></table>";
+
+	return text;
+}
+
+function printTree(tree, tab)
+{
+	var text = "";
+	var outputAttr = tree.poss.length - 1;
+	var i;
+
+	if (tree.root.offsets == null)
+	{
+		var values = getLocs(tree.poss, tree.root.data, outputAttr);
+		if (values.length == 1)
+		{
+			text += tab + tree.names[outputAttr] + " = \"" + tree.poss[outputAttr][values[0]] + "\";";
+			return text;
+		}
+
+		if (values.length > 0)
+		{
+			text += tab + tree.names[outputAttr] + " = (";
+			for (i = 0; i < values.length; i++)
+			{
+
+				text += "\"" + tree.poss[outputAttr][values[i]] + "\" ";
+				if (i != values.length-1)
+				{
+					text += ", ";
+				}
+			}
+			text += " );";
+		}
+
+		return text;
+	}
+	
+	var numvalues = tree.root.offsets.length;
+	for (i = 0; i < numvalues; i++)
+	{
+		text += tab + "if (" + tree.names[tree.root.bestAttr] + " == \"" + tree.poss[tree.root.bestAttr][i] + "\")<br>";
+		text += tab + "{<br>" +  printTree(tree.root.offsets[i], tab + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") + "<br>";
+		if (i != numvalues - 1)
+		{
+			text += tab + "}<br>" + tab + "else ";
+		}
+		else
+		{
+			text += tab + "}";
+		}
+	}
+	
+	return text;
+}
+
+function printTree2(tree, head, list)
+{
+	var text = "";
+	var outputAttr = tree.poss.length - 1;
+	
+	var head2 = new Array();
+	for (var i = 0; i < head.length; i++)
+	{
+		head2[i] = head[i];
+	}
+	
+	var list2 = new Array();
+	for (var i = 0; i < list.length; i++)
+	{
+		list2[i] = list[i];
+	}
+
+	if (tree.root.offsets == null)
+	{
+		var values = getLocs(tree.poss, tree.root.data, outputAttr);
+		if (values.length == 1)
+		{
+			text += head2 + " => " + tree.poss[outputAttr][values[0]] + "<br>";
+			return text;
+		}
+
+		return text;
+	}
+	
+	for (var i = 0; i < tree.root.offsets.length; i++)
+	{
+		head2[tree.root.bestAttr] = tree.poss[tree.root.bestAttr][i];
+		if (list2.indexOf(tree.root.bestAttr) == -1)
+		{
+			list2[list2.length] = tree.root.bestAttr;
+		}
+		else
+		{
+			var loc = list2.indexOf(tree.root.bestAttr);
+			list2.length = loc + 1;
+			for (var j = loc+1; j < head2.length; j++)
+			{
+//				head2[j] = "X";
+			}
+		}
+		text += printTree2(tree.root.offsets[i], head2, list2);
+	}
+	
+	return text;
+}
+
+function createDecTree(tree)
+{
+	tree = decomp(tree);
+	var head = new Array();
+	for (var i = 0; i < tree.names.length; i++)
+	{
+		head[i] = "X";
+	}
+	document.getElementById("output").innerHTML += printTree2(tree, head, new Array()) + "<br>";
+}
+</script>
+</head>
+<body>
+
+
+<form name=data id=data>
+<input type="button" value="New Problem" onclick="me = createData(me);document.getElementById('input').innerHTML =dispData(me) + '<br>';">
+<input type="button" value="Calculate Conditional" onclick="document.getElementById('output').innerHTML = '';ans = decomp(prob1, prob2, document.getElementById('sets').value); document.getElementById('output').innerHTML += 'Pr(B<sub>' + document.getElementById('sets').value + '</sub> | A) = ' + '<br>' + ans.num + '/' + ans.den;">  
+</FORM>
+<p id=input></p>
+<p id=output></p>
+<script type="text/javascript">
+var me;
+var startTime = new Date().getTime();
+me = createData(me);
+document.getElementById("input").innerHTML += dispData(me) + "<br>";
+document.getElementById("input").innerHTML += "back<br>";
+createDecTree(me);
+var endTime = new Date().getTime();
+var totalTime = (endTime - startTime) / 1000;
+</script>
+
+</body>
+</html>

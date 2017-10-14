@@ -1,0 +1,84 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<script type='text/javascript'>
+function shape(A)
+{
+	var numRows = A.length;
+	var numClms = A[0].length;
+	
+	return [numRows, numClms];
+}
+
+function getRow(A, i)
+{
+	return A[i];
+}
+
+function getClm(A, j)
+{
+	var ans = new Array();
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		ans[i] = A[i][j];
+	}
+	
+	return ans;
+}
+
+function makeMatrix(numRows, numClms, entryFn)
+{
+	var ans = new Array();
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		ans[i] = new Array();
+		for (var j = 0; j < numClms; j++)
+		{
+			ans[i][j] = entryFn(i, j);
+		}
+	}
+	
+	return ans;
+}
+
+function isDiagonal(i, j)
+{
+	if (i == j)
+		return 1;
+	else
+		return 0;
+}
+
+function identityMatrix(m)
+{
+	return makeMatrix(m, m, isDiagonal);
+}
+
+function matMult(A, B)
+{
+	var shapeA = shape(A);
+	var shapeB = shape(B);
+	if (shape(A)[1] != shape(B)[0])
+	{
+		return -1;
+	}
+	
+	var ans = new Array();
+		
+	for (var i = 0; i < shapeA[0]; i++)
+	{
+		ans[i] = new Array();
+		for (var j = 0; j < shapeB[1]; j++)
+		{
+			ans[i][j] = 0;
+			for (var k = 0; k < shapeA[1]; k++)
+			{
+				ans[i][j] += A[i][k] + B[k][j];
+			}
+		}
+	}
+	
+	return ans;
+}
+</script></head><body></body></html>

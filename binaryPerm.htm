@@ -1,0 +1,385 @@
+<html>
+<head>
+<script type="text/javascript">
+function nextPerm(binNum)
+{
+	binNum = "001122";
+	document.getElementById("output2").innerHTML += "binNum = " + binNum + "<br>";
+	var locs = new Array();
+	var dstnct = new Array();
+	var zeroLocs = new Array();
+	var oneLocs = new Array();
+	var i, j;
+	var actions = new Array();
+	
+	for (i = 0; i < binNum.length; i++)
+	{
+		if (!search(dstnct, binNum[i]))
+		{
+			dstnct[dstnct.length] = binNum[i];
+			locs[locs.length] = new Array();
+		}
+	}
+	
+	document.getElementById("output2").innerHTML += "dstnct = " + dstnct + "<br>";
+	
+	for (i = 0; i < binNum.length; i++)
+	for (j = 0; j < dstnct.length; j++)
+	{
+		if (binNum[i] == dstnct[j])
+			locs[j][locs[j].length] = i;
+//			zeroLocs[zeroLocs.length] = i;
+//		else if (binNum[i] == dstnct[j])
+//			oneLocs[oneLocs.length] = i;
+	}
+	
+	for (i = 0; i < locs.length; i++)
+		document.getElementById("output2").innerHTML += "locs[" + i + "] = " + locs[i] + "<br>";
+	
+	for (i = 0; i < locs.length; i++)
+	for (j = i+1; j < locs.length; j++)
+		if (i != j)
+			for (var k1 = 0; k1 < locs[i].length; k1++)
+			for (var k2 = 0; k2 < locs[j].length; k2++)
+			{
+				var k = actions.length;
+				actions[k] = new Array();
+				actions[k][0] = new Array();
+				actions[k][0][0] = locs[i][k1];
+				actions[k][0][1] = locs[j][k2];
+			}
+	
+	for (i = 0; i < actions.length; i++)
+	for (j = i+1; j < actions.length; j++)
+	{
+		if (cap(actions[i], actions[j]).length == 0)
+		{
+			var k = actions.length;
+			actions[k] = new Array();
+			for (var k1 = 0; k1 < actions[i].length; k1++)
+				actions[k][k1] = actions[i][k1];
+			for (var k2 = 0; k2 < actions[j].length; k2++)
+				actions[k][k1+k2] = actions[j][k2];
+		}
+	}
+	
+/*	for (i = 0; i < zeroLocs.length; i++)
+	for (j = 0; j < oneLocs.length; j++)
+	{
+		var k = actions.length;
+		actions[k] = new Array();
+		actions[k][0] = new Array();
+		actions[k][0][0] = zeroLocs[i];
+		actions[k][0][1] = oneLocs[j];
+	}
+	
+	for (i = 0; i < actions.length; i++)
+	for (j = i+1; j < actions.length; j++)
+	{
+		if (cap(actions[i], actions[j]).length == 0)
+		{
+			var k = actions.length;
+			actions[k] = new Array();
+			for (var k1 = 0; k1 < actions[i].length; k1++)
+				actions[k][k1] = actions[i][k1];
+			for (var k2 = 0; k2 < actions[j].length; k2++)
+				actions[k][k1+k2] = actions[j][k2];
+		}
+	}
+*/	
+	var textArr = new Array();
+	textArr[0] = binNum;
+	for (i = 0; i < actions.length; i++)
+	{
+		var temp = actOn(binNum, actions[i]);
+		if (!search(textArr, temp))
+//			textArr[textArr.length] = temp + ", " + disp2(actions, i) + "<br>";
+			textArr[textArr.length] = temp;
+		document.getElementById("output2").innerHTML += temp + disp2(actions, i) + "<br>";
+	}
+	
+//	return disp1(actions) + "<br>";
+//	return textArr;
+}
+
+function actOn(str, action)
+{
+	var i, j, k, temp, str2 = new Array();
+	
+	for (i = 0; i < str.length; i++)
+		str2[i] = str[i];
+//	alert("action = " + action);
+	
+	for (i = action.length-1; i >= 0; i--)
+	{
+//		for (k = 0; k < action[i].length; k++)
+//		{
+//			if (k == 0)
+//			{
+//				temp = str[action[i][k]];
+//				str[action[i][k]] = str[action[i][k+1]];
+//			}
+//			else if (k > 0 && k < action[i].length - 1)
+//			{
+//				str[action[i][k]] = str[action[i][k+1]];
+//			}
+//			else
+//			{
+//				str[action[i][k]] = temp;
+//			}
+//		}
+//		document.getElementById("output2").innerHTML += "str2 = " + str2 + ", action[" + i + "] = (" + action[i] + "), " + i + ", str2[action[" + i + "][0]] = " + str2[action[i][0]] + ", str2[action[" + i + "][1]] = " + str2[action[i][1]] + "<br>";
+		temp = str2[action[i][0]];
+//		document.getElementById("output2").innerHTML += "temp = " + temp + "<br>";
+		str2[action[i][0]] = str2[action[i][1]];
+//		document.getElementById("output2").innerHTML += "str2[action[" + i + "][0]] = " + str2[action[i][0]] + "<br>";
+		str2[action[i][1]] = temp;
+//		document.getElementById("output2").innerHTML += "str2[action[" + i + "][1]] = " + str2[action[i][1]] + "<br>";
+//		document.getElementById("output2").innerHTML += "str2 = " + str2 + "<br>";
+	}
+//	document.getElementById("output2").innerHTML += "<br>";
+	
+	str = "";
+	
+	for (i = 0; i < str2.length; i++)
+		str += str2[i];
+	
+	return str;
+}
+
+function disp1(actions)
+{
+	var k = actions.length;
+	var i, j, text = "";
+	
+	for (i = 0; i < k; i++)
+	{
+		for (j = 0; j < actions[i].length; j++)
+		{
+			text += "(" + actions[i][j][0] + ", " + actions[i][j][1] + ")";
+		}
+		text += "<br>";
+	}
+	
+	return text;
+}
+
+function disp2(actions, loc)
+{
+	var k = actions.length;
+	var i, j, text = "";
+	
+	if (loc < actions.length)
+	{
+		for (j = 0; j < actions[loc].length; j++)
+		{
+			text += "(" + actions[loc][j][0] + ", " + actions[loc][j][1] + ")";
+		}
+		text += "\n";
+	}
+
+	return text;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = false;
+
+	for (i = 0; i < set.length && !ans; i++)
+		if (set[i] == elmnt)
+			ans = true;
+
+	return ans;
+}
+
+function cap(set1, set2)
+{
+	var set3 = new Array();
+	var nset1 = new Array();
+	var nset2 = new Array();
+	var i, j;
+
+	for (i = 0; i < set1.length; i++)
+	for (j = 0; j < set1[i].length; j++)
+	{
+		var k = nset1.length;
+		nset1[k] = set1[i][j];
+	}
+	
+	for (i = 0; i < set2.length; i++)
+	for (j = 0; j < set2[i].length; j++)
+	{
+		var k = nset2.length;
+		nset2[k] = set2[i][j];
+	}
+	
+	for (i = 0; i < nset1.length; i++)
+	{
+		if (search(nset2, nset1[i]))
+			set3[set3.length] = nset1[i];
+	}
+
+	return set3;
+}
+
+function prod(size, str1, str2)
+{
+	var i;
+	for (i = 0; i < size; i++)
+	{
+		if (str1.indexOf(i) == -1)
+			str1 += "(" + i + ")";
+		if (str2.indexOf(i) == -1)
+			str2 += "(" + i + ")";	
+	}
+	
+//	document.getElementById("output").innerHTML += "str1 = " + str1 + "<br>";
+//	document.getElementById("output").innerHTML += "str2 = " + str2 + "<br>";
+
+	var rem = str1 + str2;
+	var strRep = "";
+	var elmt;
+	var found = false;
+	
+	rem = sort(rem);
+	
+	for (i = 0; i < rem.length; i++)
+	{
+		if (rem[i] == "(" || rem[i] == ")" || (i + 1 < rem.length && rem[i] == rem[i+1]))
+		{
+			rem = remove(rem, i);
+			i--;
+		}
+	}
+//	document.getElementById("output").innerHTML += "rem = " + rem + "<br>";
+	
+	var loc1 = 0;
+	var loc2 = -1;
+	strRep += "(";
+	elmt = rem[0];
+	strRep += elmt;
+
+	for (i = 0; i < size; i++)
+	{
+		loc1 = linsear(str2, elmt);
+//		document.getElementById("output").innerHTML += "loc1 = " + loc1 + "<br>";
+		elmt = str2[loc1 + 1];
+		if (elmt == ")")
+		{
+			for (var j = loc1; str2[j] != "("; j--)
+			{ }
+			elmt = str2[j+1];
+		}
+//		document.getElementById("output").innerHTML += "elmt = " + elmt + "<br>";
+		
+		loc2 = linsear(str1, elmt);
+//		document.getElementById("output").innerHTML += "loc2 = " + loc2 + "<br>";
+		elmt = str1[loc2 + 1];
+		
+		if (elmt == ")")
+		{
+			for (var j = loc2; str1[j] != "("; j--)
+			{ }
+			elmt = str1[j+1];
+		}
+//		document.getElementById("output").innerHTML += "elmt = " + elmt + "<br>";
+		found = linsear(strRep, elmt);
+//		document.getElementById("output").innerHTML += "found = " + found + "<br>";
+		if (found >= 0)
+		{
+			strRep += ")";
+//			document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+			loc1 = linsear(rem, elmt);
+//			document.getElementById("output").innerHTML += "loc1 = " + loc1 + "<br>";
+			rem = remove(rem, loc1);
+//			document.getElementById("output").innerHTML += "rem = " + rem + "<br>";
+			if (rem.length > 0)
+			{
+				strRep += "(";
+//				document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+				elmt = rem[0];
+//				document.getElementById("output").innerHTML += "elmt = " + elmt + "<br>";
+				loc1 = linsear(str2, elmt);
+//				document.getElementById("output").innerHTML += "loc1 = " + loc1 + "<br>";
+				strRep += elmt;
+//				document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+			}
+		}
+		else
+		{
+			strRep += elmt;
+//			document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+		}
+	}
+	
+	var temp = "";
+	
+	var temp = strRep.split(")(");
+	var out = "";
+	
+	for (i = 0; i < temp.length; i++)
+	{
+		if (temp[i].length > 2 || (temp[i].length == 2 && temp[i].indexOf("(") == -1 && temp[i].indexOf(")") == -1))
+			if (temp[i][0] != "(" && temp[i][temp[i].length - 1] != ")")
+				out += "(" + temp[i] + ")";
+			else if (temp[i][0] != "(")
+				out += "(" + temp[i];
+			else if (temp[i][temp[i].length - 1] != ")")
+				out += temp[i] + ")";
+			else
+				out += temp[i];
+	}
+	if (out == (""))
+		out = "(1)";
+	
+	return out;	
+}
+
+function init()
+{
+	var i, str = new Array();;
+	for (i = 0; i < document.getElementById("num").value; i++)
+	{
+		str[i] = "";
+		for (j = 0; j < i; j++)
+			str[i] += "1";
+		for (j = i+1; j < document.getElementById("num").value; j++)
+			str[i] += "0";
+			
+		document.getElementById("output2").innerHTML += str[i] + "<br>";
+		
+		document.getElementById("output").innerHTML += nextPerm(str[i]) + "<br>";
+	}
+}
+</script>
+</head>
+<body>
+<p>
+<form name=data id=data>
+Size of Permutations?
+<select name=num id=num>
+	<option value=2>2</option>
+	<option value=3>3</option>
+	<option value=4>4</option>
+	<option value=5>5</option>
+	<option value=6>6</option>
+	<option value=7>7</option>
+	<option value=8>8</option>
+	<option value=9>9</option>
+	<option value=10>10</option>
+	<option value=11>11</option>
+	<option value=12>12</option>
+	<option value=13>13</option>
+	<option value=14>14</option>
+	<option value=15>15</option>
+</select><br>
+<input type=button onclick="init()" value="Submit"><br> 
+</form>
+</p>
+<p name="output2" id="output2"></p>
+<p name="output" id="output"></p>
+<script type="text/javascript">
+</script>
+</body>
+</html>

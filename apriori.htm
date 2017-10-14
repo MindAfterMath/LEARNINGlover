@@ -1,0 +1,597 @@
+<html>
+<head>
+<title>Apriori Algorithm</title>
+<script type="text/javascript">
+var t;
+function apriori(numItems, numTrans, minSup, poss, itemSep, oneVal)
+{
+	var setSize = 0;
+	var tree = new Array();
+	var rules = new Array();
+	var ans;
+
+	document.getElementById('output').innerHTML += "Apriori algorithm has started.<br>";
+	
+	do
+	{
+		setSize++;
+		ans = getPoss(setSize, numItems, poss, tree);
+		poss = ans[0];
+		tree = ans[1];
+
+//		for (var i = 0; i < tree.length; i++)
+//			document.getElementById("output").innerHTML += display(tree[i]) + "<br>";
+			
+		ans = getFreq(setSize, numItems, numTrans, poss, tree);
+		poss = ans[0];
+		tree = ans[1];
+		if (poss.length != 0)
+		{
+			document.getElementById('output').innerHTML += "Frequent " + setSize + "-itemsets <br>";
+			for (var i = 0; i < poss.length; i++)
+				document.getElementById('output').innerHTML += "(" + poss[i] + ")";
+			document.getElementById('output').innerHTML += "<br>";
+		}
+	}
+	while(poss.length > 1);
+	
+	ans = false;
+	
+	for (var i = 0; i < tree.length && !ans; i++)
+		if (tree[i].yval < 0)
+			ans = true;
+	
+	if (ans)
+	{
+		alert("There were too many Frequent ItemSets to display\nRestart a higher minimum support");
+		minSup = 2*minSup;
+		poss = new Array();
+		document.getElementById("minSprt").value = minSup;
+		document.getElementById('output').innerHTML = '';
+		return;
+	}
+	
+	var conf = document.getElementById("minConf").value;
+	
+//	genRules(tree, conf);
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = 0; j < setSize; j++)
+			drawLines(tree[i], j);
+	}
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = 0; j < setSize; j++)
+			drawNodes(tree[i], j);
+	}
+}
+
+function clearRect()
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+}
+
+function getPoss(n, numItems, poss, tree)
+{
+	var tempPoss = new Array();
+	var ans = new Array();
+	var str1, str2; 
+	var st1, st2;
+
+	if (n == 1)
+	{
+		for(var i = 0; i < numItems; i++)
+		{
+			tempPoss[i] = i+1;
+			tree[i] = initTree(tempPoss[i], 0);
+		}
+		tree = setXvals(tree);
+	}
+	else if (n == 2)
+	{
+		for(var i = 0; i < poss.length; i++)
+		{
+			str1 = poss[i]
+			for(var j = i + 1; j < poss.length; j++)
+			{
+				str2 = poss[j];
+				tempPoss[tempPoss.length] = str1 + " " + str2;
+//				document.getElementById("output").innerHTML += poss[i] + " and " + poss[j] + " combine to make " + tempPoss[tempPoss.length-1] + "<br>";
+				tree[tree.length] = joinBinTree(tree[i], tree[j], tempPoss[tempPoss.length-1], n-1);
+				while (tooclose(tree, tree.length-1))
+				{
+					tree[tree.length-1].yval = tree[tree.length-1].yval - 1;
+				}
+			}
+		}
+	}
+	else
+	{
+		for(var i = 0; i < poss.length; i++)
+		{
+			for(var j = i + 1; j < poss.length; j++)
+			{
+				str1 = "";
+				str2 = "";
+				st1 = poss[i].split(" ");
+				st2 = poss[j].split(" ");
+				
+				for(var s = 0; s < n - 2; s++)
+				{
+					str1 = str1 + " " + st1[s];
+					str2 = str2 + " " + st2[s];
+				}
+				
+				if (str2 == str1)
+					tempPoss[tempPoss.length] = str1 + " " + st1[s] + " " + st2[s];
+
+				while (tempPoss.length > 0 && tempPoss[tempPoss.length-1].charAt(0) == " ")
+					tempPoss[tempPoss.length-1] = tempPoss[tempPoss.length-1].substring(1, tempPoss[tempPoss.length-1].length);	
+					
+				if (str1 == str2)
+				{
+//					document.getElementById("output").innerHTML += poss[i] + " and " + poss[j] + " combine to make " + tempPoss[tempPoss.length-1] + "<br>";
+					tree[tree.length] = joinBinTree(tree[linsear(tree, poss[i])], tree[linsear(tree, poss[j])], tempPoss[tempPoss.length-1], n-1);
+					while (tooclose(tree, tree.length-1))
+					{
+						tree[tree.length-1].yval = tree[tree.length-1].yval - 1;
+					}
+				}
+			}
+		}
+	}
+
+	poss = tempPoss;
+	ans[0] = poss;
+	ans[1] = tree;
+
+	return ans;
+}
+
+function linsear(set, elmnt)
+{
+	var i;
+	var ans = -1;
+
+	for (i = 0; i < set.length && ans == -1; i++)
+		if (set[i].value == elmnt)
+			ans = i;
+
+	return ans;
+}
+
+function remove (set, loc)
+{
+	var i, len = set.length;
+
+	for (i = loc; i < len; i++)
+		set[i] = set[i+1];
+
+	set.length--;
+
+	return set;
+}
+
+function getFreq(n, numItems, numTrans, poss, tree)
+{
+	var possFreq = new Array(); 
+	var stFile;
+	var match, ans = new Array(); 
+	var trans = new Array(numItems); 
+	var count = new Array(poss.length); 
+	var toOutput = "", bld1 = "", bld2 = "";
+	for (i = 0; i < count.length; i++)
+		count[i] = 0;
+
+	var temp = document.getElementById("transa").value;
+	
+	for (var i = 0; i < numTrans; i++)
+	{
+		var loc1 = temp.indexOf("\n");
+		stFile = temp.substring(0, loc1).split(" ");
+		temp = temp.substring(loc1+1, temp.length);
+
+		for(var j = 0; j < numItems; j++)
+		{
+			if (stFile[j] == '1')
+				trans[j] = true;
+			else
+				trans[j] = false;
+		}
+
+		for(var c = 0; c < poss.length; c++)
+		{
+			match = false; 
+
+			if (poss[c].length > 0)
+				st = poss[c].split(" ");
+			else
+			{
+				st = new Array();
+				st[0] = poss[c];
+			}
+			
+			for (var d = 0; d < st.length; d++)
+			{
+				match = (trans[parseInt(st[d])-1]);
+				if (!match)
+					break;
+			}
+
+			if (match) 
+				count[c]++;
+		}
+	}
+	
+	toOutput += "-----<table>"
+	for(var i = 0; i < poss.length; i++)
+	{
+		if( (count[i] / numTrans) >= minSup)
+		{
+			possFreq[possFreq.length] = poss[i];
+			tree[linsear(tree, poss[i])].prob = count[i] / numTrans;
+			bld1 = "<b>";
+			bld2 = "</b>";
+		}
+		else
+		{
+//			document.getElementById("output").innerHTML += "removing element " + tree[linsear(tree, poss[i])].value + "<br>";
+			remove(tree, linsear(tree, poss[i]));
+			bld1 = "";
+			bld2 = "";
+		}
+		toOutput += "<tr><td>" + bld1 + poss[i] + bld2 + "</td><td>|</td><td>" + bld1 + Math.floor(((count[i] / numTrans)*100))/100 + bld2 + "</td></tr>";
+	}
+	toOutput += "</table>";
+	document.getElementById("output").innerHTML += toOutput;
+	
+	poss = possFreq;
+	ans[0] = poss;
+	ans[1] = tree;
+
+	return ans;
+}
+
+function genData(clms, rows)
+{
+	var i, j;
+	document.getElementById("transa").value = "";
+	
+	for (i = 0; i < rows; i++)
+	{
+		for (j = 0; j < clms; j++)
+		{
+			document.getElementById("transa").value += Math.floor(Math.random()*2) + " ";
+		}
+		document.getElementById("transa").value += "\n";
+	}
+}
+
+function initTree(val, prob)
+{
+	var tree = new Object();
+	tree.value = new String(val);
+	tree.left = null;
+	tree.right = null;
+	tree.xval = 0;
+	tree.yval = 0;
+	tree.prob = prob;
+	tree.order = 0;
+	tree.drawn = false;
+	tree.parent = null;
+
+	return tree;
+}
+
+function joinBinTree(tree1, tree2, val, order)
+{
+	var tree3 = new Object();
+
+	tree3.value = val;
+
+	tree3.left = tree1;
+	tree3.left.parent = tree3;
+	tree3.right = tree2;
+	tree3.right.parent = tree3;
+	tree3.code = "";
+	tree3.xval = (tree1.xval + tree2.xval) / 2;
+
+	if (tree1.yval <= tree2.yval)
+		tree3.yval = tree1.yval - 50;
+	else
+		tree3.yval = tree2.yval - 50;
+
+	tree3.prob = tree1.prob + tree2.prob;
+	tree3.order = order;
+	tree3.drawn = false;
+	tree3.parent = null;
+
+	return tree3;
+}
+
+function display(tree)
+{
+	var text = "";
+//	if (tree.left == null && tree.right == null)
+		text += tree.value + " | " + tree.xval + " | " + tree.yval + " | " + tree.order + " | " + tree.drawn + " | " + tree.value.length + "; ";
+
+//	if (tree.left != null)
+//	{
+//		text += tree.value + " | " + tree.xval + " | " + tree.yval + " | " + tree.order + " | " + tree.drawn + " | " + tree.value.length + "; ";
+//	}
+
+//	if (tree.right != null)
+//	{
+//		text += tree.value + " | " + tree.xval + " | " + tree.yval + " | " + tree.order + " | " + tree.drawn + " | " + tree.value.length + "; ";
+//	}
+
+	return text;
+}
+
+function tooclose(tree, loc)
+{
+	var i, ans = false, dist = 0;
+
+	for (i = 0; i < tree.length && ans == false; i++)
+	{
+		if (i != loc)
+		{
+			dist = Math.sqrt(Math.pow(tree[loc].xval - tree[i].xval, 2) + Math.pow(tree[loc].yval - tree[i].yval, 2));
+			if (dist < 40)
+			{
+				ans = true;
+			}
+		}
+	}
+	
+	return ans;
+}
+
+function drawLines(tree, order)
+{
+	if (order == "-..")
+		order = -1;
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var i;
+	
+	if (tree.order == order)
+	{
+		if (tree.left != null && tree.right != null && tree.drawn == false)
+		{
+			ctx.lineWidth = 1;
+
+			ctx.strokeStyle = "#00FF00";
+			ctx.beginPath();
+			ctx.moveTo(tree.xval - 3*tree.value.length + tree.value.length/2, tree.yval + 4);
+			if (tree.left.order == 0)
+				ctx.lineTo(tree.left.xval+3*(Math.floor(Math.log(1)/Math.log(10))+2), tree.left.yval-4);
+			else
+				ctx.lineTo(tree.left.xval + 3*tree.left.value.length - tree.left.value.length/2, tree.left.yval - 4);
+			ctx.stroke();
+
+			ctx.strokeStyle = "#00FF00";
+			ctx.beginPath();
+			ctx.moveTo(tree.xval + 3*tree.value.length - tree.value.length/2, tree.yval + 4);
+			if (tree.right.order == 0)
+				ctx.lineTo(tree.right.xval-3*(Math.floor(Math.log(1)/Math.log(10))+2), tree.right.yval-4);
+			else
+				ctx.lineTo(tree.right.xval - 3*tree.right.value.length + tree.right.value.length/2, tree.right.yval - 4);
+			ctx.stroke();
+			ctx.fillStyle = "#000000";
+			ctx.font = "10px Arial";
+		}
+	}
+}
+
+function drawNodes(tree, order)
+{
+	if (order == "-..")
+		order = -1;
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var i;
+	
+	if (order == 0)
+	{
+		if (tree.left == null && tree.right == null && tree.drawn == false)
+		{
+			ctx.fillStyle = "#FFFFFF";
+			ctx.beginPath();
+			ctx.arc(tree.xval, tree.yval, 7, 0*Math.PI, 2*Math.PI);
+			ctx.fill();
+
+			ctx.strokeStyle = "#000000";
+			ctx.beginPath();
+			ctx.arc(tree.xval, tree.yval, 7, 0*Math.PI, 2*Math.PI);
+			ctx.stroke();
+			
+			ctx.fillStyle = "#000000";
+			ctx.font = "10px Arial";
+			tree.drawn = true;
+			
+			if (tree.value != 0)
+				ctx.fillText(tree.value, tree.xval-3*(Math.floor(Math.log(tree.value)/Math.log(10))+1), tree.yval+4);
+			else
+				ctx.fillText(tree.value, tree.xval-3*(Math.floor(Math.log(1)/Math.log(10))+1), tree.yval+4);
+
+			ctx.fillText(Math.round(tree.prob*100)/100, tree.xval-10*(Math.floor(Math.log(4)/Math.log(10))+1), tree.yval+20);
+		}
+	}
+	else if (tree.order == order)
+	{
+		if (tree.left != null && tree.right != null && tree.drawn == false)
+		{
+			ctx.fillStyle = "#FFFFFF";
+			ctx.beginPath();
+			ctx.arc(tree.xval, tree.yval, 3*tree.value.length, 0*Math.PI, 2*Math.PI);
+			ctx.fill();
+		
+			ctx.strokeStyle = "#000000";
+			ctx.beginPath();
+			ctx.arc(tree.xval, tree.yval, 3*tree.value.length, 0*Math.PI, 2*Math.PI);
+			ctx.stroke();
+			tree.drawn = true;
+			
+			ctx.fillStyle = "#000000";
+			ctx.font = "10px Arial";
+			tree.drawn = true;
+			
+			ctx.fillText(tree.value, tree.xval-3*(tree.value.length)+tree.value.length/2, tree.yval+4);
+
+			ctx.fillText(Math.round(tree.prob*100)/100, tree.xval-10*(Math.floor(Math.log(4)/Math.log(10))+1), tree.yval+20);
+		}
+	}
+}
+
+function setXvals(tree)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var orig = 50;
+	var maxim = c.width - 50;
+	var incr = (maxim - orig) / (tree.length-1);
+
+	for (var i = 0; i < tree.length; i++)
+	{
+		tree[i].xval = orig + i*incr;
+		tree[i].yval = c.height - 150;
+	}
+
+	return tree;
+}
+
+function genRules(tree, conf)
+{
+	//R = empty set. 
+	var rules = new Array();
+	
+	//for each large itemset "itemset"
+	for (var i = 0; i < tree.length; i++)
+	{
+	//	for each each subset "sub" of "itemset" such that "sub" is non empty and "sub" is not "itemset"
+		var list = tree[i].value.split(" ");
+		document.getElementById("output").innerHTML += "list = " + list + "<br>";
+		var sets = getSubs(list);
+		
+		for (var j = 0; j < sets.length; j++)
+			document.getElementById("output").innerHTML += "sets = " + sets[j].value + "<br>";
+		
+		document.getElementById("output").innerHTML += "<br>";
+	}
+	
+	//		if the support of "itemset" divided by the support of "sub" is at least "conf", then 
+	//			generate the rule:	R = R union {"sub" => ("itemset" - "sub")};
+}
+
+function getSubs(list)
+{
+	var set = new Array();
+	var ans = new Array();
+	var i, temp, j;
+	document.getElementById("output").innerHTML += "inside getSubs<br>";
+	document.getElementById("output").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list = " + list + "<br>";
+	
+	if (list.length > 0)
+	{
+		for (i = 0; i < list.length; i++)
+		{
+			ans = list;
+			document.getElementById("output").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ans = " + ans + "<br>";
+			temp = list[i];
+			ans = remove(ans, i);
+			document.getElementById("output").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ans = " + ans + "<br>";
+			set[set.length] = new Array();
+			for (j = 0; j < ans.length; j++)
+			{
+				set[set.length-1][set[set.length-1].length] = ans[j];
+//				var temp1 = set[set.length-1];
+//				temp1[temp1.length] = ans[j];
+			}
+			document.getElementById("output").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set[" + i + "] = " + set[i] + "<br>";
+			list[i] = temp;
+		}
+		
+		temp = new Array();
+		
+		for (i = 0; i < list.length; i++)
+		{
+//			temp[i] = new Array();
+//			if (set[i].length <= 3)
+//				temp = getSubs(set[i]);
+				
+			for (j = 0; j < temp.length; j++)
+			{
+				if (linsear(set, temp[j]) < 0 && temp[j].length > 0)
+					set[set.length] = temp[j];
+			}
+		}
+	}
+	
+	document.getElementById("output").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set = " + set + "<br>";
+	document.getElementById("output").innerHTML += "leaving getSubs<br>";
+	return set;
+}
+</script>
+</head>
+<body>
+<h3>Apriori Algorithm</h3>
+<form>
+<table>
+<tr><td><label>Number of Items</label></td><td><input name="numItms" id="numItms"></td></tr>
+<tr><td><label>Number of Transactions</label></td><td><input name="numTsac" id="numTsac"></td></tr>
+</table>
+<input type="button" onclick="numItems = document.getElementById('numItms').value;numTrans = document.getElementById('numTsac').value;genData(numItems, numTrans);document.getElementById('output').innerHTML = '';clearRect();" Value="New Data"><br>
+<textarea style="WIDTH: 350px; HEIGHT: 150px" id="transa" name="transa">1 1 0 0 0 
+0 0 0 1 0 
+1 0 1 1 0 
+1 0 1 1 1 
+1 0 1 1 1 
+0 0 0 0 1 
+0 0 0 1 0 
+0 1 1 1 0 
+0 0 0 0 0 
+0 1 1 0 1 
+0 0 1 1 0 
+0 1 0 1 1 
+0 1 1 1 0 
+0 1 1 0 1 
+0 0 1 1 1 
+0 0 1 1 0 
+0 1 1 0 1 
+1 1 1 1 0 
+1 0 1 1 1 
+0 0 0 1 1 
+</textarea>
+<table>
+<tr><td width= "113"><label>Minimum Support</label></td><td><input name="minSprt" id="minSprt"></td></tr>
+<tr><td width= "113"><label>Minimum Confidence</label></td><td><input name="minConf" id="minConf"></td></tr>
+</table>
+<input type="button" onclick="numItems = document.getElementById('numItms').value;numTrans = document.getElementById('numTsac').value;minSup = document.getElementById('minSprt').value;document.getElementById('output').innerHTML='';apriori(numItems, numTrans, document.getElementById('minSprt').value, poss, itemSep, oneVal)" Value="Submit">
+</form>
+<canvas id="myCanvas" width="550" height="400">
+Your browser does not support the canvas element.
+</canvas>
+<p name="output" id="output">
+</p>
+<script type="text/javascript">
+	var poss = new Array();
+    
+	var numItems = 5;
+	var numTrans = 20;
+	var minSup = .25; 
+	document.getElementById("numItms").value = numItems;
+	document.getElementById("numTsac").value = numTrans;
+	document.getElementById("minSprt").value = minSup;
+	var oneVal = "1"; 
+	var itemSep = " "; 
+	genData(numItems, numTrans);
+</script>
+</html>

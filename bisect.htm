@@ -1,0 +1,93 @@
+<html>
+<head>
+<script type="text/javascript">
+var maxIter = 100;
+function bisect(poly, left, right)
+{
+	var eps = 0.00001;
+	var h_mid = left, high, low, v_mid;
+	var count = 0;
+	while (count < maxIter && eval(poly, h_mid) == 0)
+	{
+		h_mid = (right - left) / 2;
+		
+		if (eval(poly(h_mid)) == 0 || (right - left) / 2 < eps)
+		{
+		
+		}
+		count++;
+	}
+}
+	
+function generate(n)
+{
+	var i;
+	var coeff = new Array();
+
+	for (i = 0; i <= n; i++)
+	{
+		sign = Math.floor(Math.random()*2);
+		if (sign == 0)
+			sign = -1;
+		coeff[i] = sign*Math.floor(Math.random()*25);
+	}
+	
+	return coeff;	
+}
+
+function display(coeff)
+{
+	var text = "";
+	for (var i = 0; i < coeff.length-1; i++)
+	{
+		if (coeff[i] < 0)
+			text += "- " + (Math.round(-1*coeff[i]*100)/100) + "x<sup>" + (coeff.length-1-i) + "</sup> + ";
+		else if (coeff[i] > 0)
+			text += (Math.round(coeff[i]*100)/100) + "x<sup>" + (coeff.length-1-i) + "</sup> + ";
+	}
+
+	if (coeff[i] < 0)
+		text += "- " + (Math.round(-1*coeff[i]*100)/100);
+	else if (coeff[i] > 0)
+		text += (Math.round(coeff[i]*100)/100);
+	else
+		text = text.substring(0, text.length-2);
+		
+	text = text.replace(/\+\ \-/g, "-");
+
+	return text;
+}
+
+function init()
+{
+
+	var text = "", k1, poly1;
+
+	do
+	{
+		k1 = Math.floor(Math.random()*10);
+		poly1 = generate(k1);
+	}
+	while (k1 < 2);
+
+	text += display(poly1);
+	text += "<br>";
+	document.getElementById("input").innerHTML += text;
+	poly3 = polydiv(poly1, poly2);
+	document.getElementById("input").innerHTML += "Their quotient is <br>" + display(poly3) + "<br>";
+	return poly1;
+}
+</script>
+</head>
+<body>
+<p name="input" id="input"></p>
+<script type="text/javascript">
+var poly = init();
+var ans;
+</script>
+<form>
+<input type="button" value="Find Roots" onclick="ans=bisect(poly);dispSol(ans)"><br>
+</form>
+<p name="output" id="output"></p>
+</body>
+</html>

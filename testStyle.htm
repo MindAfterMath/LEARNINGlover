@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<head>
+<style> 
+th.rotate 
+{
+  /* Something you can count on */
+  height: 140px;
+  white-space: nowrap;
+}
+
+th.rotate > div 
+{
+  transform: 
+    /* Magic Numbers */
+    translate(25px, 51px)
+    /* 45 is really 360 - 45 */
+    rotate(315deg);
+  width: 30px;
+}
+th.rotate > div > span 
+{
+  border-bottom: 1px solid #ccc;
+  padding: 5px 10px;
+}
+
+.csstransforms & th.rotate {
+  height: 140px;
+  white-space: nowrap;
+}
+</style>
+</head>
+<html>
+
+<span onclick=showHideDiv('div0')>Show Step 0</span>
+
+<div id='div0' style='visibility:hidden;'>Hello World</div>
+
+<script type="text/javascript">
+function showHideDiv(id)
+{
+    var val = document.getElementById(id).style.visibility; 
+//	alert ("val = " + val);
+    if (val == "hidden")
+    {
+        document.getElementById(id).style.visibility = "visible";
+    }
+    else
+    {
+        document.getElementById(id).style.visibility = "hidden";
+    }
+}
+</script>
+</html>

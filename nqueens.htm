@@ -1,0 +1,383 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta name="keywords" content="block, cells, column, dark, grid, light, list, nonogram, puzzle, row, shade, javascript, script" />
+<meta name="description" content="This is a script which generates nonograms. Nonograms are grid puzzles based on discovering the hidden pattern based on the list provided for the rows and columns. " />
+<title>n-Queens Puzzle at LEARNINGlover.com</title>
+<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+        display: inline;
+}
+</style>
+<script type="text/javascript">
+function generate()
+{
+	var size = document.getElementById("dim").value;
+	
+//	var ans = new Array();
+	var prob = "<table border = '1'>";
+//	var row = new Array();
+//	var clm = new Array();
+	
+//	for (var i = 0; i < 1; i++)
+//	{
+//		prob += "<tr>";
+//		for (var j = 0; j <= size; j++)
+//			prob += "<td class='cbeg' name='tdc" + i + j + "' id='tdc" + i + j + "'><p name='c" + i + j + "' id='c" + i + j + "'></p></td>";
+//		prob += "</tr>";
+//	}
+	
+	for (var i = 0; i < size; i++)
+	{
+//		ans[i] = new Array();
+//		row[i] = new Array();
+		var k1 = 0;
+//		row[i][k1] = 0;
+		prob += "<tr>";
+//		prob += "<td class='rbeg' name='tdc" + i + 0 + "' id='tdc" + i + 0 + "'><p name='c" + i + 0 + "' id='c" + i + 0 + "'></p></td>";
+		for (var j = 0; j < size; j++)
+		{
+//			ans[i][j] = Math.floor(Math.random()*2);
+			prob += "<td class='c' name='tdc" + i + "_" + j + "' id='tdc" + i + "_" + j + "' onclick=changecolor('tdc" + i + "_" + j + "'," + size + ")><p name='c" + i + "_" + j + "' id='c" + i + "_" + j + "'></p></td>";
+			
+//			if ((ans[i][j] == 1 && j == 1) || ans[i][j] == 1 && ans[i][j-1] == 1)
+//			{
+//				row[i][k1]++;
+//			}
+//			else if (ans[i][j] == 1 && j != 1 && ans[i][j-1] == 0)
+//			{
+//				row[i][k1] = 1;
+//			}
+//			else if (ans[i][j] == 0 && j != 1 && ans[i][j-1] == 1)
+//			{
+//				k1++;
+//			}
+		}
+		prob += "</tr>";
+	}
+	document.getElementById("toSolve").innerHTML = prob;
+	
+//	for (var j = 0; j < size; j++)
+//	{
+//		clm[j] = new Array();
+//		var k2 = 0;
+//		clm[j][k2] = 0;
+//		
+//		for (var i = 0; i < size; i++)
+//		{
+//			if ((ans[i][j] == 1 && i == 0) || ans[i][j] == 1 && ans[i-1][j] == 1)
+//			{
+//				clm[j][k2]++;
+//			}
+//			else if (ans[i][j] == 1 && i != 0 && ans[i-1][j] == 0)
+//			{
+//				clm[j][k2] = 1;
+//			}
+//			else if (ans[i][j] == 0 && i != 0 && ans[i-1][j] == 1)
+//			{
+//				k2++;
+//			}
+//		}
+//	}
+//
+	for (var i = 0; i < size; i++)
+	for (var j = 0; j < size; j++)
+	{
+		document.getElementById("tdc"+ i + "_" + j).style.background = "#ffffff";
+	}
+	
+	
+//	for (var i = 0; i < size; i++)
+//	{
+//		var text = "";
+//		for (var k = 0; k < row[i].length; k++)
+//		{
+//			text += row[i][k];
+//			if (k < row[i].length - 1)
+//				text += ", ";
+//		}
+//		document.getElementById("c" + i + "_" + "0").innerHTML += text;
+//	}
+		
+//	for (var j = 0; j <= size; j++)
+//	{
+//		var text = "";
+//		for (var k = 0; k < clm[j].length; k++)
+//		{
+//			text += clm[j][k];
+//			if (k < clm[j].length - 1)
+//				text += "<br>";
+//		}
+//		document.getElementById("c" + "0" + "_" + j).innerHTML += text;
+//	}
+	
+//	return ans;
+}
+
+function changecolor(id, size)
+{
+	var loc = id.indexOf("_");
+	var row = parseInt(id.substring(3, loc));
+	var clm = parseInt(id.substring(loc+1, id.length));
+	var curr = "tdc" + row + "_" + clm;
+	
+//	alert(row + ", " + clm);
+
+	if (document.getElementById(curr).style.background == "#0000FF" || 
+		document.getElementById(curr).style.background == "rgb(0, 0, 255)" || 
+		document.getElementById(curr).style.background == "none repeat scroll 0% 0% rgb(0, 0, 255)")
+	{
+		for (var yin = 0; yin < size; yin++)
+		{
+			var cell = "tdc" + eval((row + yin) % size) + "_" + eval((clm + yin) % size);
+			document.getElementById(cell).style.background = "#FF0000";
+		}
+		for (var yin = 0; yin < size; yin++)
+		{
+			var cell = "tdc" + eval((row + yin) % size) + "_" + clm;
+			document.getElementById(cell).style.background = "#FF0000";
+		}
+		for (var yin = 0; yin < size; yin++)
+		{
+			var cell = "tdc" + row + "_" + eval((clm + yin) % size);
+			document.getElementById(cell).style.background = "#FF0000";
+		}
+	}
+	else if (document.getElementById(curr).style.background == "#FF0000" || 
+			 document.getElementById(curr).style.background == "rgb(255, 0, 0)" || 
+			 document.getElementById(curr).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)")
+	{
+		for (var yin = 0; yin < size; yin++)
+		{
+			var cell = "tdc" + eval((row + yin) % size) + "_" + eval((clm + yin) % size);
+			document.getElementById(cell).style.background = "#FFFFFF";
+		}
+		for (var yin = 0; yin < size; yin++)
+		{
+			var cell = "tdc" + eval((row + yin) % size) + "_" + clm;
+			document.getElementById(cell).style.background = "#FFFFFF";
+		}
+		for (var yin = 0; yin < size; yin++)
+		{
+			var cell = "tdc" + row + "_" + eval((clm + yin) % size);
+			document.getElementById(cell).style.background = "#FFFFFF";
+		}
+	}
+	else
+	{		
+		for (var yin = 0; yin < size; yin++)
+		{
+			if (row + yin < size && clm + yin < size)
+			{
+				var cell = "tdc" + eval(row + yin) + "_" + eval(clm + yin);
+				if (document.getElementById(cell).style.background != "#0000FF" && 
+					document.getElementById(cell).style.background != "rgb(0, 0, 255)" && 
+					document.getElementById(cell).style.background != "none repeat scroll 0% 0% rgb(0, 0, 255)")
+				{
+					document.getElementById(cell).style.background = "#FFD700";
+				}
+			}
+
+			if (row - yin >= 0 && clm - yin >= 0)
+			{
+				var cell = "tdc" + eval(row - yin) + "_" + eval(clm - yin);
+				document.getElementById(cell).style.background = "#FFD700";
+			}
+
+			if (row + yin < size && clm - yin >= 0)
+			{
+				var cell = "tdc" + eval(row + yin) + "_" + eval(clm - yin);
+				document.getElementById(cell).style.background = "#FFD700";
+			}
+
+			if (row - yin >= 0 && clm + yin < size)
+			{
+				var cell = "tdc" + eval(row - yin) + "_" + eval(clm + yin);
+				document.getElementById(cell).style.background = "#FFD700";
+			}
+		}
+		
+		for (var yin = 0; yin < size; yin++)
+		{
+			var cell = "tdc" + eval((row + yin) % size) + "_" + clm;
+			document.getElementById(cell).style.background = "#FFD700";
+		}
+		for (var yin = 0; yin < size; yin++)
+		{
+			var cell = "tdc" + row + "_" + eval((clm + yin) % size);
+			document.getElementById(cell).style.background = "#FFD700";
+		}
+		document.getElementById(curr).style.background = "#0000FF";
+	}
+	
+//	for (var yin = 0; yin < size; yin++)
+//	{
+//		var cell = "tdc" + eval((row + yin) % size) + "_" + clm;
+//		
+//		if (document.getElementById(cell).style.background == "#0000FF" || 
+//			document.getElementById(cell).style.background == "rgb(0, 0, 255)" || 
+//			document.getElementById(cell).style.background == "none repeat scroll 0% 0% rgb(0, 0, 255)")
+//		{
+//			document.getElementById(cell).style.background = "#FF0000";
+//		}
+//		else if (document.getElementById(cell).style.background == "#FF0000" || 
+//				 document.getElementById(cell).style.background == "rgb(255, 0, 0)" || 
+//				 document.getElementById(cell).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)")
+//		{
+//			document.getElementById(cell).style.background = "#FFFFFF";
+//		}
+//		else
+//		{
+//			document.getElementById(cell).style.background = "#0000FF";
+//		}
+//	}
+//	
+//	for (var yin = 0; yin < size; yin++)
+//	{
+//		var cell = "tdc" + row + "_" + eval((clm + yin) % size);
+//		
+//		if (document.getElementById(cell).style.background == "#0000FF" || 
+//			document.getElementById(cell).style.background == "rgb(0, 0, 255)" || 
+//			document.getElementById(cell).style.background == "none repeat scroll 0% 0% rgb(0, 0, 255)")
+//		{
+//			document.getElementById(cell).style.background = "#FF0000";
+//		}
+//		else if (document.getElementById(cell).style.background == "#FF0000" || 
+//				 document.getElementById(cell).style.background == "rgb(255, 0, 0)" || 
+//				 document.getElementById(cell).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)")
+//		{
+//			document.getElementById(cell).style.background = "#FFFFFF";
+//		}
+//		else
+//		{
+//			document.getElementById(cell).style.background = "#0000FF";
+//		}
+//	}
+//	
+//	var cell = "tdc" + row + "_" + clm;
+//		
+//	if (document.getElementById(cell).style.background == "#0000FF" || 
+//		document.getElementById(cell).style.background == "rgb(0, 0, 255)" || 
+//		document.getElementById(cell).style.background == "none repeat scroll 0% 0% rgb(0, 0, 255)")
+//	{
+//		document.getElementById(cell).style.background = "#FF0000";
+//	}
+//	else if (document.getElementById(cell).style.background == "#FF0000" || 
+//			 document.getElementById(cell).style.background == "rgb(255, 0, 0)" || 
+//			 document.getElementById(cell).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)")
+//	{
+//		document.getElementById(cell).style.background = "#FFFFFF";
+//	}
+//	else
+//	{
+//		document.getElementById(cell).style.background = "#0000FF";
+//	}
+}
+
+function setDim()
+{
+	var sel = document.getElementById("dim");
+	for (i = 3; i <= 10; i++)
+	{
+		sel.options[sel.options.length] = new Option(i + " by " + i, i);
+	}
+	sel.options[1].selected = true;
+}
+
+function clearBoth()
+{
+	document.getElementById("toSolve").innerHTML = "";
+}
+
+function clearcells()
+{
+	var size = document.getElementById("dim").value;
+	var i, j;
+	for (i = 0; i < size; i++)
+	{
+		for (j = 0; j < size; j++)
+		{
+			document.getElementById('tdc' + i + "_" + j).style.background = "#ffffff";
+		}
+	}
+}
+
+function isPoss(r, c)
+{
+	var size = document.getElementById("dim").value;
+	var curr = "tdc" + i + "_" + j;
+	if (document.getElementById(curr).style.background != "#FFFFFF" || 
+		document.getElementById(curr).style.background != "rgb(255, 255, 255)" || 
+		document.getElementById(curr).style.background != "none repeat scroll 0% 0% rgb(255, 255, 255)")
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+function place()
+{
+	var size = document.getElementById("dim").value;
+	
+	for (var k = 0; k < size; k++)
+	{
+		for (var c = 0; c < size; c++)
+		{
+		
+		}
+	}
+}
+</script>
+</head>
+<body>
+<p>
+<ul>
+<li>This 
+<li>The list lists at the beginning of each row and column represent the sizes and order of the groups of blue colored cells in that line. 
+</ul>
+</p>
+<center>
+<form name="puzzle" id="puzzle">
+<select name="dim" id="dim"></select><br>
+<input type="button" onclick="clearBoth();ans = generate();" value="New Puzzle"><br>
+<input type="button" onclick="clearcells()" value="Clear Cells"><br>
+<input type="button" onclick="clearcells();place()" value="Solution">
+<table>
+<tr><td>
+<p id="toSolve"></p>
+<center><input type="button" onclick="checkProg()" value="Check Progress"></center>
+</td></tr><tr><td>
+<p id="solved"></p>
+</td></tr></table>
+</form>
+</center>
+<script type="text/javascript">
+setDim();
+var size = document.getElementById("dim").value;
+var ans = generate();
+</script>
+</body>
+</html>

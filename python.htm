@@ -1,0 +1,177 @@
+<html>
+<head>
+<script type="text/javascript">
+function getCode()
+{
+	var input = document.getElementById("pgrm").value;
+	var outut = "";
+	
+	if (input == "1")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "print \"Hello, World!\"";
+	}
+	else if (input == "2")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Comments in Python\n\n";
+		output += "#This is a comment. \n";
+		output += "print \"Hello, World!\"\n";
+		output += "#Comments start with a # sign. \n";
+		output += "#Everything after the # sign is ignored. \n";
+		output += "#Comments can either go on a new line\n";
+		output += "print \"This is a second output statement\" #or a comment can go after a python statement\n";
+	}
+	else if (input == "3")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Variables in Python\n\n";
+		output += "#Variables store data in memory.\n";
+		output += "#In order to do this you need to give the variable a name so you can retrieve the information later. \n";
+		output += "#These names must start with either a capital letter, a lowercase letter, or an underscore\n";
+		output += "#and can only contain letters, numbers and the underscore symbol. \n";
+		output += "#Variable names are case sensitive. \n";
+		output += "Num = 8\n";
+		output += "print Num\n";
+		output += "number_zero = 0\n";
+		output += "print number_zero\n";
+		output += "num = 2.7\n";
+		output += "print num\n";
+		output += "#Notice that Num and num are different variables. \n\n";
+	}
+	else if (input == "4a")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Numbers can be integer, long, float or complex\n";
+		output += "#Integers are used for standard operations on (positive and negative) whole numbers\n";
+		output += "int_num = 8\n";
+		output += "print int_num\n\n";
+	
+		output += "#Longs are used for calculations on really large whole numbers. The 'L' indicates that its a long num. \n";
+		output += "long_num = 4294967296L\n";
+		output += "print long_num\n";
+		
+		output += "#Floats are used for floating point numbers, or rational numbers that are not whole numbers. \n";
+		output += "float_num = 3.14159\n";
+		output += "print float_num\n";
+		
+		output += "#Complex numbers are numbers that are not real. They are indicated by a j after the number\n";
+		output += "complex_num = 1 + 3j\n";
+		output += "print complex_num\n\n";
+	}
+	else if (input == "4b")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Strings are characters between a pair of quotes\n";
+		output += "str1 = \"This is a string\"\n";
+		output += "print str1\n";
+		output += "str2 = 'This is also a string'\n";
+		output += "print str2\n";
+	}
+	else if (input == "4c")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Lists are items separated by a comma between square brackets\n";
+		output += "first_primes = [2, 3, 5]\n";
+		output += "print first_primes \n";
+		output += "fav_movies = ['Shawshank Redemption', 'Friday', 'When Harry Met Sally', 'Godfather 2', [\"Raindrops on roses\", \"Whiskers on Kittens\", \"Bright Copper Kettles\", \"Warm Woolen Mittens\"]]\n";
+		output += "print fav_movies\n";
+		output += "#The items in a list can be of different types\n";
+		output += "fav_things = [0, \"Math\", 'Sports', 1]\n";
+		output += "#You can access the elements of a list, individually with the first value having location 0. \n";
+		output += "print first_primes[2]\n";
+		output += "#You can change the elements of a list\n";
+		output += "fav_movies[0] = 'The Wood'\n";
+		output += "print fav_movies\n";
+	}
+	else if (input == "4d")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Tuples are read only lists. They are items separated by a comma between parenthesis\n";
+		output += "first_primes_2 = (2, 3, 5)\n";
+		output += "print first_primes \n";
+		output += "#You can access the elements of a tuple, individually with the first value having location 0. \n";
+		output += "print first_primes_2[2]\n\n";
+	}
+	else if (input == "4e")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Dictionaries are like lists, but instead of being indexed by 0, 1, 2, ...\n";
+		output += "#they are indexed by user specified elements. \n";
+		output += "#Dictionaries are defined inside curly brackets, where the item will be a key, a colon and then a value\n";
+		output += "player_dict = {'Wall' : '28 points', 'Beal' : '16 points', 'Gortat' : '9 points'}\n";
+		output += "print player_dict\n";
+		output += "print player_dict['Wall']\n";
+	}
+	document.getElementById("code").value = output;
+}
+</script>
+</head>
+<body>
+<select name="pgrm" id="pgrm">
+ <option value="1">Hello, World</option>
+ <option value="2">Comments</option>
+ <option value="3">Variables</option>
+ <option value="4a">Data Types - Numbers</option>
+ <option value="4b">Data Types - Strings</option>
+ <option value="4c">Data Types - Lists</option>
+ <option value="4d">Data Types - Tuples</option>
+ <option value="4e">Data Types - Dictionaries</option>
+ <option value="5a">Basic Operations - Arithmetic</option>
+ <option value="5b">Basic Operations - Comparison</option>
+ <option value="5c">Basic Operations - Assignment</option>
+ <option value="5d">Basic Operations - Bitwise</option>
+ <option value="5e">Basic Operations - Logic</option>
+ <option value="5f">Basic Operations - Membership</option>
+ <option value="5g">Basic Operations - Memory</option>
+ <option value="6">Strings</option>
+ <option value="7a">Loops - For Loop</option>
+ <option value="7b">Loops - While Loop</option>
+ <option value="7c">Loops - Nested Loops</option>
+ <option value="8">Indenting</option>
+ <option value="10">Functions</option>
+ <option value="9">Math functions</option>
+ <option value="11">Input/Output</option>
+</select>
+<input type="button" value="View Code" onclick="getCode()"><br>
+<TEXTAREA readonly style="WIDTH: 500px; HEIGHT: 300px" id="code" name="code" cols=60 rows=6 ></TEXTAREA>
+<input type="button" value="Run Code" onclick="runCode()"><br>
+<script type="text/javascript">
+</script>
+</body>
+</html>

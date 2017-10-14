@@ -1,0 +1,45 @@
+<html>
+<head>
+<script type="text/javascript">
+function DrawEllipse()
+{
+/*	
+A = 1 / b^2
+B = -2/b^2
+C = (k^2 / b^2 + (x - h)^2 / a^2 - 1)
+
+use quadratic equation to solve for y.
+make it inequality.
+
+(x-h)^2      (y-k)^2
+---------- + ----------- = 1
+   a^2          b^2
+*/
+
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	var h = Math.floor(c.width / 2);
+	var k = Math.floor(c.height / 2);
+	var a = Math.floor(Math.random()*c.width);
+	var b = Math.floor(Math.random()*c.height);
+	
+	for (x = 0; 
+	y1 >= -(-2/b^2) + Math.sqrt((-2/b^2)*(-2/b^2) - 4*(1 / b^2)*((k^2 / b^2 + (x - h)^2 / a^2 - 1)))/(2*(1 / b^2));
+}
+</script>
+</head>
+<body>
+<p>
+<p name="input" id="input">
+</p>
+<p name="output" id="output">
+</p>
+<canvas id="myCanvas" width="550" height="400" style="border:1px solid
+#c3c3c3;">
+Your browser does not support the canvas element.
+</canvas>
+<script type="text/javascript">
+</script>
+</body>
+</html>
