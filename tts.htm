@@ -1,0 +1,106 @@
+<html>
+<head>
+<style>
+textarea {
+  width: 1000px;
+  height: 750px;
+}
+span 
+{
+	cursor:pointer;
+	color:blue;
+	text-decoration:underline;
+}
+</style>
+<script type="text/javascript">
+function loadVoices() 
+{
+	if(typeof speechSynthesis === 'undefined') 
+	{
+		return;
+	}
+
+	voices = speechSynthesis.getVoices();
+
+	for(i = 0; i < voices.length ; i++) 
+	{
+		var option = document.createElement('option');
+		option.textContent = voices[i].name + ' (' + voices[i].lang + ')';
+    
+//		if(voices[i].default) 
+		if (i == 1)
+		{
+			option.textContent += ' -- DEFAULT';
+			option.selected = true;
+		}
+
+		option.setAttribute('data-lang', voices[i].lang);
+		option.setAttribute('data-name', voices[i].name);
+		document.getElementById("voice").appendChild(option);
+	}
+}
+
+function speak()
+{
+	msg = new SpeechSynthesisUtterance();
+	
+	msg.text = document.getElementById('input').value;
+	msg.volume = parseFloat(document.getElementById('volume').value);
+	msg.rate = parseFloat(document.getElementById('rate').value);
+	msg.pitch = parseFloat(document.getElementById('pitch').value);
+
+	var selectedOption = document.getElementById("voice").selectedOptions[0].getAttribute('data-name');
+	for (i = 0; i < voices.length ; i++) 
+	{
+		if(voices[i].name === selectedOption) 
+		{
+			msg.voice = voices[i];
+		}
+	}
+
+	window.speechSynthesis.speak(msg);
+}
+
+function change()
+{
+	window.speechSynthesis.pause();
+	msg.volume = parseFloat(document.getElementById('volume').value);
+	msg.rate = parseFloat(document.getElementById('rate').value);
+	msg.pitch = parseFloat(document.getElementById('pitch').value);
+	window.speechSynthesis.resume();
+//console.log(msg.text);
+}
+</script>
+</head>
+<body>
+<input type="button" onclick="speak();" value='Play'>
+<input type="button" onclick="window.speechSynthesis.pause();" value='Pause'>
+<input type="button" onclick="window.speechSynthesis.resume();" value='Resume'>
+<input type="button" onclick="window.speechSynthesis.cancel();" value='Stop'><br>
+	<div class="option">
+		<label for="voice">Voice</label>
+		<select name="voice" id="voice" onchange="change()"></select>
+	</div>
+	<div class="option">
+		<label for="volume">Volume</label>
+		<input  onchange="change()" type="range" min="0" max="1" step="0.1" name="volume" id="volume" value="1">
+	</div>
+	<div class="option">
+		<label for="rate">Rate</label>
+		<input  onchange="change()" type="range" min="0.1" max="10" step="0.1" name="rate" id="rate" value="1">
+	</div>
+	<div class="option">
+		<label for="pitch">Pitch</label>
+		<input  onchange="change()" type="range" min="0" max="2" step="0.1" name="pitch" id="pitch" value="1">
+	</div>
+</div>
+<textarea id="input"></textarea>
+<script type="text/javascript">
+	loadVoices();
+	window.speechSynthesis.onvoiceschanged = function(e) 
+	{
+	  loadVoices();
+	};
+</script>
+</body>
+</html>
