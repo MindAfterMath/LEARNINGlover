@@ -1,0 +1,115 @@
+<html>
+<body>
+<style type="text/css">
+  #stage3 {
+    margin: 2em auto 1em 50%;
+    height: 240px;
+    -webkit-perspective: 1200px;
+    -webkit-perspective-origin: 0 90px;
+    -moz-perspective: 1200px;
+    -moz-perspective-origin: 0 90px;
+    -ms-perspective: 1200px;
+    -ms-perspective-origin: 0 90px;
+  }
+  #rotator3 a {
+    position: absolute;
+    left: -151px;
+    -moz-transform-style: preserve-3d;
+  }
+  #rotator3 a img {
+    padding: 10px;
+    border: 1px solid #ccc;
+    background: #fff;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -ms-backface-visibility: hidden;
+  }
+  #rotator3 a:nth-of-type(1) img {
+    -webkit-transform: rotateX(-90deg) translateZ(100px);
+    -moz-transform: rotateX(-90deg) translateZ(100px);
+    -ms-transform: rotateX(-90deg) translateZ(100px);
+  }
+  #rotator3 a:nth-of-type(2) img {
+    -webkit-transform: translateZ(100px);
+    -moz-transform: translateZ(100px);
+    -ms-transform: translateZ(100px);
+  }
+  #rotator3 a:nth-of-type(3) img {
+    -webkit-transform: rotateX(90deg) translateZ(100px);
+    -moz-transform: rotateX(90deg) translateZ(100px);
+    -ms-transform: rotateX(90deg) translateZ(100px);
+  }
+  #rotator3 a:nth-of-type(n+4) { display: none; }
+  @-webkit-keyframes rotator3 {
+    from { -webkit-transform: rotateX(0deg);  }
+    to   { -webkit-transform: rotateX(90deg); }
+  }
+  @-moz-keyframes rotator3 {
+    from { -moz-transform: rotateX(0deg);  }
+    to   { -moz-transform: rotateX(90deg); }
+  }
+  @-ms-keyframes rotator3 {
+    from { -ms-transform: rotateX(0deg);  }
+    to   { -ms-transform: rotateX(90deg); }
+  }
+  #rotator3 {
+    -webkit-transform-origin: 0 101px;
+    -webkit-transform-style: preserve-3d;
+    -webkit-animation-timing-function: cubic-bezier(1, 0.2, 0.2, 1);
+    -webkit-animation-duration: 2s;
+    -webkit-animation-delay: 1s;
+    -moz-transform-origin: 0 101px;
+    -moz-transform-style: preserve-3d;
+    -moz-animation-timing-function: cubic-bezier(1, 0.2, 0.2, 1);
+    -moz-animation-duration: 2s;
+    -moz-animation-delay: 1s;
+    -ms-transform-origin: 0 101px;
+    -ms-transform-style: preserve-3d;
+    -ms-animation-timing-function: cubic-bezier(1, 0.2, 0.2, 1);
+    -ms-animation-duration: 2s;
+    -ms-animation-delay: 1s;
+  }
+  #rotator3:hover {
+    -webkit-animation-play-state: paused;
+    -moz-animation-play-state: paused;
+    -ms-animation-play-state: paused;
+  }
+</style>
+
+<div id="stage3">
+<div id="rotator3" style="-webkit-animation-name: rotator3; -moz-animation-name: rotator3;">
+  <a href="1.jpg"><img src="http://www.learninglover.com/gallery/algGrpThryClc.jpg" width="550"></a> 
+  <a href="2.jpg"><img src="http://www.learninglover.com/gallery/apriori.jpg" width="550"></a> 
+  <a href="3.jpg"><img src="http://www.learninglover.com/gallery/arithseq.jpg" width="550"></a> 
+  <a href="4.jpg"><img src="http://www.learninglover.com/gallery/asmt.jpg" width="550"></a> 
+  <a href="5.jpg"><img src="http://www.learninglover.com/gallery/assLne.jpg" width="550"></a> 
+  <a href="6.jpg"><img src="http://www.learninglover.com/gallery/binSchTree.jpg" width="550"></a> 
+  <a href="7.jpg"><img src="http://www.learninglover.com/gallery/dots.jpg" width="550"></a> 
+  <a href="8.jpg"><img src="http://www.learninglover.com/gallery/corral.jpg" width="550"></a> 
+</div>
+</div>
+
+<script type="text/javascript">
+  // Original JavaScript code by Chirp Internet: www.chirp.com.au
+  // Please acknowledge use of this code by including this header.
+  document.addEventListener("DOMContentLoaded", function() {
+    var rotateComplete = function(e) {
+      with(target.style) {
+        webkitAnimationName = MozAnimationName = msAnimationName = "";
+      }
+      target.insertBefore(arr[arr.length - 1], arr[0]);
+      setTimeout(function(el) {
+        with(el.style) {
+          webkitAnimationName = MozAnimationName = msAnimationName = "rotator3";
+        }
+      }, 0, target);
+    };
+    var target = document.getElementById("rotator3");
+    var arr = target.getElementsByTagName("a");
+    target.addEventListener("webkitAnimationEnd", rotateComplete, false);
+    target.addEventListener("animationend", rotateComplete, false);
+    target.addEventListener("MSAnimationEnd", rotateComplete, false);
+  }, false);
+</script>
+</body>
+</html>
