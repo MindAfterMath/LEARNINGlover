@@ -18,32 +18,23 @@ th.grid
 	border: 0.1em solid;
 }
 
-table.outer
-{
-	border-collapse:collapse;
-	border: 0.1em solid;
-	border-spacing: 0px;
-}
-
-td.outer
-{
-	padding: 0px;
-	border: 0.1em solid;
-	width: 2em;
-}
-
-table.inner
-{
-	width:100%;
-	border-collapse:collapse;
-	border: none;
-}
-
 span
 {
 	cursor:pointer;
 	color:blue;
 	text-decoration:underline;
+}
+
+table
+{
+    border: 0.1em;
+    width: 100%;
+    font-size:4vh;
+    height:100%;
+    min-width: 1000px;
+    margin:0 auto;
+    color:#c9c9c9;
+    text-align:center;
 }
 </style>
 <script type="text/javascript">
@@ -70,23 +61,14 @@ function generate(rows, clms)
 
 	while (poss.length > 1)
 	{
-		console.log("poss = " + poss);
 //Radomly select an element of poss
 		var loc = Math.floor(Math.random() * poss.length);
 		var vals = poss[loc].split("\t");
 		grid[vals[0]][vals[1]] = 0;
-		console.log("cell chosen is " + poss[loc]);
-		console.log("vals[0] = " + vals[0]);
-		console.log("vals[1] = " + vals[1]);
-		console.log("rows = " + rows);
-		console.log("clms = " + clms);
-		console.log("removing " + poss[loc]);
 		poss.splice(loc, 1);
 		if (!connected(grid))
 		{
 			grid[vals[0]][vals[1]] = 1;
-			console.log("case 1: loc = " + loc + "\tposs = " + poss + "\tposs[loc] = " + poss[loc] + "\tposs.length = " + poss.length);
-//			poss.splice(loc, 1);
 			continue;
 		}
 
@@ -96,8 +78,6 @@ function generate(rows, clms)
 			var loc2 = poss.indexOf(nrow + "\t" + vals[1]);
 			if (loc2 != -1)
 			{
-//				console.log("case 2: " + loc2 + "\t" + poss + "\t" + poss[loc2] + "\t" + poss.length);
-				console.log("case 2: removing " + poss[loc2]);
 				poss.splice(loc2, 1);
 			}
 		}
@@ -107,9 +87,6 @@ function generate(rows, clms)
 			var loc2 = poss.indexOf(nrow + "\t" + vals[1]);
 			if (loc2 != -1)
 			{
-//				console.log("case 3: " + loc2 + "\t" + poss + "\t" + poss[loc2] + "\t" + poss.length);
-				console.log("attempting " + nrow + "\t" + vals[1]);
-				console.log("case 3: removing " + poss[loc2]);
 				poss.splice(loc2, 1);
 			}
 		}
@@ -119,8 +96,6 @@ function generate(rows, clms)
 			var loc2 = poss.indexOf(vals[0] + "\t" + nclm);
 			if (loc2 != -1)
 			{
-//				console.log("case 4: " + loc2 + "\t" + poss + "\t" + poss[loc2] + "\t" + poss.length);
-				console.log("case 4: removing " + poss[loc2]);
 				poss.splice(loc2, 1);
 			}
 		}
@@ -130,20 +105,9 @@ function generate(rows, clms)
 			var loc2 = poss.indexOf(vals[0] + "\t" + nclm);
 			if (loc2 != -1)
 			{
-//				console.log("case 5: " + loc2 + "\t" + poss + "\t" + poss[loc2] + "\t" + poss.length);
-				console.log("attempting " + vals[0] + "\t" + nclm[1]);
-				console.log("case 5: removing " + poss[loc2]);
 				poss.splice(loc2, 1);
 			}
 		}
-
-//		for (var i = 0; i < rows; i++)
-//		{
-//			for (var j = 0; j < clms; j++)
-//			{
-//
-//			}
-//		}
 	}
 	return grid;
 }
@@ -159,11 +123,11 @@ function connected(grid)
 	{
 		for (var j = 0; j < clms && cmpt.length == 0; j++)
 		{
-			if (grid[i][j] == 1)
+			if (grid[i][j] >= 1)
 			{
 				cmpt.push(i + "\t" + j);
 			}
-			else
+			else if (grid[i][j] == 0)
 			{
 				black.push(i + "\t" + j);
 			}
@@ -179,59 +143,65 @@ function connected(grid)
 		var nextC = parseInt(cell[1]) + 1;
 
 		if (prevR >= 0 &&
-		cmpt.indexOf(prevR + "\t" + cell[1]) == -1 &&
-		black.indexOf(prevR + "\t" + cell[1]) == -1 &&
-		grid[prevR][cell[1]] == 1)
+		    cmpt.indexOf(prevR + "\t" + cell[1]) == -1 &&
+		    black.indexOf(prevR + "\t" + cell[1]) == -1 &&
+		    grid[prevR][cell[1]] != 0)
 		{
 			cmpt.push(prevR + "\t" + cell[1]);
 		}
 		else if (prevR >= 0 && 
-		black.indexOf(prevR + "\t" + cell[1]) == -1 && 
-		cmpt.indexOf(prevR + "\t" + cell[1]) == -1)
+		    black.indexOf(prevR + "\t" + cell[1]) == -1 && 
+		    cmpt.indexOf(prevR + "\t" + cell[1]) == -1 &&
+		    grid[prevR][cell[1]] == 0)
 		{
 			black.push(prevR + "\t" + cell[1]);
 		}
 
 		if (nextR < rows &&
-		cmpt.indexOf(nextR + "\t" + cell[1]) == -1 &&
-		black.indexOf(nextR + "\t" + cell[1]) == -1 &&
-		grid[nextR][cell[1]] == 1)
+		    cmpt.indexOf(nextR + "\t" + cell[1]) == -1 &&
+		    black.indexOf(nextR + "\t" + cell[1]) == -1 &&
+		    grid[nextR][cell[1]] != 0)
 		{
 			cmpt.push(nextR + "\t" + cell[1]);
 		}
-		else if (nextR < rows && black.indexOf(nextR + "\t" + cell[1]) == -1 && cmpt.indexOf(nextR + "\t" + cell[1]) == -1)
+		else if (nextR < rows && 
+		    black.indexOf(nextR + "\t" + cell[1]) == -1 && 
+		    cmpt.indexOf(nextR + "\t" + cell[1]) == -1 &&
+		    grid[nextR][cell[1]] == 0)
 		{
 			black.push(nextR + "\t" + cell[1]);
 		}
 
 		if (prevC >= 0 &&
-		cmpt.indexOf(cell[0] + "\t" + prevC) == -1 &&
-		black.indexOf(cell[0] + "\t" + prevC) == -1 &&
-		grid[cell[0]][prevC] == 1)
+		    cmpt.indexOf(cell[0] + "\t" + prevC) == -1 &&
+		    black.indexOf(cell[0] + "\t" + prevC) == -1 &&
+		    grid[cell[0]][prevC] != 0)
 		{
 			cmpt.push(cell[0] + "\t" + prevC);
 		}
-		else if (prevC >= 0 && black.indexOf(cell[0] + "\t" + prevC) == -1 && cmpt.indexOf(cell[0] + "\t" + prevC) == -1)
+		else if (prevC >= 0 && 
+		    black.indexOf(cell[0] + "\t" + prevC) == -1 && 
+		    cmpt.indexOf(cell[0] + "\t" + prevC) == -1 &&
+		    grid[cell[0]][prevC] == 0)
 		{
 			black.push(cell[0] + "\t" + prevC);
 		}
 
 		if (nextC < clms &&
-		cmpt.indexOf(cell[0] + "\t" + nextC) == -1 &&
-		black.indexOf(cell[0] + "\t" + nextC) == -1 &&
-		grid[cell[0]][nextC] == 1)
+		    cmpt.indexOf(cell[0] + "\t" + nextC) == -1 &&
+		    black.indexOf(cell[0] + "\t" + nextC) == -1 &&
+		    grid[cell[0]][nextC] != 0)
 		{
 			cmpt.push(cell[0] + "\t" + nextC);
 		}
-		else if (nextC < clms && black.indexOf(cell[0] + "\t" + nextC) == -1 && cmpt.indexOf(cell[0] + "\t" + nextC) == -1)
+		else if (nextC < clms && 
+		    black.indexOf(cell[0] + "\t" + nextC) == -1 && 
+		    cmpt.indexOf(cell[0] + "\t" + nextC) == -1 &&
+		    grid[cell[0]][nextC] == 0)
 		{
 			black.push(cell[0] + "\t" + nextC);
 		}
 	}
-
-	console.log("cmpt = " + cmpt);
-	console.log("black = " + black);
-	console.log("cmpt.length = " + cmpt.length + "\tblack.length = " + black.length);
 
 	if (cmpt.length + black.length == rows * clms)
 	{
@@ -243,32 +213,100 @@ function connected(grid)
 	}
 }
 
+function getViews(grid)
+{
+	var rows = grid.length;
+	var clms = grid[0].length;
+	var ans = [];
+	
+	for (var i = 0; i < rows; i++)
+	{
+		ans[i] = [];
+		for (var j = 0; j < clms; j++)
+		{
+			if (grid[i][j] == 1)
+			{
+				//Inially, the count for each cell is 1. 
+				var count = 1;
+				
+				//First we see how far to the left we can go
+				for (k = j-1; k >= 0 && grid[i][k] == 1; k--)
+				{
+					count++;
+				}
+				
+				//Next we see how far to the right we can go
+				for (k = j+1; k < clms && grid[i][k] == 1; k++)
+				{
+					count++;
+				}
+				
+				//Next we see how far up we can go
+				for (k = i-1; k >= 0 && grid[k][j] == 1; k--)
+				{
+					count++;
+				}
+				
+				//Finally we see how far down we can go
+				for (k = i+1; k < rows && grid[k][j] == 1; k++)
+				{
+					count++;
+				}
+				
+				ans[i][j] = count;
+			}
+			else
+			{
+				ans[i][j] = 0;
+			}
+		}
+	}
+	
+	return ans;
+}
+
 function changecolor(id)
 {
-	if (document.getElementById(id).style.background == "#0000FF" ||
-		document.getElementById(id).style.background == "rgb(0, 0, 255)" ||
-		document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 0, 255)" ||
-		document.getElementById(id).style.background == "rgb(0, 0, 255) none repeat scroll 0% 0%")
+	if (document.getElementById(id).style.background == "#0066FF" ||
+		document.getElementById(id).style.background == "rgb(0, 102, 255)" ||
+		document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 102, 255)" ||
+		document.getElementById(id).style.background == "rgb(0, 102, 255) none repeat scroll 0% 0%")
 	{
-		document.getElementById(id).style.background = "#FF0000";
+		document.getElementById(id).style.background = "#666666";
 	}
-	else if (document.getElementById(id).style.background == "#FF0000" ||
-			 document.getElementById(id).style.background == "rgb(255, 0, 0)" ||
-			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)" ||
-			 document.getElementById(id).style.background == "rgb(255, 0, 0) none repeat scroll 0% 0%")
+	else if (document.getElementById(id).style.background == "#666666" ||
+			 document.getElementById(id).style.background == "rgb(102, 102, 102)" ||
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(102, 102, 102)" ||
+			 document.getElementById(id).style.background == "rgb(102, 102, 102) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#66FF66";
+	}
+	else if (document.getElementById(id).style.background == "#66FF66" ||
+			 document.getElementById(id).style.background == "rgb(102, 255, 102)" ||
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(102, 255, 102)" ||
+			 document.getElementById(id).style.background == "rgb(102, 255, 102) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#FF6633";
+	}
+	else if (document.getElementById(id).style.background == "#FF6633" ||
+			 document.getElementById(id).style.background == "rgb(255, 102, 51)" ||
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 102, 51)" ||
+			 document.getElementById(id).style.background == "rgb(255, 102, 51) none repeat scroll 0% 0%")
 	{
 		document.getElementById(id).style.background = "#FFFFFF";
 	}
 	else
 	{
-		document.getElementById(id).style.background = "#0000FF";
+		document.getElementById(id).style.background = "#0066FF";
 	}
 }
 
-function removeCells(grid)
+function solve(partial)
 {
-	var rows = grid.length;
-	var clms = grid[0].length;
+	var rows = partial.length;
+	var clms = partial[0].length;
+	
+	var incmpl = [];
 	var newGrid1 = [];
 	var newGrid2 = [];
 	
@@ -278,44 +316,347 @@ function removeCells(grid)
 		newGrid2[i] = [];
 		for (var j = 0; j < clms; j++)
 		{
+			if (partial[i][j] == -1)
+			{
+				incmpl.push(i + "\t" + j);
+			}
+			newGrid1[i][j] = partial[i][j];
+			newGrid2[i][j] = partial[i][j];
+		}
+	}
+	
+	if (incmpl.length == 0)
+	{
+		return feas(partial);
+	}
+	
+	var loc = incmpl[Math.floor(Math.random() * incmpl.length)].split("\t");
+	
+	newGrid1[loc[0]][loc[1]] = 1;
+	newGrid2[loc[0]][loc[1]] = 0;
+	var ans1 = feas(newGrid1);
+	var ans2 = feas(newGrid2);
+//	console.log(ans1 + "\t" + ans2);
+	
+	if (ans1 && !ans2) 
+	{
+		return ans1;
+	}
+	else if (ans2 && !ans1)
+	{
+		return ans2;
+	}
+	else if ((ans1 && ans2) || (!ans1 && !ans2))
+	{
+		return false;
+	}
+}
+
+function feas(partial)
+{
+	if (!connected(partial))
+	{
+//		console.log("case1:");
+		return false;
+	}
+	
+	var rows = partial.length;
+	var clms = partial[0].length;
+	
+	for (var i = 0; i < rows; i++)
+	{
+		for (var j = 0; j < clms; j++)
+		{
+			if (partial[i][j] == 0)
+			{
+				if (i - 1 >= 0 && partial[i-1][j] == 0)
+				{
+//					console.log("case2");
+					return false;
+				}
+				if (i + 1 < rows && partial[i+1][j] == 0)
+				{
+//					console.log("case2");
+					return false;
+				}
+				if (j - 1 >= 0 && partial[i][j-1] == 0)
+				{
+//					console.log("case2");
+					return false;
+				}
+				if (j + 1 < clms && partial[i][j+1] == 0)
+				{
+//					console.log("case2");
+					return false;
+				}
+			}
+			else if (partial[i][j] > 1)
+			{
+				var ness = partial[i][j];
+				var minPoss = 1;
+							
+				for (k = j-1; k >= 0 && partial[i][k] >= 1; k--)
+				{
+					minPoss++;
+				}
+							
+				for (k = j+1; k < clms && partial[i][k] >= 1; k++)
+				{
+					minPoss++;
+				}
+							
+				for (k = i-1; k >= 0 && partial[k][j] >= 1; k--)
+				{
+					minPoss++;
+				}
+							
+				for (k = i+1; k < rows && partial[k][j] >= 1; k++)
+				{
+					minPoss++;
+				}
+				
+//				if (minPoss > ness)
+//				{
+//					return false;
+//				}
+				
+				var maxPoss = 1;
+							
+				//First we see how far to the left we can go
+				for (k = j-1; k >= 0 && partial[i][k] != 0; k--)
+				{
+					maxPoss++;
+				}
+							
+				//Next we see how far to the right we can go
+				for (k = j+1; k < clms && partial[i][k] != 0; k++)
+				{
+					maxPoss++;
+				}
+							
+				//Next we see how far up we can go
+				for (k = i-1; k >= 0 && partial[k][j] != 0; k--)
+				{
+					maxPoss++;
+				}
+							
+				//Finally we see how far down we can go
+				for (k = i+1; k < rows && partial[k][j] != 0; k++)
+				{
+					maxPoss++;
+				}
+				
+				if (maxPoss < ness || ness < minPoss)
+				{
+//					console.log("case3");
+					return false;
+				}
+			}
+		}
+	}
+	
+//	console.log("case4");
+	return true;
+}
+
+function removeCells(grid)
+{
+	var rows = grid.length;
+	var clms = grid[0].length;
+	var maxLen = -1;
+	var optGrid = [];	
+	var poss = [];
+	var newGrid = getViews(grid);
+		
+	for (var i = 0; i < rows; i++)
+	{
+		for (var j = 0; j < clms; j++)
+		{
 			if (grid[i][j] == 1)
 			{
 				poss.push(i + "\t" + j);
 			}
-			newGrid1[i][j] = grid[i][j];
-			newGrid2[i][j] = grid[i][j];
+			else
+			{
+				newGrid[i][j] = -1;
+			}
 		}
 	}
 	
-	var loc = Math.floor(Math.random() * poss.length);
+	var loc = -1;
+	var vals = [];
 	
+	var queue = [];
+	
+	while (poss.length > 0)
+	{
+		loc = Math.floor(Math.random() * poss.length);
+		vals = poss[loc].split("\t");
+		old = newGrid[vals[0]][vals[1]];
+		vals.push(old);
+		queue.push(vals);
+		poss.splice(loc, 1)
+		newGrid[vals[0]][vals[1]] = -1;
+//		console.log("trying to remove cell " + vals);
+		
+		if (!solve(newGrid))
+		{
+//			console.log("0 - adding back cell " + vals);
+			newGrid[vals[0]][vals[1]] = old;
+		}
+	}
+	
+//	for (var i = queue.length - 1; i >= 0 && !solve(newGrid); i--)
+//	{
+//		vals = queue[i];
+//		if (!solve(newGrid))
+//		{
+//			console.log("1 - adding back cell " + vals);
+//			newGrid[vals[0]][vals[1]] = vals[2];
+//		}
+//	}
+	
+	return newGrid;
+}
+
+function checkAns()
+{
+	var userAns = [];
+	rem = 0;
+	
+	for (var i = 0; i < size[0]; i++)
+	{
+		userAns[i] = [];
+		for (var j = 0; j < size[1]; j++)
+		{	
+			var id = i + "_" + j;
+			if (document.getElementById(id).style.background == "#0066FF" ||
+			    document.getElementById(id).style.background == "rgb(0, 102, 255)" ||
+			    document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 102, 255)" ||
+			    document.getElementById(id).style.background == "rgb(0, 102, 255) none repeat scroll 0% 0%")
+			{
+				if (document.getElementById(id).innerHTML == "")
+				{
+					userAns[i][j] = 1;
+				}
+				else
+				{
+					userAns[i][j] = parseInt(document.getElementById(id).innerHTML);
+				}
+			}
+			else if (document.getElementById(id).style.background == "#666666" ||
+					 document.getElementById(id).style.background == "rgb(102, 102, 102)" ||
+					 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(102, 102, 102)" ||
+					 document.getElementById(id).style.background == "rgb(102, 102, 102) none repeat scroll 0% 0%")
+			{
+				userAns[i][j] = 0;
+			}
+			else
+			{
+				rem++;
+				userAns[i][j] = -1;
+			}
+		}
+	}
+		
+	if (feas(userAns) && rem > 0)
+	{
+		alert("You have everything correct, so far.");
+	}
+	else if (feas(userAns) && rem == 0)
+	{
+		alert("Congratulations! You've solved the puzzle. Now try and do another one. ");
+	}
+	else if (!feas(userAns))
+	{
+		alert("Sorry, you have an error somewhere");
+	}
+}
+
+function hint(ans)
+{
+	var userAns = [];
+	rem = [];
+	
+	for (var i = 0; i < size[0]; i++)
+	{
+		userAns[i] = [];
+		for (var j = 0; j < size[1]; j++)
+		{	
+			var id = i + "_" + j;
+			if (document.getElementById(id).style.background == "#0066FF" ||
+			    document.getElementById(id).style.background == "rgb(0, 102, 255)" ||
+			    document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 102, 255)" ||
+			    document.getElementById(id).style.background == "rgb(0, 102, 255) none repeat scroll 0% 0%")
+			{
+				if (document.getElementById(id).innerHTML == "")
+				{
+					userAns[i][j] = 1;
+				}
+				else
+				{
+					userAns[i][j] = parseInt(document.getElementById(id).innerHTML);
+				}
+			}
+			else if (document.getElementById(id).style.background == "#666666" ||
+					 document.getElementById(id).style.background == "rgb(102, 102, 102)" ||
+					 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(102, 102, 102)" ||
+					 document.getElementById(id).style.background == "rgb(102, 102, 102) none repeat scroll 0% 0%")
+			{
+				userAns[i][j] = 0;
+			}
+			else
+			{
+				rem.push(i + "\t" + j);
+				userAns[i][j] = -1;
+			}
+		}
+	}
+	
+	if (feas(userAns) && rem.length > 0)
+	{
+		var vals = rem[Math.floor(Math.random() * rem.length)].split("\t");
+		document.getElementById(vals[0] + "_" + vals[1]).innerHTML = ans[vals[0]][vals[1]];
+		if (ans[vals[0]][vals[1]] != 0)
+		{
+			document.getElementById(vals[0] + "_" + vals[1]).style.background = "#0066FF";
+		}
+		else
+		{
+			document.getElementById(vals[0] + "_" + vals[1]).style.background = "#666666"
+		}
+	}
+	else if (!feas(userAns))
+	{
+		alert("Sorry, you have an error somewhere");
+	}
 }
 </script>
 </head>
 <body>
-<table id="wrapper"><tr><td id="content"></td></tr></table>
+<center><H3>Range Puzzles</h3></center>
+<table id="wrapper">
+  <tr>
+    <td id="content"></td>
+  </tr>
+</table>
+<p id="output"></p>
 <script type="text/javascript">
 var sizeArr = [];
-sizeArr.push("4\t4");
-sizeArr.push("4\t6");
 sizeArr.push("7\t7");
 sizeArr.push("8\t10");
 sizeArr.push("10\t10");
+sizeArr.push("13\t13");
+sizeArr.push("15\t15");
 
 var size = sizeArr[Math.floor(Math.random() * sizeArr.length)].split("\t");
 size[0] = parseInt(size[0]);
 size[1] = parseInt(size[1]);
 
-var out = "<table class='grid'>";
-out += "<tr><td class='grid'></td>";
-for (var j = 0; j < size[1]; j++)
-{
-	out += "<td class='grid'>" + j + "</td>";
-}
-out += "</tr>";
+var out = "<table id='range' class='grid'>";
 for (var i = 0; i < size[0]; i++)
 {
-	out += "<tr><td class='grid'>" + i + "</td>";
+	out += "<tr>";
 	for (var j = 0; j < size[1]; j++)
 	{
 		out += "<td class='grid' id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\")'></td>";
@@ -325,22 +666,47 @@ for (var i = 0; i < size[0]; i++)
 out += "</table>";
 document.getElementById("content").innerHTML = out;
 
-var grid = generate(size[0], size[1]);
+var height = document.getElementById("range").offsetHeight ;
+var width = document.getElementById("range").offsetWidth ;
+//console.log(height);
+//console.log(width);
+var cellHt = height / size[0];
+var cellWd = width / size[1];
 
 for (var i = 0; i < size[0]; i++)
 {
 	for (var j = 0; j < size[1]; j++)
 	{
-		if (grid[i][j] == 0)
+		document.getElementById(i + "_" + j).style.height = cellHt;
+		document.getElementById(i + "_" + j).style.width = cellWd;
+//		console.log(cellWd);
+//		console.log(cellHt);
+	}
+}
+
+var grid = generate(size[0], size[1]);
+var prob = removeCells(grid)
+var ans = getViews(grid);
+
+for (var i = 0; i < size[0]; i++)
+{
+	for (var j = 0; j < size[1]; j++)
+	{
+		if (prob[i][j] > 1)
 		{
-			document.getElementById(i + "_" + j).style.backgroundColor = "#FF0000";
+			document.getElementById(i + "_" + j).style.backgroundColor = "#0066FF";
+			document.getElementById(i + "_" + j).style.background = "#0066FF";
+			document.getElementById(i + "_" + j).innerHTML = ans[i][j];
 		}
-		else if (grid[i][j] == 1)
+		else if (prob[i][j] == 0)
 		{
-			document.getElementById(i + "_" + j).style.backgroundColor = "#0000FF";
+			document.getElementById(i + "_" + j).style.backgroundColor = "#666666";
+			document.getElementById(i + "_" + j).style.background = "#666666";
 		}
 	}
 }
 </script>
+<input type="button" value="Check" onclick="checkAns()">
+<input type="button" value="Hint" onclick="hint(ans)">
 </body>
 </html>
