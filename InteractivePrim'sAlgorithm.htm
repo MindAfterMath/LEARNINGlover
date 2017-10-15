@@ -1,0 +1,1003 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+InteractivePrim'sAlgorithm<script type="text/javascript">
+var M_VAL = 50000;
+
+function newProb()
+{
+	A = generate();
+	document.getElementById('input').innerHTML = disp(A);
+	tree = init(A);
+}
+
+function generate()
+{
+	var numNodes = Math.floor(Math.random()*20)+5;
+	var numArcs = Math.floor(Math.random()*((numNodes*(numNodes-1)/2) - numNodes)) + numNodes;
+	var graph = new Array(numNodes);
+	var tree = new Array();
+	var otherNodes = new Array();
+	var count = 0;
+	
+	for (var i = 0; i < numNodes; i++)
+	{
+		graph[i] = new Array(numNodes);
+		for (var j = 0; j < numNodes; j++)
+		{
+			graph[i][j] = M_VAL;
+		}
+	}
+	
+	tree[0] = 0;
+	for (var i = 1; i < numNodes; i++)
+	{
+		otherNodes[i-1] = i;
+	}
+	
+	while(tree.length < numNodes)
+	{
+		var inside = Math.floor(Math.random()*tree.length);
+		var outside = Math.floor(Math.random()*otherNodes.length);
+		
+		var value = Math.floor(Math.random()*25) + 1;
+		graph[tree[inside]][otherNodes[outside]] = value;
+		graph[otherNodes[outside]][tree[inside]] = value;
+		
+		tree[tree.length] = otherNodes[outside];
+	
+		otherNodes[outside] = otherNodes[otherNodes.length-1];
+		otherNodes.length--;
+	
+		count++;
+	}
+		
+	while (count < numArcs)
+	{
+		var loc1, loc2;
+	
+		do
+		{
+			var loc1 = Math.floor(Math.random()*numNodes);
+			var loc2;
+			var poss = new Array();
+			for (var i = 0; i < graph.length; i++)
+			{
+				if (graph[loc1][i] == M_VAL && i != loc1)
+				{
+					poss[poss.length] = i;
+				}
+			}
+
+			loc2 = Math.floor(Math.random()*poss.length);
+		}
+		while (poss.length == 0);
+		
+		var value = Math.floor(Math.random()*25) + 1;
+		graph[loc1][poss[loc2]] = value;
+		graph[poss[loc2]][loc1] = value;
+		count++;
+	}
+	
+	return graph;
+}
+
+function indexOf(tree, elt)
+{
+	var ans = -1;
+	
+	for (var i = 0; i < tree.length && ans == -1; i++)
+	{
+		if (tree[i].node == elt)
+		{
+			ans = i;
+		}
+	}
+	
+	return ans;
+}
+
+function prim2(tree, A)
+{
+	var min = M_VAL;
+	var newNode;
+	var other = new Array();
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var pred = new Array();
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = 0; j < A.length; j++)
+		{
+			if (A[tree[i].node][j] < min && A[tree[i].node][j] != M_VAL && indexOf(tree, j) == -1)
+			{
+				min = A[tree[i].node][j];
+				newNode = j;
+				if (tree[i].pred.length != 0)
+				{
+					pred = new Array();
+					for (var k = 0; k < tree[i].pred.length; k++)
+					{
+						pred[k] = tree[i].pred[k];
+					}
+					pred[pred.length] = tree[i].node;
+				}
+				else
+				{
+					pred[0] = tree[i].node;
+				}
+			}
+		}
+	}
+	
+	if (min != M_VAL)
+	{
+		var loc = tree.length;
+		tree[loc] = new Object();
+		tree[loc].node = newNode;
+		tree[loc].pred = pred;
+	}
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		tree[i].xVal = (0 + c.width) / 5;
+		tree[i].yVal = (i+1)*(0 + c.height) / (tree.length+1);
+	}
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		if (indexOf(tree, i) == -1)
+		{
+			var loc = other.length;
+			other[loc] = new Object();
+			other[loc].node = i;
+			other[loc].xVal = 4*(0 + c.width) / 5;
+			other[loc].yVal = (loc+1)*((0 + c.height) / (A.length - tree.length + 1));
+		}
+	}
+		
+	drawGraph2(tree, other, A);
+	
+	var text = "";
+	text += "<table>";
+	text += "<tr><td>" + dispCurrTree(tree) + "</td><td>" + dispAdjEdges(tree, A) + "</td><td><input type='button' value='Check' onclick='tree=check(tree, A)'></td><td><input type='button' value='New Problem' onclick='newProb()'></td></tr>";
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML = text;
+	
+	return tree;
+}
+
+function check(tree, A)
+{
+	var ans = document.getElementById("nextEdge").value.split("-");
+	var costAns = A[ans[0]][ans[1]];
+	var min = M_VAL;
+	var newNode;
+	var other = new Array();
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var pred = new Array();
+
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = 0; j < A.length; j++)
+		{
+			if (A[tree[i].node][j] < min && A[tree[i].node][j] != M_VAL && indexOf(tree, j) == -1)
+			{
+				min = A[tree[i].node][j];
+				newNode = j;
+				if (tree[i].pred.length != 0)
+				{
+					pred = new Array();
+					for (var k = 0; k < tree[i].pred.length; k++)
+					{
+						pred[k] = tree[i].pred[k];
+					}
+					pred[pred.length] = tree[i].node;
+				}
+				else
+				{
+					pred[0] = tree[i].node;
+				}
+			}
+		}
+	}
+	
+	var text = "";
+	
+	if (min != costAns)
+	{
+		text += "Sorry, but there is a cheaper edge than that.<br>";
+	}
+	else
+	{
+		text += "That's correct. <br>";
+		var loc = tree.length;
+		tree[loc] = new Object();
+		tree[loc].node = newNode;
+		tree[loc].pred = pred;
+	}
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		tree[i].xVal = (0 + c.width) / 5;
+		tree[i].yVal = (i+1)*(0 + c.height) / (tree.length+1);
+	}
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		if (indexOf(tree, i) == -1)
+		{
+			var loc = other.length;
+			other[loc] = new Object();
+			other[loc].node = i;
+			other[loc].xVal = 4*(0 + c.width) / 5;
+			other[loc].yVal = (loc+1)*((0 + c.height) / (A.length - tree.length + 1));
+		}
+	}
+		
+	drawGraph2(tree, other, A);
+	
+	text += "<table>";
+	text += "<tr><td>" + dispCurrTree(tree) + "</td><td>" + dispAdjEdges(tree, A) + "</td><td><input type='button' value='Check' onclick='tree=check(tree, A)'></td><td><input type='button' value='New Problem' onclick='newProb()'></td></tr>";	text += "</table>";
+	document.getElementById("output").innerHTML = text;
+	
+	return tree;
+}
+
+function drawGraph2(tree, other, A)
+{
+	var claimed = new Array();
+	var count = 0;
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect (0, 0, c.width, c.height);
+
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = 0; j < other.length; j++)
+		{
+			if (A[tree[i].node][other[j].node] != M_VAL)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#555555";
+				ctx.beginPath();
+				ctx.moveTo(tree[i].xVal, tree[i].yVal);
+				ctx.lineTo(other[j].xVal, other[j].yVal);
+				ctx.stroke();
+				var slope = (tree[i].yVal - other[j].yVal) / (tree[i].xVal - other[j].xVal);
+				
+				ctx.fillStyle="#000000";
+				claimed[count] = new Object();
+				var dist = Math.floor(Math.random()*((other[j].xVal - tree[i].xVal)/2 - 20));
+
+				claimed[count].xLoc = (tree[i].xVal + other[j].xVal)/2 + dist;
+				claimed[count].yLoc = (tree[i].yVal + other[j].yVal)/2 + dist*slope;
+
+				ctx.fillText(A[tree[i].node][other[j].node], claimed[count].xLoc, claimed[count].yLoc);
+				count++;
+			}
+		}
+	}
+
+	for (var i = 0; i < other.length; i++)
+	{
+		for (var j = i+1; j < other.length; j++)
+		{
+			if (A[other[i].node][other[j].node] != M_VAL)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#c0c0c0";
+				ctx.beginPath();
+				ctx.arc(other[i].xVal,Math.abs(other[i].yVal - other[j].yVal)/2 + other[i].yVal,Math.abs(other[i].yVal - other[j].yVal)/2,1.5*Math.PI,0.5*Math.PI);
+				ctx.stroke();
+			}
+		}
+	}
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = i+1; j < tree.length; j++)
+		{
+			if (A[tree[i].node][tree[j].node] != M_VAL && tree[j].pred[tree[j].pred.length-1] != tree[i].node && tree[i].pred[tree[i].pred.length-1] != tree[j].node)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#c0c0c0";
+				ctx.beginPath();
+				ctx.arc(tree[i].xVal,Math.abs(tree[i].yVal - tree[j].yVal)/2 + tree[i].yVal,Math.abs(tree[i].yVal - tree[j].yVal)/2,0.5*Math.PI,1.5*Math.PI);
+				ctx.stroke();
+			}
+			else if (tree[j].pred[tree[j].pred.length-1] == tree[i].node || tree[i].pred[tree[i].pred.length-1] == tree[j].node)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#00FFFF";
+				ctx.beginPath();
+				ctx.arc(tree[i].xVal,Math.abs(tree[i].yVal - tree[j].yVal)/2 + tree[i].yVal,Math.abs(tree[i].yVal - tree[j].yVal)/2,0.5*Math.PI,1.5*Math.PI);
+				ctx.stroke();
+			}
+		}
+	}
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(tree[i].xVal,tree[i].yVal,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(tree[i].xVal,tree[i].yVal,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		if (tree[i].node == 0)
+		{
+			ctx.fillText(tree[i].node,tree[i].xVal-3*(Math.floor(Math.log(tree[i].node+1)/Math.log(10))+1),tree[i].yVal+2);
+		}
+		else
+		{
+			ctx.fillText(tree[i].node,tree[i].xVal-3*(Math.floor(Math.log(tree[i].node)/Math.log(10))+1),tree[i].yVal+2);
+		}
+	}
+	
+	for (var i = 0; i < other.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(other[i].xVal,other[i].yVal,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+		ctx.fillStyle="#c9c9c9";
+		ctx.beginPath();
+		ctx.arc(other[i].xVal,other[i].yVal,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		if (other[i].node == 0)
+		{
+			ctx.fillText(other[i].node,other[i].xVal-3*(Math.floor(Math.log(other[i].node+1)/Math.log(10))+1),other[i].yVal+2);
+		}
+		else
+		{
+			ctx.fillText(other[i].node,other[i].xVal-3*(Math.floor(Math.log(other[i].node)/Math.log(10))+1),other[i].yVal+2);
+		}
+	}
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		ctx.fillStyle="#000000";
+//		ctx.fillText(tree[i].cost,tree[i].xVal - 25,tree[i].yVal+2);
+	}
+}
+
+function init(A)
+{
+	var tree = new Array();
+	var other = new Array();
+	var c = document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	ctx.clearRect (0, 0, c.width, c.height);
+	
+	tree[0] = new Object();
+	tree[0].node = Math.floor(Math.random()*A.length);
+	tree[0].xVal = (0 + c.width) / 5;
+	tree[0].yVal = (0 + c.height) / 2;
+	tree[0].pred = new Array();
+	
+	for (var i = 1; i < A.length; i++)
+	{
+		other[i-1] = new Object();
+		other[i-1].node = i;
+		other[i-1].xVal = 4*(0 + c.width) / 5;
+		other[i-1].yVal = i*(0 + c.height) / (A.length - tree.length + 1);
+	}
+
+	drawGraph2(tree, other, A);
+	
+	var text = "";
+	text += "<table>";
+	text += "<tr><td>" + dispCurrTree(tree) + "</td><td>" + dispAdjEdges(tree, A) + "</td><td><input type='button' value='Check' onclick='tree=check(tree, A)'></td><td><input type='button' value='New Problem' onclick='newProb()'></td></tr>";
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML = text;
+	
+	return tree;
+}
+
+function disp(A)
+{	
+	var text = "<table>";
+	text += "<tr>";
+	for (var j = 0; j < A.length; j++)
+	{
+		text += "<td>" + j + "</td>";
+	}
+	text += "</tr>";
+
+	for (var i = 0; i < A.length; i++)
+	{	
+		for (var j = 0; j < A.length; j++)
+		{
+			if (A[i][j] != M_VAL)
+			{
+				text += "<td>" + A[i][j] + "</td>";
+			}	
+			else
+			{
+				text += "<td>-</td>";
+			}
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+
+	return text;
+}
+
+function dispCurrTree(tree)
+{
+	var text = "<table>";
+	text += "<tr><td>Node</td><td>Path to Node</td></tr>";
+	for (var i = 0; i < tree.length; i++)
+	{
+		text += "<tr>";
+		text += "<td>" + tree[i].node + "</td>";
+		var prev = "";
+		for (var j = 0; j < tree[i].pred.length; j++)
+		{
+			prev += tree[i].pred[j] + " -> ";
+		}
+		prev += tree[i].node;
+		text += "<td>" + prev + "</td>";
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	return text;
+}
+
+function dispAdjEdges(tree, A)
+{
+	var text = "What Edge should be selected next?<br>";
+	
+	text += "<select name='nextEdge' id='nextEdge'>";
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = 0; j < A.length; j++)
+		{
+			if (indexOf(tree, j) == -1 && A[tree[i].node][j] != M_VAL)
+			{
+				var name = tree[i].node + "-" + j;
+				text += "<option value='" + name + "'>Edge: (" + tree[i].node + ", " + j + ") with cost " + A[tree[i].node][j] + "</option>";
+			}
+		}
+	}
+	
+	text += "</select>";
+
+	return text;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="prim, algorithm, minimum, spanning, tree, greedy, javascript, math, programming, operations research, computer science" />
+<meta name="description" content="This page contains a script I've written to help understand Prim's Algorithm." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+var M_VAL = 50000;
+
+function newProb()
+{
+	A = generate();
+	document.getElementById('input').innerHTML = disp(A);
+	tree = init(A);
+}
+
+function generate()
+{
+	var numNodes = Math.floor(Math.random()*20)+5;
+	var numArcs = Math.floor(Math.random()*((numNodes*(numNodes-1)/2) - numNodes)) + numNodes;
+	var graph = new Array(numNodes);
+	var tree = new Array();
+	var otherNodes = new Array();
+	var count = 0;
+	
+	for (var i = 0; i < numNodes; i++)
+	{
+		graph[i] = new Array(numNodes);
+		for (var j = 0; j < numNodes; j++)
+		{
+			graph[i][j] = M_VAL;
+		}
+	}
+	
+	tree[0] = 0;
+	for (var i = 1; i < numNodes; i++)
+	{
+		otherNodes[i-1] = i;
+	}
+	
+	while(tree.length < numNodes)
+	{
+		var inside = Math.floor(Math.random()*tree.length);
+		var outside = Math.floor(Math.random()*otherNodes.length);
+		
+		var value = Math.floor(Math.random()*25) + 1;
+		graph[tree[inside]][otherNodes[outside]] = value;
+		graph[otherNodes[outside]][tree[inside]] = value;
+		
+		tree[tree.length] = otherNodes[outside];
+	
+		otherNodes[outside] = otherNodes[otherNodes.length-1];
+		otherNodes.length--;
+	
+		count++;
+	}
+		
+	while (count < numArcs)
+	{
+		var loc1, loc2;
+	
+		do
+		{
+			var loc1 = Math.floor(Math.random()*numNodes);
+			var loc2;
+			var poss = new Array();
+			for (var i = 0; i < graph.length; i++)
+			{
+				if (graph[loc1][i] == M_VAL && i != loc1)
+				{
+					poss[poss.length] = i;
+				}
+			}
+
+			loc2 = Math.floor(Math.random()*poss.length);
+		}
+		while (poss.length == 0);
+		
+		var value = Math.floor(Math.random()*25) + 1;
+		graph[loc1][poss[loc2]] = value;
+		graph[poss[loc2]][loc1] = value;
+		count++;
+	}
+	
+	return graph;
+}
+
+function indexOf(tree, elt)
+{
+	var ans = -1;
+	
+	for (var i = 0; i < tree.length && ans == -1; i++)
+	{
+		if (tree[i].node == elt)
+		{
+			ans = i;
+		}
+	}
+	
+	return ans;
+}
+
+function prim2(tree, A)
+{
+	var min = M_VAL;
+	var newNode;
+	var other = new Array();
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var pred = new Array();
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = 0; j < A.length; j++)
+		{
+			if (A[tree[i].node][j] < min && A[tree[i].node][j] != M_VAL && indexOf(tree, j) == -1)
+			{
+				min = A[tree[i].node][j];
+				newNode = j;
+				if (tree[i].pred.length != 0)
+				{
+					pred = new Array();
+					for (var k = 0; k < tree[i].pred.length; k++)
+					{
+						pred[k] = tree[i].pred[k];
+					}
+					pred[pred.length] = tree[i].node;
+				}
+				else
+				{
+					pred[0] = tree[i].node;
+				}
+			}
+		}
+	}
+	
+	if (min != M_VAL)
+	{
+		var loc = tree.length;
+		tree[loc] = new Object();
+		tree[loc].node = newNode;
+		tree[loc].pred = pred;
+	}
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		tree[i].xVal = (0 + c.width) / 5;
+		tree[i].yVal = (i+1)*(0 + c.height) / (tree.length+1);
+	}
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		if (indexOf(tree, i) == -1)
+		{
+			var loc = other.length;
+			other[loc] = new Object();
+			other[loc].node = i;
+			other[loc].xVal = 4*(0 + c.width) / 5;
+			other[loc].yVal = (loc+1)*((0 + c.height) / (A.length - tree.length + 1));
+		}
+	}
+		
+	drawGraph2(tree, other, A);
+	
+	var text = "";
+	text += "<table>";
+	text += "<tr><td>" + dispCurrTree(tree) + "</td><td>" + dispAdjEdges(tree, A) + "</td><td><input type='button' value='Check' onclick='tree=check(tree, A)'></td><td><input type='button' value='New Problem' onclick='newProb()'></td></tr>";
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML = text;
+	
+	return tree;
+}
+
+function check(tree, A)
+{
+	var ans = document.getElementById("nextEdge").value.split("-");
+	var costAns = A[ans[0]][ans[1]];
+	var min = M_VAL;
+	var newNode;
+	var other = new Array();
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var pred = new Array();
+
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = 0; j < A.length; j++)
+		{
+			if (A[tree[i].node][j] < min && A[tree[i].node][j] != M_VAL && indexOf(tree, j) == -1)
+			{
+				min = A[tree[i].node][j];
+				newNode = j;
+				if (tree[i].pred.length != 0)
+				{
+					pred = new Array();
+					for (var k = 0; k < tree[i].pred.length; k++)
+					{
+						pred[k] = tree[i].pred[k];
+					}
+					pred[pred.length] = tree[i].node;
+				}
+				else
+				{
+					pred[0] = tree[i].node;
+				}
+			}
+		}
+	}
+	
+	var text = "";
+	
+	if (min != costAns)
+	{
+		text += "Sorry, but there is a cheaper edge than that.<br>";
+	}
+	else
+	{
+		text += "That's correct. <br>";
+		var loc = tree.length;
+		tree[loc] = new Object();
+		tree[loc].node = newNode;
+		tree[loc].pred = pred;
+	}
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		tree[i].xVal = (0 + c.width) / 5;
+		tree[i].yVal = (i+1)*(0 + c.height) / (tree.length+1);
+	}
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		if (indexOf(tree, i) == -1)
+		{
+			var loc = other.length;
+			other[loc] = new Object();
+			other[loc].node = i;
+			other[loc].xVal = 4*(0 + c.width) / 5;
+			other[loc].yVal = (loc+1)*((0 + c.height) / (A.length - tree.length + 1));
+		}
+	}
+		
+	drawGraph2(tree, other, A);
+	
+	text += "<table>";
+	text += "<tr><td>" + dispCurrTree(tree) + "</td><td>" + dispAdjEdges(tree, A) + "</td><td><input type='button' value='Check' onclick='tree=check(tree, A)'></td><td><input type='button' value='New Problem' onclick='newProb()'></td></tr>";	text += "</table>";
+	document.getElementById("output").innerHTML = text;
+	
+	return tree;
+}
+
+function drawGraph2(tree, other, A)
+{
+	var claimed = new Array();
+	var count = 0;
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect (0, 0, c.width, c.height);
+
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = 0; j < other.length; j++)
+		{
+			if (A[tree[i].node][other[j].node] != M_VAL)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#555555";
+				ctx.beginPath();
+				ctx.moveTo(tree[i].xVal, tree[i].yVal);
+				ctx.lineTo(other[j].xVal, other[j].yVal);
+				ctx.stroke();
+				var slope = (tree[i].yVal - other[j].yVal) / (tree[i].xVal - other[j].xVal);
+				
+				ctx.fillStyle="#000000";
+				claimed[count] = new Object();
+				var dist = Math.floor(Math.random()*((other[j].xVal - tree[i].xVal)/2 - 20));
+
+				claimed[count].xLoc = (tree[i].xVal + other[j].xVal)/2 + dist;
+				claimed[count].yLoc = (tree[i].yVal + other[j].yVal)/2 + dist*slope;
+
+				ctx.fillText(A[tree[i].node][other[j].node], claimed[count].xLoc, claimed[count].yLoc);
+				count++;
+			}
+		}
+	}
+
+	for (var i = 0; i < other.length; i++)
+	{
+		for (var j = i+1; j < other.length; j++)
+		{
+			if (A[other[i].node][other[j].node] != M_VAL)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#c0c0c0";
+				ctx.beginPath();
+				ctx.arc(other[i].xVal,Math.abs(other[i].yVal - other[j].yVal)/2 + other[i].yVal,Math.abs(other[i].yVal - other[j].yVal)/2,1.5*Math.PI,0.5*Math.PI);
+				ctx.stroke();
+			}
+		}
+	}
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = i+1; j < tree.length; j++)
+		{
+			if (A[tree[i].node][tree[j].node] != M_VAL && tree[j].pred[tree[j].pred.length-1] != tree[i].node && tree[i].pred[tree[i].pred.length-1] != tree[j].node)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#c0c0c0";
+				ctx.beginPath();
+				ctx.arc(tree[i].xVal,Math.abs(tree[i].yVal - tree[j].yVal)/2 + tree[i].yVal,Math.abs(tree[i].yVal - tree[j].yVal)/2,0.5*Math.PI,1.5*Math.PI);
+				ctx.stroke();
+			}
+			else if (tree[j].pred[tree[j].pred.length-1] == tree[i].node || tree[i].pred[tree[i].pred.length-1] == tree[j].node)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#00FFFF";
+				ctx.beginPath();
+				ctx.arc(tree[i].xVal,Math.abs(tree[i].yVal - tree[j].yVal)/2 + tree[i].yVal,Math.abs(tree[i].yVal - tree[j].yVal)/2,0.5*Math.PI,1.5*Math.PI);
+				ctx.stroke();
+			}
+		}
+	}
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(tree[i].xVal,tree[i].yVal,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(tree[i].xVal,tree[i].yVal,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		if (tree[i].node == 0)
+		{
+			ctx.fillText(tree[i].node,tree[i].xVal-3*(Math.floor(Math.log(tree[i].node+1)/Math.log(10))+1),tree[i].yVal+2);
+		}
+		else
+		{
+			ctx.fillText(tree[i].node,tree[i].xVal-3*(Math.floor(Math.log(tree[i].node)/Math.log(10))+1),tree[i].yVal+2);
+		}
+	}
+	
+	for (var i = 0; i < other.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(other[i].xVal,other[i].yVal,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+		ctx.fillStyle="#c9c9c9";
+		ctx.beginPath();
+		ctx.arc(other[i].xVal,other[i].yVal,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		if (other[i].node == 0)
+		{
+			ctx.fillText(other[i].node,other[i].xVal-3*(Math.floor(Math.log(other[i].node+1)/Math.log(10))+1),other[i].yVal+2);
+		}
+		else
+		{
+			ctx.fillText(other[i].node,other[i].xVal-3*(Math.floor(Math.log(other[i].node)/Math.log(10))+1),other[i].yVal+2);
+		}
+	}
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		ctx.fillStyle="#000000";
+//		ctx.fillText(tree[i].cost,tree[i].xVal - 25,tree[i].yVal+2);
+	}
+}
+
+function init(A)
+{
+	var tree = new Array();
+	var other = new Array();
+	var c = document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	ctx.clearRect (0, 0, c.width, c.height);
+	
+	tree[0] = new Object();
+	tree[0].node = Math.floor(Math.random()*A.length);
+	tree[0].xVal = (0 + c.width) / 5;
+	tree[0].yVal = (0 + c.height) / 2;
+	tree[0].pred = new Array();
+	
+	for (var i = 1; i < A.length; i++)
+	{
+		other[i-1] = new Object();
+		other[i-1].node = i;
+		other[i-1].xVal = 4*(0 + c.width) / 5;
+		other[i-1].yVal = i*(0 + c.height) / (A.length - tree.length + 1);
+	}
+
+	drawGraph2(tree, other, A);
+	
+	var text = "";
+	text += "<table>";
+	text += "<tr><td>" + dispCurrTree(tree) + "</td><td>" + dispAdjEdges(tree, A) + "</td><td><input type='button' value='Check' onclick='tree=check(tree, A)'></td><td><input type='button' value='New Problem' onclick='newProb()'></td></tr>";
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML = text;
+	
+	return tree;
+}
+
+function disp(A)
+{	
+	var text = "<table>";
+	text += "<tr>";
+	for (var j = 0; j < A.length; j++)
+	{
+		text += "<td>" + j + "</td>";
+	}
+	text += "</tr>";
+
+	for (var i = 0; i < A.length; i++)
+	{	
+		for (var j = 0; j < A.length; j++)
+		{
+			if (A[i][j] != M_VAL)
+			{
+				text += "<td>" + A[i][j] + "</td>";
+			}	
+			else
+			{
+				text += "<td>-</td>";
+			}
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+
+	return text;
+}
+
+function dispCurrTree(tree)
+{
+	var text = "<table>";
+	text += "<tr><td>Node</td><td>Path to Node</td></tr>";
+	for (var i = 0; i < tree.length; i++)
+	{
+		text += "<tr>";
+		text += "<td>" + tree[i].node + "</td>";
+		var prev = "";
+		for (var j = 0; j < tree[i].pred.length; j++)
+		{
+			prev += tree[i].pred[j] + " -> ";
+		}
+		prev += tree[i].node;
+		text += "<td>" + prev + "</td>";
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	return text;
+}
+
+function dispAdjEdges(tree, A)
+{
+	var text = "What Edge should be selected next?<br>";
+	
+	text += "<select name='nextEdge' id='nextEdge'>";
+	
+	for (var i = 0; i < tree.length; i++)
+	{
+		for (var j = 0; j < A.length; j++)
+		{
+			if (indexOf(tree, j) == -1 && A[tree[i].node][j] != M_VAL)
+			{
+				var name = tree[i].node + "-" + j;
+				text += "<option value='" + name + "'>Edge: (" + tree[i].node + ", " + j + ") with cost " + A[tree[i].node][j] + "</option>";
+			}
+		}
+	}
+	
+	text += "</select>";
+
+	return text;
+}
+</script>
+<h3><center></center></h3>
+<p>Given a weighted graph, many times we are interested in finding a minimum spanning tree (MST) for that graph. Prim's algorithm is a greedy method which does just this. A spanning tree is a subset of the edges of a graph that connects to every vertex, but contains no cycles. This spanning tree is called a minimum spanning tree if in addition the sum of the weights of the edges included in this tree is less than or equal to the sum of the weights of the edges of any other spanning tree for this graph. </p>
+
+<p>Prim's algorithm works by the following procedure. <br>
+1. Let <i>Tree<sub>v</sub></i> be the set of vertices included in the tree, and <i>Tree<sub>E</sub></i> be the set of edges included in the tree. Initially <i>Tree<sub>V</sub></i> and <i>Tree<sub>E</sub></i> are empty. <br>
+2. Add an arbitrary vertex to <i>Tree<sub>V</sub></i> (<i>Tree<sub>E</sub></i> is still empty). <br>
+3. Find the edge <i>e</i> of minimim weight such that one vertex is in <i>Tree<sub>V</sub></i> and vertex is not in <i>Tree<sub>V</sub></i>. Add the associated vertex to <i>Tree<sub>V</sub></i>, and add <i>e</i> to <i>Tree<sub>E</sub></i>. <br>
+4. If edge was found in step 3, goto 5, else go to 6. <br>
+5. If the number of vertices in <i>Tree<sub>V</sub></i> is less than the number of vertices in the original graph, then the graph is not connected and thus does not contain a minimum spanning tree. Goto 8. <br>
+6 If the number of vertices in <i>Tree<sub>V</sub></i> is less than the number of vertices in the original graph, go to 2, else go to 7.<br>
+7. Output "The Minimum Spanning Tree is ", <i>Tree<sub>E</sub></i>. <br>
+8. Output "This graph does not have a minimum spanning tree because it is not connected. "</p></p>
+<P name="input" id="input"></P>
+<script type="text/javascript">
+var A = generate();
+document.getElementById("input").innerHTML += disp(A);
+var t;
+</script>
+<form name="data" id="data">
+<input type="button" onclick="javascript:location.reload(true)" value="New Problem"><br>
+<input type="checkbox" name="show" id="show"> Show Work?
+<input type="button" value="Solve" onclick="text2 = '<table><tr><td>MST = ';sol = Prim(A, n, document.getElementById('show').checked);for (i = 0; i < 2*(n-1); i+=2)text2 += '(' + sol[i] + ', ' + sol[i+1] + ')';text2 += 'Cost = ' + sol[2*n-2] + '</td></tr></table>';document.getElementById('output').innerHTML += text2;drawAns(A, pts, sol);">
+<input type="button" onclick="pts = drawGraph(A)" value="Redraw Graph">
+</form>
+
+<canvas id="myCanvas" width="550" height="600" style="border:1px solid #d3d3d3;">
+your browser does not support the canvas tag
+</canvas>
+<P name="output" id="output">&nbsp;</P>
+<script type="text/javascript">
+var tree = init(A);
+</script>

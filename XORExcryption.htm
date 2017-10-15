@@ -1,0 +1,451 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+XORExcryption<script type="text/javascript">
+function toAscii(text)
+{
+	var i;
+	var num = new Array();
+	for (i = 0; i < text.length; i++)
+		num[i] = text.charCodeAt(i);
+	return num;
+}
+
+function init()
+{
+	var words = ["Abundant", "Accomplished", "Achieving", "Active", "Admirable", "Adorable", "Adventurous", "Admired", "Affluent", "Agreeable", "Alert", "Aligned", "Alive", "Amazing", "Appealing", "Appreciate", "Artistic", "Astounding", "Astute", "Attentive", "Attractive", "Auspicious", "Authentic", "Awake", "Aware", "Beaming", "Beautiful", "Best", "Blessed", "Bliss", "Bold", "Bright", "Brilliant", "Brisk", "Buoyant", "Calm", "Capable", "Centered", "Certain", "Charming", "Cheerful", "Clear", "Clever", "Competent", "Complete", "Confident", "Connected", "Conscious", "Considerate", "Convenient", "Courageous", "Creative", "Daring", "Dazzling", "Delicious", "Delightful", "Desirable", "Determined", "Diligent", "Discerning", "Discover", "Dynamic", "Eager", "Easy", "Efficient", "Effortless", "Elegant", "Eloquent", "Energetic", "Endless", "Enhancing", "Engaging", "Enormous", "Enterprising", "Enthusiastic", "Enticing", "Excellent", "Exceptional", "Exciting", "Experienced", "Exquisite", "Fabulous", "Fair", "Far-Sighted", "Fascinating", "Fine", "Flattering", "Flourishing", "Fortunate", "Free", "Friendly", "Fulfilled", "Fun", "Generous", "Genuine", "Gifted", "Glorious", "Glowing", "Good", "Good-Looking", "Gorgeous", "Graceful", "Gracious", "Grand", "Great", "Handsome", "Happy", "Hardy", "Harmonious", "Healed", "Healthy", "Helpful", "Honest", "Humorous", "Ideal", "Imaginative", "Impressive", "Industrious", "Ingenious", "Innovative", "Inspired", "Intelligent", "Interested", "Interesting", "Intuitive", "Inventive", "Invincible", "Inviting", "Irresistible", "Joyous", "Judicious", "Keen", "Kind", "Knowing", "Limitless", "Lively", "Loving", "Lucky", "Luminous", "Magical", "Magnificent", "Marvelous", "Masterful", "Mighty", "Miraculous", "Motivated", "Natural", "Neat", "Nice", "Nurturing", "Noble", "Optimistic", "Outstanding", "Passionate", "Peaceful", "Perfect", "Persevering", "Persistent", "Playful", "Pleasing", "Plentiful", "Positive", "Powerful", "Precious", "Prepared", "Productive", "Profound", "Prompt", "Prosperous", "Proud", "Qualified", "Quick", "Radiant", "Reasonable", "Refined", "Refreshing", "Relaxing", "Reliable", "Remarkable", "Resolute", "Resourceful", "Respected", "Rewarding", "Robust", "Safe", "Satisfied", "Secure", "Seductive", "Self-Reliant", "Sensational", "Sensible", "Sensitive", "Serene", "Sharing", "Skillful", "Smart", "Smashing", "Smooth", "Sparkling", "Spiritual", "Splendid", "Strong", "Stunning", "Successful", "Superb", "Swift", "Talented", "Tenacious", "Terrific", "Thankful", "Thrilling", "Thriving", "Timely", "Trusting", "Truthful", "Ultimate", "Unique", "Valiant", "Valuable", "Versatile", "Vibrant", "Victorious", "Vigorous", "Vivacious", "Vivid", "Warm", "Wealthy", "Well", "Whole", "Wise", "Wonderful", "Worthy", "Young", "Youthful", "Zeal", "Zest"];
+
+	var keys = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+	for (var i = 0; i < words.length; i++)
+	{
+		document.getElementById("msg").options[i] = new Option(words[i], words[i]);
+	}
+
+	for (var i = 0; i < keys.length; i++)
+	{
+		document.getElementById("key").options[i] = new Option(keys[i], keys[i]);
+	}
+
+	var loc = Math.floor(Math.random() * words.length);
+	document.getElementById("msg").options[loc].selected = true;
+
+	loc = Math.floor(Math.random() * keys.length);
+	document.getElementById("key").options[loc].selected = true;
+}
+
+function toString(asciiNums)
+{
+	var i;
+	var text = "";
+	for (i = 0; i < asciiNums.length; i++)
+		text[i] = asciiNums.fromCharCode(i);
+	return text;
+}
+
+function toBinary(num)
+{
+	var text = new Array(), i, j;
+
+	for (j = 0; j < num.length; j++)
+	{
+		var digits = Math.floor(Math.log(num[j])/Math.log(2)) + 1;
+
+		if (digits < 8)
+			digits = 8;
+
+		for (i = digits-1; i >= 0; i--)
+		{
+			var div = Math.pow(2, i);
+			if (num[j] >= div)
+			{
+				text[j*8 + (digits-1)-i] = 1;
+				num[j] -= div;
+			}
+			else
+				text[j*8 + (digits-1)-i] = 0;
+		}
+	}
+
+	return text;
+}
+
+function dispBin(num)
+{
+	var text = "", i;
+	for (i = 0; i < num.length; i++)
+		text += num[i];
+
+	return(text);
+}
+
+function getBin(num)
+{
+	var arr = new Array(), i;
+	for (i = 0; i < num.length; i++)
+		arr[i] = num[i];
+
+	return(arr);
+}
+
+function encode()
+{
+	var ans = new Array();
+	var pswd = new Array();
+	var text = "<b>Encryption</b><table>";
+
+	var inp = document.getElementById('msg').value;
+	
+	text += "<tr>";
+	for (var i = 0; i < inp.length; i++)
+	{
+		text += "<td>" + inp[i] + "</td>";
+	}
+	text += "</tr>";
+	ans = toAscii(inp);
+	
+	text += "<tr>";
+	for (var i = 0; i < ans.length; i++)
+	{
+		text += "<td>" + ans[i] + "</td>";
+	}
+	text += "</tr>";
+	
+	var msg = dispBin(toBinary(ans));
+
+	text += "<tr><td>";
+	for (var i = 0; i < msg.length; i++)
+	{
+		if (i % 8 == 0) if (i != 0)
+		{
+			text += "</td><td>";
+		}
+		text += msg[i];
+	}
+	text += "</tr>";
+
+	var key = dispBin(toBinary(toAscii(document.getElementById('key').value)));
+	
+	text += "<tr>";
+	for (var i = 0; i < inp.length; i++)
+	{
+		text += "<td>" + key + "</td>";
+	}
+	text += "</tr>";
+
+	text += "<tr>";
+	text += "<td style='border-top:solid 1px black'>";
+	for (i = 0; i < msg.length; i++)
+	{
+		if (i % 8 == 0) if (i != 0)
+		{
+			text += "</td><td style='border-top:solid 1px black'>";
+		}
+
+		text += (msg[i]*1 + key[i % 8]*1) % 2;
+		encoded += (msg[i]*1 + key[i % 8]*1) % 2;
+	}
+	text += "</td></tr></table>";
+	document.getElementById("dcr").style.display = "inline";
+	
+	return text;
+}
+
+function decode()
+{
+	var ans = getBin(encoded);
+	var pswd = new Array();
+	var text = "<b>Decryption</b><table>";
+	var key = dispBin(toBinary(toAscii(document.getElementById('key').value)));
+	var decoded = new Array();
+	
+	text += "<tr><td>";
+	for (var i = 0; i < ans.length; i++)
+	{
+		if (i % 8 == 0) if (i != 0)
+		{
+			text += "</td><td>";
+		}
+		text += ans[i];
+	}
+	text += "</tr>";
+	
+	text += "<tr>";
+	for (var i = 0; i < ans.length; i+=8)
+	{
+		text += "<td>" + key + "</td>";
+	}
+	text += "</tr>";
+	
+	text += "<tr><td style='border-top:solid 1px black'>"
+	var temp = "";
+	for (i = 0; i < ans.length; i++)
+	{
+		if (i % 8 == 0) if (i != 0)
+		{
+			text += "</td><td style='border-top:solid 1px black'>";
+			decoded[decoded.length] = temp;
+			temp = "";
+		}
+
+		text += (ans[i]*1 + key[i % 8]*1) % 2;
+		temp += (ans[i]*1 + key[i % 8]*1) % 2;
+	}
+	text += "</td></tr>";
+	decoded[decoded.length] = temp;
+	
+	text += "<tr>";
+	for (var i = 0; i < decoded.length; i++)
+	{
+		text += "<td>" + parseInt(decoded[i], 2) + "</td>";
+	}
+	text += "</tr>";
+	
+	text += "<tr>";
+	for (var i = 0; i < decoded.length; i++)
+	{
+		text += "<td>" + String.fromCharCode(parseInt(decoded[i], 2)) + "</td>";
+	}
+	text += "</tr>";
+	
+	text += "</table>";
+	
+	return text;
+}
+
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="xor, encrption, probability, javascript, program, examples, math, tutor, computer science, compsci, algorithm" />
+
+<meta name="description" content="This page describes the XOR Encryption Method.  " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function toAscii(text)
+{
+	var i;
+	var num = new Array();
+	for (i = 0; i < text.length; i++)
+		num[i] = text.charCodeAt(i);
+	return num;
+}
+
+function init()
+{
+	var words = ["Abundant", "Accomplished", "Achieving", "Active", "Admirable", "Adorable", "Adventurous", "Admired", "Affluent", "Agreeable", "Alert", "Aligned", "Alive", "Amazing", "Appealing", "Appreciate", "Artistic", "Astounding", "Astute", "Attentive", "Attractive", "Auspicious", "Authentic", "Awake", "Aware", "Beaming", "Beautiful", "Best", "Blessed", "Bliss", "Bold", "Bright", "Brilliant", "Brisk", "Buoyant", "Calm", "Capable", "Centered", "Certain", "Charming", "Cheerful", "Clear", "Clever", "Competent", "Complete", "Confident", "Connected", "Conscious", "Considerate", "Convenient", "Courageous", "Creative", "Daring", "Dazzling", "Delicious", "Delightful", "Desirable", "Determined", "Diligent", "Discerning", "Discover", "Dynamic", "Eager", "Easy", "Efficient", "Effortless", "Elegant", "Eloquent", "Energetic", "Endless", "Enhancing", "Engaging", "Enormous", "Enterprising", "Enthusiastic", "Enticing", "Excellent", "Exceptional", "Exciting", "Experienced", "Exquisite", "Fabulous", "Fair", "Far-Sighted", "Fascinating", "Fine", "Flattering", "Flourishing", "Fortunate", "Free", "Friendly", "Fulfilled", "Fun", "Generous", "Genuine", "Gifted", "Glorious", "Glowing", "Good", "Good-Looking", "Gorgeous", "Graceful", "Gracious", "Grand", "Great", "Handsome", "Happy", "Hardy", "Harmonious", "Healed", "Healthy", "Helpful", "Honest", "Humorous", "Ideal", "Imaginative", "Impressive", "Industrious", "Ingenious", "Innovative", "Inspired", "Intelligent", "Interested", "Interesting", "Intuitive", "Inventive", "Invincible", "Inviting", "Irresistible", "Joyous", "Judicious", "Keen", "Kind", "Knowing", "Limitless", "Lively", "Loving", "Lucky", "Luminous", "Magical", "Magnificent", "Marvelous", "Masterful", "Mighty", "Miraculous", "Motivated", "Natural", "Neat", "Nice", "Nurturing", "Noble", "Optimistic", "Outstanding", "Passionate", "Peaceful", "Perfect", "Persevering", "Persistent", "Playful", "Pleasing", "Plentiful", "Positive", "Powerful", "Precious", "Prepared", "Productive", "Profound", "Prompt", "Prosperous", "Proud", "Qualified", "Quick", "Radiant", "Reasonable", "Refined", "Refreshing", "Relaxing", "Reliable", "Remarkable", "Resolute", "Resourceful", "Respected", "Rewarding", "Robust", "Safe", "Satisfied", "Secure", "Seductive", "Self-Reliant", "Sensational", "Sensible", "Sensitive", "Serene", "Sharing", "Skillful", "Smart", "Smashing", "Smooth", "Sparkling", "Spiritual", "Splendid", "Strong", "Stunning", "Successful", "Superb", "Swift", "Talented", "Tenacious", "Terrific", "Thankful", "Thrilling", "Thriving", "Timely", "Trusting", "Truthful", "Ultimate", "Unique", "Valiant", "Valuable", "Versatile", "Vibrant", "Victorious", "Vigorous", "Vivacious", "Vivid", "Warm", "Wealthy", "Well", "Whole", "Wise", "Wonderful", "Worthy", "Young", "Youthful", "Zeal", "Zest"];
+
+	var keys = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+	for (var i = 0; i < words.length; i++)
+	{
+		document.getElementById("msg").options[i] = new Option(words[i], words[i]);
+	}
+
+	for (var i = 0; i < keys.length; i++)
+	{
+		document.getElementById("key").options[i] = new Option(keys[i], keys[i]);
+	}
+
+	var loc = Math.floor(Math.random() * words.length);
+	document.getElementById("msg").options[loc].selected = true;
+
+	loc = Math.floor(Math.random() * keys.length);
+	document.getElementById("key").options[loc].selected = true;
+}
+
+function toString(asciiNums)
+{
+	var i;
+	var text = "";
+	for (i = 0; i < asciiNums.length; i++)
+		text[i] = asciiNums.fromCharCode(i);
+	return text;
+}
+
+function toBinary(num)
+{
+	var text = new Array(), i, j;
+
+	for (j = 0; j < num.length; j++)
+	{
+		var digits = Math.floor(Math.log(num[j])/Math.log(2)) + 1;
+
+		if (digits < 8)
+			digits = 8;
+
+		for (i = digits-1; i >= 0; i--)
+		{
+			var div = Math.pow(2, i);
+			if (num[j] >= div)
+			{
+				text[j*8 + (digits-1)-i] = 1;
+				num[j] -= div;
+			}
+			else
+				text[j*8 + (digits-1)-i] = 0;
+		}
+	}
+
+	return text;
+}
+
+function dispBin(num)
+{
+	var text = "", i;
+	for (i = 0; i < num.length; i++)
+		text += num[i];
+
+	return(text);
+}
+
+function getBin(num)
+{
+	var arr = new Array(), i;
+	for (i = 0; i < num.length; i++)
+		arr[i] = num[i];
+
+	return(arr);
+}
+
+function encode()
+{
+	var ans = new Array();
+	var pswd = new Array();
+	var text = "<b>Encryption</b><table>";
+
+	var inp = document.getElementById('msg').value;
+	
+	text += "<tr>";
+	for (var i = 0; i < inp.length; i++)
+	{
+		text += "<td>" + inp[i] + "</td>";
+	}
+	text += "</tr>";
+	ans = toAscii(inp);
+	
+	text += "<tr>";
+	for (var i = 0; i < ans.length; i++)
+	{
+		text += "<td>" + ans[i] + "</td>";
+	}
+	text += "</tr>";
+	
+	var msg = dispBin(toBinary(ans));
+
+	text += "<tr><td>";
+	for (var i = 0; i < msg.length; i++)
+	{
+		if (i % 8 == 0) if (i != 0)
+		{
+			text += "</td><td>";
+		}
+		text += msg[i];
+	}
+	text += "</tr>";
+
+	var key = dispBin(toBinary(toAscii(document.getElementById('key').value)));
+	
+	text += "<tr>";
+	for (var i = 0; i < inp.length; i++)
+	{
+		text += "<td>" + key + "</td>";
+	}
+	text += "</tr>";
+
+	text += "<tr>";
+	text += "<td style='border-top:solid 1px black'>";
+	for (i = 0; i < msg.length; i++)
+	{
+		if (i % 8 == 0) if (i != 0)
+		{
+			text += "</td><td style='border-top:solid 1px black'>";
+		}
+
+		text += (msg[i]*1 + key[i % 8]*1) % 2;
+		encoded += (msg[i]*1 + key[i % 8]*1) % 2;
+	}
+	text += "</td></tr></table>";
+	document.getElementById("dcr").style.display = "inline";
+	
+	return text;
+}
+
+function decode()
+{
+	var ans = getBin(encoded);
+	var pswd = new Array();
+	var text = "<b>Decryption</b><table>";
+	var key = dispBin(toBinary(toAscii(document.getElementById('key').value)));
+	var decoded = new Array();
+	
+	text += "<tr><td>";
+	for (var i = 0; i < ans.length; i++)
+	{
+		if (i % 8 == 0) if (i != 0)
+		{
+			text += "</td><td>";
+		}
+		text += ans[i];
+	}
+	text += "</tr>";
+	
+	text += "<tr>";
+	for (var i = 0; i < ans.length; i+=8)
+	{
+		text += "<td>" + key + "</td>";
+	}
+	text += "</tr>";
+	
+	text += "<tr><td style='border-top:solid 1px black'>"
+	var temp = "";
+	for (i = 0; i < ans.length; i++)
+	{
+		if (i % 8 == 0) if (i != 0)
+		{
+			text += "</td><td style='border-top:solid 1px black'>";
+			decoded[decoded.length] = temp;
+			temp = "";
+		}
+
+		text += (ans[i]*1 + key[i % 8]*1) % 2;
+		temp += (ans[i]*1 + key[i % 8]*1) % 2;
+	}
+	text += "</td></tr>";
+	decoded[decoded.length] = temp;
+	
+	text += "<tr>";
+	for (var i = 0; i < decoded.length; i++)
+	{
+		text += "<td>" + parseInt(decoded[i], 2) + "</td>";
+	}
+	text += "</tr>";
+	
+	text += "<tr>";
+	for (var i = 0; i < decoded.length; i++)
+	{
+		text += "<td>" + String.fromCharCode(parseInt(decoded[i], 2)) + "</td>";
+	}
+	text += "</tr>";
+	
+	text += "</table>";
+	
+	return text;
+}
+
+</script>
+
+<h3><center></center></h3>
+<p></p>
+<form name=data id=data>
+<input type=button onclick="init()" value="New Problem"><br>
+Message: <select name="msg" id="msg"></select><br>
+Key: <select name="key" id="key"></select><br>
+<input type="button" value="Encrypt" onclick="document.getElementById('output').innerHTML = encode();">
+<input type="button" value="Decrypt" id="dcr" name="dcr" style="display:none" onclick="document.getElementById('output').innerHTML += decode();">
+</FORM> 
+<script type="text/javascript">
+var encoded = "";
+init();
+</script>
+<p name="output" id="output">
+</p>

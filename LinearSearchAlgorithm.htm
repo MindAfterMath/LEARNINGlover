@@ -1,0 +1,193 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+LinearSearchAlgorithm<script type="text/javascript">
+function generate(n)
+{
+	var A = new Array(n);
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*100);
+		if (!linsear(A, next))
+			A[i] = next;
+		else
+			i--;
+	}
+
+	return A;
+}
+
+function linsear(set, elmnt)
+{
+	var i;
+	var ans = false;
+	var text = "";
+
+	for (i = 0; i < set.length && !ans; i++)
+	{
+		if (document.getElementById('show').checked)
+			text += "set[" + i + "] = " + set[i] + ", elmnt = " + elmnt + "<br>";
+		if (set[i] == elmnt)
+			ans = true;
+	}
+
+	document.getElementById('output').innerHTML = text;
+
+	return ans;
+}
+
+function init(set, k1)
+{
+	var set = generate(k1);
+	var ans = new Array();
+	var torf = Math.floor((Math.random())*2);
+	var elmnt;
+	if (!torf)
+		elmnt = Math.floor((Math.random())*100);
+	else
+	{
+		elmnt = Math.floor((Math.random())*k1);
+		elmnt = set[elmnt];
+	}
+	var text = "";
+
+	text += "k1 = " + k1 + "<br>";
+
+	text += "set = {";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+		ans[ans.length] = set[i];
+	}
+	text += "}<br>";
+
+	text += "element = " + elmnt + "<br>";
+	ans[ans.length] = elmnt;
+
+	document.getElementById("list").innerHTML = text;
+	document.getElementById("output").innerHTML = "";
+	return ans;
+}
+
+function retreive(set, start, finish)
+{
+	var i;
+	var ans = new Array();
+	for (i = start; i < finish; i++)
+		ans[ans.length] = set[i];
+
+	return ans;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="algorithm, linear, linear search, search, sorted, unsorted, not sorted, random, sequential" /> 
+<meta name="description" content="This page contains a script I've written to help understand the linear search algorithm." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function generate(n)
+{
+	var A = new Array(n);
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*100);
+		if (!linsear(A, next))
+			A[i] = next;
+		else
+			i--;
+	}
+
+	return A;
+}
+
+function linsear(set, elmnt)
+{
+	var i;
+	var ans = false;
+	var text = "";
+
+	for (i = 0; i < set.length && !ans; i++)
+	{
+		if (document.getElementById('show').checked)
+			text += "set[" + i + "] = " + set[i] + ", elmnt = " + elmnt + "<br>";
+		if (set[i] == elmnt)
+			ans = true;
+	}
+
+	document.getElementById('output').innerHTML = text;
+
+	return ans;
+}
+
+function init(set, k1)
+{
+	var set = generate(k1);
+	var ans = new Array();
+	var torf = Math.floor((Math.random())*2);
+	var elmnt;
+	if (!torf)
+		elmnt = Math.floor((Math.random())*100);
+	else
+	{
+		elmnt = Math.floor((Math.random())*k1);
+		elmnt = set[elmnt];
+	}
+	var text = "";
+
+	text += "k1 = " + k1 + "<br>";
+
+	text += "set = {";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+		ans[ans.length] = set[i];
+	}
+	text += "}<br>";
+
+	text += "element = " + elmnt + "<br>";
+	ans[ans.length] = elmnt;
+
+	document.getElementById("list").innerHTML = text;
+	document.getElementById("output").innerHTML = "";
+	return ans;
+}
+
+function retreive(set, start, finish)
+{
+	var i;
+	var ans = new Array();
+	for (i = start; i < finish; i++)
+		ans[ans.length] = set[i];
+
+	return ans;
+}
+</script>
+<h3><center></center></h3>
+<p>The linear search algorithm iterates through each item in our data structure in search for a specific value. If the current item matches, we can return, else we must continue to the next item. <br>
+<br>
+In the worse case, this requires that we search through all items because in a unsorted structure, we cannot say whether an untested value is the value we are searching for. </p>
+<p>
+</p>
+<form name=data id=data> 
+<input type=button onclick="k1 = Math.floor(Math.random()*25);ans = init(set1, k1);set1 = retreive(ans, 0, k1);elmnt = retreive(ans, k1, k1+1);" value="New Problem"><br> 
+<p id=list name=list></p>
+<input type="checkbox" name="show" id="show">Show Work?
+<input type="button" value="Linear Search" onclick="ans = linsear(set1, elmnt); document.getElementById('output').innerHTML = ans + '<br>' + document.getElementById('output').innerHTML;">  
+</FORM>
+<p name="output" id="output">
+</p>
+<script type="text/javascript">
+var k1 = Math.floor(Math.random()*20)+5;
+var set1 = new Array();
+var elmnt;
+var ans = init(set1, k1);
+set1 = retreive(ans, 0, k1);
+elmnt = retreive(ans, k1, k1+1);
+</script>

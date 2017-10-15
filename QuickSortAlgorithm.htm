@@ -1,0 +1,408 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+QuickSortAlgorithm<script type="text/javascript">
+function quickSort(A, left, right, nest)  
+{
+ 	var i = left, j = right;
+ 	var tmp;
+ 	if (nest == 0)
+ 	{
+ 		text = "";
+ 		count = 0;
+ 	}
+  	var pivot = A[Math.floor((left + right) / 2)];
+  	while (i <= j)
+  	{
+ 		while (A[i] < pivot)
+ 			i++;
+  		while (A[j] > pivot)
+ 			j--;
+  		if (i <= j)
+  		{
+ 			tmp = A[i];
+ 			A[i] = A[j];
+ 			A[j] = tmp;
+ 			i++;
+ 			j--;
+ 			htory[count] = new Array();
+ 			for (var ctr  = 0; ctr < A.length; ctr++)
+ 			{
+ 				htory[count][ctr] = A[ctr];
+ 			}
+ 			count ++;
+// 			if (document.getElementById("show").checked)
+// 			{
+// 				text += "<table><tr><td>" + count + ")</td><td>" + disp(A) + "</td></tr></table>";
+// 			}
+  		}
+ 	}
+  	if (left < j)
+ 	{
+// 		if (document.getElementById("show").checked)
+// 		{
+// 			text += "<table><tr><td>calling quicksort(";
+// 			for (k = left; k < j; k++)
+// 				text += A[k] + ", ";
+// 			text += A[k];
+// 	 		text += ")</td><td>This is the left side</td></tr></table>";
+// 		}
+ 		A = quickSort(A, left, j, nest+1);
+ 	}
+  	if (i < right)
+ 	{
+// 		if (document.getElementById("show").checked)
+// 		{
+// 			text += "<table><tr><td>calling quicksort(";
+// 			for (k = i; k < right; k++)
+// 				text += A[k] + ", ";
+// 			text += A[k];
+// 	 		text += ")</td><td>This is the right side</td></tr></table>";
+// 		}
+  		A = quickSort(A, i, right, nest+1);
+ 	}
+  	return A; 
+}
+
+function disp(set)
+{
+	var text = "<td width='50'>";
+	text += "set = </td><td>(";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+	}
+	text += ")</td>";
+
+	return text;
+}
+
+function getMax(list)
+{
+	var maxLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (maxLoc == -1 || list[i] > list[maxLoc])
+		{
+			maxLoc = i;
+		}
+	}
+	
+	return list[maxLoc];
+}
+	
+function plotGraph(list)
+{
+	document.getElementById("output").innerHTML = "";
+	for (var k = 0; k < list.length; k++)
+	{
+		var mycanvas = document.createElement("canvas");
+		mycanvas.id = "canvas" + k;
+		mycanvas.height = '200';
+		mycanvas.width = '500';
+		mycanvas.style="border:1px solid #d3d3d3;"
+
+		document.getElementById("output").appendChild(mycanvas);
+		var c = document.getElementById("canvas" + k);
+		var ctx = c.getContext("2d");
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, c.width, c.height);
+		ctx.fill();
+
+		var barWidth = Math.floor(c.width / (list[k].length + 2));
+		var unitHght = Math.floor(c.height / (getMax(list[k]) + 2));
+		var clr = new Array();
+		for (var j = 0; j < 6; j++)
+		{
+			clr[j] = Math.floor(Math.random()*16);
+			if (clr[j] == 10)
+			{
+				clr[j] = "A"
+			}
+			else if (clr[j] == 11)
+			{
+				clr[j] = "B"
+			}
+			else if (clr[j] == 12)
+			{
+				clr[j] = "C"
+			}
+			else if (clr[j] == 13)
+			{
+				clr[j] = "D"
+			}
+			else if (clr[j] == 14)
+			{
+				clr[j] = "E"
+			}
+			else if (clr[j] == 15)
+			{
+				clr[j] = "F"
+			}
+		}
+
+		for (var i = 0; i < list[k].length; i++)
+		{	
+			ctx.fillStyle = "#" + clr[0] + clr[1] + clr[2] + clr[3] + clr[4] + clr[5];
+			ctx.fillRect(i*barWidth + barWidth/2 + i, c.height - unitHght * list[k][i] - unitHght, barWidth, unitHght * list[k][i]);
+			ctx.fillText(list[k][i], i*barWidth + barWidth + i - 2, c.height - 10);
+			ctx.fill();
+		}
+	}
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="algorithm, programming, quick sort, quicksort, script, sort, divide, conquer, divide and conquer, iteration, pivot, left, right, recursion" /> 
+<meta name="description" content="This page contains a script I've written to help understand the QuickSort Algorithm." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function quickSort(A, left, right, nest)  
+{
+ 	var i = left, j = right;
+ 	var tmp;
+ 	if (nest == 0)
+ 	{
+ 		text = "";
+ 		count = 0;
+ 	}
+  	var pivot = A[Math.floor((left + right) / 2)];
+  	while (i <= j)
+  	{
+ 		while (A[i] < pivot)
+ 			i++;
+  		while (A[j] > pivot)
+ 			j--;
+  		if (i <= j)
+  		{
+ 			tmp = A[i];
+ 			A[i] = A[j];
+ 			A[j] = tmp;
+ 			i++;
+ 			j--;
+ 			htory[count] = new Array();
+ 			for (var ctr  = 0; ctr < A.length; ctr++)
+ 			{
+ 				htory[count][ctr] = A[ctr];
+ 			}
+ 			count ++;
+// 			if (document.getElementById("show").checked)
+// 			{
+// 				text += "<table><tr><td>" + count + ")</td><td>" + disp(A) + "</td></tr></table>";
+// 			}
+  		}
+ 	}
+  	if (left < j)
+ 	{
+// 		if (document.getElementById("show").checked)
+// 		{
+// 			text += "<table><tr><td>calling quicksort(";
+// 			for (k = left; k < j; k++)
+// 				text += A[k] + ", ";
+// 			text += A[k];
+// 	 		text += ")</td><td>This is the left side</td></tr></table>";
+// 		}
+ 		A = quickSort(A, left, j, nest+1);
+ 	}
+  	if (i < right)
+ 	{
+// 		if (document.getElementById("show").checked)
+// 		{
+// 			text += "<table><tr><td>calling quicksort(";
+// 			for (k = i; k < right; k++)
+// 				text += A[k] + ", ";
+// 			text += A[k];
+// 	 		text += ")</td><td>This is the right side</td></tr></table>";
+// 		}
+  		A = quickSort(A, i, right, nest+1);
+ 	}
+  	return A; 
+}
+
+function disp(set)
+{
+	var text = "<td width='50'>";
+	text += "set = </td><td>(";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+	}
+	text += ")</td>";
+
+	return text;
+}
+
+function getMax(list)
+{
+	var maxLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (maxLoc == -1 || list[i] > list[maxLoc])
+		{
+			maxLoc = i;
+		}
+	}
+	
+	return list[maxLoc];
+}
+	
+function plotGraph(list)
+{
+	document.getElementById("output").innerHTML = "";
+	for (var k = 0; k < list.length; k++)
+	{
+		var mycanvas = document.createElement("canvas");
+		mycanvas.id = "canvas" + k;
+		mycanvas.height = '200';
+		mycanvas.width = '500';
+		mycanvas.style="border:1px solid #d3d3d3;"
+
+		document.getElementById("output").appendChild(mycanvas);
+		var c = document.getElementById("canvas" + k);
+		var ctx = c.getContext("2d");
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, c.width, c.height);
+		ctx.fill();
+
+		var barWidth = Math.floor(c.width / (list[k].length + 2));
+		var unitHght = Math.floor(c.height / (getMax(list[k]) + 2));
+		var clr = new Array();
+		for (var j = 0; j < 6; j++)
+		{
+			clr[j] = Math.floor(Math.random()*16);
+			if (clr[j] == 10)
+			{
+				clr[j] = "A"
+			}
+			else if (clr[j] == 11)
+			{
+				clr[j] = "B"
+			}
+			else if (clr[j] == 12)
+			{
+				clr[j] = "C"
+			}
+			else if (clr[j] == 13)
+			{
+				clr[j] = "D"
+			}
+			else if (clr[j] == 14)
+			{
+				clr[j] = "E"
+			}
+			else if (clr[j] == 15)
+			{
+				clr[j] = "F"
+			}
+		}
+
+		for (var i = 0; i < list[k].length; i++)
+		{	
+			ctx.fillStyle = "#" + clr[0] + clr[1] + clr[2] + clr[3] + clr[4] + clr[5];
+			ctx.fillRect(i*barWidth + barWidth/2 + i, c.height - unitHght * list[k][i] - unitHght, barWidth, unitHght * list[k][i]);
+			ctx.fillText(list[k][i], i*barWidth + barWidth + i - 2, c.height - 10);
+			ctx.fill();
+		}
+	}
+}
+</script>
+<h3><center></center></h3>
+<p>This is the QuickSort Algorithm. <br>
+<br>
+The algorithm works by choosing a pivot element in the list (by default we can let this be the middle element in the list, but there are more complex variations that help decide what this should be), and then reordering the list so that the elements to the left (call this sub-list "small") of the pivot element are all less than the pivot element, and the elements to the right (call this sub-list "big") of the pivot element are all greater than the pivot element. So after the swap part of quicksort, the largest element of "small" will be less than the smallest element of "big". We then need to check on whether the sub-lists "small" and "big" need to be sorted, which is true if we have not considered those regions yet. In such a case, we call the procedure Quicksort on each of the sub-lists. <br>
+<br>
+The pseudo-code for this algorithm is as follows:<br>
+QuickSort(A, left, right)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i <- left<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j <- right<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pivot <- A[floor((left + right) / 2)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (i <= j)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (A[i] < pivot)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i <- i+1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end while<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (A[j] > pivot)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j <- j-1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end while<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (i <= j)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tmp <- A[i]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A[i] <- A[j]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A[j] <- tmp<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i <- i+1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j <- j-1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end if<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end while<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (left < j)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A <- QuickSort(A, left, j)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end if<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (i < right)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A <- QuickSort(A, i, right)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end if<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return A;<br>
+end QuickSort<br></p>
+<form name=data id=data>
+
+ <input type=button onclick="javascript:location.reload(true)" value="New Problem"><br>
+
+ <TEXTAREA style="WIDTH: 350px; HEIGHT: 150px" id=list cols=41 rows=6 name=list></TEXTAREA><br>
+
+ <input type="checkbox" name="show" id="show">Show Work?
+
+ <input type="button" value="Sort" onclick="ans = quickSort(A, 0, A.length-1, 0); plotGraph(htory);">  
+
+</FORM> 
+
+<script type="text/javascript"> 
+
+A = []; 
+
+size = Math.floor(Math.random()*10)+1; 
+
+for (i = 0; i < 5*size; i++)
+
+	A[i] = Math.floor(Math.random()*201);
+
+text = ""; 
+
+left = []; 
+
+right = []; 
+
+n = []; 
+
+mid = []; 
+
+result = []; 
+htory = new Array();
+for (i = 0; i < A.length; i++) 
+
+{
+
+ 	if (i < A.length - 1)
+
+ 		text += A[i] + ", ";
+
+ 	else
+
+ 		text += A[i]; 
+
+}
+
+ 
+
+document.getElementById("list").value = text; 
+
+text = ""; 
+
+</SCRIPT>
+
+
+
+<p name="output" id="output">
+
+</p>

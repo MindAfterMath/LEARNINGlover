@@ -1,0 +1,763 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+PolynomialArithmetic<style>
+td {border-style:none; text-align:center}
+td.frac {border-bottom-style:solid; text-align:cnter}
+td.none {border-bottom-style:none; text-align:center}
+</style>
+<script type="text/javascript">
+function newPoly(deg)
+{
+	var i;
+	var poly = new Object();
+	poly.coeffs = new Array();
+	poly.deg = deg;
+
+	for (i = 0; i <= deg; i++)
+	{
+		poly.coeffs[i] = 0;
+	}
+	
+	return poly;
+}
+
+function polydiv(poly1, poly2, showWk)
+{
+	var ans = newPoly(poly1.deg - poly2.deg);
+	var work = new Array();
+	var text = "";
+	
+	for (var i = 0; i <= ans.deg; i++)
+	{
+		text += display(poly1) + "<br>";
+		ans.coeffs[i] = poly1.coeffs[i] / poly2.coeffs[0];
+		text += poly1.coeffs[i] + " / " + poly2.coeffs[0] + " = " + (Math.round(ans.coeffs[i]*100)/100) + "<br>";
+		var temp1 = newPoly(poly1.deg - poly2.deg - i);
+		temp1.coeffs[0] = ans.coeffs[i];
+		var temp2 = polymult(temp1, poly2);
+		text += "(" + display(temp1) + ") * (" + display(poly2) + ") = " + display(temp2) + "<br>";
+		for (var j = 0; j <= temp2.deg; j++)
+		{
+			temp2.coeffs[j] = -1*temp2.coeffs[j];
+		}
+		text += "(" + display(poly1) + ") + (" + display(temp2) + ") = ";
+		poly1 = polyadd(poly1, temp2);
+		text += display(poly1) + "<br><br>";
+	}
+	
+	if (showWk)
+	{
+		document.getElementById("output").innerHTML += text;
+	}
+	
+	var toRet = new Array();
+	toRet[0] = ans;
+	toRet[1] = poly1;
+
+	return toRet;
+}
+
+function polymult(poly1, poly2, showWk)
+{
+	var sol = new Array();
+	var sum = new Object();
+
+	sum.deg = (parseInt(poly1.deg) + parseInt(poly2.deg));
+	sum.coeffs = new Array(sum.deg+1);
+	for (var j = 0; j < sum.coeffs.length; j++)
+		sum.coeffs[j] = 0;
+	var temp = new Array();
+	var text = "";
+	var shift = 0;
+		
+	for (var i = 0; i <= poly1.deg; i++)
+	{
+		sol[i] = new Array();
+		for (var j = 0; j <= poly2.deg; j++)
+		{
+			sol[i][j + shift] = poly1.coeffs[i]*poly2.coeffs[j];
+			sum.coeffs[j+shift] += sol[i][j+shift];
+		}
+		
+		for (var j = parseInt(poly2.deg) + parseInt(1); j+shift < (parseInt(poly1.deg) + parseInt(poly2.deg) + parseInt(1)); j++)
+			sol[i][j+shift] = 0;
+		
+		for (var j = 0; j < shift; j++)
+			sol[i][j] = 0;
+		shift++;
+	}
+	
+	text += "<table>";
+	for (var i = 0; i < sol.length; i++)
+	{
+		
+		text += "<tr>";
+		if (i < sol.length - 1)
+		{
+			text += "<td class='none'></td>";
+		}
+		else
+		{
+			text += "<td class='frac'>+</td>";
+		}
+		for (var j = 0; j < sol[i].length; j++)
+		{
+			if (i < sol.length - 1)
+			{
+				text += "<td class='none'>";
+			}
+			else
+			{
+				text += "<td class='frac'>"
+			}
+			text += sol[i][j] + "x<sup>" + (sol[i].length-j-1) + "</sup></td>";
+		}
+		text += "</tr>";
+	}
+
+	text += "<tr><td class='none'></td>";
+	for (var j = 0; j < sum.coeffs.length; j++)
+	{
+		text += "<td class='none'>" + sum.coeffs[j] + "x<sup>" + (sum.coeffs.length-j-1) + "</sup></td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+		
+	if (showWk)
+	{
+		document.getElementById("output").innerHTML += text;
+	}
+	
+	return sum;
+}
+
+function polyadd(poly1, poly2, showWk)
+{
+	var newPoly1;
+	var newPoly2;
+	var text = "";
+	
+	if (poly1.deg < poly2.deg)
+	{
+		newPoly1 = newPoly(poly2.deg);
+		for (var i = 0; i < poly2.deg - poly1.deg; i++)
+			newPoly1.coeffs[i] = 0;
+		for (var i = poly2.deg - poly1.deg; i <= poly2.deg; i++)
+			newPoly1.coeffs[i] = poly1.coeffs[i - (poly2.deg - poly1.deg)];
+		newPoly2 = poly2;
+	}
+	else
+	{
+		newPoly2 = newPoly(poly1.deg);
+		for (var i = 0; i < poly1.deg - poly2.deg; i++)
+			newPoly2.coeffs[i] = 0;
+		for (var i = poly1.deg - poly2.deg; i <= poly1.deg; i++)
+		{
+			newPoly2.coeffs[i] = poly2.coeffs[i - (poly1.deg - poly2.deg)];
+		}
+		newPoly1 = poly1;
+	}
+	
+	text += "<table><tr><td class='none'></td>";
+	for (var i = 0; i < newPoly1.coeffs.length; i++)
+	{
+		text += "<td class='none'>" + newPoly1.coeffs[i] + "x<sup>" + (newPoly1.coeffs.length-i-1) + "</sup></td>";
+	}
+	text += "</tr><tr><td class='frac'>+</td>";
+	
+	for (var i = 0; i < newPoly2.coeffs.length; i++)
+	{
+		text += "<td class='frac'>" + newPoly2.coeffs[i] + "x<sup>" + (newPoly2.coeffs.length-i-1) + "</sup></td>";
+	}
+	
+	var ans = new Object();
+	ans.deg = newPoly1.deg;
+	ans.coeffs = new Array(ans.deg);
+
+	for (var i = 0; i <= ans.deg; i++)
+	{
+		ans.coeffs[i] = newPoly1.coeffs[i] + newPoly2.coeffs[i];
+	}
+	
+	text += "</tr><tr><td class='none'></td>";
+	
+	for (var i = 0; i < ans.coeffs.length; i++)
+	{
+		text += "<td class='none'>" + ans.coeffs[i] + "x<sup>" + (ans.coeffs.length-i-1) + "</sup></td>";
+	}
+	
+	text += "</tr></table>";
+	
+	if (showWk)
+	{
+		document.getElementById("output").innerHTML += text;
+	}
+	
+	return ans;
+}
+
+function generate(n)
+{
+	var i;
+	var poly = new Object();
+	poly.coeffs = new Array();
+	poly.deg = n;
+
+	for (i = 0; i <= n; i++)
+	{
+		sign = Math.floor(Math.random()*2);
+		if (sign == 0)
+			sign = -1;
+		do
+		{
+			poly.coeffs[i] = sign*Math.floor(Math.random()*25);
+		}
+		while(i == 0 && poly.coeffs[i] == 0);
+	}
+	
+	return poly;
+}
+
+function display(poly)
+{
+	var text = "";
+	var out = false;
+	
+	for (var i = 0; i < poly.deg; i++)
+	{
+		if (poly.coeffs[i] < 0)
+		{
+			text += "- " + (Math.round(-1*poly.coeffs[i]*100)/100) + "x<sup>" + (poly.coeffs.length-1-i) + "</sup> + ";
+			out = true;
+		}
+		else if (poly.coeffs[i] > 0)
+		{
+			text += (Math.round(poly.coeffs[i]*100)/100) + "x<sup>" + (poly.coeffs.length-1-i) + "</sup> + ";
+			out = true;
+		}
+	}
+
+	if (poly.coeffs[i] < 0)
+	{
+		text += "- " + (Math.round(-1*poly.coeffs[i]*100)/100);
+		out = true;
+	}
+	else if (poly.coeffs[i] > 0)
+	{
+		text += (Math.round(poly.coeffs[i]*100)/100);
+		out = true;
+	}
+	else
+	{
+		text = text.substring(0, text.length-2);
+	}
+	
+	if (!out)
+	{
+		text = "0";
+	}
+		
+	text = text.replace(/\+\ \-/g, "-");
+
+	return text;
+}
+
+function init()
+{
+	var ans = new Array();
+	var k1, k2;
+	do
+	{
+		k1 = Math.floor(Math.random()*10);
+	}
+	while (k1 < 3);
+	
+	ans[0] = generate(k1);
+	
+	do
+	{
+		k2 = Math.floor(Math.random()*10);
+	}
+	while (k2 >= k1);
+	
+	ans[1] = generate(k2);
+	
+	return ans;
+}
+
+function main(operation, poly1, poly2, show)
+{	
+	var temp;
+	if (operation == 1)
+	{
+		temp = polyadd(poly1, poly2, show);
+	}
+	else if (operation == 2)
+	{
+		for (var i = 0; i < poly2.coeffs.length; i++)
+		{
+			poly2.coeffs[i] = -1*poly2.coeffs[i];
+		}
+		temp = polyadd(poly1, poly2, show);
+	}
+	else if (operation == 3)
+	{
+		temp = polymult(poly1, poly2, show);
+	}
+	else if (operation == 4)
+	{
+		temp = polydiv(poly1, poly2, show);
+	}
+	else if (operation == 5)
+	{
+		temp = polydiv(poly2, poly1, show);
+	}
+	
+	return temp;
+}
+
+function check(operation, poly1, poly2, ans)
+{	
+	var temp;
+	if (operation == 1)
+	{
+		for (var i = 0; i < poly2.coeffs.length; i++)
+		{
+			poly2.coeffs[i] = -1*poly2.coeffs[i];
+		}
+		temp = polyadd(ans, poly2);
+	}
+	else if (operation == 2)
+	{
+		temp = polyadd(ans, poly2);
+	}
+	else if (operation == 3)
+	{
+		temp = polydiv(ans, poly2);
+	}
+	else if (operation == 4)
+	{
+		temp = polymult(ans[0], poly2);
+		temp = polyadd(temp, ans[1]);
+	}
+	else if (operation == 5)
+	{
+		temp = polymult(ans[0], poly1);
+		temp = polyadd(temp, ans[1]);
+	}
+
+	return temp;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, computer science, compsci, 
+algorithms, javascript, script, algebra, programming, polynomial, arithmetic, division, multiplication, addition, subtraction, divide, multiply, add, subtract" />
+<meta name="description" content="This page contains scripts to help users understand the basic arithmetic operations on polynomials. " />
+
+<title> at LEARNINGlover.com</title>
+<style>
+td {border-style:none; text-align:center}
+td.frac {border-bottom-style:solid; text-align:cnter}
+td.none {border-bottom-style:none; text-align:center}
+</style>
+<script type="text/javascript">
+function newPoly(deg)
+{
+	var i;
+	var poly = new Object();
+	poly.coeffs = new Array();
+	poly.deg = deg;
+
+	for (i = 0; i <= deg; i++)
+	{
+		poly.coeffs[i] = 0;
+	}
+	
+	return poly;
+}
+
+function polydiv(poly1, poly2, showWk)
+{
+	var ans = newPoly(poly1.deg - poly2.deg);
+	var work = new Array();
+	var text = "";
+	
+	for (var i = 0; i <= ans.deg; i++)
+	{
+		text += display(poly1) + "<br>";
+		ans.coeffs[i] = poly1.coeffs[i] / poly2.coeffs[0];
+		text += poly1.coeffs[i] + " / " + poly2.coeffs[0] + " = " + (Math.round(ans.coeffs[i]*100)/100) + "<br>";
+		var temp1 = newPoly(poly1.deg - poly2.deg - i);
+		temp1.coeffs[0] = ans.coeffs[i];
+		var temp2 = polymult(temp1, poly2);
+		text += "(" + display(temp1) + ") * (" + display(poly2) + ") = " + display(temp2) + "<br>";
+		for (var j = 0; j <= temp2.deg; j++)
+		{
+			temp2.coeffs[j] = -1*temp2.coeffs[j];
+		}
+		text += "(" + display(poly1) + ") + (" + display(temp2) + ") = ";
+		poly1 = polyadd(poly1, temp2);
+		text += display(poly1) + "<br><br>";
+	}
+	
+	if (showWk)
+	{
+		document.getElementById("output").innerHTML += text;
+	}
+	
+	var toRet = new Array();
+	toRet[0] = ans;
+	toRet[1] = poly1;
+
+	return toRet;
+}
+
+function polymult(poly1, poly2, showWk)
+{
+	var sol = new Array();
+	var sum = new Object();
+
+	sum.deg = (parseInt(poly1.deg) + parseInt(poly2.deg));
+	sum.coeffs = new Array(sum.deg+1);
+	for (var j = 0; j < sum.coeffs.length; j++)
+		sum.coeffs[j] = 0;
+	var temp = new Array();
+	var text = "";
+	var shift = 0;
+		
+	for (var i = 0; i <= poly1.deg; i++)
+	{
+		sol[i] = new Array();
+		for (var j = 0; j <= poly2.deg; j++)
+		{
+			sol[i][j + shift] = poly1.coeffs[i]*poly2.coeffs[j];
+			sum.coeffs[j+shift] += sol[i][j+shift];
+		}
+		
+		for (var j = parseInt(poly2.deg) + parseInt(1); j+shift < (parseInt(poly1.deg) + parseInt(poly2.deg) + parseInt(1)); j++)
+			sol[i][j+shift] = 0;
+		
+		for (var j = 0; j < shift; j++)
+			sol[i][j] = 0;
+		shift++;
+	}
+	
+	text += "<table>";
+	for (var i = 0; i < sol.length; i++)
+	{
+		
+		text += "<tr>";
+		if (i < sol.length - 1)
+		{
+			text += "<td class='none'></td>";
+		}
+		else
+		{
+			text += "<td class='frac'>+</td>";
+		}
+		for (var j = 0; j < sol[i].length; j++)
+		{
+			if (i < sol.length - 1)
+			{
+				text += "<td class='none'>";
+			}
+			else
+			{
+				text += "<td class='frac'>"
+			}
+			text += sol[i][j] + "x<sup>" + (sol[i].length-j-1) + "</sup></td>";
+		}
+		text += "</tr>";
+	}
+
+	text += "<tr><td class='none'></td>";
+	for (var j = 0; j < sum.coeffs.length; j++)
+	{
+		text += "<td class='none'>" + sum.coeffs[j] + "x<sup>" + (sum.coeffs.length-j-1) + "</sup></td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+		
+	if (showWk)
+	{
+		document.getElementById("output").innerHTML += text;
+	}
+	
+	return sum;
+}
+
+function polyadd(poly1, poly2, showWk)
+{
+	var newPoly1;
+	var newPoly2;
+	var text = "";
+	
+	if (poly1.deg < poly2.deg)
+	{
+		newPoly1 = newPoly(poly2.deg);
+		for (var i = 0; i < poly2.deg - poly1.deg; i++)
+			newPoly1.coeffs[i] = 0;
+		for (var i = poly2.deg - poly1.deg; i <= poly2.deg; i++)
+			newPoly1.coeffs[i] = poly1.coeffs[i - (poly2.deg - poly1.deg)];
+		newPoly2 = poly2;
+	}
+	else
+	{
+		newPoly2 = newPoly(poly1.deg);
+		for (var i = 0; i < poly1.deg - poly2.deg; i++)
+			newPoly2.coeffs[i] = 0;
+		for (var i = poly1.deg - poly2.deg; i <= poly1.deg; i++)
+		{
+			newPoly2.coeffs[i] = poly2.coeffs[i - (poly1.deg - poly2.deg)];
+		}
+		newPoly1 = poly1;
+	}
+	
+	text += "<table><tr><td class='none'></td>";
+	for (var i = 0; i < newPoly1.coeffs.length; i++)
+	{
+		text += "<td class='none'>" + newPoly1.coeffs[i] + "x<sup>" + (newPoly1.coeffs.length-i-1) + "</sup></td>";
+	}
+	text += "</tr><tr><td class='frac'>+</td>";
+	
+	for (var i = 0; i < newPoly2.coeffs.length; i++)
+	{
+		text += "<td class='frac'>" + newPoly2.coeffs[i] + "x<sup>" + (newPoly2.coeffs.length-i-1) + "</sup></td>";
+	}
+	
+	var ans = new Object();
+	ans.deg = newPoly1.deg;
+	ans.coeffs = new Array(ans.deg);
+
+	for (var i = 0; i <= ans.deg; i++)
+	{
+		ans.coeffs[i] = newPoly1.coeffs[i] + newPoly2.coeffs[i];
+	}
+	
+	text += "</tr><tr><td class='none'></td>";
+	
+	for (var i = 0; i < ans.coeffs.length; i++)
+	{
+		text += "<td class='none'>" + ans.coeffs[i] + "x<sup>" + (ans.coeffs.length-i-1) + "</sup></td>";
+	}
+	
+	text += "</tr></table>";
+	
+	if (showWk)
+	{
+		document.getElementById("output").innerHTML += text;
+	}
+	
+	return ans;
+}
+
+function generate(n)
+{
+	var i;
+	var poly = new Object();
+	poly.coeffs = new Array();
+	poly.deg = n;
+
+	for (i = 0; i <= n; i++)
+	{
+		sign = Math.floor(Math.random()*2);
+		if (sign == 0)
+			sign = -1;
+		do
+		{
+			poly.coeffs[i] = sign*Math.floor(Math.random()*25);
+		}
+		while(i == 0 && poly.coeffs[i] == 0);
+	}
+	
+	return poly;
+}
+
+function display(poly)
+{
+	var text = "";
+	var out = false;
+	
+	for (var i = 0; i < poly.deg; i++)
+	{
+		if (poly.coeffs[i] < 0)
+		{
+			text += "- " + (Math.round(-1*poly.coeffs[i]*100)/100) + "x<sup>" + (poly.coeffs.length-1-i) + "</sup> + ";
+			out = true;
+		}
+		else if (poly.coeffs[i] > 0)
+		{
+			text += (Math.round(poly.coeffs[i]*100)/100) + "x<sup>" + (poly.coeffs.length-1-i) + "</sup> + ";
+			out = true;
+		}
+	}
+
+	if (poly.coeffs[i] < 0)
+	{
+		text += "- " + (Math.round(-1*poly.coeffs[i]*100)/100);
+		out = true;
+	}
+	else if (poly.coeffs[i] > 0)
+	{
+		text += (Math.round(poly.coeffs[i]*100)/100);
+		out = true;
+	}
+	else
+	{
+		text = text.substring(0, text.length-2);
+	}
+	
+	if (!out)
+	{
+		text = "0";
+	}
+		
+	text = text.replace(/\+\ \-/g, "-");
+
+	return text;
+}
+
+function init()
+{
+	var ans = new Array();
+	var k1, k2;
+	do
+	{
+		k1 = Math.floor(Math.random()*10);
+	}
+	while (k1 < 3);
+	
+	ans[0] = generate(k1);
+	
+	do
+	{
+		k2 = Math.floor(Math.random()*10);
+	}
+	while (k2 >= k1);
+	
+	ans[1] = generate(k2);
+	
+	return ans;
+}
+
+function main(operation, poly1, poly2, show)
+{	
+	var temp;
+	if (operation == 1)
+	{
+		temp = polyadd(poly1, poly2, show);
+	}
+	else if (operation == 2)
+	{
+		for (var i = 0; i < poly2.coeffs.length; i++)
+		{
+			poly2.coeffs[i] = -1*poly2.coeffs[i];
+		}
+		temp = polyadd(poly1, poly2, show);
+	}
+	else if (operation == 3)
+	{
+		temp = polymult(poly1, poly2, show);
+	}
+	else if (operation == 4)
+	{
+		temp = polydiv(poly1, poly2, show);
+	}
+	else if (operation == 5)
+	{
+		temp = polydiv(poly2, poly1, show);
+	}
+	
+	return temp;
+}
+
+function check(operation, poly1, poly2, ans)
+{	
+	var temp;
+	if (operation == 1)
+	{
+		for (var i = 0; i < poly2.coeffs.length; i++)
+		{
+			poly2.coeffs[i] = -1*poly2.coeffs[i];
+		}
+		temp = polyadd(ans, poly2);
+	}
+	else if (operation == 2)
+	{
+		temp = polyadd(ans, poly2);
+	}
+	else if (operation == 3)
+	{
+		temp = polydiv(ans, poly2);
+	}
+	else if (operation == 4)
+	{
+		temp = polymult(ans[0], poly2);
+		temp = polyadd(temp, ans[1]);
+	}
+	else if (operation == 5)
+	{
+		temp = polymult(ans[0], poly1);
+		temp = polyadd(temp, ans[1]);
+	}
+
+	return temp;
+}
+</script>
+<h3><center></center></h3>
+<p></p>
+<p name="input" id="input"></p>
+<form>
+Poly 1 Degree: 
+<select name="p1deg" id="p1deg">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10</option>
+</select>
+<input type="button" value="New Poly 1" onclick="document.getElementById('input').innerHTML = '';poly1=generate(document.getElementById('p1deg').value);document.getElementById('input').innerHTML += display(poly1) + '<br>';document.getElementById('input').innerHTML += display(poly2) + '<br>';">
+
+Poly 2 Degree: 
+<select name="p2deg" id="p2deg">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10</option>
+</select>
+<input type="button" value="New Poly 2" onclick="document.getElementById('input').innerHTML = '';poly2=generate(document.getElementById('p2deg').value);document.getElementById('input').innerHTML += display(poly1) + '<br>';document.getElementById('input').innerHTML += display(poly2) + '<br>';">
+<br>
+<select name="operation" id="operation">
+<option value="1">Add</option>
+<option value="2">Subtract</option>
+<option value="3">Multiply</option>
+<option value="4">Divide (poly1 by poly2)</option>
+<option value="5">Divide (poly2 by poly1)</option>
+</select>
+<input type="button" value="Operate" onclick="temp = main(document.getElementById('operation').value, poly1, poly2, document.getElementById('show').checked);if(document.getElementById('operation').value==4 || document.getElementById('operation').value==5) document.getElementById('output').innerHTML += 'quot = ' + display(temp[0]) + '<br>rem = ' + display(temp[1]) + '<br>'; else document.getElementById('output').innerHTML += 'ans = ' + display(temp) + '<br>'; document.getElementById('chk').hidden=false">
+<input type="button" name=chk id=chk hidden value="Check Work" onclick="temp = check(document.getElementById('operation').value, poly1, poly2, temp); if(document.getElementById('operation').value==3) document.getElementById('output').innerHTML += 'quot = ' + display(temp[0]) + '<br>rem = ' + display(temp[1]) + '<br>'; else document.getElementById('output').innerHTML += 'ans = ' + display(temp) + '<br>'; "><br>
+Show Work? <input type="checkbox" name="show" id="show">
+<input type="button" value="Clear Work" onclick="document.getElementById('output').innerHTML=''">
+</form>
+<script type="text/javascript">
+var poly1, poly2, temp;
+var ans = init();
+poly1 = ans[0];
+poly2 = ans[1];
+document.getElementById("input").innerHTML += display(poly1) + "<br>";
+document.getElementById("input").innerHTML += display(poly2) + "<br>";
+//main();
+</script>
+<p name="output" id="output"></p>

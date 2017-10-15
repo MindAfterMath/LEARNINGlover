@@ -1,0 +1,838 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+HiddenMarkovModels:TheViterbiAlgorithm<script type="text/javascript">
+function newHMM(numDie, stateBhv, diceWght)
+{
+	var model = new Object();
+	model.numStates = numDie;
+	model.sigma = new Array();
+	for (var i = 1; i <= 6; i++)
+	{
+		model.sigma[i-1] = i;
+	}
+	
+	model.initProbs = new Array(numDie);
+	for (var i = 0; i < numDie; i++)
+	{
+		model.initProbs[i] = (1 / (numDie));
+	}
+	
+	model.transProbs = new Array(model.numStates);
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		model.transProbs[i] = new Array(model.numStates);
+		for (var j = 0; j < model.numStates; j++)
+		{	
+			if (stateBhv == 0)
+			{
+				if (i == j)
+				{
+					model.transProbs[i][j] = 0.9;
+				}
+				else
+				{
+					model.transProbs[i][j] = (1/numDie)*0.10;
+				}
+			}
+			else if (stateBhv == 1)
+			{
+				model.transProbs[i][j] = 1 / (numDie);
+			}
+			else
+			{
+				if (i != j)
+				{
+					model.transProbs[i][j] = (1/numDie)*0.9;
+				}
+				else
+				{
+					model.transProbs[i][j] = 0.10;
+				}
+			}
+		}
+	}
+	
+	model.emissProbs = new Array(model.numStates);
+	for (var i = 0; i < model.numStates; i++)
+	{
+		model.emissProbs[i] = new Array(model.sigma.length);
+		for (var j = 0; j < model.sigma.length; j++)
+		{
+			if (diceWght == 0)
+			{
+				if (j < (6 - i))
+					model.emissProbs[i][j] = 1 / (6 + i);
+				else
+					model.emissProbs[i][j] = 2 / (6 + i);
+			}
+			else if (diceWght == 1)
+			{
+				var dice = new Array;
+				dice[0] = 0; dice[1] = 1; dice[2] = 2; dice[3] = 3; dice[4] = 4; dice[5] = 5;
+				for (var k = 0; k < i; k++)
+				{
+					var loc = Math.floor(Math.random()*6);
+					model.emissProbs[i][dice[loc]] = 2 / (6 + i);
+					dice[loc] = dice[dice.length-1];
+					dice.length--;
+				}
+				
+				for (var k = 0; k < dice.length; k++)
+				{
+					model.emissProbs[i][dice[k]] = 1 / (6 + i);
+				}
+//				model.emissProbs[i][j] = 1 / 6;
+			}
+			else
+			{
+				if (j < i)
+					model.emissProbs[i][j] = 2 / (6 + i);
+				else
+					model.emissProbs[i][j] = 1 / (6 + i);
+			}
+		}
+	}
+	
+	return model;
+}
+
+function Viterbi(model, observ)
+{
+	var numPeriods = observ.length;
+	
+	/*
+	delta_{t, i} is the maximum probability over the first t-1 states that the 
+	t(th) state is can have, given the first t-1 states and the first t-1 
+	observations and the model.	
+	*/
+	delta = new Array(numPeriods);
+	
+	for (var i = 0; i < delta.length; i++)
+	{
+		delta[i] = new Array(model.numStates);
+	}
+	
+	/*
+	First, we initialize the variables. 
+	We know that for all N states and all times before T, 
+	delta_{1, j} = initProbs_j * emissProbs_{j, observ_{1}};
+	*/
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		delta[0][i] = model.initProbs[i] * model.emissProbs[i][model.sigma.indexOf(observ[0])];
+	}
+	
+	/*
+	Now for the recursion. 
+	We know that for all N states and all times before T, 
+	delta_{t+1, j} = b_{j, observ_{t+1}} * max_{1 [<=] i [<=] N} delta_{t, i}*transProbs_{i, j}
+	*/
+	var max = 0;
+	var statePtr = new Array(numPeriods);
+	
+	for (var i = 0; i < statePtr.length; i++)
+	{
+		statePtr[i] = new Array(model.numStates);
+	}
+	
+	for (var t = 1; t <= numPeriods-1; t++)
+	{
+		for (var j = 0; j < model.numStates; j++)
+		{
+			var maxDelta = 0;
+			for (var i = 0; i < model.numStates; i++)
+			{
+				var temp = delta[t-1][i] * model.transProbs[i][j];
+				if (temp > maxDelta)
+				{
+					maxDelta = temp;
+					statePtr[t][j] = i;
+				}
+			}
+			delta[t][j] = model.emissProbs[j][model.sigma.indexOf(observ[t])] * maxDelta;
+		}
+	}
+	
+	var p_max = 0;
+	var iLast = -1;
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		if (delta[numPeriods-1][i] > p_max)
+		{
+			p_max = delta[numPeriods-1][i];
+			iLast = i;
+		}
+	}
+	
+	var sol = new Array(numPeriods);
+	sol[numPeriods-1] = iLast;
+	
+	for (t = numPeriods-2; t >= 0; t--)
+	{
+		sol[t] = statePtr[t+1][sol[t+1]];
+	}
+	
+	var ans = new Array();
+	ans[0] = delta;
+	ans[1] = sol;
+	return ans;;
+}
+
+function genDie()
+{
+	var numDie = Math.floor(Math.random()*4) + 2;
+	var likely = new Array(6*numDie);
+	
+	//First, we need to generate the die. 
+	for (var i = 0; i < numDie; i++)
+	{
+		var fair = Math.floor(Math.random()*2);
+		if (fair)
+		{
+			for (var j = 0; j < 6; j++)
+			{
+				if (j == 0)
+				{
+					likely[i*6 + j] = (1/6);
+				}
+				else
+				{
+					likely[i*6 + j] = (1/6) + likely[i*6 + j - 1];
+				}
+			}
+		}
+		else
+		{
+			var sum = 0;
+			for (var j = 0; j < 6; j++)
+			{
+				if (j == 0)
+				{
+					likely[i*6 + j] = Math.floor(Math.random()*6)+1;
+				}
+				else
+				{
+					likely[i*6 + j] = Math.floor(Math.random()*6)+1 + likely[i*6 + j-1];
+				}
+			}
+			
+			sum = likely[i*6+(j-1)];
+			
+			for (var j = 0; j < 6; j++)
+			{
+				likely[i*6+j] = likely[i*6+j] / sum;
+			}
+		}
+	}
+
+	return likely;
+}
+
+function genOutput(likely)
+{	
+	var numDie = Math.floor(likely.length / 6);
+	var roll;
+	//Next, we need to roll the die
+	var dieRolled = Math.floor(Math.random()*numDie);
+
+	var temp = Math.random();
+		
+	if (temp >= 0 && temp <= likely[dieRolled*6+0])
+	{
+		roll = 1;
+	}
+	else if (temp > likely[dieRolled*6+0] && temp <= likely[dieRolled*6+1])
+	{
+		roll = 2;
+	}
+	else if (temp > likely[dieRolled*6+1] && temp <= likely[dieRolled*6+2])
+	{
+		roll = 3;
+	}
+	else if (temp > likely[dieRolled*6+2] && temp <= likely[dieRolled*6+3])
+	{
+		roll = 4;
+	}
+	else if (temp > likely[dieRolled*6+3] && temp <= likely[dieRolled*6+4])
+	{
+		roll = 5;
+	}
+	else if (temp > likely[dieRolled*6+4] && temp <= likely[dieRolled*6+5])
+	{
+		roll = 6;		
+	}
+	
+	return roll;
+}
+
+function dispHMM(model)
+{
+	model = newHMM(die.length/6, document.getElementById('stateTrans').value, document.getElementById('emissTrans').value);
+	var text = "<table>";
+	var initMtrx = "<table>";
+	initMtrx += "<tr>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		initMtrx += "<td>" + i + "</td>";
+	}
+	initMtrx += "</tr><tr>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		initMtrx += "<td>" + model.initProbs[i].toExponential(4) + "</td>";
+	}
+	initMtrx += "</tr>";
+	initMtrx += "</table>";
+	
+	var transMtrx = "<table>";
+	transMtrx += "<tr><td></td>";
+    for (var j = 0; j < model.numStates; j++)
+    {
+        transMtrx += "<td>" + j + "</td>";
+    }
+    transMtrx += "</tr>";
+
+    var emissMtrx = "<table>";
+	emissMtrx += "<tr><td></td>";
+    for (var j = 0; j < model.sigma.length; j++)
+    {
+        emissMtrx += "<td>" + model.sigma[j] + "</td>";
+    }
+    emissMtrx += "</tr>";
+    
+    for (var i = 0; i < model.numStates; i++)
+    {
+		transMtrx += "<tr><td>" + i + "</td>";
+        for (var j = 0; j < model.numStates; j++)
+        {
+            transMtrx += "<td>" + model.transProbs[i][j].toExponential(4) + "</td>";
+        }
+        transMtrx += "</tr>";
+
+		emissMtrx += "<tr><td>" + i + "</td>";
+        for (var j = 0; j < model.sigma.length; j++)
+        {
+            emissMtrx += "<td>" + model.emissProbs[i][j].toExponential(4) + "</td>";
+        }
+        emissMtrx += "</tr>"; 
+    }
+
+	transMtrx += "</table>";
+	emissMtrx += "</table>";
+
+	text += "<tr><td>Initial Probabilities</td><td>" + initMtrx + "</td></tr><tr><td>Transition Matrix</td><td>" + transMtrx + "</td></tr><tr><td>Emission Matrix</td><td>" + emissMtrx + "</td></tr></table>";
+	
+	document.getElementById("output").innerHTML = text;
+}
+
+function dispRolls(roll)
+{
+	for (var j = 0; j < roll.length; j++)
+	{
+		document.getElementById("input").innerHTML += roll[j];
+		if (j < roll.length - 1)
+		{
+			document.getElementById("input").innerHTML += ", ";
+		}
+	}
+	document.getElementById("input").innerHTML += "<br>";
+}
+
+function postProcess()
+{
+	model = newHMM(die.length/6, document.getElementById('stateTrans').value, document.getElementById('emissTrans').value);
+	var ans = Viterbi(model, roll);
+	var vitSteps = ans[0];
+	var vitAns = ans[1];
+	
+	document.getElementById("output").innerHTML += "The result of the Viterbi Algorithm is: <br>";
+
+	var text = "<table><tr><td></td>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		text += "<td>" + i + "</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < vitSteps.length; i++)
+	{
+		text += "<tr><td>" + eval("i+1") + "</td>";
+		for (var j = 0; j < vitSteps[i].length; j++)
+		{
+			text += "<td>" + vitSteps[i][j].toExponential(4) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	text += "The most likely sequence of states that would have generated this output is " + vitAns + "<br>";
+	
+	document.getElementById("output").innerHTML = text;	
+}
+
+function init()
+{
+	document.getElementById("input").innerHTML = ""; 
+	var die = genDie();
+	var numPeriods = Math.floor(Math.random()*20)+5;
+	var roll = new Array();
+	for (var i = 0; i < numPeriods; i++)
+	{
+		roll[i] = genOutput(die);
+	}
+	var ans = new Array();
+	
+	document.getElementById("input").innerHTML += "Assume the casino has " + (die.length/6) + " different die. You are interested in determining the weights of the different die as well as how often the casino changes die. "
+	document.getElementById("input").innerHTML += "To help answer this question, you constructed 9 Hidden Markov Models, with each state corresponding to the likelihood that the casino used a given dice. <br>";
+	document.getElementById("input").innerHTML += "Each of these models has its own set of transition probabilities between states and its own set of emission probabilities. <br>";
+	document.getElementById("input").innerHTML += "There were " + numPeriods + " rolls that went as follows.<br>";
+	dispRolls(roll);
+	document.getElementById("input").innerHTML += "Which model do you think generated this set of rolls? ";
+	ans[0] = die;
+	ans[1] = numPeriods;
+	ans[2] = roll;
+
+	return ans;
+}
+
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, statistics, stats, probability, computer science, data mining, machine learning, javascript, script, programming, hidden, markov, models, viterbi, algorithm, hidden markov models, viterbi algorithm" />
+<meta name="description" content="This page implements the Viterbi Algorithm for Hidden Markov Models. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function newHMM(numDie, stateBhv, diceWght)
+{
+	var model = new Object();
+	model.numStates = numDie;
+	model.sigma = new Array();
+	for (var i = 1; i <= 6; i++)
+	{
+		model.sigma[i-1] = i;
+	}
+	
+	model.initProbs = new Array(numDie);
+	for (var i = 0; i < numDie; i++)
+	{
+		model.initProbs[i] = (1 / (numDie));
+	}
+	
+	model.transProbs = new Array(model.numStates);
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		model.transProbs[i] = new Array(model.numStates);
+		for (var j = 0; j < model.numStates; j++)
+		{	
+			if (stateBhv == 0)
+			{
+				if (i == j)
+				{
+					model.transProbs[i][j] = 0.9;
+				}
+				else
+				{
+					model.transProbs[i][j] = (1/numDie)*0.10;
+				}
+			}
+			else if (stateBhv == 1)
+			{
+				model.transProbs[i][j] = 1 / (numDie);
+			}
+			else
+			{
+				if (i != j)
+				{
+					model.transProbs[i][j] = (1/numDie)*0.9;
+				}
+				else
+				{
+					model.transProbs[i][j] = 0.10;
+				}
+			}
+		}
+	}
+	
+	model.emissProbs = new Array(model.numStates);
+	for (var i = 0; i < model.numStates; i++)
+	{
+		model.emissProbs[i] = new Array(model.sigma.length);
+		for (var j = 0; j < model.sigma.length; j++)
+		{
+			if (diceWght == 0)
+			{
+				if (j < (6 - i))
+					model.emissProbs[i][j] = 1 / (6 + i);
+				else
+					model.emissProbs[i][j] = 2 / (6 + i);
+			}
+			else if (diceWght == 1)
+			{
+				var dice = new Array;
+				dice[0] = 0; dice[1] = 1; dice[2] = 2; dice[3] = 3; dice[4] = 4; dice[5] = 5;
+				for (var k = 0; k < i; k++)
+				{
+					var loc = Math.floor(Math.random()*6);
+					model.emissProbs[i][dice[loc]] = 2 / (6 + i);
+					dice[loc] = dice[dice.length-1];
+					dice.length--;
+				}
+				
+				for (var k = 0; k < dice.length; k++)
+				{
+					model.emissProbs[i][dice[k]] = 1 / (6 + i);
+				}
+//				model.emissProbs[i][j] = 1 / 6;
+			}
+			else
+			{
+				if (j < i)
+					model.emissProbs[i][j] = 2 / (6 + i);
+				else
+					model.emissProbs[i][j] = 1 / (6 + i);
+			}
+		}
+	}
+	
+	return model;
+}
+
+function Viterbi(model, observ)
+{
+	var numPeriods = observ.length;
+	
+	/*
+	delta_{t, i} is the maximum probability over the first t-1 states that the 
+	t(th) state is can have, given the first t-1 states and the first t-1 
+	observations and the model.	
+	*/
+	delta = new Array(numPeriods);
+	
+	for (var i = 0; i < delta.length; i++)
+	{
+		delta[i] = new Array(model.numStates);
+	}
+	
+	/*
+	First, we initialize the variables. 
+	We know that for all N states and all times before T, 
+	delta_{1, j} = initProbs_j * emissProbs_{j, observ_{1}};
+	*/
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		delta[0][i] = model.initProbs[i] * model.emissProbs[i][model.sigma.indexOf(observ[0])];
+	}
+	
+	/*
+	Now for the recursion. 
+	We know that for all N states and all times before T, 
+	delta_{t+1, j} = b_{j, observ_{t+1}} * max_{1 [<=] i [<=] N} delta_{t, i}*transProbs_{i, j}
+	*/
+	var max = 0;
+	var statePtr = new Array(numPeriods);
+	
+	for (var i = 0; i < statePtr.length; i++)
+	{
+		statePtr[i] = new Array(model.numStates);
+	}
+	
+	for (var t = 1; t <= numPeriods-1; t++)
+	{
+		for (var j = 0; j < model.numStates; j++)
+		{
+			var maxDelta = 0;
+			for (var i = 0; i < model.numStates; i++)
+			{
+				var temp = delta[t-1][i] * model.transProbs[i][j];
+				if (temp > maxDelta)
+				{
+					maxDelta = temp;
+					statePtr[t][j] = i;
+				}
+			}
+			delta[t][j] = model.emissProbs[j][model.sigma.indexOf(observ[t])] * maxDelta;
+		}
+	}
+	
+	var p_max = 0;
+	var iLast = -1;
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		if (delta[numPeriods-1][i] > p_max)
+		{
+			p_max = delta[numPeriods-1][i];
+			iLast = i;
+		}
+	}
+	
+	var sol = new Array(numPeriods);
+	sol[numPeriods-1] = iLast;
+	
+	for (t = numPeriods-2; t >= 0; t--)
+	{
+		sol[t] = statePtr[t+1][sol[t+1]];
+	}
+	
+	var ans = new Array();
+	ans[0] = delta;
+	ans[1] = sol;
+	return ans;;
+}
+
+function genDie()
+{
+	var numDie = Math.floor(Math.random()*4) + 2;
+	var likely = new Array(6*numDie);
+	
+	//First, we need to generate the die. 
+	for (var i = 0; i < numDie; i++)
+	{
+		var fair = Math.floor(Math.random()*2);
+		if (fair)
+		{
+			for (var j = 0; j < 6; j++)
+			{
+				if (j == 0)
+				{
+					likely[i*6 + j] = (1/6);
+				}
+				else
+				{
+					likely[i*6 + j] = (1/6) + likely[i*6 + j - 1];
+				}
+			}
+		}
+		else
+		{
+			var sum = 0;
+			for (var j = 0; j < 6; j++)
+			{
+				if (j == 0)
+				{
+					likely[i*6 + j] = Math.floor(Math.random()*6)+1;
+				}
+				else
+				{
+					likely[i*6 + j] = Math.floor(Math.random()*6)+1 + likely[i*6 + j-1];
+				}
+			}
+			
+			sum = likely[i*6+(j-1)];
+			
+			for (var j = 0; j < 6; j++)
+			{
+				likely[i*6+j] = likely[i*6+j] / sum;
+			}
+		}
+	}
+
+	return likely;
+}
+
+function genOutput(likely)
+{	
+	var numDie = Math.floor(likely.length / 6);
+	var roll;
+	//Next, we need to roll the die
+	var dieRolled = Math.floor(Math.random()*numDie);
+
+	var temp = Math.random();
+		
+	if (temp >= 0 && temp <= likely[dieRolled*6+0])
+	{
+		roll = 1;
+	}
+	else if (temp > likely[dieRolled*6+0] && temp <= likely[dieRolled*6+1])
+	{
+		roll = 2;
+	}
+	else if (temp > likely[dieRolled*6+1] && temp <= likely[dieRolled*6+2])
+	{
+		roll = 3;
+	}
+	else if (temp > likely[dieRolled*6+2] && temp <= likely[dieRolled*6+3])
+	{
+		roll = 4;
+	}
+	else if (temp > likely[dieRolled*6+3] && temp <= likely[dieRolled*6+4])
+	{
+		roll = 5;
+	}
+	else if (temp > likely[dieRolled*6+4] && temp <= likely[dieRolled*6+5])
+	{
+		roll = 6;		
+	}
+	
+	return roll;
+}
+
+function dispHMM(model)
+{
+	model = newHMM(die.length/6, document.getElementById('stateTrans').value, document.getElementById('emissTrans').value);
+	var text = "<table>";
+	var initMtrx = "<table>";
+	initMtrx += "<tr>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		initMtrx += "<td>" + i + "</td>";
+	}
+	initMtrx += "</tr><tr>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		initMtrx += "<td>" + model.initProbs[i].toExponential(4) + "</td>";
+	}
+	initMtrx += "</tr>";
+	initMtrx += "</table>";
+	
+	var transMtrx = "<table>";
+	transMtrx += "<tr><td></td>";
+    for (var j = 0; j < model.numStates; j++)
+    {
+        transMtrx += "<td>" + j + "</td>";
+    }
+    transMtrx += "</tr>";
+
+    var emissMtrx = "<table>";
+	emissMtrx += "<tr><td></td>";
+    for (var j = 0; j < model.sigma.length; j++)
+    {
+        emissMtrx += "<td>" + model.sigma[j] + "</td>";
+    }
+    emissMtrx += "</tr>";
+    
+    for (var i = 0; i < model.numStates; i++)
+    {
+		transMtrx += "<tr><td>" + i + "</td>";
+        for (var j = 0; j < model.numStates; j++)
+        {
+            transMtrx += "<td>" + model.transProbs[i][j].toExponential(4) + "</td>";
+        }
+        transMtrx += "</tr>";
+
+		emissMtrx += "<tr><td>" + i + "</td>";
+        for (var j = 0; j < model.sigma.length; j++)
+        {
+            emissMtrx += "<td>" + model.emissProbs[i][j].toExponential(4) + "</td>";
+        }
+        emissMtrx += "</tr>"; 
+    }
+
+	transMtrx += "</table>";
+	emissMtrx += "</table>";
+
+	text += "<tr><td>Initial Probabilities</td><td>" + initMtrx + "</td></tr><tr><td>Transition Matrix</td><td>" + transMtrx + "</td></tr><tr><td>Emission Matrix</td><td>" + emissMtrx + "</td></tr></table>";
+	
+	document.getElementById("output").innerHTML = text;
+}
+
+function dispRolls(roll)
+{
+	for (var j = 0; j < roll.length; j++)
+	{
+		document.getElementById("input").innerHTML += roll[j];
+		if (j < roll.length - 1)
+		{
+			document.getElementById("input").innerHTML += ", ";
+		}
+	}
+	document.getElementById("input").innerHTML += "<br>";
+}
+
+function postProcess()
+{
+	model = newHMM(die.length/6, document.getElementById('stateTrans').value, document.getElementById('emissTrans').value);
+	var ans = Viterbi(model, roll);
+	var vitSteps = ans[0];
+	var vitAns = ans[1];
+	
+	document.getElementById("output").innerHTML += "The result of the Viterbi Algorithm is: <br>";
+
+	var text = "<table><tr><td></td>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		text += "<td>" + i + "</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < vitSteps.length; i++)
+	{
+		text += "<tr><td>" + eval("i+1") + "</td>";
+		for (var j = 0; j < vitSteps[i].length; j++)
+		{
+			text += "<td>" + vitSteps[i][j].toExponential(4) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	text += "The most likely sequence of states that would have generated this output is " + vitAns + "<br>";
+	
+	document.getElementById("output").innerHTML = text;	
+}
+
+function init()
+{
+	document.getElementById("input").innerHTML = ""; 
+	var die = genDie();
+	var numPeriods = Math.floor(Math.random()*20)+5;
+	var roll = new Array();
+	for (var i = 0; i < numPeriods; i++)
+	{
+		roll[i] = genOutput(die);
+	}
+	var ans = new Array();
+	
+	document.getElementById("input").innerHTML += "Assume the casino has " + (die.length/6) + " different die. You are interested in determining the weights of the different die as well as how often the casino changes die. "
+	document.getElementById("input").innerHTML += "To help answer this question, you constructed 9 Hidden Markov Models, with each state corresponding to the likelihood that the casino used a given dice. <br>";
+	document.getElementById("input").innerHTML += "Each of these models has its own set of transition probabilities between states and its own set of emission probabilities. <br>";
+	document.getElementById("input").innerHTML += "There were " + numPeriods + " rolls that went as follows.<br>";
+	dispRolls(roll);
+	document.getElementById("input").innerHTML += "Which model do you think generated this set of rolls? ";
+	ans[0] = die;
+	ans[1] = numPeriods;
+	ans[2] = roll;
+
+	return ans;
+}
+
+</script>
+<h3><center></center></h3>
+<p><p>Given an output sequence and a Hidden Markov Model, the Viterbi algorithm 
+determines the most likely sequence of hidden states that the given model 
+would travel through to generate the observation sequence. It does so by 
+building a matrix of probabilities starting with the initial probabilities that
+each state would output each observation. The likelihood that a state 
+emits the next output symbol is then equal to the emission probability of that
+state, output symbol pair times the most likely sequence to that state. </p>
+<p>To implement this algorithm, I'll use the example of a dice roller who 
+claims to have fair die. Given a sequence of observations we will consider a 
+few HMMs to see the probability that the sequence we observe was generated by 
+fair die vs loaded die. </p></p>
+<p id="input" name="input"></p>
+<script type="text/javascript">
+var ans = init();
+var die = ans[0];
+var numPeriods = ans[1];
+var roll = ans[2];
+var model;
+</script>
+<form>
+<select name="stateTrans" id="stateTrans">
+<option value="0">Dealer Repeatedly Uses Same Dice</option>
+<option value="1">Dealer Uniformly Changes Die</option>
+<option value="2">Dealer Rarely Uses Same Dice</option>
+</select>
+
+<select name="emissTrans" id="emissTrans">
+<option value="0">Larger Numbers Are More Likely</option>
+<option value="1">All Numbers Are Randomly Likely</option>
+<option value="2">Smaller Numbers Are More Likely</option>
+</select>
+<input type="button" value="Submit" onclick="postProcess()" name="Create" id="Create"><br>
+<input type="button" value="Display Model" onclick="dispHMM(model)" name="Create" id="Create">
+<input type="button" value="New Problem" onclick="ans = init(); die = ans[0]; numPeriods = ans[1]; roll = ans[2]; document.getElementById('output').innerHTML = ''" name="Create" id="Create">
+</form>
+<p id="output" name="output"></p>

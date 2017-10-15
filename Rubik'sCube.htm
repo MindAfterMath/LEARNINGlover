@@ -1,0 +1,704 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+Rubik'sCube<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 3em;
+	height: 3em;
+}
+</style>
+<script type="text/javascript">
+function getCube()
+{
+	cube = new Object();
+	cube.topFrontLeft = new Object();
+	cube.topFrontLeft.top = document.getElementById("topFL").value;
+	cube.topFrontLeft.front = document.getElementById("frontTL").value;
+	cube.topFrontLeft.left = document.getElementById("leftTF").value;
+    cube.topFrontRight = new Object();
+	cube.topFrontRight.top = document.getElementById("topFR").value;
+	cube.topFrontRight.front = document.getElementById("frontTR").value;
+	cube.topFrontRight.right = document.getElementById("rightTF").value;
+    cube.topBackLeft = new Object();
+	cube.topBackLeft.top = document.getElementById("topBL").value;
+	cube.topBackLeft.back = document.getElementById("backTL").value;
+	cube.topBackLeft.left = document.getElementById("leftTB").value;
+    cube.topBackRight = new Object();
+	cube.topBackRight.top = document.getElementById("topBR").value;
+	cube.topBackRight.back = document.getElementById("backTR").value;
+	cube.topBackRight.right = document.getElementById("rightTB").value;
+    cube.topFront = new Object();
+	cube.topFront.top = document.getElementById("topFM").value;
+	cube.topFront.front = document.getElementById("frontTM").value;
+    cube.topLeft = new Object();
+	cube.topLeft.top = document.getElementById("topML").value;
+	cube.topLeft.left = document.getElementById("leftTM").value;
+    cube.topRight = new Object();
+	cube.topRight.top = document.getElementById("topMR").value;
+	cube.topRight.right = document.getElementById("rightTM").value;
+    cube.topBack = new Object();
+	cube.topBack.top = document.getElementById("topBM").value;
+	cube.topBack.back = document.getElementById("backTM").value;
+    cube.topCen = document.getElementById("topMM").value;
+    cube.midFrontCen = document.getElementById("frontMM").value;
+    cube.midLeftCen = document.getElementById("leftMM").value;
+    cube.midRightCen = document.getElementById("rightMM").value;
+    cube.midBackCen = document.getElementById("backMM").value;
+    cube.midFrontLeft = new Object();
+	cube.midFrontLeft.front = document.getElementById("frontML").value;
+	cube.midFrontLeft.left = document.getElementById("leftMF").value;
+    cube.midFrontRight = new Object();
+	cube.midFrontRight.front = document.getElementById("frontMR").value;
+	cube.midFrontRight.right = document.getElementById("rightMF").value;
+    cube.midBackLeft = new Object();
+	cube.midBackLeft.back = document.getElementById("backML").value;
+	cube.midBackLeft.left = document.getElementById("leftMB").value;
+    cube.midBackRight = new Object();
+	cube.midBackRight.back = document.getElementById("backMR").value;
+	cube.midBackRight.right = document.getElementById("rightMB").value;
+    cube.botFrontLeft = new Object();
+	cube.botFrontLeft.bot = document.getElementById("botFL").value;
+	cube.botFrontLeft.front = document.getElementById("frontBL").value;
+	cube.botFrontLeft.left = document.getElementById("leftBF").value;
+    cube.botFrontRight = new Object();
+	cube.botFrontRight.bot = document.getElementById("botFR").value;
+	cube.botFrontRight.front = document.getElementById("frontBR").value;
+	cube.botFrontRight.right = document.getElementById("rightBF").value;
+    cube.botBackLeft = new Object();
+	cube.botBackLeft.bot = document.getElementById("botBL").value;
+	cube.botBackLeft.back = document.getElementById("backBL").value;
+	cube.botBackLeft.left = document.getElementById("leftBB").value;
+    cube.botBackRight = new Object();
+	cube.botBackRight.bot = document.getElementById("botBR").value;
+	cube.botBackRight.back = document.getElementById("backBR").value;
+	cube.botBackRight.right = document.getElementById("rightBB").value;
+    cube.botFront = new Object();
+	cube.botFront.bot = document.getElementById("botFM").value;
+	cube.botFront.front = document.getElementById("frontBM").value;
+    cube.botLeft = new Object();
+	cube.botLeft.bot = document.getElementById("botML").value;
+	cube.botLeft.left = document.getElementById("leftBM").value;
+    cube.botRight = new Object();
+	cube.botRight.bot = document.getElementById("botMR").value;
+	cube.botRight.right = document.getElementById("rightBM").value;
+    cube.botBack = new Object();
+	cube.botBack.bot = document.getElementById("botBM").value;
+	cube.botBack.back = document.getElementById("backBM").value;
+}
+
+function chColor(id)
+{
+	if (document.getElementById(id).style.background == "#FF0000" || 
+		document.getElementById(id).style.background == "rgb(255, 0, 0)" || 
+		document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)" ||
+		document.getElementById(id).style.background == "rgb(255, 0, 0) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#0000FF";
+	}
+	else if (document.getElementById(id).style.background == "#0000FF" || 
+			 document.getElementById(id).style.background == "rgb(0, 0, 255)" || 
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 0, 255)" ||
+			 document.getElementById(id).style.background == "rgb(0, 0, 255) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#FFFF00";
+	}
+	else if (document.getElementById(id).style.background == "#FFFF00" || 
+			 document.getElementById(id).style.background == "rgb(255, 255, 0)" || 
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 255, 0)" ||
+			 document.getElementById(id).style.background == "rgb(255, 255, 0) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#00FF00";
+	}
+	else if (document.getElementById(id).style.background == "#00FF00" || 
+			 document.getElementById(id).style.background == "rgb(0, 255, 0)" || 
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 255, 0)" ||
+			 document.getElementById(id).style.background == "rgb(0, 255, 0) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#FF7F00";
+	}
+	else if (document.getElementById(id).style.background == "#FF7F00" || 
+			 document.getElementById(id).style.background == "rgb(255, 127, 0)" || 
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 127, 0)" ||
+			 document.getElementById(id).style.background == "rgb(255, 127, 0) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#FFFFFF";
+	}
+	else if (document.getElementById(id).style.background == "#FFFFFF" || 
+			 document.getElementById(id).style.background == "rgb(255, 255, 255)" || 
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 255, 255)" ||
+			 document.getElementById(id).style.background == "rgb(255, 255, 255) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#FF0000";
+	}
+}
+
+function buildCube()
+{
+	var text = "<center>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td></td>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"topBL\")' id='topBL'></td>";
+	text += "<td class='c' onclick='chColor(\"topBM\")' id='topBM'></td>";
+	text += "<td class='c' onclick='chColor(\"topBR\")' id='topBR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"topML\")' id='topML'></td>";
+	text += "<td class='c' onclick='chColor(\"topMM\")' id='topMM'></td>";
+	text += "<td class='c' onclick='chColor(\"topMR\")' id='topMR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"topFL\")' id='topFL'></td>";
+	text += "<td class='c' onclick='chColor(\"topFM\")' id='topFM'></td>";
+	text += "<td class='c' onclick='chColor(\"topFR\")' id='topFR'></td>";
+	text += "</tr>";
+	text += "</table>";
+ 	text += "</td>";
+	text += "<td></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"leftTB\")' id='leftTB'></td>";
+	text += "<td class='c' onclick='chColor(\"leftTM\")' id='leftTM'></td>";
+	text += "<td class='c' onclick='chColor(\"leftTF\")' id='leftTF'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"leftMB\")' id='leftMB'></td>";
+	text += "<td class='c' onclick='chColor(\"leftMM\")' id='leftMM'></td>";
+	text += "<td class='c' onclick='chColor(\"leftMF\")' id='leftMF'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"leftBB\")' id='leftBB'></td>";
+	text += "<td class='c' onclick='chColor(\"leftBM\")' id='leftBM'></td>";
+	text += "<td class='c' onclick='chColor(\"leftBF\")' id='leftBF'></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</td>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"frontTL\")' id='frontTL'></td>";
+	text += "<td class='c' onclick='chColor(\"frontTM\")' id='frontTM'></td>";
+	text += "<td class='c' onclick='chColor(\"frontTR\")' id='frontTR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"frontML\")' id='frontML'></td>";
+	text += "<td class='c' onclick='chColor(\"frontMM\")' id='frontMM'></td>";
+	text += "<td class='c' onclick='chColor(\"frontMR\")' id='frontMR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"frontBL\")' id='frontBL'></td>";
+	text += "<td class='c' onclick='chColor(\"frontBM\")' id='frontBM'></td>";
+	text += "<td class='c' onclick='chColor(\"frontBR\")' id='frontBR'></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</td>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"rightTF\")' id='rightTF'></td>";
+	text += "<td class='c' onclick='chColor(\"rightTM\")' id='rightTM'></td>";
+	text += "<td class='c' onclick='chColor(\"rightTB\")' id='rightTB'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"rightMF\")' id='rightMF'></td>";
+	text += "<td class='c' onclick='chColor(\"rightMM\")' id='rightMM'></td>";
+	text += "<td class='c' onclick='chColor(\"rightMB\")' id='rightMB'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"rightBF\")' id='rightBF'></td>";
+	text += "<td class='c' onclick='chColor(\"rightBM\")' id='rightBM'></td>";
+	text += "<td class='c' onclick='chColor(\"rightBB\")' id='rightBB'></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td></td>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"botFL\")' id='botFL'></td>";
+	text += "<td class='c' onclick='chColor(\"botFM\")' id='botFM'></td>";
+	text += "<td class='c' onclick='chColor(\"botFR\")' id='botFR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"botML\")' id='botML'></td>";
+	text += "<td class='c' onclick='chColor(\"botMM\")' id='botMM'></td>";
+	text += "<td class='c' onclick='chColor(\"botMR\")' id='botMR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"botBL\")' id='botBL'></td>";
+	text += "<td class='c' onclick='chColor(\"botBM\")' id='botBM'></td>";
+	text += "<td class='c' onclick='chColor(\"botBR\")' id='botBR'></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</td>";
+	text += "<td></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td></td>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"backBL\")' id='backBL'></td>";
+	text += "<td class='c' onclick='chColor(\"backBM\")' id='backBM'></td>";
+	text += "<td class='c' onclick='chColor(\"backBR\")' id='backBR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"backML\")' id='backML'></td>";
+	text += "<td class='c' onclick='chColor(\"backMM\")' id='backMM'></td>";
+	text += "<td class='c' onclick='chColor(\"backMR\")' id='backMR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"backTL\")' id='backTL'></td>";
+	text += "<td class='c' onclick='chColor(\"backTM\")' id='backTM'></td>";
+	text += "<td class='c' onclick='chColor(\"backTR\")' id='backTR'></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</td>";
+	text += "<td></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</center>";
+	
+	document.getElementById("output").innerHTML = text;
+
+	document.getElementById("topBL").style.background = "#FFFFFF";
+	document.getElementById("topBM").style.background = "#FFFFFF";
+	document.getElementById("topBR").style.background = "#FFFFFF";
+	document.getElementById("topML").style.background = "#FFFFFF";
+	document.getElementById("topMM").style.background = "#FFFFFF";
+	document.getElementById("topMR").style.background = "#FFFFFF";
+	document.getElementById("topFL").style.background = "#FFFFFF";
+	document.getElementById("topFM").style.background = "#FFFFFF";
+	document.getElementById("topFR").style.background = "#FFFFFF";
+	
+	document.getElementById("leftTB").style.background = "#FF0000";
+	document.getElementById("leftTM").style.background = "#FF0000";
+	document.getElementById("leftTF").style.background = "#FF0000";
+	document.getElementById("leftMB").style.background = "#FF0000";
+	document.getElementById("leftMM").style.background = "#FF0000";
+	document.getElementById("leftMF").style.background = "#FF0000";
+	document.getElementById("leftBB").style.background = "#FF0000";
+	document.getElementById("leftBM").style.background = "#FF0000";
+	document.getElementById("leftBF").style.background = "#FF0000";
+	
+	document.getElementById("frontTL").style.background = "#0000FF";
+	document.getElementById("frontTM").style.background = "#0000FF";
+	document.getElementById("frontTR").style.background = "#0000FF";
+	document.getElementById("frontML").style.background = "#0000FF";
+	document.getElementById("frontMM").style.background = "#0000FF";
+	document.getElementById("frontMR").style.background = "#0000FF";
+	document.getElementById("frontBL").style.background = "#0000FF";
+	document.getElementById("frontBM").style.background = "#0000FF";
+	document.getElementById("frontBR").style.background = "#0000FF";
+	
+	document.getElementById("rightTF").style.background = "#FF7F00";
+	document.getElementById("rightTM").style.background = "#FF7F00";
+	document.getElementById("rightTB").style.background = "#FF7F00";
+	document.getElementById("rightMF").style.background = "#FF7F00";
+	document.getElementById("rightMM").style.background = "#FF7F00";
+	document.getElementById("rightMB").style.background = "#FF7F00";
+	document.getElementById("rightBF").style.background = "#FF7F00";
+	document.getElementById("rightBM").style.background = "#FF7F00";
+	document.getElementById("rightBB").style.background = "#FF7F00";
+	
+	document.getElementById("botFL").style.background = "#FFFF00";
+	document.getElementById("botFM").style.background = "#FFFF00";
+	document.getElementById("botFR").style.background = "#FFFF00";
+	document.getElementById("botML").style.background = "#FFFF00";
+	document.getElementById("botMM").style.background = "#FFFF00";
+	document.getElementById("botMR").style.background = "#FFFF00";
+	document.getElementById("botBL").style.background = "#FFFF00";
+	document.getElementById("botBM").style.background = "#FFFF00";
+	document.getElementById("botBR").style.background = "#FFFF00";
+	
+	document.getElementById("backBL").style.background = "#00FF00";
+	document.getElementById("backBM").style.background = "#00FF00";
+	document.getElementById("backBR").style.background = "#00FF00";
+	document.getElementById("backML").style.background = "#00FF00";
+	document.getElementById("backMM").style.background = "#00FF00";
+	document.getElementById("backMR").style.background = "#00FF00";
+	document.getElementById("backTL").style.background = "#00FF00";
+	document.getElementById("backTM").style.background = "#00FF00";
+	document.getElementById("backTR").style.background = "#00FF00";
+}
+
+function dispMoves()
+{
+	var text = "<center>";
+	text += "<table>";
+	text += "<tr><td></td><td><input type='button' onclick='topLeft()' value='Top Left'><input type='button' onclick='topRight()' value='Top Right'></td><td></td></tr>";
+	text += "<tr><td><input type='button' onclick='leftUp()' value='Left Up'></td><td><input type='button' onclick='frontCW()' value='Front CW'><input type='button' onclick='frontCCW()' value='Front CCW'></td><td><input type='button' onclick='rightUp()' value='Right Up'></td></tr>";
+	text += "<tr><td><input type='button' onclick='leftDown()' value='Left Down'></td><td><input type='button' onclick='backCW()' value='Back CW'><input type='button' onclick='backCCW()' value='Back CCW'></td><td><input type='button' onclick='rightDown()' value='Right Down'></td></tr>";
+	text += "<tr><td></td><td><input type='button' onclick='botLeft()' value='Bottom Left'><input type='button' onclick='botRight()' value='Bottom Right'></td><td></td></tr>"
+	text += "</table>";
+	text += "</center>";
+	
+	document.getElementById("output").innerHTML += text;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+
+<title> at LEARNINGlover.com</title>
+<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 3em;
+	height: 3em;
+}
+</style>
+<script type="text/javascript">
+function getCube()
+{
+	cube = new Object();
+	cube.topFrontLeft = new Object();
+	cube.topFrontLeft.top = document.getElementById("topFL").value;
+	cube.topFrontLeft.front = document.getElementById("frontTL").value;
+	cube.topFrontLeft.left = document.getElementById("leftTF").value;
+    cube.topFrontRight = new Object();
+	cube.topFrontRight.top = document.getElementById("topFR").value;
+	cube.topFrontRight.front = document.getElementById("frontTR").value;
+	cube.topFrontRight.right = document.getElementById("rightTF").value;
+    cube.topBackLeft = new Object();
+	cube.topBackLeft.top = document.getElementById("topBL").value;
+	cube.topBackLeft.back = document.getElementById("backTL").value;
+	cube.topBackLeft.left = document.getElementById("leftTB").value;
+    cube.topBackRight = new Object();
+	cube.topBackRight.top = document.getElementById("topBR").value;
+	cube.topBackRight.back = document.getElementById("backTR").value;
+	cube.topBackRight.right = document.getElementById("rightTB").value;
+    cube.topFront = new Object();
+	cube.topFront.top = document.getElementById("topFM").value;
+	cube.topFront.front = document.getElementById("frontTM").value;
+    cube.topLeft = new Object();
+	cube.topLeft.top = document.getElementById("topML").value;
+	cube.topLeft.left = document.getElementById("leftTM").value;
+    cube.topRight = new Object();
+	cube.topRight.top = document.getElementById("topMR").value;
+	cube.topRight.right = document.getElementById("rightTM").value;
+    cube.topBack = new Object();
+	cube.topBack.top = document.getElementById("topBM").value;
+	cube.topBack.back = document.getElementById("backTM").value;
+    cube.topCen = document.getElementById("topMM").value;
+    cube.midFrontCen = document.getElementById("frontMM").value;
+    cube.midLeftCen = document.getElementById("leftMM").value;
+    cube.midRightCen = document.getElementById("rightMM").value;
+    cube.midBackCen = document.getElementById("backMM").value;
+    cube.midFrontLeft = new Object();
+	cube.midFrontLeft.front = document.getElementById("frontML").value;
+	cube.midFrontLeft.left = document.getElementById("leftMF").value;
+    cube.midFrontRight = new Object();
+	cube.midFrontRight.front = document.getElementById("frontMR").value;
+	cube.midFrontRight.right = document.getElementById("rightMF").value;
+    cube.midBackLeft = new Object();
+	cube.midBackLeft.back = document.getElementById("backML").value;
+	cube.midBackLeft.left = document.getElementById("leftMB").value;
+    cube.midBackRight = new Object();
+	cube.midBackRight.back = document.getElementById("backMR").value;
+	cube.midBackRight.right = document.getElementById("rightMB").value;
+    cube.botFrontLeft = new Object();
+	cube.botFrontLeft.bot = document.getElementById("botFL").value;
+	cube.botFrontLeft.front = document.getElementById("frontBL").value;
+	cube.botFrontLeft.left = document.getElementById("leftBF").value;
+    cube.botFrontRight = new Object();
+	cube.botFrontRight.bot = document.getElementById("botFR").value;
+	cube.botFrontRight.front = document.getElementById("frontBR").value;
+	cube.botFrontRight.right = document.getElementById("rightBF").value;
+    cube.botBackLeft = new Object();
+	cube.botBackLeft.bot = document.getElementById("botBL").value;
+	cube.botBackLeft.back = document.getElementById("backBL").value;
+	cube.botBackLeft.left = document.getElementById("leftBB").value;
+    cube.botBackRight = new Object();
+	cube.botBackRight.bot = document.getElementById("botBR").value;
+	cube.botBackRight.back = document.getElementById("backBR").value;
+	cube.botBackRight.right = document.getElementById("rightBB").value;
+    cube.botFront = new Object();
+	cube.botFront.bot = document.getElementById("botFM").value;
+	cube.botFront.front = document.getElementById("frontBM").value;
+    cube.botLeft = new Object();
+	cube.botLeft.bot = document.getElementById("botML").value;
+	cube.botLeft.left = document.getElementById("leftBM").value;
+    cube.botRight = new Object();
+	cube.botRight.bot = document.getElementById("botMR").value;
+	cube.botRight.right = document.getElementById("rightBM").value;
+    cube.botBack = new Object();
+	cube.botBack.bot = document.getElementById("botBM").value;
+	cube.botBack.back = document.getElementById("backBM").value;
+}
+
+function chColor(id)
+{
+	if (document.getElementById(id).style.background == "#FF0000" || 
+		document.getElementById(id).style.background == "rgb(255, 0, 0)" || 
+		document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)" ||
+		document.getElementById(id).style.background == "rgb(255, 0, 0) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#0000FF";
+	}
+	else if (document.getElementById(id).style.background == "#0000FF" || 
+			 document.getElementById(id).style.background == "rgb(0, 0, 255)" || 
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 0, 255)" ||
+			 document.getElementById(id).style.background == "rgb(0, 0, 255) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#FFFF00";
+	}
+	else if (document.getElementById(id).style.background == "#FFFF00" || 
+			 document.getElementById(id).style.background == "rgb(255, 255, 0)" || 
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 255, 0)" ||
+			 document.getElementById(id).style.background == "rgb(255, 255, 0) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#00FF00";
+	}
+	else if (document.getElementById(id).style.background == "#00FF00" || 
+			 document.getElementById(id).style.background == "rgb(0, 255, 0)" || 
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 255, 0)" ||
+			 document.getElementById(id).style.background == "rgb(0, 255, 0) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#FF7F00";
+	}
+	else if (document.getElementById(id).style.background == "#FF7F00" || 
+			 document.getElementById(id).style.background == "rgb(255, 127, 0)" || 
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 127, 0)" ||
+			 document.getElementById(id).style.background == "rgb(255, 127, 0) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#FFFFFF";
+	}
+	else if (document.getElementById(id).style.background == "#FFFFFF" || 
+			 document.getElementById(id).style.background == "rgb(255, 255, 255)" || 
+			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 255, 255)" ||
+			 document.getElementById(id).style.background == "rgb(255, 255, 255) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#FF0000";
+	}
+}
+
+function buildCube()
+{
+	var text = "<center>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td></td>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"topBL\")' id='topBL'></td>";
+	text += "<td class='c' onclick='chColor(\"topBM\")' id='topBM'></td>";
+	text += "<td class='c' onclick='chColor(\"topBR\")' id='topBR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"topML\")' id='topML'></td>";
+	text += "<td class='c' onclick='chColor(\"topMM\")' id='topMM'></td>";
+	text += "<td class='c' onclick='chColor(\"topMR\")' id='topMR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"topFL\")' id='topFL'></td>";
+	text += "<td class='c' onclick='chColor(\"topFM\")' id='topFM'></td>";
+	text += "<td class='c' onclick='chColor(\"topFR\")' id='topFR'></td>";
+	text += "</tr>";
+	text += "</table>";
+ 	text += "</td>";
+	text += "<td></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"leftTB\")' id='leftTB'></td>";
+	text += "<td class='c' onclick='chColor(\"leftTM\")' id='leftTM'></td>";
+	text += "<td class='c' onclick='chColor(\"leftTF\")' id='leftTF'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"leftMB\")' id='leftMB'></td>";
+	text += "<td class='c' onclick='chColor(\"leftMM\")' id='leftMM'></td>";
+	text += "<td class='c' onclick='chColor(\"leftMF\")' id='leftMF'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"leftBB\")' id='leftBB'></td>";
+	text += "<td class='c' onclick='chColor(\"leftBM\")' id='leftBM'></td>";
+	text += "<td class='c' onclick='chColor(\"leftBF\")' id='leftBF'></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</td>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"frontTL\")' id='frontTL'></td>";
+	text += "<td class='c' onclick='chColor(\"frontTM\")' id='frontTM'></td>";
+	text += "<td class='c' onclick='chColor(\"frontTR\")' id='frontTR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"frontML\")' id='frontML'></td>";
+	text += "<td class='c' onclick='chColor(\"frontMM\")' id='frontMM'></td>";
+	text += "<td class='c' onclick='chColor(\"frontMR\")' id='frontMR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"frontBL\")' id='frontBL'></td>";
+	text += "<td class='c' onclick='chColor(\"frontBM\")' id='frontBM'></td>";
+	text += "<td class='c' onclick='chColor(\"frontBR\")' id='frontBR'></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</td>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"rightTF\")' id='rightTF'></td>";
+	text += "<td class='c' onclick='chColor(\"rightTM\")' id='rightTM'></td>";
+	text += "<td class='c' onclick='chColor(\"rightTB\")' id='rightTB'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"rightMF\")' id='rightMF'></td>";
+	text += "<td class='c' onclick='chColor(\"rightMM\")' id='rightMM'></td>";
+	text += "<td class='c' onclick='chColor(\"rightMB\")' id='rightMB'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"rightBF\")' id='rightBF'></td>";
+	text += "<td class='c' onclick='chColor(\"rightBM\")' id='rightBM'></td>";
+	text += "<td class='c' onclick='chColor(\"rightBB\")' id='rightBB'></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td></td>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"botFL\")' id='botFL'></td>";
+	text += "<td class='c' onclick='chColor(\"botFM\")' id='botFM'></td>";
+	text += "<td class='c' onclick='chColor(\"botFR\")' id='botFR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"botML\")' id='botML'></td>";
+	text += "<td class='c' onclick='chColor(\"botMM\")' id='botMM'></td>";
+	text += "<td class='c' onclick='chColor(\"botMR\")' id='botMR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"botBL\")' id='botBL'></td>";
+	text += "<td class='c' onclick='chColor(\"botBM\")' id='botBM'></td>";
+	text += "<td class='c' onclick='chColor(\"botBR\")' id='botBR'></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</td>";
+	text += "<td></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td></td>";
+	text += "<td>";
+	text += "<table>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"backBL\")' id='backBL'></td>";
+	text += "<td class='c' onclick='chColor(\"backBM\")' id='backBM'></td>";
+	text += "<td class='c' onclick='chColor(\"backBR\")' id='backBR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"backML\")' id='backML'></td>";
+	text += "<td class='c' onclick='chColor(\"backMM\")' id='backMM'></td>";
+	text += "<td class='c' onclick='chColor(\"backMR\")' id='backMR'></td>";
+	text += "</tr>";
+	text += "<tr>";
+	text += "<td class='c' onclick='chColor(\"backTL\")' id='backTL'></td>";
+	text += "<td class='c' onclick='chColor(\"backTM\")' id='backTM'></td>";
+	text += "<td class='c' onclick='chColor(\"backTR\")' id='backTR'></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</td>";
+	text += "<td></td>";
+	text += "</tr>";
+	text += "</table>";
+	text += "</center>";
+	
+	document.getElementById("output").innerHTML = text;
+
+	document.getElementById("topBL").style.background = "#FFFFFF";
+	document.getElementById("topBM").style.background = "#FFFFFF";
+	document.getElementById("topBR").style.background = "#FFFFFF";
+	document.getElementById("topML").style.background = "#FFFFFF";
+	document.getElementById("topMM").style.background = "#FFFFFF";
+	document.getElementById("topMR").style.background = "#FFFFFF";
+	document.getElementById("topFL").style.background = "#FFFFFF";
+	document.getElementById("topFM").style.background = "#FFFFFF";
+	document.getElementById("topFR").style.background = "#FFFFFF";
+	
+	document.getElementById("leftTB").style.background = "#FF0000";
+	document.getElementById("leftTM").style.background = "#FF0000";
+	document.getElementById("leftTF").style.background = "#FF0000";
+	document.getElementById("leftMB").style.background = "#FF0000";
+	document.getElementById("leftMM").style.background = "#FF0000";
+	document.getElementById("leftMF").style.background = "#FF0000";
+	document.getElementById("leftBB").style.background = "#FF0000";
+	document.getElementById("leftBM").style.background = "#FF0000";
+	document.getElementById("leftBF").style.background = "#FF0000";
+	
+	document.getElementById("frontTL").style.background = "#0000FF";
+	document.getElementById("frontTM").style.background = "#0000FF";
+	document.getElementById("frontTR").style.background = "#0000FF";
+	document.getElementById("frontML").style.background = "#0000FF";
+	document.getElementById("frontMM").style.background = "#0000FF";
+	document.getElementById("frontMR").style.background = "#0000FF";
+	document.getElementById("frontBL").style.background = "#0000FF";
+	document.getElementById("frontBM").style.background = "#0000FF";
+	document.getElementById("frontBR").style.background = "#0000FF";
+	
+	document.getElementById("rightTF").style.background = "#FF7F00";
+	document.getElementById("rightTM").style.background = "#FF7F00";
+	document.getElementById("rightTB").style.background = "#FF7F00";
+	document.getElementById("rightMF").style.background = "#FF7F00";
+	document.getElementById("rightMM").style.background = "#FF7F00";
+	document.getElementById("rightMB").style.background = "#FF7F00";
+	document.getElementById("rightBF").style.background = "#FF7F00";
+	document.getElementById("rightBM").style.background = "#FF7F00";
+	document.getElementById("rightBB").style.background = "#FF7F00";
+	
+	document.getElementById("botFL").style.background = "#FFFF00";
+	document.getElementById("botFM").style.background = "#FFFF00";
+	document.getElementById("botFR").style.background = "#FFFF00";
+	document.getElementById("botML").style.background = "#FFFF00";
+	document.getElementById("botMM").style.background = "#FFFF00";
+	document.getElementById("botMR").style.background = "#FFFF00";
+	document.getElementById("botBL").style.background = "#FFFF00";
+	document.getElementById("botBM").style.background = "#FFFF00";
+	document.getElementById("botBR").style.background = "#FFFF00";
+	
+	document.getElementById("backBL").style.background = "#00FF00";
+	document.getElementById("backBM").style.background = "#00FF00";
+	document.getElementById("backBR").style.background = "#00FF00";
+	document.getElementById("backML").style.background = "#00FF00";
+	document.getElementById("backMM").style.background = "#00FF00";
+	document.getElementById("backMR").style.background = "#00FF00";
+	document.getElementById("backTL").style.background = "#00FF00";
+	document.getElementById("backTM").style.background = "#00FF00";
+	document.getElementById("backTR").style.background = "#00FF00";
+}
+
+function dispMoves()
+{
+	var text = "<center>";
+	text += "<table>";
+	text += "<tr><td></td><td><input type='button' onclick='topLeft()' value='Top Left'><input type='button' onclick='topRight()' value='Top Right'></td><td></td></tr>";
+	text += "<tr><td><input type='button' onclick='leftUp()' value='Left Up'></td><td><input type='button' onclick='frontCW()' value='Front CW'><input type='button' onclick='frontCCW()' value='Front CCW'></td><td><input type='button' onclick='rightUp()' value='Right Up'></td></tr>";
+	text += "<tr><td><input type='button' onclick='leftDown()' value='Left Down'></td><td><input type='button' onclick='backCW()' value='Back CW'><input type='button' onclick='backCCW()' value='Back CCW'></td><td><input type='button' onclick='rightDown()' value='Right Down'></td></tr>";
+	text += "<tr><td></td><td><input type='button' onclick='botLeft()' value='Bottom Left'><input type='button' onclick='botRight()' value='Bottom Right'></td><td></td></tr>"
+	text += "</table>";
+	text += "</center>";
+	
+	document.getElementById("output").innerHTML += text;
+}
+</script>
+<h3><center></center></h3>
+<p>This is a script to let users play with and solve the Rubik's Cube. It is still a work in progress, but hopefully I can use the ideas from 3 x 3 x 3 to solve the 4 x 4 x 4. </p>
+<p id="output"></p>
+<input type="button" onclick="getCube()" value='Submit'>
+<script type="text/javascript">
+var cube;
+buildCube();
+dispMoves();
+</script>

@@ -1,0 +1,427 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+Permutations<script type="text/javascript">
+function randPerm(str)
+{
+	var arr = new Array();
+	var ans = new Array();
+	for (var i = 0; i < str.length; i++)
+		arr[i] = i;
+		
+	do
+	{
+		var loc = Math.floor(Math.random()*arr.length);
+		ans[str.length - arr.length] = str[arr[loc]];
+		arr[loc] = arr[arr.length-1];
+		arr.length--;
+	}
+	while (arr.length > 0);
+	
+	return ans;
+}
+
+function prevPerm(str)
+{
+	var j; 
+	for (var j = str.length-2; j >= 0 && str[j].value <= str[j+1].value ; j--)
+	{}
+		
+	if (j == -1)
+	{
+		var temp;
+		for (var i = 0; i < str.length/2; i++)
+		{
+			temp = str[i];
+			str[i] = str[str.length-i-1];
+			str[str.length-i-1] = temp;
+		}
+	}
+	else
+	{
+		var max = -1, k;
+		for (var k = j + 1; k < str.length; k++)
+		{
+			if (max == -1 || (str[k].value > str[max].value && str[k].value < str[j].value))
+				max = k;
+		}
+
+		var temp = str[max];
+		str[max] = str[j];
+		str[j] = temp;
+		
+		var k1, k2, min;
+		for (k1 = j + 1; k1 < str.length;  k1++)
+		{
+			min = -1;
+			for (k2 = k1; k2 < str.length;  k2++)
+				if (min == -1 || str[k2].value > str[min].value)
+					min = k2;
+
+			if (k1 > min && min > -1 && min < str.length )
+			{
+				temp = str[min];
+				str[min] = str[k1];
+				str[k1] = temp;
+			}
+		}
+	}
+	
+	return str;
+}
+
+function nextPerm(str)
+{
+	var j; 
+	for (var j = str.length-2; j >= 0 && str[j].value >= str[j+1].value ; j--)
+	{}
+		
+	if (j == -1)
+	{
+		var temp;
+		for (var i = 0; i < str.length/2; i++)
+		{
+			temp = str[i];
+			str[i] = str[str.length-i-1];
+			str[str.length-i-1] = temp;
+		}
+	}
+	else
+	{
+		var min = -1, k;
+		for (var k = j + 1; k < str.length; k++)
+		{
+			if (min == -1 || (str[k].value < str[min].value && str[k].value > str[j].value))
+				min = k;
+		}
+		
+		var temp = str[min];
+		str[min] = str[j];
+		str[j] = temp;
+		
+		var k1, k2, max;
+		for (k1 = j + 1; k1 < str.length;  k1++)
+		{
+			max = -1;
+			for (k2 = k1; k2 < str.length;  k2++)
+				if (max == -1 || str[k2].value < str[max].value)
+					max = k2;
+
+			if (k1 < max && max > -1 && max < str.length )
+			{
+				temp = str[max];
+				str[max] = str[k1];
+				str[k1] = temp;
+			}
+		}
+	}
+	
+	return str;
+}
+
+function init()
+{
+	var colors = new Array();
+	var k1 = Math.floor(Math.random()*20)+5;
+	var B = new Array();
+	var text = "";
+	var univ = new Array();
+	
+	for (var i = 0; i < 25; i++)
+		univ[i] = i;
+
+	colors[0] = "#0000FF";
+	colors[1] = "#00FF00";
+	colors[2] = "#FF0000";
+	colors[3] = "#00AAFF";
+	colors[4] = "#007777";
+	colors[5] = "#AA00AA";
+	colors[6] = "#00AAAA";
+	colors[7] = "#AAAA00";
+	colors[8] = "#AA00FF";
+	colors[9] = "#00FFFF";
+	colors[10] = "#FFAA00";
+	colors[11] = "#FF00FF";
+	colors[12] = "#AAAAFF";
+	colors[13] = "#D2691E";
+	colors[14] = "#FFAAAA";
+	colors[15] = "#4682BD";
+	colors[16] = "#FFFF00";
+	colors[17] = "#FFFFAA";
+	colors[18] = "#0000CC";
+	colors[19] = "#00AA00";
+	colors[20] = "#AA0000";
+	colors[21] = "#F0F8FF";
+	colors[22] = "#C0C8CC";
+	colors[23] = "#FAEBD7";
+	colors[24] = "#DEB887";
+	
+	for (i = 0; i < k1; i++)
+	{
+		var temp;
+
+		var temp = Math.floor(Math.random()*univ.length);
+		
+		B[i] = new Object();
+		B[i].value = univ[temp];
+		B[i].color = colors[univ[temp]];
+		
+		univ[temp] = univ[univ.length-1];
+		univ.length--;
+	}
+			
+	text += disp2(B);
+	
+	document.getElementById("input").innerHTML = text;	
+	
+	return B;
+}
+
+function disp1(arr)
+{
+	var retVal = "";
+	for(var i = 0; i < arr.length; i++)
+	{
+		retVal += arr[i].value;
+		if (i < arr.length - 1)
+			retVal += ", ";
+	}
+//	retVal += "}";
+	
+	return retVal;
+}
+
+function disp2(arr)
+{
+	var retVal = "<table><tr>";
+	for(var i = 0; i < arr.length; i++)
+	{
+		retVal += "<td bgcolor='" + arr[i].color + "' style='width:25px'><center>" + arr[i].value + "</center></td>";
+	}
+	retVal += "</tr></table>";
+	
+	return retVal;
+}
+
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="script, javasctipt, algorithm, permutation, enumeration, computer science, games, algorithms, search, programming, list, next, previous, random, table, sudoku, nanogram" />
+<meta name="description" content="This Page generates three permutation algorithms that are useful in enumerating all possible outcomes of a give problem set: Next_Permutation, Previous_Permutation, and Random_Permutation. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function randPerm(str)
+{
+	var arr = new Array();
+	var ans = new Array();
+	for (var i = 0; i < str.length; i++)
+		arr[i] = i;
+		
+	do
+	{
+		var loc = Math.floor(Math.random()*arr.length);
+		ans[str.length - arr.length] = str[arr[loc]];
+		arr[loc] = arr[arr.length-1];
+		arr.length--;
+	}
+	while (arr.length > 0);
+	
+	return ans;
+}
+
+function prevPerm(str)
+{
+	var j; 
+	for (var j = str.length-2; j >= 0 && str[j].value <= str[j+1].value ; j--)
+	{}
+		
+	if (j == -1)
+	{
+		var temp;
+		for (var i = 0; i < str.length/2; i++)
+		{
+			temp = str[i];
+			str[i] = str[str.length-i-1];
+			str[str.length-i-1] = temp;
+		}
+	}
+	else
+	{
+		var max = -1, k;
+		for (var k = j + 1; k < str.length; k++)
+		{
+			if (max == -1 || (str[k].value > str[max].value && str[k].value < str[j].value))
+				max = k;
+		}
+
+		var temp = str[max];
+		str[max] = str[j];
+		str[j] = temp;
+		
+		var k1, k2, min;
+		for (k1 = j + 1; k1 < str.length;  k1++)
+		{
+			min = -1;
+			for (k2 = k1; k2 < str.length;  k2++)
+				if (min == -1 || str[k2].value > str[min].value)
+					min = k2;
+
+			if (k1 > min && min > -1 && min < str.length )
+			{
+				temp = str[min];
+				str[min] = str[k1];
+				str[k1] = temp;
+			}
+		}
+	}
+	
+	return str;
+}
+
+function nextPerm(str)
+{
+	var j; 
+	for (var j = str.length-2; j >= 0 && str[j].value >= str[j+1].value ; j--)
+	{}
+		
+	if (j == -1)
+	{
+		var temp;
+		for (var i = 0; i < str.length/2; i++)
+		{
+			temp = str[i];
+			str[i] = str[str.length-i-1];
+			str[str.length-i-1] = temp;
+		}
+	}
+	else
+	{
+		var min = -1, k;
+		for (var k = j + 1; k < str.length; k++)
+		{
+			if (min == -1 || (str[k].value < str[min].value && str[k].value > str[j].value))
+				min = k;
+		}
+		
+		var temp = str[min];
+		str[min] = str[j];
+		str[j] = temp;
+		
+		var k1, k2, max;
+		for (k1 = j + 1; k1 < str.length;  k1++)
+		{
+			max = -1;
+			for (k2 = k1; k2 < str.length;  k2++)
+				if (max == -1 || str[k2].value < str[max].value)
+					max = k2;
+
+			if (k1 < max && max > -1 && max < str.length )
+			{
+				temp = str[max];
+				str[max] = str[k1];
+				str[k1] = temp;
+			}
+		}
+	}
+	
+	return str;
+}
+
+function init()
+{
+	var colors = new Array();
+	var k1 = Math.floor(Math.random()*20)+5;
+	var B = new Array();
+	var text = "";
+	var univ = new Array();
+	
+	for (var i = 0; i < 25; i++)
+		univ[i] = i;
+
+	colors[0] = "#0000FF";
+	colors[1] = "#00FF00";
+	colors[2] = "#FF0000";
+	colors[3] = "#00AAFF";
+	colors[4] = "#007777";
+	colors[5] = "#AA00AA";
+	colors[6] = "#00AAAA";
+	colors[7] = "#AAAA00";
+	colors[8] = "#AA00FF";
+	colors[9] = "#00FFFF";
+	colors[10] = "#FFAA00";
+	colors[11] = "#FF00FF";
+	colors[12] = "#AAAAFF";
+	colors[13] = "#D2691E";
+	colors[14] = "#FFAAAA";
+	colors[15] = "#4682BD";
+	colors[16] = "#FFFF00";
+	colors[17] = "#FFFFAA";
+	colors[18] = "#0000CC";
+	colors[19] = "#00AA00";
+	colors[20] = "#AA0000";
+	colors[21] = "#F0F8FF";
+	colors[22] = "#C0C8CC";
+	colors[23] = "#FAEBD7";
+	colors[24] = "#DEB887";
+	
+	for (i = 0; i < k1; i++)
+	{
+		var temp;
+
+		var temp = Math.floor(Math.random()*univ.length);
+		
+		B[i] = new Object();
+		B[i].value = univ[temp];
+		B[i].color = colors[univ[temp]];
+		
+		univ[temp] = univ[univ.length-1];
+		univ.length--;
+	}
+			
+	text += disp2(B);
+	
+	document.getElementById("input").innerHTML = text;	
+	
+	return B;
+}
+
+function disp1(arr)
+{
+	var retVal = "";
+	for(var i = 0; i < arr.length; i++)
+	{
+		retVal += arr[i].value;
+		if (i < arr.length - 1)
+			retVal += ", ";
+	}
+//	retVal += "}";
+	
+	return retVal;
+}
+
+function disp2(arr)
+{
+	var retVal = "<table><tr>";
+	for(var i = 0; i < arr.length; i++)
+	{
+		retVal += "<td bgcolor='" + arr[i].color + "' style='width:25px'><center>" + arr[i].value + "</center></td>";
+	}
+	retVal += "</tr></table>";
+	
+	return retVal;
+}
+
+</script>
+
+<h3><center></center></h3>
+<p>This Page generates three permutation algorithms that are useful in enumerating all possible outcomes of a give problem set: Next_Permutation, Previous_Permutation, and Random_Permutation. </p>
+<p name="input" id="input"></p>
+<input type="button" onClick="ans = prevPerm(ans); document.getElementById('output').innerHTML = disp2(ans)" value="Previous Permutation">
+<input type="button" onClick="ans = nextPerm(ans); document.getElementById('output').innerHTML = disp2(ans)" value="Next Permutation">
+<input type="button" onClick="ans = randPerm(ans); document.getElementById('output').innerHTML = disp2(ans)" value="Random Permutation">
+<br>
+<input type="button" onClick="ans = init(); document.getElementById('output').innerHTML = ''" value="New Problem">
+<p name="output" id="output"></p>
+<script type="text/javascript">
+var ans = init();
+</script >

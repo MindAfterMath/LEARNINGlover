@@ -1,0 +1,455 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+StackDataStructure<script type="text/javascript">
+function generate(n)
+{
+	var A = new Object();
+	A = null
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*100);
+		A = push2(A, next);
+	}
+
+	return A;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = false;
+
+	for (temp = set; temp != null && !ans; temp = temp.next)
+		if (set.value == elmnt)
+			ans = true;
+
+	return ans;
+}
+
+function pop(curr)
+{
+	var temp = new Object();
+	if (curr != null)
+	{	
+		document.getElementById("last").value = curr.value;
+		temp = curr.next;
+		curr = temp;
+		display(curr, "list");
+	}
+
+	return curr;
+}		
+
+function push1(curr)
+{
+	var newItem = new Object();
+	var value = document.getElementById("next").value;
+	newItem.value = value;
+	if (curr == null)
+	{
+		newItem.next = null;
+	}
+	else
+	{
+		newItem.next = curr;
+	}
+	curr = newItem;
+
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+
+	display(curr, "list");
+	return curr;
+}
+
+function push2(curr, next)
+{
+	var newItem = new Object();
+	var value = next;
+
+	newItem.value = value;
+	if (curr == null)
+	{
+		newItem.next = null;
+	}
+	else
+	{
+		newItem.next = curr;
+	}
+	curr = newItem;
+
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+
+	return curr;
+}
+
+function concat(curr, add)
+{
+	var temp = new Object();
+	temp = null;
+	var val;
+
+	while (add != null)
+	{
+		add = pop(add, val);
+		temp = push2(temp, val);
+	}
+
+	while (temp != null)
+	{
+		temp = pop(temp, val)
+		curr = push2(curr, val);
+	}
+
+	return curr;
+}
+
+function init(stack, k1)
+{
+	var stack = generate(k1);
+
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+
+	display(stack, "list");
+
+	return stack;
+}
+
+function display(curr, loc)
+{
+	var text = "";
+	var temp = new Object();
+	var val;
+
+	if (curr == null)
+	{
+		text = "There are no items in this Stack<br>";
+	}
+	else
+	{
+		temp = curr;
+		text += "<table border=1>";
+		while (temp != null)
+		{
+			if (temp.next != null)
+				text += "<tr><td>" + temp.value + "</td></tr>";
+			else if (temp.next == null)
+				text += "<tr><td>" + temp.value + "</td></tr></table>";
+			temp = temp.next;
+		}
+	}
+
+	document.getElementById(loc).innerHTML = text;
+}
+
+function size(curr)
+{
+	var temp = curr;
+	var count = 0;
+
+	while (temp != null)
+	{
+		temp = temp.next;
+		count++;
+	}
+
+	return count;
+}
+
+function maxValue(curr)
+{
+	var temp = curr;
+	var max = -1000;
+
+	while (temp != null)
+	{
+		if (temp.value > max)
+			max = temp.value;
+		temp = temp.next;
+	}
+
+	return max;
+}
+
+function minValue(curr)
+{
+	var temp = curr;
+	var min = 1000;
+
+	while (temp != null)
+	{
+		if (temp.value < min)
+			min = temp.value;
+		temp = temp.next;
+	}
+
+	return min;
+}
+
+function operate(stack)
+{
+ 	if (document.getElementById("alg").value == 1)
+	{
+		document.getElementById("output").innerHTML = "";
+ 		stack = push1(stack);
+	}
+ 	else if (document.getElementById("alg").value == 2)
+	{ 
+		document.getElementById("output").innerHTML = "";
+		stack = pop(stack);
+	}
+	else if (document.getElementById("alg").value == 3)
+		document.getElementById("output").innerHTML = "The size of this stack is currently " + size(stack) + "<br>";
+	else if (document.getElementById("alg").value == 4)
+		document.getElementById("output").innerHTML = "<center>The maximum value<br> of this stack is currently <br>" + maxValue(stack) + "</center><br>";
+	else if (document.getElementById("alg").value == 5)
+		document.getElementById("output").innerHTML = "<center>The minimum value<br> of this stack is currently <br>" + minValue(stack) + "</center><br>";
+
+  	return stack;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="data, data structure, last in first out, LIFO, pop, push, stack, top, linear" />  
+<meta name="description" content="This page contains a script I've written to help understand the stack data structure." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function generate(n)
+{
+	var A = new Object();
+	A = null
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*100);
+		A = push2(A, next);
+	}
+
+	return A;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = false;
+
+	for (temp = set; temp != null && !ans; temp = temp.next)
+		if (set.value == elmnt)
+			ans = true;
+
+	return ans;
+}
+
+function pop(curr)
+{
+	var temp = new Object();
+	if (curr != null)
+	{	
+		document.getElementById("last").value = curr.value;
+		temp = curr.next;
+		curr = temp;
+		display(curr, "list");
+	}
+
+	return curr;
+}		
+
+function push1(curr)
+{
+	var newItem = new Object();
+	var value = document.getElementById("next").value;
+	newItem.value = value;
+	if (curr == null)
+	{
+		newItem.next = null;
+	}
+	else
+	{
+		newItem.next = curr;
+	}
+	curr = newItem;
+
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+
+	display(curr, "list");
+	return curr;
+}
+
+function push2(curr, next)
+{
+	var newItem = new Object();
+	var value = next;
+
+	newItem.value = value;
+	if (curr == null)
+	{
+		newItem.next = null;
+	}
+	else
+	{
+		newItem.next = curr;
+	}
+	curr = newItem;
+
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+
+	return curr;
+}
+
+function concat(curr, add)
+{
+	var temp = new Object();
+	temp = null;
+	var val;
+
+	while (add != null)
+	{
+		add = pop(add, val);
+		temp = push2(temp, val);
+	}
+
+	while (temp != null)
+	{
+		temp = pop(temp, val)
+		curr = push2(curr, val);
+	}
+
+	return curr;
+}
+
+function init(stack, k1)
+{
+	var stack = generate(k1);
+
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+
+	display(stack, "list");
+
+	return stack;
+}
+
+function display(curr, loc)
+{
+	var text = "";
+	var temp = new Object();
+	var val;
+
+	if (curr == null)
+	{
+		text = "There are no items in this Stack<br>";
+	}
+	else
+	{
+		temp = curr;
+		text += "<table border=1>";
+		while (temp != null)
+		{
+			if (temp.next != null)
+				text += "<tr><td>" + temp.value + "</td></tr>";
+			else if (temp.next == null)
+				text += "<tr><td>" + temp.value + "</td></tr></table>";
+			temp = temp.next;
+		}
+	}
+
+	document.getElementById(loc).innerHTML = text;
+}
+
+function size(curr)
+{
+	var temp = curr;
+	var count = 0;
+
+	while (temp != null)
+	{
+		temp = temp.next;
+		count++;
+	}
+
+	return count;
+}
+
+function maxValue(curr)
+{
+	var temp = curr;
+	var max = -1000;
+
+	while (temp != null)
+	{
+		if (temp.value > max)
+			max = temp.value;
+		temp = temp.next;
+	}
+
+	return max;
+}
+
+function minValue(curr)
+{
+	var temp = curr;
+	var min = 1000;
+
+	while (temp != null)
+	{
+		if (temp.value < min)
+			min = temp.value;
+		temp = temp.next;
+	}
+
+	return min;
+}
+
+function operate(stack)
+{
+ 	if (document.getElementById("alg").value == 1)
+	{
+		document.getElementById("output").innerHTML = "";
+ 		stack = push1(stack);
+	}
+ 	else if (document.getElementById("alg").value == 2)
+	{ 
+		document.getElementById("output").innerHTML = "";
+		stack = pop(stack);
+	}
+	else if (document.getElementById("alg").value == 3)
+		document.getElementById("output").innerHTML = "The size of this stack is currently " + size(stack) + "<br>";
+	else if (document.getElementById("alg").value == 4)
+		document.getElementById("output").innerHTML = "<center>The maximum value<br> of this stack is currently <br>" + maxValue(stack) + "</center><br>";
+	else if (document.getElementById("alg").value == 5)
+		document.getElementById("output").innerHTML = "<center>The minimum value<br> of this stack is currently <br>" + minValue(stack) + "</center><br>";
+
+  	return stack;
+}
+</script>
+<h3><center></center></h3>
+<p>Stacks are an elementary Data Structure where all interaction with the data is done through the looking at the first element. <br>
+<br>
+There are two main operations on Stacks, Push and Pop. <br>
+<br>
+The push operation is used to insert an item into the stack. The name push comes from the fact that when an item is inserted into the stack it is put into the first element in the stack, so we think of it as lying on top of the stack. <br>
+<br>
+Likewise, the pop operation is used to remove an item from the stack. Items are removed from the top of the stack first. 
+</p>
+<form name=data id=data> 
+<input type=button onclick="document.getElementById('list').innerHTML = '';document.getElementById('output').innerHTML = '';k1 = Math.floor(Math.random()*25);set1 = init(set1, k1);" value="New Problem"><br> 
+<table><tr><td valign="top">
+<select name="alg" id="alg">
+ <option value=1 selected>Push</OPTION>
+ <option value=2>Pop</OPTION>
+ <option value=3>Size</OPTION>
+ <option value=4>Maximum Value</OPTION>
+ <option value=5>Minimum Value</OPTION>
+</SELECT><br>
+<input size=3 name=last id=last> Last Popped Value<br>
+<input size=3 name=next id=next> Next Value to Push<br>
+<br> 
+<input type="button" value="Operate" onclick="set1 = operate(set1);">  </FORM>
+</td><td>
+<p id=list name=list></p>
+</td><td valign="top"><p name="output" id="output">
+</p>
+</td></tr></table>
+<script type="text/javascript">
+var k1 = Math.floor(Math.random()*25);
+var set1 = init(set1, k1);
+</script>

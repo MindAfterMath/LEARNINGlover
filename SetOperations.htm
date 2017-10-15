@@ -1,0 +1,411 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+SetOperations<script type="text/javascript">
+function generate(n)
+{
+	var A = new Array(n);
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*100);
+		if (!search(A, next))
+			A[i] = next;
+		else
+			i--;
+	}
+
+	return A;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = false;
+
+	for (i = 0; i < set.length && !ans; i++)
+		if (set[i] == elmnt)
+			ans = true;
+
+	return ans;
+}
+
+function union(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+		set3[i] = set1[i];
+
+	for (i = 0; i < set2.length; i++)
+	{
+		if (!search(set3, set2[i]))
+			set3[set3.length] = set2[i];
+	}
+
+	return set3;
+}
+
+function intersect(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		if (search(set2, set1[i]))
+			set3[set3.length] = set1[i];
+	}
+
+	return set3;
+}
+
+function diff(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		if (!search(set2, set1[i]))
+			set3[set3.length] = set1[i];
+	}
+
+	return set3;
+}
+
+function symmDiff(set1, set2)
+{
+	var set3 = new Array();
+	var set4 = new Array();
+
+	set3 = union(set1, set2);
+	set4 = intersect(set1, set2);
+
+	set3 = diff(set3, set4);
+
+	return set3;
+}
+
+function cartProd(set1, set2)
+{
+	var set3 = new Array()
+	var i, j;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		set3[i] = new Array();
+		for (j = 0; j < set2.length; j++)
+		{
+			set3[i][j] = "(" + set1[i] + ", " + set2[j] + ")";
+		}
+		set3[i][j] = "<br>";
+	}
+
+	return set3;
+}
+
+function init(set1, k1, set2, k2)
+{
+	var set1 = generate(k1);
+	var set2 = generate(k2);
+	var ans = new Array();
+	var text = "";
+
+/*	text += "k1 = " + k1 + "\\n";
+	text += "k2 = " + k2 + "\\n";
+*/	
+	text += "set1 = {";
+	for (var i = 0; i < set1.length; i++)
+	{
+		if (i < set1.length - 1)
+			text += set1[i] + ", ";
+		else
+			text += set1[i];
+		ans[ans.length] = set1[i];
+	}
+	text += "}<br>";
+
+	text += "set2 = {";
+	for (var i = 0; i < set2.length; i++)
+	{
+		if (i < set2.length - 1)
+			text += set2[i] + ", ";
+		else
+			text += set2[i];
+		ans[ans.length] = set2[i];
+	}
+	text += "}<br>";
+
+	document.getElementById("list").innerHTML = text;
+	return ans;
+}
+
+function retreive(set, start, finish)
+{
+	var i;
+	var ans = new Array();
+	for (i = start; i < finish; i++)
+		ans[ans.length] = set[i];
+
+	return ans;
+}
+
+function operate(set1, set2) 
+{
+ 	if (document.getElementById("alg").value == 1)
+ 		ans = union(set1, set2);
+ 	else if (document.getElementById("alg").value == 2)
+ 		ans = intersect(set1, set2);
+ 	else if (document.getElementById("alg").value == 3)
+ 		ans = diff(set1, set2);
+ 	else if (document.getElementById("alg").value == 4)
+ 		ans = symmDiff(set1, set2);
+ 	else if (document.getElementById("alg").value == 5)
+ 		ans = cartProd(set1, set2);
+  	return ans;
+}
+
+function disp(set)
+{
+	var text = "<table><tr><td width='50'>";
+	text += "set = </td><td>{";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+	}
+	text += "}</td></tr></table>";
+
+	return text;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="Cartesian product, compliment, difference, intersection, learning, math, operations, product, set, set theory, symmetric difference, theory, union" /> 
+<meta name="description" content="This page contains a script I've written to help understand Set Theory and Set Operations." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function generate(n)
+{
+	var A = new Array(n);
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*100);
+		if (!search(A, next))
+			A[i] = next;
+		else
+			i--;
+	}
+
+	return A;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = false;
+
+	for (i = 0; i < set.length && !ans; i++)
+		if (set[i] == elmnt)
+			ans = true;
+
+	return ans;
+}
+
+function union(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+		set3[i] = set1[i];
+
+	for (i = 0; i < set2.length; i++)
+	{
+		if (!search(set3, set2[i]))
+			set3[set3.length] = set2[i];
+	}
+
+	return set3;
+}
+
+function intersect(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		if (search(set2, set1[i]))
+			set3[set3.length] = set1[i];
+	}
+
+	return set3;
+}
+
+function diff(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		if (!search(set2, set1[i]))
+			set3[set3.length] = set1[i];
+	}
+
+	return set3;
+}
+
+function symmDiff(set1, set2)
+{
+	var set3 = new Array();
+	var set4 = new Array();
+
+	set3 = union(set1, set2);
+	set4 = intersect(set1, set2);
+
+	set3 = diff(set3, set4);
+
+	return set3;
+}
+
+function cartProd(set1, set2)
+{
+	var set3 = new Array()
+	var i, j;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		set3[i] = new Array();
+		for (j = 0; j < set2.length; j++)
+		{
+			set3[i][j] = "(" + set1[i] + ", " + set2[j] + ")";
+		}
+		set3[i][j] = "<br>";
+	}
+
+	return set3;
+}
+
+function init(set1, k1, set2, k2)
+{
+	var set1 = generate(k1);
+	var set2 = generate(k2);
+	var ans = new Array();
+	var text = "";
+
+/*	text += "k1 = " + k1 + "\\n";
+	text += "k2 = " + k2 + "\\n";
+*/	
+	text += "set1 = {";
+	for (var i = 0; i < set1.length; i++)
+	{
+		if (i < set1.length - 1)
+			text += set1[i] + ", ";
+		else
+			text += set1[i];
+		ans[ans.length] = set1[i];
+	}
+	text += "}<br>";
+
+	text += "set2 = {";
+	for (var i = 0; i < set2.length; i++)
+	{
+		if (i < set2.length - 1)
+			text += set2[i] + ", ";
+		else
+			text += set2[i];
+		ans[ans.length] = set2[i];
+	}
+	text += "}<br>";
+
+	document.getElementById("list").innerHTML = text;
+	return ans;
+}
+
+function retreive(set, start, finish)
+{
+	var i;
+	var ans = new Array();
+	for (i = start; i < finish; i++)
+		ans[ans.length] = set[i];
+
+	return ans;
+}
+
+function operate(set1, set2) 
+{
+ 	if (document.getElementById("alg").value == 1)
+ 		ans = union(set1, set2);
+ 	else if (document.getElementById("alg").value == 2)
+ 		ans = intersect(set1, set2);
+ 	else if (document.getElementById("alg").value == 3)
+ 		ans = diff(set1, set2);
+ 	else if (document.getElementById("alg").value == 4)
+ 		ans = symmDiff(set1, set2);
+ 	else if (document.getElementById("alg").value == 5)
+ 		ans = cartProd(set1, set2);
+  	return ans;
+}
+
+function disp(set)
+{
+	var text = "<table><tr><td width='50'>";
+	text += "set = </td><td>{";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+	}
+	text += "}</td></tr></table>";
+
+	return text;
+}
+</script>
+<h3><center></center></h3>
+<p>Understanding Set Theory is fundamental to understanding advanced mathematics. Iv wrote these scripts so that users could begin to play with the different set operations that are taught in a basic set theory course. Here, the sets are limited to positive integers and we're only looking at a few operations, in particular the union, intersection, difference, symmetric difference, and cross product of two sets. I will explain what each of these is below. <br>
+<br>
+The <b>union</b> of the sets S<sub>1</sub> and S<sub>2</sub> is the set S<sub>1</sub> [union] S<sub>2</sub>, which contains the elements that are in S<sub>1</sub> or S<sub>2</sub> (or in both). <br>
+Note: S<sub>1</sub> [union] S<sub>2</sub> is the same as S<sub>2</sub> [union] S<sub>1</sub>. <br>
+<br>
+The <b>intersection</b> of the sets S<sub>1</sub> and S<sub>2</sub> is the set S<sub>1</sub> [intersect] S<sub>2</sub>, which contains the elements that are in BOTH S<sub>1</sub> and S<sub>2</sub>. <br>
+Note: S<sub>1</sub> [intersect] S<sub>2</sub> is the same as S<sub>2</sub> [intersect] S<sub>1</sub>. <br>
+<br>
+The <b>difference</b> between the sets S<sub>1</sub> and S<sub>2</sub> is the set S<sub>1</sub> / S<sub>2</sub>, which contains the elements that are in S<sub>1</sub> and not in S<sub>2</sub>. <br>. 
+Note. S<sub>1</sub> / S<sub>2</sub> IS NOT the same as S<sub>2</sub> / S<sub>1</sub>. <br>
+Note. S<sub>1</sub> / S<sub>2</sub> is the same as S<sub>1</sub> [intersect] [not]S<sub>2</sub>. <br>
+<br>
+The <b>symmetric difference</b> between the sets S<sub>1</sub> and S<sub>2</sub> is the set S<sub>1</sub> [symm diff] S<sub>2</sub>, which contains the elements that are in S<sub>1</sub> and not in S<sub>2</sub>, or the elements that are in S<sub>2</sub> and not in S<sub>1</sub>. <br>
+Note. S<sub>1</sub> [symm diff] S<sub>2</sub> is the same as S<sub>2</sub> [symm diff] S<sub>1</sub>. <br>
+Note. S<sub>1</sub> [symm diff] S<sub>2</sub> is the same as (S<sub>1</sub> [intersect] [not] S<sub>2</sub>) [union] (S<sub>2</sub> [intersect] [not] S<sub>1</sub>). <br>
+<br>
+The <b>Cartesian product</b> of the two sets S<sub>1</sub> and S<sub>2</sub> is the set of all ordered pairs <i>(a, b)</i>, where <i>a</i> [in] S<sub>1</sub> and <i>b</i> [in] S<sub>2</sub>. </p>
+<form name=data id=data> 
+<input type=button onclick="k1 = Math.floor(Math.random()*25);k2 = Math.floor(Math.random()*25);ans = init(set1, k1, set2, k2);set1 = retreive(ans, 0, k1);set2 = retreive(ans, k1, k1+k2);document.getElementById('output').innerHTML = '';" value="New Problem"><br> 
+<p id=list name=list></p> 
+<select name="alg" id="alg">
+ <option value=1 selected>Union</OPTION>
+ <option value=2>Intersection</OPTION>
+ <option value=3>Difference</OPTION>
+ <option value=4>Symmetric Difference</OPTION>
+ <option value=5>Cartesian Product</OPTION>
+</SELECT><br> 
+<input type="button" value="Operate" onclick="ans = operate(set1, set2); document.getElementById('output').innerHTML = disp(ans);">  </FORM>
+<script type="text/javascript">
+var k1 = Math.floor(Math.random()*25);
+var k2 = Math.floor(Math.random()*25);
+var set1 = new Array();
+var set2 = new Array();
+var ans = init(set1, k1, set2, k2);
+set1 = retreive(ans, 0, k1);
+set2 = retreive(ans, k1, k1+k2);
+</script>
+<p name="output" id="output">
+</p>

@@ -1,0 +1,472 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+SortingAlgorithms<script type="text/javascript"> 
+function insertionSort(A) 
+{
+ 	count = 0;
+ 	text = "";
+ 	if (document.getElementById("show").checked)
+ 		text += count + ") A = " + A + "<br>";
+  	var i, j;
+  	for (i = 0; i < A.length; i++)
+ 		left[i] = A[i];
+  	for (i = 1; i < left.length; i++)
+ 	{
+ 		swap = 0;
+ 		v = left[i];
+ 		j = i;
+ 		while (left[j - 1] > v)
+ 		{
+ 			swap ++;
+ 			left[j] = left[j-1];
+ 			j--;
+ 		}
+ 		left[j] = v;
+ 		if (swap)
+ 		{
+ 			count ++;
+ 			if (document.getElementById("show").checked)
+ 				text += count + ") left = " + left + "<br>";
+ 		}
+ 	}
+  	return left;
+}
+function bubbleSort(A) 
+{
+ 	count = 0;
+ 	text = "";
+ 	if (document.getElementById("show").checked)
+ 		text += count + ") A = " + A + "<br>";
+  	var i, j;
+  	for (i = 0; i < A.length; i++)
+ 		left[i] = A[i];
+  	for (i = left.length-1; i >= 0; i--)
+ 	{
+ 		swap = 0;
+ 		for(j = 1; j <= i; j++)
+ 			if (left[j-1] > left[j])
+ 			{
+ 				temp = left[j-1];
+ 				left[j-1] = left[j];
+ 				left[j] = temp;
+ 				swap ++;
+ 			}
+ 		if (swap)
+ 		{
+ 			count ++;
+ 			if (document.getElementById("show").checked)
+ 				text += count + ") left = " + left + "<br>";
+ 		}
+ 	}
+  	return left;
+ }
+function mergeSort(A, nest)
+{
+ 	if (nest == 0)
+ 	{
+ 		text = "";
+ 		count = 0;
+ 	}
+ 	if (A.length <= 1)
+ 		return A;
+  	left[nest] = [];
+ 	right[nest] = [];
+  	n[nest] = A.length;
+ 	mid[nest] = Math.floor(A.length / 2);
+  	for (i = 0; i < mid[nest]; i++)
+ 		left[nest][i] = A[i];
+  	for (i = mid[nest]; i < A.length; i++)
+ 		right[nest][i-mid[nest]] = A[i];
+  	if (document.getElementById("show").checked)
+ 		text += "calling MergeSort(" + left[nest] + "), //this is the left side, " + (nest + 1) + "<br>";
+ 	left[nest] = mergeSort(left[nest], nest+1);
+  	if (document.getElementById("show").checked)
+ 		text += "calling MergeSort(" + right[nest] + "), //this is the right side, " + (nest + 1) + "<br>";
+ 	right[nest] = mergeSort(right[nest], nest+1);
+  	result[nest] = [];
+  	i = 0;
+ 	j = 0;
+ 	k = 0;
+ 	count++;
+ 	while (i < mid[nest] && j < n[nest] - mid[nest])
+ 	{
+ 		if (left[nest][i] < right[nest][j])
+ 		{
+ 			result[nest][k] = left[nest][i];
+ 			i++;
+ 		}
+ 		else
+ 		{
+ 			result[nest][k] = right[nest][j];
+ 			j++;
+ 		}
+ 		k++;
+ 	}
+ 	while (i < mid[nest])
+ 	{
+ 		result[nest][k] = left[nest][i];
+ 		i++;
+ 		k++;
+ 	}
+ 	while (j < n[nest] - mid[nest])
+ 	{
+ 		result[nest][k] = right[nest][j];
+ 		j++;
+ 		k++;
+ 	}
+  	return result[nest];
+ }
+function selectionSort(A) 
+{
+ 	text = "";
+ 	count = 0;
+ 	if (document.getElementById("show").checked)
+ 		text += count + ") A = " + A + "<br>";
+  	var i, j, min;
+  	for (i = 0; i < A.length; i++)
+ 		left[i] = A[i];
+  	for (i = 0; i < left.length-1; i++)
+ 	{
+ 		swap = 0;
+ 		min = i;
+ 		for (j = i+1; j < left.length; j++)
+ 		{
+ 			if (left[j] < left[min])
+ 			{
+ 				min = j;
+ 				swap ++;
+ 			}
+ 		}
+ 		temp = left[i];
+ 		left[i] = left[min];
+ 		left[min] = temp;
+  		if (swap)
+ 		{
+ 			count++;
+ 			if (document.getElementById("show").checked)
+ 				text += count + ") left = " + left + "<br>";
+ 		}
+ 	}
+  	return left;
+}
+function quickSort(A, left, right, nest)
+{
+ 	var i = left, j = right;
+ 	var tmp;
+ 	if (nest == 0)
+ 	{
+ 		text = "";
+ 		count = 0;
+ 	}
+  	var pivot = A[Math.floor((left + right) / 2)];
+  	while (i <= j)
+  	{
+ 		while (A[i] < pivot)
+ 			i++;
+  		while (A[j] > pivot)
+ 			j--;
+  		if (i <= j)
+  		{
+ 			tmp = A[i];
+ 			A[i] = A[j];
+ 			A[j] = tmp;
+ 			i++;
+ 			j--;
+ 			count ++;
+ 			if (document.getElementById("show").checked)
+ 			{
+ 				text += count + ") A = {";
+ 				for (k = 0; k < A.length-1; k++)
+ 				{
+ 					if (k == (i-1) || k == (j+1))
+ 						text += "<b>" + A[k] + "</b>, ";
+ 					else
+ 						text += A[k] + ", ";
+ 				}
+ 				if (k == (j+1))
+ 					text += "<b>" + A[k] + "</b>}<br>";
+ 				else
+ 					text += A[k] + "}<br>";
+ 			}
+  		}
+ 	}
+  	if (left < j)
+ 	{
+ 		if (document.getElementById("show").checked)
+ 		{
+ 			text += "calling quicksort(";
+ 			for (k = left; k < j; k++)
+ 				text += A[k] + ", ";
+ 			text += A[k];
+ 	 		text += ")// This is the left side <br>";
+ 		}
+ 		A = quickSort(A, left, j, nest+1);
+ 	}
+  	if (i < right)
+ 	{
+ 		if (document.getElementById("show").checked)
+ 		{
+ 			text += "calling quicksort(";
+ 			for (k = i; k < right; k++)
+ 				text += A[k] + ", ";
+ 			text += A[k];
+ 	 		text += ")// This is the rightside <br>";
+ 		}
+  		A = quickSort(A, i, right, nest+1);
+ 	}
+  	return A;
+}
+function sort(A) 
+{
+ 	if (document.getElementById("alg").value == 1)
+ 		ans = bubbleSort(A);
+ 	else if (document.getElementById("alg").value == 2)
+ 		ans = insertionSort(A);
+ 	else if (document.getElementById("alg").value == 3)
+ 		ans = mergeSort(A, 0);
+ 	else if (document.getElementById("alg").value == 4)
+ 		ans = selectionSort(A);
+ 	else if (document.getElementById("alg").value == 5)
+ 		ans = quickSort(A, 0, A.length-1, 0);
+  	return ans;
+}
+</script> <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="bayes, bayes theorem, causation, cause, conditional, conditional probability, event, exclusive, intersect, JavaScript, learning, machine learning, math, mathematics, mutually exclusive, probability, script, set, set theory, theory, union" /> 
+<meta name="description" content="This page contains a script I've written to help understand the different sorting algorithms." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript"> 
+function insertionSort(A) 
+{
+ 	count = 0;
+ 	text = "";
+ 	if (document.getElementById("show").checked)
+ 		text += count + ") A = " + A + "<br>";
+  	var i, j;
+  	for (i = 0; i < A.length; i++)
+ 		left[i] = A[i];
+  	for (i = 1; i < left.length; i++)
+ 	{
+ 		swap = 0;
+ 		v = left[i];
+ 		j = i;
+ 		while (left[j - 1] > v)
+ 		{
+ 			swap ++;
+ 			left[j] = left[j-1];
+ 			j--;
+ 		}
+ 		left[j] = v;
+ 		if (swap)
+ 		{
+ 			count ++;
+ 			if (document.getElementById("show").checked)
+ 				text += count + ") left = " + left + "<br>";
+ 		}
+ 	}
+  	return left;
+}
+function bubbleSort(A) 
+{
+ 	count = 0;
+ 	text = "";
+ 	if (document.getElementById("show").checked)
+ 		text += count + ") A = " + A + "<br>";
+  	var i, j;
+  	for (i = 0; i < A.length; i++)
+ 		left[i] = A[i];
+  	for (i = left.length-1; i >= 0; i--)
+ 	{
+ 		swap = 0;
+ 		for(j = 1; j <= i; j++)
+ 			if (left[j-1] > left[j])
+ 			{
+ 				temp = left[j-1];
+ 				left[j-1] = left[j];
+ 				left[j] = temp;
+ 				swap ++;
+ 			}
+ 		if (swap)
+ 		{
+ 			count ++;
+ 			if (document.getElementById("show").checked)
+ 				text += count + ") left = " + left + "<br>";
+ 		}
+ 	}
+  	return left;
+ }
+function mergeSort(A, nest)
+{
+ 	if (nest == 0)
+ 	{
+ 		text = "";
+ 		count = 0;
+ 	}
+ 	if (A.length <= 1)
+ 		return A;
+  	left[nest] = [];
+ 	right[nest] = [];
+  	n[nest] = A.length;
+ 	mid[nest] = Math.floor(A.length / 2);
+  	for (i = 0; i < mid[nest]; i++)
+ 		left[nest][i] = A[i];
+  	for (i = mid[nest]; i < A.length; i++)
+ 		right[nest][i-mid[nest]] = A[i];
+  	if (document.getElementById("show").checked)
+ 		text += "calling MergeSort(" + left[nest] + "), //this is the left side, " + (nest + 1) + "<br>";
+ 	left[nest] = mergeSort(left[nest], nest+1);
+  	if (document.getElementById("show").checked)
+ 		text += "calling MergeSort(" + right[nest] + "), //this is the right side, " + (nest + 1) + "<br>";
+ 	right[nest] = mergeSort(right[nest], nest+1);
+  	result[nest] = [];
+  	i = 0;
+ 	j = 0;
+ 	k = 0;
+ 	count++;
+ 	while (i < mid[nest] && j < n[nest] - mid[nest])
+ 	{
+ 		if (left[nest][i] < right[nest][j])
+ 		{
+ 			result[nest][k] = left[nest][i];
+ 			i++;
+ 		}
+ 		else
+ 		{
+ 			result[nest][k] = right[nest][j];
+ 			j++;
+ 		}
+ 		k++;
+ 	}
+ 	while (i < mid[nest])
+ 	{
+ 		result[nest][k] = left[nest][i];
+ 		i++;
+ 		k++;
+ 	}
+ 	while (j < n[nest] - mid[nest])
+ 	{
+ 		result[nest][k] = right[nest][j];
+ 		j++;
+ 		k++;
+ 	}
+  	return result[nest];
+ }
+function selectionSort(A) 
+{
+ 	text = "";
+ 	count = 0;
+ 	if (document.getElementById("show").checked)
+ 		text += count + ") A = " + A + "<br>";
+  	var i, j, min;
+  	for (i = 0; i < A.length; i++)
+ 		left[i] = A[i];
+  	for (i = 0; i < left.length-1; i++)
+ 	{
+ 		swap = 0;
+ 		min = i;
+ 		for (j = i+1; j < left.length; j++)
+ 		{
+ 			if (left[j] < left[min])
+ 			{
+ 				min = j;
+ 				swap ++;
+ 			}
+ 		}
+ 		temp = left[i];
+ 		left[i] = left[min];
+ 		left[min] = temp;
+  		if (swap)
+ 		{
+ 			count++;
+ 			if (document.getElementById("show").checked)
+ 				text += count + ") left = " + left + "<br>";
+ 		}
+ 	}
+  	return left;
+}
+function quickSort(A, left, right, nest)
+{
+ 	var i = left, j = right;
+ 	var tmp;
+ 	if (nest == 0)
+ 	{
+ 		text = "";
+ 		count = 0;
+ 	}
+  	var pivot = A[Math.floor((left + right) / 2)];
+  	while (i <= j)
+  	{
+ 		while (A[i] < pivot)
+ 			i++;
+  		while (A[j] > pivot)
+ 			j--;
+  		if (i <= j)
+  		{
+ 			tmp = A[i];
+ 			A[i] = A[j];
+ 			A[j] = tmp;
+ 			i++;
+ 			j--;
+ 			count ++;
+ 			if (document.getElementById("show").checked)
+ 			{
+ 				text += count + ") A = {";
+ 				for (k = 0; k < A.length-1; k++)
+ 				{
+ 					if (k == (i-1) || k == (j+1))
+ 						text += "<b>" + A[k] + "</b>, ";
+ 					else
+ 						text += A[k] + ", ";
+ 				}
+ 				if (k == (j+1))
+ 					text += "<b>" + A[k] + "</b>}<br>";
+ 				else
+ 					text += A[k] + "}<br>";
+ 			}
+  		}
+ 	}
+  	if (left < j)
+ 	{
+ 		if (document.getElementById("show").checked)
+ 		{
+ 			text += "calling quicksort(";
+ 			for (k = left; k < j; k++)
+ 				text += A[k] + ", ";
+ 			text += A[k];
+ 	 		text += ")// This is the left side <br>";
+ 		}
+ 		A = quickSort(A, left, j, nest+1);
+ 	}
+  	if (i < right)
+ 	{
+ 		if (document.getElementById("show").checked)
+ 		{
+ 			text += "calling quicksort(";
+ 			for (k = i; k < right; k++)
+ 				text += A[k] + ", ";
+ 			text += A[k];
+ 	 		text += ")// This is the rightside <br>";
+ 		}
+  		A = quickSort(A, i, right, nest+1);
+ 	}
+  	return A;
+}
+function sort(A) 
+{
+ 	if (document.getElementById("alg").value == 1)
+ 		ans = bubbleSort(A);
+ 	else if (document.getElementById("alg").value == 2)
+ 		ans = insertionSort(A);
+ 	else if (document.getElementById("alg").value == 3)
+ 		ans = mergeSort(A, 0);
+ 	else if (document.getElementById("alg").value == 4)
+ 		ans = selectionSort(A);
+ 	else if (document.getElementById("alg").value == 5)
+ 		ans = quickSort(A, 0, A.length-1, 0);
+  	return ans;
+}
+</script> 
+<h3><center></center></h3>
+<p>This is a comparison of some basic sorting algorithms. Right now, we have the algorithms consist of BubbleSort, InsertionSort, MergeSort and SelectionSort. <br><br>    BubbleSort works by comparing items that are next to one another. If the items are not in proper order, they are swapped. The process continues until we pass through the list without making a swap. <br><br>    InsertionSort divides an array into two parts, a sorted part and an unsorted part. In each iteration, a new element is compared to all the elements of the sorted part of the array to find where it belongs in this subarray. The algorithm terminates when all elements have been inserted into the sorted part of the array. <br><br>    MergeSort is based on the divide and conquer algorithm. It works by calling itself (the function mergesort) on two smaller arrays: the elements in the first half of the array, and the elements in the second half of the array. <br><br>   QuickSort is another divide and conquer algorithm. It is based on first choosing a pivot element (we choose the middle element, but it can be any element) and ensuring that all elements that are less than the pivot element are to the left of it in the array, and all elements greater than the pivot element are to the right in the array. Then the quicksort algorithm is recursively called on each part of the array. <br><br>  SelectionSort repeatedly finds the minimal value in the list and places it in the first (remaining) position in the (unsorted) array.</p>
+<form name=data id=data> <input type=button onclick="javascript:location.reload(true)" value="New Problem"><br> <TEXTAREA style="WIDTH: 350px; HEIGHT: 150px" id=list cols=41 rows=6 name=list></TEXTAREA><br> <select name="alg" id="alg"> <option value=1 selected>Bubble Sort</OPTION> <option value=2>Insertion Sort</OPTION> <option value=3>Merge Sort</OPTION> <option value=4>Selection Sort</OPTION> <option value=5>Quick Sort</OPTION></SELECT><br> <input type="checkbox" name="show" id="show">Show Work?<input type="button" value="Sort" onclick="ans = sort(A); document.getElementById('output').innerHTML = text + '<br>' + ans;">  </FORM> <script type="text/javascript"> A = []; size = Math.floor(Math.random()*10)+1; for (i = 0; i < 5*size; i++) 	A[i] = Math.floor(Math.random()*201);  text = ""; left = []; right = []; n = []; mid = []; result = []; for (i = 0; i < A.length; i++) { 	if (i < A.length - 1) 		text += A[i] + ", "; 	else 		text += A[i]; } document.getElementById("list").value = text; text = ""; </SCRIPT> <p id=output name=output></p> 

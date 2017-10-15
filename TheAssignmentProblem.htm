@@ -1,0 +1,1841 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+TheAssignmentProblem<script type="text/javascript">
+function indexOf(list, elmt)
+{
+    var loc = -1
+    for (var i = 0; i < list.length && loc == -1; i++)
+    {
+        if (list[i] == elmt)
+        loc = i;
+    }
+    return loc;
+}
+
+function getData()
+{
+    var numPeople = Math.floor(Math.random()*4)+5;
+    var prob = new Object();
+    var text = "";
+    prob.persons = new Array(numPeople);
+    prob.jobs = new Array(numPeople);
+
+    document.getElementById("B9").hidden = true;
+    document.getElementById("B10").hidden = true;
+    document.getElementById("B11").hidden = true;
+//    document.getElementById("B12").hidden = true;
+
+    text += "<table>";
+    text += "<tr><td></td>";
+    for (var i = 0; i < numPeople; i++)
+    {
+        text += "<td>Job " + (i+1) + "</td>";
+    }
+    text += "</td>";
+    
+    for (var k = 0; k < numPeople; k++)
+    {
+        text += "<tr><td>Person " + (k+1) + "</td>";
+        prob.persons[k] = new Object();
+        prob.persons[k].remPerson = k+1;
+        prob.persons[k].asmt = -1;
+        prob.persons[k].cost = new Array();
+        for (var i = 0; i < numPeople; i++)
+        {
+            prob.persons[k].cost[i] = Math.floor(Math.random()*25)+1;
+            text += "<td>" + prob.persons[k].cost[i] + "</td>";
+        }
+        text += "</tr>";
+    }
+    text += "</table>";
+    
+    document.getElementById("input").innerHTML += text;
+
+    
+    for (var i = 0; i < numPeople; i++)
+    {
+        prob.jobs[i] = new Object();
+        prob.jobs[i].asmt = -1;
+    }
+
+    prob = setCaps(prob);
+        
+    var c = document.getElementById("stage1");
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = "#000000";
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        prob.persons[k].yLoc = k*75+50;
+        prob.persons[k].xLoc = (0 + c.width) / 5;
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        prob.jobs[i].yLoc = i*75+50;
+        prob.jobs[i].xLoc = 4*(0 + c.width) / 5;
+    }
+    
+    return prob;
+}
+
+function dispAsmt(prob)
+{
+    var text = "";
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        text += "Person " + k + " is assigned to job " + prob.persons[k].asmt + "<br>";
+    }
+    
+    return text;
+}
+    
+function nwcInit(prob)
+{
+    var text = "";
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        prob.persons[k].asmt = k;
+        prob.jobs[k].asmt = k;
+    }
+    text += dispAsmt(prob);
+    
+    var primalcost = 0;
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        primalcost += prob.persons[k].cost[prob.persons[k].asmt];
+    }
+    
+    document.getElementById("output").innerHTML += text;
+    document.getElementById("B9").hidden = false;
+    document.getElementById("B12").hidden = false;
+    document.getElementById("B13").hidden = true;
+    prob = setCaps(prob);
+    prob = setInitBasis(prob);
+    document.getElementById("output").innerHTML += dispBasis(prob);
+    drawStage1Sol(prob);
+    
+    return prob;
+}
+
+function minMtrxInit(prob)
+{
+    var text = "";
+    var jobCap = new Array();
+    var perCap = new Array();
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        jobCap[k] = 1;
+        perCap[k] = 1;
+    }
+    
+    var numIter = prob.persons.length;
+    
+    var minVal;
+    var minLocP;
+    var minLocJ;
+    
+    for (var i = 0; i < numIter; i++)
+    {
+        minVal = 100000;
+        minLocP = -1;
+        minLocJ = -1;
+
+        for (var k = 0; k < prob.persons.length; k++)
+        {
+            for (var j = 0; j < prob.jobs.length; j++)
+            {
+                if (prob.persons[k].cost[j] < minVal && jobCap[j] == 1 && perCap[k] == 1)
+                {
+                    minVal = prob.persons[k].cost[j];
+                    minLocP = k;
+                    minLocJ = j;
+                }
+            }
+        }
+        
+        prob.persons[minLocP].asmt = minLocJ;
+        prob.jobs[minLocJ].asmt = minLocP;
+        jobCap[minLocJ]--;
+        perCap[minLocP]--;
+    }
+    
+    text += dispAsmt(prob);
+    
+    var primalcost = 0;
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        primalcost += prob.persons[k].cost[prob.persons[k].asmt];
+    }
+    
+    document.getElementById("output").innerHTML += text;
+    document.getElementById("B9").hidden = false;
+    document.getElementById("B10").hidden = true;
+    document.getElementById("B11").hidden = true;
+    document.getElementById("B12").hidden = false;
+    document.getElementById("B13").hidden = true;
+    
+    prob = setCaps(prob);
+    prob = setInitBasis(prob);
+    document.getElementById("output").innerHTML += dispBasis(prob);
+    drawStage1Sol(prob);
+    
+    return prob;
+}
+
+function solveDualStage1(prob)
+{
+/*
+    First we must initialize the basis. These will always be in 
+    (flight, slot) pairs, where flight is the location of the flight
+    in the array of flights and slot is the location of the slot in the
+    array of slots (NOT the slot time). 
+*/
+    var text = "";
+    
+//    text += dispBasis(prob);
+
+    var queue = new Array();
+    var curr = 0;
+    queue[curr] = prob.basis[prob.basis.length-1][0] + "-P";
+    prob.persons[prob.basis[prob.basis.length-1][0]].uVar = 0;
+    while (curr < 2*prob.persons.length-1)
+    {
+        var temp = queue[curr].split("-");
+        if (temp[1] == "P")
+        {
+            for (var iter = 0; iter < prob.basis.length; iter++)
+            {
+                if (prob.basis[iter][0] == temp[0])
+                {
+                    if (indexOf(queue, prob.basis[iter][1] + "-J") == -1)
+                    {
+                        queue[queue.length] = prob.basis[iter][1] + "-J";
+                        prob.jobs[prob.basis[iter][1]].vVar = eval(prob.persons[temp[0]].cost[prob.basis[iter][1]] - prob.persons[temp[0]].uVar);
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (var iter = 0; iter < prob.basis.length; iter++)
+            {
+                if (prob.basis[iter][1] == temp[0])
+                {
+                    if (indexOf(queue, prob.basis[iter][0] + "-P") == -1)
+                    {
+                        queue[queue.length] = prob.basis[iter][0] + "-P";
+                        prob.persons[prob.basis[iter][0]].uVar = eval(prob.persons[prob.basis[iter][0]].cost[temp[0]] - prob.jobs[temp[0]].vVar);
+                    }
+                }
+            }
+        }
+        
+        curr++;
+    }
+    
+    //Now we have the dual variables for the basis. 
+    
+    text += "This process gives the following dual variables: <br>";
+        
+    //This should be put into a function dispStage1Dual(prob)
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        text += "u<sub>" + k + "</sub> = " + prob.persons[k].uVar.toFixed(3) + "<br>";
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        text += "v<sub>" + i + "</sub> = " + prob.jobs[i].vVar.toFixed(3) + "<br>";
+    }
+    
+    //End of should be function.     
+
+    document.getElementById("output").innerHTML += text;
+    drawStage1Basis(prob);
+    document.getElementById("B9").hidden = false;
+    document.getElementById("B10").hidden = false;
+    document.getElementById("B11").hidden = true;
+    document.getElementById("B12").hidden = false;
+    document.getElementById("B13").hidden = false;
+    
+    return prob;
+}
+
+function pivot(prob)
+{        
+    var text = "";
+    if (!prob.feasible)
+    {
+        text += "We have violated the constraint: <br>";
+        text += "u<sub>" + prob.newPer + "</sub> + v<sub>" + prob.newJob + "</sub> <= " + prob.rhs.toFixed(3) + "<br>";
+        text += "So we will add the corresponding edge to the basis and remove another arc. <br>";
+        var queue = new Array();
+        var parent = new Array();
+        var curr = 0;
+        queue[curr] = prob.newPer + "-P";
+        parent[curr] = -1;
+        var found = false;
+        while (!found)
+        {
+            text += curr + ") queue = " + queue + " - " + queue.length + "<br>";
+            text += curr + ") parent = " + parent + " - " + parent.length + "<br>";
+            var temp = queue[curr].split("-");
+            for (var iter = 0; iter < prob.basis.length && !found; iter++)
+            {
+                if (temp[1] == "P" && prob.basis[iter][0] == temp[0])
+                {
+                    if (indexOf(queue, prob.basis[iter][1] + "-J") == -1)
+                    {
+                        queue[queue.length] = prob.basis[iter][1] + "-J";
+                        if (parent[curr] != -1)
+                            parent[parent.length] = parent[curr] + "->" + curr;
+                        else
+                            parent[parent.length] = curr;
+                        if (prob.basis[iter][1] == prob.newJob)
+                        {
+                            found = true;
+                        }
+                    }
+                }
+                else if (temp[1] == "J" && prob.basis[iter][1] == temp[0])
+                {
+                    if (indexOf(queue, prob.basis[iter][0] + "-P") == -1)
+                    {
+                        queue[queue.length] = prob.basis[iter][0] + "-P";
+                        if (parent[curr] != -1)
+                            parent[parent.length] = parent[curr] + "->" + curr;
+                        else
+                            parent[parent.length] = curr;
+                    }
+                }
+            }
+            curr++;
+        }
+        curr--;
+        
+        text += "The path from " + prob.newPer + " to " + prob.newJob + " that already exists in our basis is: <br>";
+        
+        var path = parent[parent.length-1].split("->");
+        var edges = new Array();
+        for (var i = 0; i < path.length; i++)
+        {
+            edges[i] = new Array();
+            if (i < path.length - 1 && i % 2 == 0)
+            {
+                edges[i][0] = queue[path[i]].split("-")[0];
+                edges[i][1] = queue[path[i+1]].split("-")[0];
+                text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+            }
+            else if (i < path.length - 1 && i % 2 == 1)
+            {
+                edges[i][1] = queue[path[i]].split("-")[0];
+                edges[i][0] = queue[path[i+1]].split("-")[0];
+                text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+            }
+            else
+            {
+                edges[i][0] = queue[path[i]].split("-")[0];
+                edges[i][1] = queue[queue.length-1].split("-")[0];
+                text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+            }
+        }
+        
+        var degen = false;
+        for (var iter_1 = 0; iter_1 < edges.length && !degen; iter_1 += 2)
+        {
+            if (prob.persons[edges[iter_1][0]].asmt != edges[iter_1][1])
+            {
+                degen = true;
+            }
+        }
+        
+        if (!degen)
+        {
+            text += "This solution is NOT degenerate<br>";
+            var newBasis = new Array();
+            newBasis[0] = new Array();
+            newBasis[0][0] = prob.newPer;
+            newBasis[0][1] = prob.newJob;
+        
+            for (var iter_1 = 1; iter_1 < edges.length; iter_1 += 2)
+            {
+                var loc = newBasis.length;
+                newBasis[loc] = new Array();
+                newBasis[loc][0] = edges[iter_1][0];
+                newBasis[loc][1] = edges[iter_1][1];
+            }
+            
+            for (var iter_0 = 0; iter_0 < newBasis.length; iter_0++)
+            {
+                prob.persons[newBasis[iter_0][0]].asmt = newBasis[iter_0][1];
+                prob.jobs[newBasis[iter_0][1]].asmt = newBasis[iter_0][0];
+            }
+            
+            for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+            {
+                var found = false;
+                for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+                {
+                    if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+                    {
+                        found = true;
+                    }
+                }
+                if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+                {
+                    var loc = newBasis.length;
+                    newBasis[loc] = new Array();
+                    newBasis[loc][0] = prob.basis[iter_0][0];
+                    newBasis[loc][1] = prob.basis[iter_0][1];
+                }
+            }
+        }
+        else
+        {
+            text += "This solution is degenerate<br>";
+            var newBasis = new Array();
+            newBasis[0] = new Array();
+            newBasis[0][0] = prob.newPer;
+            newBasis[0][1] = prob.newJob;
+            
+            for (var iter_1 = 1; iter_1 < edges.length; iter_1++)
+            {
+                var loc = newBasis.length;
+                newBasis[loc] = new Array();
+                newBasis[loc][0] = edges[iter_1][0];
+                newBasis[loc][1] = edges[iter_1][1];
+            }
+            
+            for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+            {
+                var found = false;
+                for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+                {
+                    if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+                    {
+                        found = true;
+                    }
+                }
+                if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+                {
+                    var loc = newBasis.length;
+                    newBasis[loc] = new Array();
+                    newBasis[loc][0] = prob.basis[iter_0][0];
+                    newBasis[loc][1] = prob.basis[iter_0][1];
+                }
+            }
+        }
+        
+        for (var iter_1 = 0; iter_1 < newBasis.length; iter_1++)
+        {
+            if (prob.persons[newBasis[iter_1][0]].asmt == newBasis[iter_1][1])
+            {
+                text += "<b>newBasis(" + iter_1 + ") = (" + newBasis[iter_1][0] + ", " + newBasis[iter_1][1] + ")</b><br>";
+            }
+            else
+            {
+                text += "newBasis(" + iter_1 + ") = (" + newBasis[iter_1][0] + ", " + newBasis[iter_1][1] + ")<br>";
+            }
+        }
+        
+        prob.basis = new Array();
+        
+        for (var iter = 0; iter < newBasis.length; iter++)
+        {
+            prob.basis[iter] = new Array();
+            prob.basis[iter][0] = newBasis[iter][0];
+            prob.basis[iter][1] = newBasis[iter][1];
+        }
+
+        text += dispBasis(prob);
+        resetCanvas(prob);
+        drawStage1Sol(prob);
+        
+//        document.getElementById("B9").hidden = true;
+        document.getElementById("B10").hidden = true;
+        document.getElementById("B11").hidden = true;
+        document.getElementById("B12").hidden = false;
+        document.getElementById("B13").hidden = true;
+        
+        document.getElementById("output").innerHTML += text;
+        
+    }
+    
+    return prob;
+}
+
+function primalObj(prob)
+{
+    var primalcost = 0;
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        primalcost += prob.persons[k].cost[prob.persons[k].asmt];
+    }
+
+    return primalcost;
+}
+
+function dualObj(prob)
+{
+    prob = setCaps(prob);
+    
+    var dualcost = 0;
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        dualcost += prob.persons[k].uVar;
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        dualcost += prob.jobs[i].vVar;
+    }
+    
+    return dualcost;
+}
+
+function testStage1(prob)
+{    
+    var text = "";
+    prob.feas = true;
+    prob.newPer = -1;
+    prob.newJob = -1;
+    prob.rhs = -1;
+    for (var k = 0; k < prob.persons.length && prob.feas; k++)
+    {
+        for (var i = 0; i < prob.jobs.length && prob.feas; i++)
+        {
+            var found = false;
+            for (var iter = 0; iter < prob.basis.length; iter++)
+            {
+                if (prob.basis[iter][0] == k && prob.basis[iter][1] == i)
+                {
+                    found = true;
+                }
+            }
+            if (!found)
+            {
+                if (eval(prob.persons[k].uVar + prob.jobs[i].vVar - prob.persons[k].cost[i]) > 0.0000001)  
+                {
+                    text += "The following constraint is violated by this solution<br>";
+                    text += "u<sub>" + k + "</sub> + v<sub>" + i + "</sub> <= " + eval(prob.persons[k].cost[i]) + "<br>";
+                    text += prob.persons[k].uVar.toFixed(3) + " + " + prob.jobs[i].vVar.toFixed(3) + " <= " +  eval(prob.persons[k].cost[i]) + "<br>";
+                    text += eval(prob.persons[k].uVar + prob.jobs[i].vVar).toFixed(3) + " <= " + eval(prob.persons[k].cost[i]) + "<br>";
+
+                    prob.feas = false;
+                    prob.newPer = k;
+                    prob.newJob = i;
+                    prob.rhs = prob.persons[k].cost[i];
+                    
+                    drawStage1Infeas(prob);
+                }
+            }
+        }
+    }
+    
+    if (prob.feas)
+    {
+        text += "We did not find any dual constraints violated, so this solution is optimal.<br>";
+    }
+    else
+    {
+        document.getElementById("B11").hidden = false;
+    }
+    
+    document.getElementById("output").innerHTML += text;
+        
+    return prob;
+}
+
+function buildLP(prob)
+{
+    var text = "";
+    text += "Objective Function: <br>";
+    text += "minimize ";
+
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        for (var i = 0; i < prob.jobs.length; i++)
+        {
+            text +=  prob.persons[k].cost[i] + " * w<sub>" + k + ", " + i + ", " + j + ", " + t + "</sub> + ";
+        }
+    }
+    text = text.substring(0, text.length-3);
+    text += "<br><br>Subject to: <br><br>";
+    var count = 0;
+
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        for (var i = 0; i < prob.jobs.length; i++)
+        {
+            text += "x<sub>" + k + ", " + i + "</sub> + ";
+            count++;
+        }
+        text = text.substring(0, text.length-3);
+        text += " = 1<br>";
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        for (var k = 0; k < prob.persons.length; k++)
+        {
+            text += "x<sub>" + k + ", " + i + "</sub> + ";
+        }
+    }
+    
+    document.getElementById("output").innerHTML += text;
+}
+
+function setInitBasis(prob)
+{
+    prob.basis = new Array();
+    for (var k = 0; k < prob.persons.length-1; k++)
+    {
+        var loc = prob.basis.length;
+        prob.basis[loc] = new Array();
+        prob.basis[loc][0] = k;
+        prob.basis[loc][1] = prob.persons[k].asmt;
+        
+        loc++;
+        prob.basis[loc] = new Array();
+        var found = false;
+        for (var k2 = k+1; k2 < prob.persons.length && !found; k2++)
+        {
+            prob.basis[loc][0] = k;
+            prob.basis[loc][1] = prob.persons[k2].asmt;
+            found = true;
+        }
+        if (!found)
+        {
+            prob.basis[loc][0] = k;
+            found = false;
+            var loc2 = -1;
+            for (var i = 0; i < prob.jobs.length && !found; i++)
+            {
+                found = true;
+                loc2 = i;
+            }
+            prob.basis[loc][1] = loc2;
+        }
+    }
+    
+    var loc = prob.basis.length;
+    prob.basis[loc] = new Array();
+    prob.basis[loc][0] = k;
+    prob.basis[loc][1] = prob.jobs[k].asmt;
+    
+    return prob;
+}
+
+function dispBasis(prob)
+{
+    var text = "";
+    for (var init = 0; init < prob.basis.length; init++)
+    {
+        if (prob.persons[prob.basis[init][0]].asmt == prob.basis[init][1])
+        {
+            text += "<b>(" + prob.basis[init][0] + ", " + prob.basis[init][1] + ")</b><br>";
+        }
+        else
+        {
+            text += "(" + prob.basis[init][0] + ", " + prob.basis[init][1] + ")<br>";
+        }
+    }
+    return text;
+}
+
+function setCaps(prob)
+{
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        prob.jobs[i].initCap = 1
+    }
+    return prob;
+}
+
+function resetBoard()
+{
+    document.getElementById('input').innerHTML='';
+    document.getElementById('output').innerHTML='';
+    resetCanvas(prob);
+    drawStage1(prob);
+    drawStage2(prob);
+}
+
+function drawStage1(prob)
+{
+    var c = document.getElementById("stage1");
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = "#000000";
+    
+    ctx.fillText("People", (0 + c.width) / 5 - 30, 20);
+    ctx.fillText("Jobs", 4*(0 + c.width) / 5, 20);
+
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        if ((k+1) != 0)
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(k+1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+        else
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        if (prob.jobs[i].initCap > 0)
+        {
+            if ((i+1) != 0)
+                ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(i+1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+            else
+                ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+        }
+    }
+    
+    ctx.strokeStyle = "#FF00FF";
+    ctx.lineWidth = 1;
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        for (var i = 0; i < prob.jobs.length; i++)
+        {
+            ctx.beginPath();
+            ctx.moveTo(prob.persons[k].xLoc + 10, prob.persons[k].yLoc);
+            ctx.lineTo(prob.jobs[i].xLoc - 10, prob.jobs[i].yLoc);
+            ctx.stroke();
+        }
+    }
+    
+    document.getElementById("stage1").focus();
+}
+
+function drawStage1Sol(prob)
+{
+    resetCanvas(prob);
+    var c = document.getElementById("stage1");
+    var ctx = c.getContext("2d");
+    
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fill();
+    ctx.fillStyle = "#000000";
+    
+    ctx.fillText("People", (0 + c.width) / 5 - 30, 20);
+    ctx.fillText("Jobs", 4*(0 + c.width) / 5, 20);
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        if (k+1 != 0)
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(k+1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+        else
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        if ((i+1) != 0)
+            ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(i+1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+        else
+            ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+    }
+        
+    ctx.font = '8pt Calibri';
+        
+    ctx.font = '8pt Calibri';
+    ctx.strokeStyle = "#C0C0C0";
+    ctx.lineWidth = 1;
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        for (var i = 0; i < prob.jobs.length; i++)
+        {
+            ctx.beginPath();
+            ctx.moveTo(prob.persons[k].xLoc + 10, prob.persons[k].yLoc);
+            ctx.lineTo(prob.jobs[i].xLoc - 10, prob.jobs[i].yLoc);
+            ctx.stroke();
+        }
+    }
+    
+    ctx.strokeStyle = "#0000FF";
+    ctx.lineWidth = 2;
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        ctx.beginPath();
+        ctx.moveTo(prob.persons[k].xLoc + 10, prob.persons[k].yLoc);
+        ctx.lineTo(prob.jobs[prob.persons[k].asmt].xLoc - 10, prob.jobs[prob.persons[k].asmt].yLoc);
+        ctx.stroke();
+    }
+    
+    ctx.strokeStyle = "#00FFFF";
+    ctx.lineWidth = 1;
+    
+    for (var iter = 0; iter < prob.basis.length; iter++)
+    {
+        if (prob.persons[prob.basis[iter][0]].asmt != prob.basis[iter][1])
+        {
+            ctx.beginPath();
+            ctx.moveTo(prob.persons[prob.basis[iter][0]].xLoc + 10, prob.persons[prob.basis[iter][0]].yLoc);
+            ctx.lineTo(prob.jobs[prob.basis[iter][1]].xLoc - 10, prob.jobs[prob.basis[iter][1]].yLoc);
+            ctx.stroke();
+        }
+    }
+    
+    document.getElementById("stage1").focus();
+}
+
+function drawStage1Basis(prob)
+{
+    var c = document.getElementById("stage1");
+    var ctx = c.getContext("2d");
+    
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fill();
+    ctx.fillStyle = "#000000";
+    
+    ctx.fillText("People", (0 + c.width) / 5 - 30, 20);
+    ctx.fillText("Jobs", 4*(0 + c.width) / 5, 20);
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        if (k+1 != 0)
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(k+1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+        else
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        if ((i+1) != 0)
+            ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(i+1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+        else
+            ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+    }
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        ctx.font = '6pt Calibri';
+        ctx.fillStyle = '#0000FF';
+        ctx.fillText(prob.persons[k].uVar.toFixed(2), prob.persons[k].xLoc - 35, prob.persons[k].yLoc+4);
+    }
+    
+    ctx.font = '8pt Calibri';
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        ctx.font = '6pt Calibri';
+        ctx.fillStyle = '#0000FF';
+        ctx.fillText(prob.jobs[i].vVar.toFixed(2), prob.jobs[i].xLoc + 25, prob.jobs[i].yLoc+4);
+    }
+    
+    ctx.font = '8pt Calibri';
+    ctx.strokeStyle = "#C0C0C0";
+    ctx.lineWidth = 1;
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        for (var i = 0; i < prob.jobs.length; i++)
+        {
+            ctx.beginPath();
+            ctx.moveTo(prob.persons[k].xLoc + 10, prob.persons[k].yLoc);
+            ctx.lineTo(prob.jobs[i].xLoc - 10, prob.jobs[i].yLoc);
+            ctx.stroke();
+        }
+    }
+    
+    ctx.strokeStyle = "#0000FF";
+    ctx.lineWidth = 2;
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        ctx.beginPath();
+        ctx.moveTo(prob.persons[k].xLoc + 10, prob.persons[k].yLoc);
+        ctx.lineTo(prob.jobs[prob.persons[k].asmt].xLoc - 10, prob.jobs[prob.persons[k].asmt].yLoc);
+        ctx.stroke();
+    }
+    
+    ctx.strokeStyle = "#00FFFF";
+    ctx.lineWidth = 1;
+    
+    for (var iter = 0; iter < prob.basis.length; iter++)
+    {
+        if (prob.persons[prob.basis[iter][0]].asmt != prob.basis[iter][1])
+        {
+            ctx.beginPath();
+            ctx.moveTo(prob.persons[prob.basis[iter][0]].xLoc + 10, prob.persons[prob.basis[iter][0]].yLoc);
+            ctx.lineTo(prob.jobs[prob.basis[iter][1]].xLoc - 10, prob.jobs[prob.basis[iter][1]].yLoc);
+            ctx.stroke();
+        }
+    }
+    
+    document.getElementById("stage1").focus();
+}
+
+function drawStage1Infeas(prob)
+{
+    if (!prob.feas)
+    {
+        var c = document.getElementById("stage1");
+        var ctx = c.getContext("2d");
+        
+        ctx.strokeStyle = "#FF0000";
+        ctx.beginPath();
+        ctx.moveTo(prob.persons[prob.newPer].xLoc + 10, prob.persons[prob.newPer].yLoc);
+        ctx.lineTo(prob.jobs[prob.newJob].xLoc - 10, prob.jobs[prob.newJob].yLoc);
+        ctx.stroke();
+    }
+    
+    document.getElementById("stage1").focus();
+}
+
+function resetCanvas(prob)
+{
+    var c = document.getElementById("stage1");
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fill();
+}
+
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="assignment, problem, network, simplex, northwest, corner, minimum, matrix, javascript, operations research, operations, research, graph, theory, algorithms" />
+<meta name="description" content="This page shows a script that is used to help understand how to solve the assignment problem" />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function indexOf(list, elmt)
+{
+    var loc = -1
+    for (var i = 0; i < list.length && loc == -1; i++)
+    {
+        if (list[i] == elmt)
+        loc = i;
+    }
+    return loc;
+}
+
+function getData()
+{
+    var numPeople = Math.floor(Math.random()*4)+5;
+    var prob = new Object();
+    var text = "";
+    prob.persons = new Array(numPeople);
+    prob.jobs = new Array(numPeople);
+
+    document.getElementById("B9").hidden = true;
+    document.getElementById("B10").hidden = true;
+    document.getElementById("B11").hidden = true;
+//    document.getElementById("B12").hidden = true;
+
+    text += "<table>";
+    text += "<tr><td></td>";
+    for (var i = 0; i < numPeople; i++)
+    {
+        text += "<td>Job " + (i+1) + "</td>";
+    }
+    text += "</td>";
+    
+    for (var k = 0; k < numPeople; k++)
+    {
+        text += "<tr><td>Person " + (k+1) + "</td>";
+        prob.persons[k] = new Object();
+        prob.persons[k].remPerson = k+1;
+        prob.persons[k].asmt = -1;
+        prob.persons[k].cost = new Array();
+        for (var i = 0; i < numPeople; i++)
+        {
+            prob.persons[k].cost[i] = Math.floor(Math.random()*25)+1;
+            text += "<td>" + prob.persons[k].cost[i] + "</td>";
+        }
+        text += "</tr>";
+    }
+    text += "</table>";
+    
+    document.getElementById("input").innerHTML += text;
+
+    
+    for (var i = 0; i < numPeople; i++)
+    {
+        prob.jobs[i] = new Object();
+        prob.jobs[i].asmt = -1;
+    }
+
+    prob = setCaps(prob);
+        
+    var c = document.getElementById("stage1");
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = "#000000";
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        prob.persons[k].yLoc = k*75+50;
+        prob.persons[k].xLoc = (0 + c.width) / 5;
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        prob.jobs[i].yLoc = i*75+50;
+        prob.jobs[i].xLoc = 4*(0 + c.width) / 5;
+    }
+    
+    return prob;
+}
+
+function dispAsmt(prob)
+{
+    var text = "";
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        text += "Person " + k + " is assigned to job " + prob.persons[k].asmt + "<br>";
+    }
+    
+    return text;
+}
+    
+function nwcInit(prob)
+{
+    var text = "";
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        prob.persons[k].asmt = k;
+        prob.jobs[k].asmt = k;
+    }
+    text += dispAsmt(prob);
+    
+    var primalcost = 0;
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        primalcost += prob.persons[k].cost[prob.persons[k].asmt];
+    }
+    
+    document.getElementById("output").innerHTML += text;
+    document.getElementById("B9").hidden = false;
+    document.getElementById("B12").hidden = false;
+    document.getElementById("B13").hidden = true;
+    prob = setCaps(prob);
+    prob = setInitBasis(prob);
+    document.getElementById("output").innerHTML += dispBasis(prob);
+    drawStage1Sol(prob);
+    
+    return prob;
+}
+
+function minMtrxInit(prob)
+{
+    var text = "";
+    var jobCap = new Array();
+    var perCap = new Array();
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        jobCap[k] = 1;
+        perCap[k] = 1;
+    }
+    
+    var numIter = prob.persons.length;
+    
+    var minVal;
+    var minLocP;
+    var minLocJ;
+    
+    for (var i = 0; i < numIter; i++)
+    {
+        minVal = 100000;
+        minLocP = -1;
+        minLocJ = -1;
+
+        for (var k = 0; k < prob.persons.length; k++)
+        {
+            for (var j = 0; j < prob.jobs.length; j++)
+            {
+                if (prob.persons[k].cost[j] < minVal && jobCap[j] == 1 && perCap[k] == 1)
+                {
+                    minVal = prob.persons[k].cost[j];
+                    minLocP = k;
+                    minLocJ = j;
+                }
+            }
+        }
+        
+        prob.persons[minLocP].asmt = minLocJ;
+        prob.jobs[minLocJ].asmt = minLocP;
+        jobCap[minLocJ]--;
+        perCap[minLocP]--;
+    }
+    
+    text += dispAsmt(prob);
+    
+    var primalcost = 0;
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        primalcost += prob.persons[k].cost[prob.persons[k].asmt];
+    }
+    
+    document.getElementById("output").innerHTML += text;
+    document.getElementById("B9").hidden = false;
+    document.getElementById("B10").hidden = true;
+    document.getElementById("B11").hidden = true;
+    document.getElementById("B12").hidden = false;
+    document.getElementById("B13").hidden = true;
+    
+    prob = setCaps(prob);
+    prob = setInitBasis(prob);
+    document.getElementById("output").innerHTML += dispBasis(prob);
+    drawStage1Sol(prob);
+    
+    return prob;
+}
+
+function solveDualStage1(prob)
+{
+/*
+    First we must initialize the basis. These will always be in 
+    (flight, slot) pairs, where flight is the location of the flight
+    in the array of flights and slot is the location of the slot in the
+    array of slots (NOT the slot time). 
+*/
+    var text = "";
+    
+//    text += dispBasis(prob);
+
+    var queue = new Array();
+    var curr = 0;
+    queue[curr] = prob.basis[prob.basis.length-1][0] + "-P";
+    prob.persons[prob.basis[prob.basis.length-1][0]].uVar = 0;
+    while (curr < 2*prob.persons.length-1)
+    {
+        var temp = queue[curr].split("-");
+        if (temp[1] == "P")
+        {
+            for (var iter = 0; iter < prob.basis.length; iter++)
+            {
+                if (prob.basis[iter][0] == temp[0])
+                {
+                    if (indexOf(queue, prob.basis[iter][1] + "-J") == -1)
+                    {
+                        queue[queue.length] = prob.basis[iter][1] + "-J";
+                        prob.jobs[prob.basis[iter][1]].vVar = eval(prob.persons[temp[0]].cost[prob.basis[iter][1]] - prob.persons[temp[0]].uVar);
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (var iter = 0; iter < prob.basis.length; iter++)
+            {
+                if (prob.basis[iter][1] == temp[0])
+                {
+                    if (indexOf(queue, prob.basis[iter][0] + "-P") == -1)
+                    {
+                        queue[queue.length] = prob.basis[iter][0] + "-P";
+                        prob.persons[prob.basis[iter][0]].uVar = eval(prob.persons[prob.basis[iter][0]].cost[temp[0]] - prob.jobs[temp[0]].vVar);
+                    }
+                }
+            }
+        }
+        
+        curr++;
+    }
+    
+    //Now we have the dual variables for the basis. 
+    
+    text += "This process gives the following dual variables: <br>";
+        
+    //This should be put into a function dispStage1Dual(prob)
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        text += "u<sub>" + k + "</sub> = " + prob.persons[k].uVar.toFixed(3) + "<br>";
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        text += "v<sub>" + i + "</sub> = " + prob.jobs[i].vVar.toFixed(3) + "<br>";
+    }
+    
+    //End of should be function.     
+
+    document.getElementById("output").innerHTML += text;
+    drawStage1Basis(prob);
+    document.getElementById("B9").hidden = false;
+    document.getElementById("B10").hidden = false;
+    document.getElementById("B11").hidden = true;
+    document.getElementById("B12").hidden = false;
+    document.getElementById("B13").hidden = false;
+    
+    return prob;
+}
+
+function pivot(prob)
+{        
+    var text = "";
+    if (!prob.feasible)
+    {
+        text += "We have violated the constraint: <br>";
+        text += "u<sub>" + prob.newPer + "</sub> + v<sub>" + prob.newJob + "</sub> <= " + prob.rhs.toFixed(3) + "<br>";
+        text += "So we will add the corresponding edge to the basis and remove another arc. <br>";
+        var queue = new Array();
+        var parent = new Array();
+        var curr = 0;
+        queue[curr] = prob.newPer + "-P";
+        parent[curr] = -1;
+        var found = false;
+        while (!found)
+        {
+            text += curr + ") queue = " + queue + " - " + queue.length + "<br>";
+            text += curr + ") parent = " + parent + " - " + parent.length + "<br>";
+            var temp = queue[curr].split("-");
+            for (var iter = 0; iter < prob.basis.length && !found; iter++)
+            {
+                if (temp[1] == "P" && prob.basis[iter][0] == temp[0])
+                {
+                    if (indexOf(queue, prob.basis[iter][1] + "-J") == -1)
+                    {
+                        queue[queue.length] = prob.basis[iter][1] + "-J";
+                        if (parent[curr] != -1)
+                            parent[parent.length] = parent[curr] + "->" + curr;
+                        else
+                            parent[parent.length] = curr;
+                        if (prob.basis[iter][1] == prob.newJob)
+                        {
+                            found = true;
+                        }
+                    }
+                }
+                else if (temp[1] == "J" && prob.basis[iter][1] == temp[0])
+                {
+                    if (indexOf(queue, prob.basis[iter][0] + "-P") == -1)
+                    {
+                        queue[queue.length] = prob.basis[iter][0] + "-P";
+                        if (parent[curr] != -1)
+                            parent[parent.length] = parent[curr] + "->" + curr;
+                        else
+                            parent[parent.length] = curr;
+                    }
+                }
+            }
+            curr++;
+        }
+        curr--;
+        
+        text += "The path from " + prob.newPer + " to " + prob.newJob + " that already exists in our basis is: <br>";
+        
+        var path = parent[parent.length-1].split("->");
+        var edges = new Array();
+        for (var i = 0; i < path.length; i++)
+        {
+            edges[i] = new Array();
+            if (i < path.length - 1 && i % 2 == 0)
+            {
+                edges[i][0] = queue[path[i]].split("-")[0];
+                edges[i][1] = queue[path[i+1]].split("-")[0];
+                text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+            }
+            else if (i < path.length - 1 && i % 2 == 1)
+            {
+                edges[i][1] = queue[path[i]].split("-")[0];
+                edges[i][0] = queue[path[i+1]].split("-")[0];
+                text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+            }
+            else
+            {
+                edges[i][0] = queue[path[i]].split("-")[0];
+                edges[i][1] = queue[queue.length-1].split("-")[0];
+                text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+            }
+        }
+        
+        var degen = false;
+        for (var iter_1 = 0; iter_1 < edges.length && !degen; iter_1 += 2)
+        {
+            if (prob.persons[edges[iter_1][0]].asmt != edges[iter_1][1])
+            {
+                degen = true;
+            }
+        }
+        
+        if (!degen)
+        {
+            text += "This solution is NOT degenerate<br>";
+            var newBasis = new Array();
+            newBasis[0] = new Array();
+            newBasis[0][0] = prob.newPer;
+            newBasis[0][1] = prob.newJob;
+        
+            for (var iter_1 = 1; iter_1 < edges.length; iter_1 += 2)
+            {
+                var loc = newBasis.length;
+                newBasis[loc] = new Array();
+                newBasis[loc][0] = edges[iter_1][0];
+                newBasis[loc][1] = edges[iter_1][1];
+            }
+            
+            for (var iter_0 = 0; iter_0 < newBasis.length; iter_0++)
+            {
+                prob.persons[newBasis[iter_0][0]].asmt = newBasis[iter_0][1];
+                prob.jobs[newBasis[iter_0][1]].asmt = newBasis[iter_0][0];
+            }
+            
+            for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+            {
+                var found = false;
+                for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+                {
+                    if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+                    {
+                        found = true;
+                    }
+                }
+                if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+                {
+                    var loc = newBasis.length;
+                    newBasis[loc] = new Array();
+                    newBasis[loc][0] = prob.basis[iter_0][0];
+                    newBasis[loc][1] = prob.basis[iter_0][1];
+                }
+            }
+        }
+        else
+        {
+            text += "This solution is degenerate<br>";
+            var newBasis = new Array();
+            newBasis[0] = new Array();
+            newBasis[0][0] = prob.newPer;
+            newBasis[0][1] = prob.newJob;
+            
+            for (var iter_1 = 1; iter_1 < edges.length; iter_1++)
+            {
+                var loc = newBasis.length;
+                newBasis[loc] = new Array();
+                newBasis[loc][0] = edges[iter_1][0];
+                newBasis[loc][1] = edges[iter_1][1];
+            }
+            
+            for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+            {
+                var found = false;
+                for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+                {
+                    if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+                    {
+                        found = true;
+                    }
+                }
+                if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+                {
+                    var loc = newBasis.length;
+                    newBasis[loc] = new Array();
+                    newBasis[loc][0] = prob.basis[iter_0][0];
+                    newBasis[loc][1] = prob.basis[iter_0][1];
+                }
+            }
+        }
+        
+        for (var iter_1 = 0; iter_1 < newBasis.length; iter_1++)
+        {
+            if (prob.persons[newBasis[iter_1][0]].asmt == newBasis[iter_1][1])
+            {
+                text += "<b>newBasis(" + iter_1 + ") = (" + newBasis[iter_1][0] + ", " + newBasis[iter_1][1] + ")</b><br>";
+            }
+            else
+            {
+                text += "newBasis(" + iter_1 + ") = (" + newBasis[iter_1][0] + ", " + newBasis[iter_1][1] + ")<br>";
+            }
+        }
+        
+        prob.basis = new Array();
+        
+        for (var iter = 0; iter < newBasis.length; iter++)
+        {
+            prob.basis[iter] = new Array();
+            prob.basis[iter][0] = newBasis[iter][0];
+            prob.basis[iter][1] = newBasis[iter][1];
+        }
+
+        text += dispBasis(prob);
+        resetCanvas(prob);
+        drawStage1Sol(prob);
+        
+//        document.getElementById("B9").hidden = true;
+        document.getElementById("B10").hidden = true;
+        document.getElementById("B11").hidden = true;
+        document.getElementById("B12").hidden = false;
+        document.getElementById("B13").hidden = true;
+        
+        document.getElementById("output").innerHTML += text;
+        
+    }
+    
+    return prob;
+}
+
+function primalObj(prob)
+{
+    var primalcost = 0;
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        primalcost += prob.persons[k].cost[prob.persons[k].asmt];
+    }
+
+    return primalcost;
+}
+
+function dualObj(prob)
+{
+    prob = setCaps(prob);
+    
+    var dualcost = 0;
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        dualcost += prob.persons[k].uVar;
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        dualcost += prob.jobs[i].vVar;
+    }
+    
+    return dualcost;
+}
+
+function testStage1(prob)
+{    
+    var text = "";
+    prob.feas = true;
+    prob.newPer = -1;
+    prob.newJob = -1;
+    prob.rhs = -1;
+    for (var k = 0; k < prob.persons.length && prob.feas; k++)
+    {
+        for (var i = 0; i < prob.jobs.length && prob.feas; i++)
+        {
+            var found = false;
+            for (var iter = 0; iter < prob.basis.length; iter++)
+            {
+                if (prob.basis[iter][0] == k && prob.basis[iter][1] == i)
+                {
+                    found = true;
+                }
+            }
+            if (!found)
+            {
+                if (eval(prob.persons[k].uVar + prob.jobs[i].vVar - prob.persons[k].cost[i]) > 0.0000001)  
+                {
+                    text += "The following constraint is violated by this solution<br>";
+                    text += "u<sub>" + k + "</sub> + v<sub>" + i + "</sub> <= " + eval(prob.persons[k].cost[i]) + "<br>";
+                    text += prob.persons[k].uVar.toFixed(3) + " + " + prob.jobs[i].vVar.toFixed(3) + " <= " +  eval(prob.persons[k].cost[i]) + "<br>";
+                    text += eval(prob.persons[k].uVar + prob.jobs[i].vVar).toFixed(3) + " <= " + eval(prob.persons[k].cost[i]) + "<br>";
+
+                    prob.feas = false;
+                    prob.newPer = k;
+                    prob.newJob = i;
+                    prob.rhs = prob.persons[k].cost[i];
+                    
+                    drawStage1Infeas(prob);
+                }
+            }
+        }
+    }
+    
+    if (prob.feas)
+    {
+        text += "We did not find any dual constraints violated, so this solution is optimal.<br>";
+    }
+    else
+    {
+        document.getElementById("B11").hidden = false;
+    }
+    
+    document.getElementById("output").innerHTML += text;
+        
+    return prob;
+}
+
+function buildLP(prob)
+{
+    var text = "";
+    text += "Objective Function: <br>";
+    text += "minimize ";
+
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        for (var i = 0; i < prob.jobs.length; i++)
+        {
+            text +=  prob.persons[k].cost[i] + " * w<sub>" + k + ", " + i + ", " + j + ", " + t + "</sub> + ";
+        }
+    }
+    text = text.substring(0, text.length-3);
+    text += "<br><br>Subject to: <br><br>";
+    var count = 0;
+
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        for (var i = 0; i < prob.jobs.length; i++)
+        {
+            text += "x<sub>" + k + ", " + i + "</sub> + ";
+            count++;
+        }
+        text = text.substring(0, text.length-3);
+        text += " = 1<br>";
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        for (var k = 0; k < prob.persons.length; k++)
+        {
+            text += "x<sub>" + k + ", " + i + "</sub> + ";
+        }
+    }
+    
+    document.getElementById("output").innerHTML += text;
+}
+
+function setInitBasis(prob)
+{
+    prob.basis = new Array();
+    for (var k = 0; k < prob.persons.length-1; k++)
+    {
+        var loc = prob.basis.length;
+        prob.basis[loc] = new Array();
+        prob.basis[loc][0] = k;
+        prob.basis[loc][1] = prob.persons[k].asmt;
+        
+        loc++;
+        prob.basis[loc] = new Array();
+        var found = false;
+        for (var k2 = k+1; k2 < prob.persons.length && !found; k2++)
+        {
+            prob.basis[loc][0] = k;
+            prob.basis[loc][1] = prob.persons[k2].asmt;
+            found = true;
+        }
+        if (!found)
+        {
+            prob.basis[loc][0] = k;
+            found = false;
+            var loc2 = -1;
+            for (var i = 0; i < prob.jobs.length && !found; i++)
+            {
+                found = true;
+                loc2 = i;
+            }
+            prob.basis[loc][1] = loc2;
+        }
+    }
+    
+    var loc = prob.basis.length;
+    prob.basis[loc] = new Array();
+    prob.basis[loc][0] = k;
+    prob.basis[loc][1] = prob.jobs[k].asmt;
+    
+    return prob;
+}
+
+function dispBasis(prob)
+{
+    var text = "";
+    for (var init = 0; init < prob.basis.length; init++)
+    {
+        if (prob.persons[prob.basis[init][0]].asmt == prob.basis[init][1])
+        {
+            text += "<b>(" + prob.basis[init][0] + ", " + prob.basis[init][1] + ")</b><br>";
+        }
+        else
+        {
+            text += "(" + prob.basis[init][0] + ", " + prob.basis[init][1] + ")<br>";
+        }
+    }
+    return text;
+}
+
+function setCaps(prob)
+{
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        prob.jobs[i].initCap = 1
+    }
+    return prob;
+}
+
+function resetBoard()
+{
+    document.getElementById('input').innerHTML='';
+    document.getElementById('output').innerHTML='';
+    resetCanvas(prob);
+    drawStage1(prob);
+    drawStage2(prob);
+}
+
+function drawStage1(prob)
+{
+    var c = document.getElementById("stage1");
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = "#000000";
+    
+    ctx.fillText("People", (0 + c.width) / 5 - 30, 20);
+    ctx.fillText("Jobs", 4*(0 + c.width) / 5, 20);
+
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        if ((k+1) != 0)
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(k+1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+        else
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        if (prob.jobs[i].initCap > 0)
+        {
+            if ((i+1) != 0)
+                ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(i+1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+            else
+                ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+        }
+    }
+    
+    ctx.strokeStyle = "#FF00FF";
+    ctx.lineWidth = 1;
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        for (var i = 0; i < prob.jobs.length; i++)
+        {
+            ctx.beginPath();
+            ctx.moveTo(prob.persons[k].xLoc + 10, prob.persons[k].yLoc);
+            ctx.lineTo(prob.jobs[i].xLoc - 10, prob.jobs[i].yLoc);
+            ctx.stroke();
+        }
+    }
+    
+    document.getElementById("stage1").focus();
+}
+
+function drawStage1Sol(prob)
+{
+    resetCanvas(prob);
+    var c = document.getElementById("stage1");
+    var ctx = c.getContext("2d");
+    
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fill();
+    ctx.fillStyle = "#000000";
+    
+    ctx.fillText("People", (0 + c.width) / 5 - 30, 20);
+    ctx.fillText("Jobs", 4*(0 + c.width) / 5, 20);
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        if (k+1 != 0)
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(k+1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+        else
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        if ((i+1) != 0)
+            ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(i+1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+        else
+            ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+    }
+        
+    ctx.font = '8pt Calibri';
+        
+    ctx.font = '8pt Calibri';
+    ctx.strokeStyle = "#C0C0C0";
+    ctx.lineWidth = 1;
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        for (var i = 0; i < prob.jobs.length; i++)
+        {
+            ctx.beginPath();
+            ctx.moveTo(prob.persons[k].xLoc + 10, prob.persons[k].yLoc);
+            ctx.lineTo(prob.jobs[i].xLoc - 10, prob.jobs[i].yLoc);
+            ctx.stroke();
+        }
+    }
+    
+    ctx.strokeStyle = "#0000FF";
+    ctx.lineWidth = 2;
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        ctx.beginPath();
+        ctx.moveTo(prob.persons[k].xLoc + 10, prob.persons[k].yLoc);
+        ctx.lineTo(prob.jobs[prob.persons[k].asmt].xLoc - 10, prob.jobs[prob.persons[k].asmt].yLoc);
+        ctx.stroke();
+    }
+    
+    ctx.strokeStyle = "#00FFFF";
+    ctx.lineWidth = 1;
+    
+    for (var iter = 0; iter < prob.basis.length; iter++)
+    {
+        if (prob.persons[prob.basis[iter][0]].asmt != prob.basis[iter][1])
+        {
+            ctx.beginPath();
+            ctx.moveTo(prob.persons[prob.basis[iter][0]].xLoc + 10, prob.persons[prob.basis[iter][0]].yLoc);
+            ctx.lineTo(prob.jobs[prob.basis[iter][1]].xLoc - 10, prob.jobs[prob.basis[iter][1]].yLoc);
+            ctx.stroke();
+        }
+    }
+    
+    document.getElementById("stage1").focus();
+}
+
+function drawStage1Basis(prob)
+{
+    var c = document.getElementById("stage1");
+    var ctx = c.getContext("2d");
+    
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fill();
+    ctx.fillStyle = "#000000";
+    
+    ctx.fillText("People", (0 + c.width) / 5 - 30, 20);
+    ctx.fillText("Jobs", 4*(0 + c.width) / 5, 20);
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        if (k+1 != 0)
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(k+1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+        else
+            ctx.fillText((k+1), prob.persons[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.persons[k].yLoc+4);
+    }
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        if ((i+1) != 0)
+            ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(i+1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+        else
+            ctx.fillText((i+1), prob.jobs[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.jobs[i].yLoc+4);
+    }
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        ctx.font = '6pt Calibri';
+        ctx.fillStyle = '#0000FF';
+        ctx.fillText(prob.persons[k].uVar.toFixed(2), prob.persons[k].xLoc - 35, prob.persons[k].yLoc+4);
+    }
+    
+    ctx.font = '8pt Calibri';
+    
+    for (var i = 0; i < prob.jobs.length; i++)
+    {
+        ctx.font = '6pt Calibri';
+        ctx.fillStyle = '#0000FF';
+        ctx.fillText(prob.jobs[i].vVar.toFixed(2), prob.jobs[i].xLoc + 25, prob.jobs[i].yLoc+4);
+    }
+    
+    ctx.font = '8pt Calibri';
+    ctx.strokeStyle = "#C0C0C0";
+    ctx.lineWidth = 1;
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        for (var i = 0; i < prob.jobs.length; i++)
+        {
+            ctx.beginPath();
+            ctx.moveTo(prob.persons[k].xLoc + 10, prob.persons[k].yLoc);
+            ctx.lineTo(prob.jobs[i].xLoc - 10, prob.jobs[i].yLoc);
+            ctx.stroke();
+        }
+    }
+    
+    ctx.strokeStyle = "#0000FF";
+    ctx.lineWidth = 2;
+    
+    for (var k = 0; k < prob.persons.length; k++)
+    {
+        ctx.beginPath();
+        ctx.moveTo(prob.persons[k].xLoc + 10, prob.persons[k].yLoc);
+        ctx.lineTo(prob.jobs[prob.persons[k].asmt].xLoc - 10, prob.jobs[prob.persons[k].asmt].yLoc);
+        ctx.stroke();
+    }
+    
+    ctx.strokeStyle = "#00FFFF";
+    ctx.lineWidth = 1;
+    
+    for (var iter = 0; iter < prob.basis.length; iter++)
+    {
+        if (prob.persons[prob.basis[iter][0]].asmt != prob.basis[iter][1])
+        {
+            ctx.beginPath();
+            ctx.moveTo(prob.persons[prob.basis[iter][0]].xLoc + 10, prob.persons[prob.basis[iter][0]].yLoc);
+            ctx.lineTo(prob.jobs[prob.basis[iter][1]].xLoc - 10, prob.jobs[prob.basis[iter][1]].yLoc);
+            ctx.stroke();
+        }
+    }
+    
+    document.getElementById("stage1").focus();
+}
+
+function drawStage1Infeas(prob)
+{
+    if (!prob.feas)
+    {
+        var c = document.getElementById("stage1");
+        var ctx = c.getContext("2d");
+        
+        ctx.strokeStyle = "#FF0000";
+        ctx.beginPath();
+        ctx.moveTo(prob.persons[prob.newPer].xLoc + 10, prob.persons[prob.newPer].yLoc);
+        ctx.lineTo(prob.jobs[prob.newJob].xLoc - 10, prob.jobs[prob.newJob].yLoc);
+        ctx.stroke();
+    }
+    
+    document.getElementById("stage1").focus();
+}
+
+function resetCanvas(prob)
+{
+    var c = document.getElementById("stage1");
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fill();
+}
+
+</script>
+<h3><center></center></h3>
+<p><p>Suppose you are the owner of a company and need to delegate tasks to your employees. You've generated a table that tells how long (in minutes) you think it would take each person to accomplish each individual task (called Jobs). Your goal is to find an assignment of people to jobs that minimizes the total amount of time it will take to complete all jobs. The requirements are that each job must be completed by only one person, and each person can complete only one job. </p>
+<p>We can think of the employees at the job as our supply and the tasks as the demand. In order for this problem to have a feasible solution, we must have enough people (supply) to complete the number of jobs (demand). Because of this, our examples will all include situations where there are exactly the same number of people as jobs. <p>
+<p>To solve this problem, we must first generate an initial assignment and see how good this assignment is. There are several ways of generating an initial solution, but two that I wanted to focus on are the "NorthWest Corner Rule" and the "Minimum Matrix Method". </p>
+<ol>
+<li>The <b>Northwest Corner Rule</b> considers the matrix and repeatedly assigns the top remaining row to the left-most remaining column. If we think of the cost matrix as a being like a map then "top" becomes similar to "north" and left-most becomes similar to "west", hence the derivation of the name. In assignment problems, this will result in the main diagonal being selected. 
+<li>The <b>Minimum Matrix Method</b> is an iterative method that searches the matrix for the minimum cell in the matrix and assigns that person to the associated job and removes them from consideration and repeats itself until all people have been assigned to jobs. 
+</ol>
+<p>Once we have formulated an initial feasible solution, we need to check it for optimality. To do this, we use the Network Simplex Method, where we build a basis based on this initial solution. When we consider this problem as a network flow problem, a basis for the problem is a spanning tree (one less than twice the number of nodes in the graph that does not have any cycles) of the network. Because the assignment solution only contains one edge for every two nodes in the graph, we need to add a number of edges to the basis that contains no flow (which makes the solution degenerate) to form this spanning tree.</p>
+<p>Once a spanning tree is formulated, we can solve for the dual variables by arbitrarily setting one node's dual value to zero and solving for the remaining dual variables under the requirement that all arcs in the basis (spanning tree) must satisfy the equation u<sub>k</sub> + v<sub>i</sub> = c<sub>ki</sub> for each person <i>k</i> and job <i>i</i>.</p>
+<p>When we have dual variables, we can check to see if this solution is optimal by checking to see if all the other constraints are violated. This means that for every person <i>k</i> and every job <i>i</i>, we must have u<sub>k</sub> + v<sub>i</sub> <img src="http://www.learninglover.com/chars/leqq.gif"> c<sub>ki</sub> (notice that this is a more relaxed version of what we had when we were solving for the dual variables themselves). </p>
+<p>If a constraint is found to be violated, then we need to add the associated edge to the basis and remove an edge on the cycle that is formulated as a result, which generates a new solution.</p>
+<p>We repeat this process until we have found an optimal solution (which means that no dual constraints will be violated). </p>
+</p>
+<center><canvas id="stage1" width="400" height="600" style="border:1px solid #d3d3d3;" tabindex="1">
+your browser does not support the canvas tag
+</canvas></center>
+<center>
+<p name="input" id="input"></p>
+    
+<input type="reset" value="Reset" name="B1" id="B1" onclick="resetBoard()">
+<input type="button" value="Northwest Corner" name="B2" id="B2" onclick="prob=nwcInit(prob)">
+<input type="button" value="Minimum Matrix" name="B3" id="B3" onclick="prob=minMtrxInit(prob)">
+<input type="button" value="Stage 1 Solution" name="B4" id="B4" onclick="prob=expStg1(prob)">
+<input type="button" value="New Problem" name="B5" id="B5" onclick="prob=getData();resetBoard();"><br>
+<input type="button" value="Stage 1 Dual" name="B9" id="B9" onclick="prob=solveDualStage1(prob);" hidden><br>
+<input type="button" value="Check Violated" name="B10" id="B10" onclick="prob=testStage1(prob);" hidden><br>
+
+<input type="button" value="Pivot" name="B11" id="B11" onclick="prob=pivot(prob)" hidden><br>
+<input type="button" value="Check Primal Objective" name="B12" id="B12" onclick="document.getElementById('output').innerHTML += 'The primal objective function value is ' + primalObj(prob).toFixed(3) + '<br>'">
+<input type="button" value="Check Dual Objective" name="B13" id="B13" onclick="document.getElementById('output').innerHTML += 'The dual objective function value is ' + dualObj(prob).toFixed(3) + '<br>'">
+<br><br><br><br><br>    
+</center>
+<p name="output" id="output"></p>
+<script type="text/javascript">
+var prob=getData();
+drawStage1(prob);
+</script>

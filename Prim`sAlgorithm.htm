@@ -1,0 +1,565 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+Prim`sAlgorithm<script id="sc1" type="text/javascript">
+var M_VAL = 50000;
+function Prim(A, n, show)
+{
+	var B = new Array();
+	for (i = 0; i < n; i++)
+	{
+		B[i] = new Array();
+			for (j = 0; j < n; j++)
+		{
+			B[i][j] = A[i][j];
+		 		if (A[i][j] == 0)
+					A[i][j] = M_VAL;
+		}
+	}
+
+	for (i = 0; i < n; i++)
+	for (j = 0; j < n; j++)
+		if (A[i][j] == 0)
+			A[i][j] = M_VAL;
+	T = [];
+	T[T.length] = 1;
+	E = [];
+	sum = 0;
+	k = 1;
+
+	if (show)
+		document.getElementById('output').innerHTML = "v = " + 1 + "<br>----------<br>";
+
+	while (k < n)
+	{
+		if (show)
+		{
+			text = "<table>";
+			for (i = 0; i < n; i++)
+			{
+				text += "<tr>";
+				for (j = 0; j < n; j++)
+				{
+					count = 0;
+					for (k = 0; k < T.length; k++)
+						if (i == T[k] || j == T[k])
+							count++;
+					if (count)
+					{
+						bb = "<b>";
+						bbe = "</b>";
+					}
+					else
+					{
+						bb = "";
+						bbe = "";
+					}
+					if (A[i][j] == M_VAL)
+						text += "<td>" + bb + "-" + bbe + "</td>";
+					else
+						text += "<td>" + bb + A[i][j] + bbe + "</td>";
+				}
+				text += "</tr>";
+			}
+			text += "</table>";
+			document.getElementById('output').innerHTML += text;
+		}
+		m = M_VAL;
+
+		for (i = 0; i < T.length; i++)
+		for (j = 0; j < n; j++)
+		{
+			if (A[T[i]][j] < m)
+			{
+				m = A[T[i]][j];
+				u = T[i];
+				v = j;
+			}
+		}
+		if (m == M_VAL)
+			k = n;
+		else
+		{
+			T[T.length] = v;
+			E[E.length] = u;
+			E[E.length] = v;
+			sum += m;
+			k++;
+			for (i = 0; i < T.length; i++)
+			for (j = 0; j < T.length; j++)
+				A[T[i]][T[j]] = M_VAL;
+
+		}
+		if (show)
+			document.getElementById('output').innerHTML += "v = " + v + "<br>----------<br>";
+	}
+
+	E[E.length] = sum;
+
+	for (i = 0; i < n; i++)
+	{
+		for (j = 0; j < n; j++)
+		{
+			A[i][j] = B[i][j];
+		}
+	}
+	return E;
+}
+
+function EucDist(point1_x, point1_y, point2_x, point2_y)
+{
+	var i, j, sumSq = 0;
+
+	sumSq += Math.pow(point1_x - point2_x, 2);
+	sumSq += Math.pow(point1_y - point2_y, 2);
+
+	return Math.sqrt(sumSq);
+}
+
+
+function used(list, num1, num2)
+{
+	var i, ans = false;
+	for (i = 0; i < list.length && ans == false; i++)
+	{
+		if (EucDist(list[i][0], list[i][1], num1, num2) < 5)
+			ans = true;
+	}
+
+	return ans;
+}
+
+function drawGraph(A)
+{
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	ctx.clearRect (0, 0, c.width, c.height);
+	var i, j, num1, num2;
+	var points = new Array();
+	ctx.lineWidth = 1;
+	ctx.strokeStyle="#000000";
+
+	var theta = new Array();
+
+	for (var i = 0; i < A.length; i++)
+	{
+		theta[i] = (2 * Math.PI * i) / A.length;
+
+		points[i] = new Array();
+		points[i][0] = 255 * Math.cos(theta[i]) + 275;
+		points[i][1] = 255 * Math.sin(theta[i]) + 275;
+	}
+
+	for (i = 0; i < A.length; i++)
+	{
+		for (j = 0; j < A[0].length; j++)
+		{
+			if (A[i][j] != 0)
+			{
+				ctx.beginPath();
+				ctx.moveTo(points[i][0], points[i][1]);
+				ctx.lineTo(points[j][0], points[j][1]);
+				ctx.stroke();
+				ctx.fillText(A[i][j], (points[i][0] + points[j][0])/2, (points[i][1] + points[j][1])/2);
+			}
+		}
+	}
+
+	for (i = 0; i < A.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(i,points[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1),points[i][1]+4);
+	}
+
+	return points;
+}
+
+function drawNodes(A, points)
+{
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	var i, j, num1, num2;
+	ctx.lineWidth = 1;
+	for (i = 0; i < A.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(i,points[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1),points[i][1]+4);
+	}
+}
+
+function drawLines(A, points)
+{
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	ctx.clearRect (0, 0, c.width, c.height);
+	var i, j;
+
+	for (i = 0; i < A.length; i++)
+	{
+		for (j = 0; j < A[0].length; j++)
+		{
+			if (A[i][j] != 0)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#000000";
+				ctx.beginPath();
+				ctx.moveTo(points[i][0], points[i][1]);
+				ctx.lineTo(points[j][0], points[j][1]);
+				ctx.stroke();
+				ctx.fillText(A[i][j], (points[i][0] + points[j][0])/2, (points[i][1] + points[j][1])/2);
+			}
+		}
+	}
+}
+
+function drawAns(A, points, ans, start)
+{
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	var i, j, num1, num2;
+
+	ctx.strokeStyle="#00FF00";
+	ctx.lineWidth = 2;
+	ctx.beginPath();
+	ctx.moveTo(points[ans[start]][0], points[ans[start]][1]);
+	ctx.lineTo(points[ans[start+1]][0], points[ans[start+1]][1]);
+	ctx.stroke();
+	drawNodes(A, points);
+	if ((start + 2) == ans.length-1)
+	{
+		start = 0;
+	}
+	else
+		start += 2;
+	var f = function(){if (start == 0)drawLines(A, points);t = drawAns(A, points, ans, start);drawNodes(A, points);};
+	t = setTimeout(f, 2000);
+
+	return t;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="adjacency matrix, algorithm, computer science, cycles, edges, graph, greedy, JavaScript, math, mathematics, minimum spanning tree, prim, Prim's Algorithm, script, spanning tree, tree MST, vertex, weight" /> 
+<meta name="description" content="This page contains a script I've written to help understand Prim's Algorithm." />
+<title> at LEARNINGlover.com</title>
+<script id="sc1" type="text/javascript">
+var M_VAL = 50000;
+function Prim(A, n, show)
+{
+	var B = new Array();
+	for (i = 0; i < n; i++)
+	{
+		B[i] = new Array();
+			for (j = 0; j < n; j++)
+		{
+			B[i][j] = A[i][j];
+		 		if (A[i][j] == 0)
+					A[i][j] = M_VAL;
+		}
+	}
+
+	for (i = 0; i < n; i++)
+	for (j = 0; j < n; j++)
+		if (A[i][j] == 0)
+			A[i][j] = M_VAL;
+	T = [];
+	T[T.length] = 1;
+	E = [];
+	sum = 0;
+	k = 1;
+
+	if (show)
+		document.getElementById('output').innerHTML = "v = " + 1 + "<br>----------<br>";
+
+	while (k < n)
+	{
+		if (show)
+		{
+			text = "<table>";
+			for (i = 0; i < n; i++)
+			{
+				text += "<tr>";
+				for (j = 0; j < n; j++)
+				{
+					count = 0;
+					for (k = 0; k < T.length; k++)
+						if (i == T[k] || j == T[k])
+							count++;
+					if (count)
+					{
+						bb = "<b>";
+						bbe = "</b>";
+					}
+					else
+					{
+						bb = "";
+						bbe = "";
+					}
+					if (A[i][j] == M_VAL)
+						text += "<td>" + bb + "-" + bbe + "</td>";
+					else
+						text += "<td>" + bb + A[i][j] + bbe + "</td>";
+				}
+				text += "</tr>";
+			}
+			text += "</table>";
+			document.getElementById('output').innerHTML += text;
+		}
+		m = M_VAL;
+
+		for (i = 0; i < T.length; i++)
+		for (j = 0; j < n; j++)
+		{
+			if (A[T[i]][j] < m)
+			{
+				m = A[T[i]][j];
+				u = T[i];
+				v = j;
+			}
+		}
+		if (m == M_VAL)
+			k = n;
+		else
+		{
+			T[T.length] = v;
+			E[E.length] = u;
+			E[E.length] = v;
+			sum += m;
+			k++;
+			for (i = 0; i < T.length; i++)
+			for (j = 0; j < T.length; j++)
+				A[T[i]][T[j]] = M_VAL;
+
+		}
+		if (show)
+			document.getElementById('output').innerHTML += "v = " + v + "<br>----------<br>";
+	}
+
+	E[E.length] = sum;
+
+	for (i = 0; i < n; i++)
+	{
+		for (j = 0; j < n; j++)
+		{
+			A[i][j] = B[i][j];
+		}
+	}
+	return E;
+}
+
+function EucDist(point1_x, point1_y, point2_x, point2_y)
+{
+	var i, j, sumSq = 0;
+
+	sumSq += Math.pow(point1_x - point2_x, 2);
+	sumSq += Math.pow(point1_y - point2_y, 2);
+
+	return Math.sqrt(sumSq);
+}
+
+
+function used(list, num1, num2)
+{
+	var i, ans = false;
+	for (i = 0; i < list.length && ans == false; i++)
+	{
+		if (EucDist(list[i][0], list[i][1], num1, num2) < 5)
+			ans = true;
+	}
+
+	return ans;
+}
+
+function drawGraph(A)
+{
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	ctx.clearRect (0, 0, c.width, c.height);
+	var i, j, num1, num2;
+	var points = new Array();
+	ctx.lineWidth = 1;
+	ctx.strokeStyle="#000000";
+
+	var theta = new Array();
+
+	for (var i = 0; i < A.length; i++)
+	{
+		theta[i] = (2 * Math.PI * i) / A.length;
+
+		points[i] = new Array();
+		points[i][0] = 255 * Math.cos(theta[i]) + 275;
+		points[i][1] = 255 * Math.sin(theta[i]) + 275;
+	}
+
+	for (i = 0; i < A.length; i++)
+	{
+		for (j = 0; j < A[0].length; j++)
+		{
+			if (A[i][j] != 0)
+			{
+				ctx.beginPath();
+				ctx.moveTo(points[i][0], points[i][1]);
+				ctx.lineTo(points[j][0], points[j][1]);
+				ctx.stroke();
+				ctx.fillText(A[i][j], (points[i][0] + points[j][0])/2, (points[i][1] + points[j][1])/2);
+			}
+		}
+	}
+
+	for (i = 0; i < A.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(i,points[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1),points[i][1]+4);
+	}
+
+	return points;
+}
+
+function drawNodes(A, points)
+{
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	var i, j, num1, num2;
+	ctx.lineWidth = 1;
+	for (i = 0; i < A.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(i,points[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1),points[i][1]+4);
+	}
+}
+
+function drawLines(A, points)
+{
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	ctx.clearRect (0, 0, c.width, c.height);
+	var i, j;
+
+	for (i = 0; i < A.length; i++)
+	{
+		for (j = 0; j < A[0].length; j++)
+		{
+			if (A[i][j] != 0)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#000000";
+				ctx.beginPath();
+				ctx.moveTo(points[i][0], points[i][1]);
+				ctx.lineTo(points[j][0], points[j][1]);
+				ctx.stroke();
+				ctx.fillText(A[i][j], (points[i][0] + points[j][0])/2, (points[i][1] + points[j][1])/2);
+			}
+		}
+	}
+}
+
+function drawAns(A, points, ans, start)
+{
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	var i, j, num1, num2;
+
+	ctx.strokeStyle="#00FF00";
+	ctx.lineWidth = 2;
+	ctx.beginPath();
+	ctx.moveTo(points[ans[start]][0], points[ans[start]][1]);
+	ctx.lineTo(points[ans[start+1]][0], points[ans[start+1]][1]);
+	ctx.stroke();
+	drawNodes(A, points);
+	if ((start + 2) == ans.length-1)
+	{
+		start = 0;
+	}
+	else
+		start += 2;
+	var f = function(){if (start == 0)drawLines(A, points);t = drawAns(A, points, ans, start);drawNodes(A, points);};
+	t = setTimeout(f, 2000);
+
+	return t;
+}
+</script>
+<h3><center></center></h3>
+<p><p>Given a weighted graph, many times we are interested in finding a minimum spanning tree (MST) for that graph. Prim's algorithm is a greedy method which does just this. A spanning tree is a subset of the edges of a graph that connects to every vertex, but contains no cycles. This spanning tree is called a minimum spanning tree if in addition the sum of the weights of the edges included in this tree is less than or equal to the sum of the weights of the edges of any other spanning tree for this graph. </p>  <p>Prim's algorithm works by building an initial tree and continuously growing the tree by adding the edge of least cost that will keep it as a tree. It can be explained with the following procedure. <br> 1. Let <i>Tree<sub>v</sub></i> be the set of vertices included in the tree, and <i>Tree<sub>E</sub></i> be the set of edges included in the tree. Initially <i>Tree<sub>V</sub></i> and <i>Tree<sub>E</sub></i> are empty. <br> 2. Add an arbitrary vertex to <i>Tree<sub>V</sub></i> (<i>Tree<sub>E</sub></i> is still empty). <br> 3. Find the edge <i>e</i> of minimum weight such that one vertex is in <i>Tree<sub>V</sub></i> and vertex is not in <i>Tree<sub>V</sub></i>. Add the associated vertex to <i>Tree<sub>V</sub></i>, and add <i>e</i> to <i>Tree<sub>E</sub></i>. <br> 4. If edge was found in step 3, goto 5, else go to 6. <br> 5. If the number of vertices in <i>Tree<sub>V</sub></i> is less than the number of vertices in the original graph, then the graph is not connected and thus does not contain a minimum spanning tree. Goto 8. <br> 6 If the number of vertices in <i>Tree<sub>V</sub></i> is less than the number of vertices in the original graph, go to 2, else go to 7.<br> 7. Output "The Minimum Spanning Tree is ", <i>Tree<sub>E</sub></i>. <br> 8. Output "This graph does not have a minimum spanning tree because it is not connected. "</p> </p>
+<script id="sc2" type="text/javascript">
+n = Math.floor(Math.random()*20)+5;
+A = RandGraph(n);
+text = "<table>";
+for (i = 0; i < n; i++)
+{
+	text += "<tr>";
+	for (j = 0; j < n; j++)
+	{
+		 if (A[i][j] != 0)
+			  text += "<td>" + A[i][j] + "</td>";
+		 else
+			  text += "<td>-</td>";
+	}
+	text += "</tr>";
+}
+text += "</table>";
+document.write(text);
+var t;
+</script>
+<form name=data id=data>
+<input type=button onclick="javascript:location.reload(true)"
+value="New Problem"><br>
+<input type="checkbox" name="show" id="show"> Show Work?
+<input type="button" value="Solve" onclick="text2 ='<table><tr><td>MST = ';sol = Prim(A, n, document.getElementById('show').checked);for (i = 0; i < 2*(n-1);i+=2)
+
+text2 += '(' + sol[i] + ', ' + sol[i+1] + '), ';text2 += 'Cost = ' + sol[2*n-2] + '</td></tr></table>'; document.getElementById('output').innerHTML += text2;t = 
+
+drawAns(A, pts, sol, 0);">
+<input type=button onclick="t=clearTimeout(t);pts = drawGraph(A)" value="Redraw Graph">
+</form>
+
+<canvas id="myCanvas" width="550" height="600" style="border:1px solid
+#d3d3d3;">
+your browser does not support the canvas tag
+</canvas>
+<script type="text/javascript">
+var pts = drawGraph(A);
+</script>
+<P name=output id=output>&nbsp;</P>

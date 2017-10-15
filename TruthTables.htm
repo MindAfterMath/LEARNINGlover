@@ -1,0 +1,890 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+TruthTables<title>Truth Tables</title>
+<script type="text/javascript">
+function generate()
+{
+	document.getElementById("output").innerHTML = "";
+	var numVars = Math.floor(Math.random()*3)+1;
+	var numOpers = Math.floor(Math.random()*4)+1;
+	
+	var ans = genFmla(numVars, numOpers, 0);		
+	var varSet = usedVars(ans);
+	
+	var ans2 = new Array();
+	
+	var output = new Array();
+	var header = new Array();
+	
+	for (var zen = 0; zen < varSet.length; zen++)
+	{
+		header[zen] = disp(varSet[zen]);
+	}
+	
+	for (var zen = ans.length-1; zen >= 0; zen--)
+	{
+		if (ans[zen].indexOf("O") != -1 && ans[zen].indexOf("0") == -1)
+		{
+			if (ans[zen + 1].indexOf("O") == -1)
+			{
+				var count = header.length;
+				header[count] = "(" + disp(ans[zen + 1]);
+				header[count] += " ";
+				header[count] += disp(ans[zen]);
+				header[count] += " ";
+				header[count] += disp(ans[zen + 2]) + ")";
+			}
+			else
+			{
+				var count = header.length;
+				header[count] = "(" + disp(header[count-1]);
+				header[count] += " ";
+				header[count] += disp(ans[zen]);
+				header[count] += " ";
+				header[count] += disp(header[count-2]) + ")";				
+			}
+		}
+		else if (ans[zen].indexOf("O") != -1 && ans[zen].indexOf("0") != -1)
+		{
+			if (ans[zen + 1].indexOf("O") == -1)
+			{
+				var count = header.length;
+				header[count] = "(" + disp(ans[zen]);
+				header[count] += " ";
+				header[count] += disp(ans[zen + 1]) + ")";
+			}
+			else
+			{
+				var count = header.length;
+				header[count] = "(" + disp(ans[zen]);
+				header[count] += " ";
+				header[count] += disp(header[count-1]) + ")";
+			}
+		}
+	}
+	
+	document.getElementById("output").innerHTML += "We'd like to build a truth table for " + header[header.length-1] + "<br>";
+	
+	for (var zen = 0; zen < Math.pow(2, varSet.length); zen++)
+	{
+		output[zen] = new Array();
+		var tempAns = new Array();
+		for (var yin = 0; yin < ans.length; yin++)
+		{
+			tempAns[yin] = ans[yin];
+		}
+		var binRep = toBinary(zen, varSet.length);
+		
+		for (var yin = 0; yin < binRep.length; yin++)
+		{
+			if (binRep[yin])
+			{
+				output[zen][yin] = "T";
+			}
+			else
+			{
+				output[zen][yin] = "F";
+			}
+		}
+		
+		var count = output[zen].length;
+		var sols = new Array();
+		
+		while (tempAns[0] != "T" && tempAns[0] != "F")
+		{
+			for (var yin = tempAns.length-1; yin >= 0; yin--)
+			{
+				var tempFmla = new Array();
+				if (tempAns[yin].indexOf("O") != -1 && tempAns[yin].indexOf("0") == -1)
+				{
+					tempFmla[0] = tempAns[yin];
+					tempFmla[1] = tempAns[yin + 1];
+					tempFmla[2] = tempAns[yin + 2];
+					
+					tempAns[yin] = evalFmla(tempFmla, binRep, varSet);
+					output[zen][count] = tempAns[yin];
+
+					if (tempAns[yin + 2] != "T" && tempAns[yin + 2] != "F")
+					{
+						tempAns = remove(tempAns, yin + 2);
+					}
+					if (tempAns[yin + 1] != "T" && tempAns[yin + 1] != "F")
+					{
+						tempAns = remove(tempAns, yin + 1);
+					}
+					
+					count++;
+				}
+				else if (tempAns[yin].indexOf("O") != -1 && tempAns[yin].indexOf("0") != -1)
+				{
+					tempFmla[0] = tempAns[yin];
+					tempFmla[1] = tempAns[yin + 1];
+					
+					tempAns[yin] = evalFmla(tempFmla, binRep, varSet);
+					output[zen][count] = tempAns[yin];
+					
+					if (tempAns[yin + 1] != "T" && tempAns[yin + 1] != "F")
+					{
+						tempAns = remove(tempAns, yin + 1);
+					}
+					count++;
+				}
+			}
+		}
+	}
+	
+	var newOut = "<table><tr>";
+	
+	for (var zen = 0; zen < header.length; zen++)
+	{
+		if (zen < varSet.length)
+		{
+			newOut += "<td align=center name='ttclm" + zen + "' id='ttclm" + zen + "'>" + header[zen] + "</td>";
+		}
+		else
+		{
+			newOut += "<td align=center name='ttclm" + zen + "' id='ttclm" + zen + "' hidden=true>" + header[zen] + "</td>";
+		}
+	}
+	
+	newOut += "</tr>";
+	
+	for (var yin = 0; yin < output.length; yin++)
+	{
+		newOut += "<tr>";
+		for (var yang = 0; yang < output[yin].length; yang++)
+		{
+			if (yang % 2 == 0 && yang < varSet.length)
+			{
+				newOut += "<td align=center style='background-color: #CC9999;' name='ttclm" + yang + "' id='ttclm" + yang + "'>" + output[yin][yang] + "</td>";
+			}
+			else if (yang % 2 == 1 && yang < varSet.length)
+			{
+				newOut += "<td align=center style='background-color: #9999CC;' name='ttclm" + yang + "' id='ttclm" + yang + "'>" + output[yin][yang] + "</td>";
+			}
+			else if (yang % 2 == 0 && yang >= varSet.length)
+			{
+				newOut += "<td align=center style='background-color: #CC9999;' name='ttclm" + yang + "' id='ttclm" + yang + "' hidden=true>" + output[yin][yang] + "</td>";
+			}
+			else if (yang % 2 == 1 && yang >= varSet.length)
+			{
+				newOut += "<td align=center style='background-color: #9999CC;' name='ttclm" + yang + "' id='ttclm" + yang + "' hidden=true>" + output[yin][yang] + "</td>";
+			}
+		}
+		newOut += "</tr>";
+	}
+	
+	newOut += "</table>";
+	
+	newOut += "<form name='shwhde'>\n";
+	newOut += "Show columns: <br>";
+	for (var zen = 0; zen < header.length; zen++)
+	{
+		if (zen < varSet.length)
+		{
+			newOut += "<input type=checkbox name='clm" + zen + "' onclick='showHide(this.name)' checked>" + header[zen] + "<br>";
+		}
+		else
+		{
+			newOut += "<input type=checkbox name='clm" + zen + "' onclick='showHide(this.name)'>" + header[zen] + "<br>";
+		}
+	}
+	newOut += "</form>";
+	
+	document.getElementById("output").innerHTML += newOut;
+}
+
+function showHide(clmn)
+{
+	clmn = document.forms['shwhde'].elements[clmn];
+	cells = document.getElementsByName('tt' + clmn.name);
+	if (clmn.checked)
+	{
+		mode = false;
+	}
+	else
+	{
+		mode = true;
+	}
+
+	for(var zen = 0; zen < cells.length; zen++) 
+	{
+		cells[zen].hidden = mode;
+	}
+}
+
+function remove(arr, loc)
+{
+	var res = new Array();
+	
+	for (var zen = 0; zen < loc; zen++)
+	{
+		res[zen] = arr[zen];
+	}
+	
+	for (var zen = loc+1; zen < arr.length; zen++)
+	{
+		res[zen-1] = arr[zen];
+	}
+	
+	return res;
+}
+
+function usedVars(fmla)
+{
+	var used = new Array();
+	
+	for (var zen = 0; zen < fmla.length; zen++)
+	{
+		if (fmla[zen].indexOf("L") != -1)
+		{
+			if (used.indexOf(fmla[zen]) == -1)
+			{
+				used[used.length] = fmla[zen];
+			}
+		}
+	}
+	
+	return used;
+}
+
+function toBinary(number, digits)
+{
+	var binary = new Array(digits);
+	var index = 0;
+	
+	for (var zen = 0; zen < digits; zen++)
+	{
+		binary[zen] = 0;
+	}
+	
+	while (number > 0)
+	{
+		binary[digits - index-1] = number % 2;
+		index++;
+		number = Math.floor(number / 2);
+	}
+	
+	return binary;
+}
+
+function evalFmla(fmla, vars, varSet)
+{
+	var oper = parseInt(fmla[0][0]);
+	var val1 = ""; 
+	var val2 = "";
+	
+	if (fmla[1] == "T")
+	{
+		val1 = true;
+	}
+	else if (fmla[1] == "F")
+	{
+		val1 = false;
+	}
+	else
+	{
+		var varLoc = parseInt(fmla[1][0]);
+		varLoc = varSet.indexOf(varLoc + "L");
+		val1 = vars[varLoc];
+	}
+	
+	if (fmla.length >= 3 && fmla[2] == "T")
+	{
+		val2 = true;
+	}
+	else if (fmla.length >= 3 && fmla[2] == "F")
+	{
+		val2 = false;
+	}
+	else if (fmla.length >= 3)
+	{
+		var varLoc = parseInt(fmla[2][0]);
+		varLoc = varSet.indexOf(varLoc + "L");
+		val2 = vars[varLoc];
+	}
+
+	var ans;
+		
+	switch (oper)
+	{
+		case 0:
+			ans = !val1;
+			break;
+		case 1:
+			ans = (val1 && val2);
+			break;
+		case 2:
+			ans = (val1 || val2);
+			break;
+		case 3: 
+			ans = (!val1 || val2);
+			break;
+	}
+	
+	if (ans)
+	{
+		return "T";
+	}
+	else
+	{
+		return "F";
+	}
+}
+
+function genFmla(numVars, numOpers, depth)
+{
+	var oper = Math.floor(Math.random()*4);
+	
+	var fmla = new Array();
+	var args = new Array(2);
+	var ans = new Array();
+	ans[0] = oper + "O";
+	
+	if (depth < numOpers)
+	{
+		fmla[0] = Math.floor(Math.random()*2);
+		fmla[1] = Math.floor(Math.random()*2);
+	}
+	else
+	{
+		fmla[0] = 0;
+		fmla[1] = 0;
+	}
+		
+	if (fmla[0] == 0)
+	{
+		ans[ans.length] = Math.floor(Math.random()*numVars) + "L";
+	}
+	else
+	{
+		var temp = genFmla(numVars, numOpers, depth+1);
+		for (var zen = 0; zen < temp.length; zen++)
+		{
+			ans[ans.length] = temp[zen];
+		}
+	}
+	
+	if (oper != 0)
+	{
+		if (fmla[0] == 0)
+		{
+			ans[ans.length] = Math.floor(Math.random()*numVars) + "L";
+		}
+		else
+		{
+			var temp = genFmla(numVars, numOpers, depth+1);
+			for (var zen = 0; zen < temp.length; zen++)
+			{
+				ans[ans.length] = temp[zen];
+			}
+		}
+	}
+	
+	return ans;
+}
+
+function disp(fmla)
+{
+	var output = "";
+	for (var zen = 0; zen < fmla.length; zen++)
+	{
+		if (fmla[zen] == "0" && fmla[zen+1] == "O")
+		{
+			output += "&#172;";
+		}
+		else if (fmla[zen] == "1" && fmla[zen+1] == "O")
+		{
+			output += "&#8743;";
+		}	
+		else if (fmla[zen] == "2" && fmla[zen+1] == "O")
+		{
+			output += "&#8744;";
+		}
+		else if (fmla[zen] == "3" && fmla[zen+1] == "O")
+		{
+			output += "&#8594;";
+		}
+		else if (fmla[zen] == "0" && fmla[zen+1] == "L")
+		{
+			output += "P";
+		}
+		else if (fmla[zen] == "1" && fmla[zen+1] == "L")
+		{
+			output += "Q";
+		}
+		else if (fmla[zen] == "2" && fmla[zen+1] == "L")
+		{
+			output += "R";
+		}
+		else if (fmla[zen] == "O" || fmla[zen] == "L")
+		{
+			output += "";
+		}
+		else
+		{
+			output += fmla[zen];
+		}
+	}
+	
+	return output;
+}
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, statistics, stats,
+probability, computer science, data mining, machine learning, games,
+algorithms, flash cards, flash, javascript, script, data structures,
+set theory, search, sort, clustering, coding theory, algebra,
+operations research, research, graph theory, graph, animation,
+programming" />
+<meta name="description" content="This page introduces the concept of truth tables to evaluate Boolean expressions. " />
+<title> at LEARNINGlover.com</title>
+<title>Truth Tables</title>
+<script type="text/javascript">
+function generate()
+{
+	document.getElementById("output").innerHTML = "";
+	var numVars = Math.floor(Math.random()*3)+1;
+	var numOpers = Math.floor(Math.random()*4)+1;
+	
+	var ans = genFmla(numVars, numOpers, 0);		
+	var varSet = usedVars(ans);
+	
+	var ans2 = new Array();
+	
+	var output = new Array();
+	var header = new Array();
+	
+	for (var zen = 0; zen < varSet.length; zen++)
+	{
+		header[zen] = disp(varSet[zen]);
+	}
+	
+	for (var zen = ans.length-1; zen >= 0; zen--)
+	{
+		if (ans[zen].indexOf("O") != -1 && ans[zen].indexOf("0") == -1)
+		{
+			if (ans[zen + 1].indexOf("O") == -1)
+			{
+				var count = header.length;
+				header[count] = "(" + disp(ans[zen + 1]);
+				header[count] += " ";
+				header[count] += disp(ans[zen]);
+				header[count] += " ";
+				header[count] += disp(ans[zen + 2]) + ")";
+			}
+			else
+			{
+				var count = header.length;
+				header[count] = "(" + disp(header[count-1]);
+				header[count] += " ";
+				header[count] += disp(ans[zen]);
+				header[count] += " ";
+				header[count] += disp(header[count-2]) + ")";				
+			}
+		}
+		else if (ans[zen].indexOf("O") != -1 && ans[zen].indexOf("0") != -1)
+		{
+			if (ans[zen + 1].indexOf("O") == -1)
+			{
+				var count = header.length;
+				header[count] = "(" + disp(ans[zen]);
+				header[count] += " ";
+				header[count] += disp(ans[zen + 1]) + ")";
+			}
+			else
+			{
+				var count = header.length;
+				header[count] = "(" + disp(ans[zen]);
+				header[count] += " ";
+				header[count] += disp(header[count-1]) + ")";
+			}
+		}
+	}
+	
+	document.getElementById("output").innerHTML += "We'd like to build a truth table for " + header[header.length-1] + "<br>";
+	
+	for (var zen = 0; zen < Math.pow(2, varSet.length); zen++)
+	{
+		output[zen] = new Array();
+		var tempAns = new Array();
+		for (var yin = 0; yin < ans.length; yin++)
+		{
+			tempAns[yin] = ans[yin];
+		}
+		var binRep = toBinary(zen, varSet.length);
+		
+		for (var yin = 0; yin < binRep.length; yin++)
+		{
+			if (binRep[yin])
+			{
+				output[zen][yin] = "T";
+			}
+			else
+			{
+				output[zen][yin] = "F";
+			}
+		}
+		
+		var count = output[zen].length;
+		var sols = new Array();
+		
+		while (tempAns[0] != "T" && tempAns[0] != "F")
+		{
+			for (var yin = tempAns.length-1; yin >= 0; yin--)
+			{
+				var tempFmla = new Array();
+				if (tempAns[yin].indexOf("O") != -1 && tempAns[yin].indexOf("0") == -1)
+				{
+					tempFmla[0] = tempAns[yin];
+					tempFmla[1] = tempAns[yin + 1];
+					tempFmla[2] = tempAns[yin + 2];
+					
+					tempAns[yin] = evalFmla(tempFmla, binRep, varSet);
+					output[zen][count] = tempAns[yin];
+
+					if (tempAns[yin + 2] != "T" && tempAns[yin + 2] != "F")
+					{
+						tempAns = remove(tempAns, yin + 2);
+					}
+					if (tempAns[yin + 1] != "T" && tempAns[yin + 1] != "F")
+					{
+						tempAns = remove(tempAns, yin + 1);
+					}
+					
+					count++;
+				}
+				else if (tempAns[yin].indexOf("O") != -1 && tempAns[yin].indexOf("0") != -1)
+				{
+					tempFmla[0] = tempAns[yin];
+					tempFmla[1] = tempAns[yin + 1];
+					
+					tempAns[yin] = evalFmla(tempFmla, binRep, varSet);
+					output[zen][count] = tempAns[yin];
+					
+					if (tempAns[yin + 1] != "T" && tempAns[yin + 1] != "F")
+					{
+						tempAns = remove(tempAns, yin + 1);
+					}
+					count++;
+				}
+			}
+		}
+	}
+	
+	var newOut = "<table><tr>";
+	
+	for (var zen = 0; zen < header.length; zen++)
+	{
+		if (zen < varSet.length)
+		{
+			newOut += "<td align=center name='ttclm" + zen + "' id='ttclm" + zen + "'>" + header[zen] + "</td>";
+		}
+		else
+		{
+			newOut += "<td align=center name='ttclm" + zen + "' id='ttclm" + zen + "' hidden=true>" + header[zen] + "</td>";
+		}
+	}
+	
+	newOut += "</tr>";
+	
+	for (var yin = 0; yin < output.length; yin++)
+	{
+		newOut += "<tr>";
+		for (var yang = 0; yang < output[yin].length; yang++)
+		{
+			if (yang % 2 == 0 && yang < varSet.length)
+			{
+				newOut += "<td align=center style='background-color: #CC9999;' name='ttclm" + yang + "' id='ttclm" + yang + "'>" + output[yin][yang] + "</td>";
+			}
+			else if (yang % 2 == 1 && yang < varSet.length)
+			{
+				newOut += "<td align=center style='background-color: #9999CC;' name='ttclm" + yang + "' id='ttclm" + yang + "'>" + output[yin][yang] + "</td>";
+			}
+			else if (yang % 2 == 0 && yang >= varSet.length)
+			{
+				newOut += "<td align=center style='background-color: #CC9999;' name='ttclm" + yang + "' id='ttclm" + yang + "' hidden=true>" + output[yin][yang] + "</td>";
+			}
+			else if (yang % 2 == 1 && yang >= varSet.length)
+			{
+				newOut += "<td align=center style='background-color: #9999CC;' name='ttclm" + yang + "' id='ttclm" + yang + "' hidden=true>" + output[yin][yang] + "</td>";
+			}
+		}
+		newOut += "</tr>";
+	}
+	
+	newOut += "</table>";
+	
+	newOut += "<form name='shwhde'>\n";
+	newOut += "Show columns: <br>";
+	for (var zen = 0; zen < header.length; zen++)
+	{
+		if (zen < varSet.length)
+		{
+			newOut += "<input type=checkbox name='clm" + zen + "' onclick='showHide(this.name)' checked>" + header[zen] + "<br>";
+		}
+		else
+		{
+			newOut += "<input type=checkbox name='clm" + zen + "' onclick='showHide(this.name)'>" + header[zen] + "<br>";
+		}
+	}
+	newOut += "</form>";
+	
+	document.getElementById("output").innerHTML += newOut;
+}
+
+function showHide(clmn)
+{
+	clmn = document.forms['shwhde'].elements[clmn];
+	cells = document.getElementsByName('tt' + clmn.name);
+	if (clmn.checked)
+	{
+		mode = false;
+	}
+	else
+	{
+		mode = true;
+	}
+
+	for(var zen = 0; zen < cells.length; zen++) 
+	{
+		cells[zen].hidden = mode;
+	}
+}
+
+function remove(arr, loc)
+{
+	var res = new Array();
+	
+	for (var zen = 0; zen < loc; zen++)
+	{
+		res[zen] = arr[zen];
+	}
+	
+	for (var zen = loc+1; zen < arr.length; zen++)
+	{
+		res[zen-1] = arr[zen];
+	}
+	
+	return res;
+}
+
+function usedVars(fmla)
+{
+	var used = new Array();
+	
+	for (var zen = 0; zen < fmla.length; zen++)
+	{
+		if (fmla[zen].indexOf("L") != -1)
+		{
+			if (used.indexOf(fmla[zen]) == -1)
+			{
+				used[used.length] = fmla[zen];
+			}
+		}
+	}
+	
+	return used;
+}
+
+function toBinary(number, digits)
+{
+	var binary = new Array(digits);
+	var index = 0;
+	
+	for (var zen = 0; zen < digits; zen++)
+	{
+		binary[zen] = 0;
+	}
+	
+	while (number > 0)
+	{
+		binary[digits - index-1] = number % 2;
+		index++;
+		number = Math.floor(number / 2);
+	}
+	
+	return binary;
+}
+
+function evalFmla(fmla, vars, varSet)
+{
+	var oper = parseInt(fmla[0][0]);
+	var val1 = ""; 
+	var val2 = "";
+	
+	if (fmla[1] == "T")
+	{
+		val1 = true;
+	}
+	else if (fmla[1] == "F")
+	{
+		val1 = false;
+	}
+	else
+	{
+		var varLoc = parseInt(fmla[1][0]);
+		varLoc = varSet.indexOf(varLoc + "L");
+		val1 = vars[varLoc];
+	}
+	
+	if (fmla.length >= 3 && fmla[2] == "T")
+	{
+		val2 = true;
+	}
+	else if (fmla.length >= 3 && fmla[2] == "F")
+	{
+		val2 = false;
+	}
+	else if (fmla.length >= 3)
+	{
+		var varLoc = parseInt(fmla[2][0]);
+		varLoc = varSet.indexOf(varLoc + "L");
+		val2 = vars[varLoc];
+	}
+
+	var ans;
+		
+	switch (oper)
+	{
+		case 0:
+			ans = !val1;
+			break;
+		case 1:
+			ans = (val1 && val2);
+			break;
+		case 2:
+			ans = (val1 || val2);
+			break;
+		case 3: 
+			ans = (!val1 || val2);
+			break;
+	}
+	
+	if (ans)
+	{
+		return "T";
+	}
+	else
+	{
+		return "F";
+	}
+}
+
+function genFmla(numVars, numOpers, depth)
+{
+	var oper = Math.floor(Math.random()*4);
+	
+	var fmla = new Array();
+	var args = new Array(2);
+	var ans = new Array();
+	ans[0] = oper + "O";
+	
+	if (depth < numOpers)
+	{
+		fmla[0] = Math.floor(Math.random()*2);
+		fmla[1] = Math.floor(Math.random()*2);
+	}
+	else
+	{
+		fmla[0] = 0;
+		fmla[1] = 0;
+	}
+		
+	if (fmla[0] == 0)
+	{
+		ans[ans.length] = Math.floor(Math.random()*numVars) + "L";
+	}
+	else
+	{
+		var temp = genFmla(numVars, numOpers, depth+1);
+		for (var zen = 0; zen < temp.length; zen++)
+		{
+			ans[ans.length] = temp[zen];
+		}
+	}
+	
+	if (oper != 0)
+	{
+		if (fmla[0] == 0)
+		{
+			ans[ans.length] = Math.floor(Math.random()*numVars) + "L";
+		}
+		else
+		{
+			var temp = genFmla(numVars, numOpers, depth+1);
+			for (var zen = 0; zen < temp.length; zen++)
+			{
+				ans[ans.length] = temp[zen];
+			}
+		}
+	}
+	
+	return ans;
+}
+
+function disp(fmla)
+{
+	var output = "";
+	for (var zen = 0; zen < fmla.length; zen++)
+	{
+		if (fmla[zen] == "0" && fmla[zen+1] == "O")
+		{
+			output += "&#172;";
+		}
+		else if (fmla[zen] == "1" && fmla[zen+1] == "O")
+		{
+			output += "&#8743;";
+		}	
+		else if (fmla[zen] == "2" && fmla[zen+1] == "O")
+		{
+			output += "&#8744;";
+		}
+		else if (fmla[zen] == "3" && fmla[zen+1] == "O")
+		{
+			output += "&#8594;";
+		}
+		else if (fmla[zen] == "0" && fmla[zen+1] == "L")
+		{
+			output += "P";
+		}
+		else if (fmla[zen] == "1" && fmla[zen+1] == "L")
+		{
+			output += "Q";
+		}
+		else if (fmla[zen] == "2" && fmla[zen+1] == "L")
+		{
+			output += "R";
+		}
+		else if (fmla[zen] == "O" || fmla[zen] == "L")
+		{
+			output += "";
+		}
+		else
+		{
+			output += fmla[zen];
+		}
+	}
+	
+	return output;
+}
+</script>
+
+<h3><center></center></h3>
+<p><p>A truth table is a table that shows how a Boolean expression's value can be computed. The procedure in constructing a truth table is to first add a column to the table for each variable involved in the expression. Then we compute the value of each sub-expression of the expression in its own column until we have computed the entire expression in the final column. </p>
+
+There are four logical operators that we will be working with
+<ul>
+<li>The negation operator (&#172;P), which returns true if the variable P is false, and returns false otherwise. 
+<li>the or operator (P &#8744; Q), which returns true if P is true or Q is true, or if both are true, and returns false otherwise. 
+<li>the and operator (P &#8743; Q), which returns true if both P and Q are true, and returns false otherwise. 
+<li>the implies operator (P &#8594; Q), which returns false if P is true and Q is false, and returns true otherwise. 
+</ul></p>
+<h2>Learning about Truth Tables</h2>
+<p name="output" id="output"></p>
+<input type="button" value="New Problem" onclick="generate()"><br>
+<script type="text/javascript">
+generate();
+</script>

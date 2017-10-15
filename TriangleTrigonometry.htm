@@ -1,0 +1,1940 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+TriangleTrigonometry<style>
+td {border-style:none; text-align:center}
+td.frac {border-bottom-style:solid; text-align:cnter}
+td.none {border-bottom-style:none; text-align:center}
+</style>
+
+<script type="text/javascript">
+function generate()
+{
+        var A = new Array();
+        var max = 0;
+        A[0] = Math.floor(Math.random()*30) + 1;
+        A[0] *= 5;
+        var rem = 180 - A[0];
+
+        A[1] = Math.floor(Math.random()*(rem / 5 - 1)) + 1;
+        A[1] *= 5;
+        if (A[1] > A[max])
+                max = 1;
+
+        rem -= A[1];
+
+        A[2] = rem;
+        if (A[2] > A[max])
+                max = 2;
+
+        A[max+3] = Math.floor(Math.random()*10)+10;
+        if (max != 0)
+                A[3] = Math.round(((A[max+3]*Math.sin(A[0]*(Math.PI/180))) /
+Math.sin(A[max]*(Math.PI/180)))*100)/100;
+        if (max != 1)
+                A[4] = Math.round(((A[max+3]*Math.sin(A[1]*(Math.PI/180))) /
+Math.sin(A[max]*(Math.PI/180)))*100)/100;
+        if (max != 2)
+                A[5] = Math.round(((A[max+3]*Math.sin(A[2]*(Math.PI/180))) /
+Math.sin(A[max]*(Math.PI/180)))*100)/100;
+
+//      document.getElementById("output").innerHTML += A;
+
+        return A;
+}
+
+function drawTri(A)
+{
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d");
+        ctx.clearRect (0, 0, c.width, c.height);
+
+        var min = 0;
+        for (var i = 0; i < 3; i++)
+                if (A[i] < A[min])
+                        min = i;
+
+        var temp = A[0];
+        A[0] = A[min];
+        A[min] = temp;
+
+        temp = A[3];
+        A[3] = A[min+3];
+        A[min+3] = temp;
+
+        var x1 = ((c.width - 15)/45), x2 = 0, x3 = 0;
+        var y1 = (c.height - 15)/60, y2 = 0, y3 = 0;
+        var height, dist;
+
+        if (A[1] > 90)
+        {
+                x2 = x1 + A[3];
+                height = A[5]*Math.sin((180-A[1])*(Math.PI/180));
+                dist = Math.sqrt(A[5]*A[5] - height*height);
+                x3 = x1 - dist;
+
+                y2 = y1;
+                y3 = y1 + height;
+        }
+        else if (A[2] > 90)
+        {
+                x2 = x1 + A[3];
+                height = A[4]*Math.sin((180-A[1])*(Math.PI/180));
+                dist = Math.sqrt(A[4]*A[4] - height*height);
+                x3 = x2 + dist;
+
+                y2 = y1;
+                y3 = y1 + height;
+        }
+        else if (A[1] == 90)
+        {
+                x2 = x1 + A[3];
+                x3 = x1;
+
+                height = A[5];
+                y3 = y1 + height;
+                y2 = y1;
+        }
+        else if (A[2] == 90)
+        {
+                x2 = x1 + A[3];
+                x3 = x2;
+
+                height = A[4];
+                y3 = y1 + height;
+                y2 = y1;
+        }
+        else
+        {
+                var delta1 = 90 - A[1];
+                var delta2 = 90 - A[2];
+                height = A[5]*Math.sin(A[2]*(Math.PI/180));
+                dist = Math.sqrt(A[5]*A[5] - height*height);
+
+                x2 = x1 + A[3];
+                x3 = x1 + dist;
+
+                y2 = y1;
+                y3 = y1 + height;
+        }
+
+        while(y3 > (c.height - 15)/15)
+        {
+                y2--;
+                y1--;
+                y3--;
+        }
+
+        while(x3 > (c.width - 15)/15)
+        {
+                x2--;
+                x1--;
+                x3--;
+        }
+
+        while(x3 < 15)
+        {
+                x2++;
+                x1++;
+                x3++;
+        }
+
+        var pts = new Array();
+        pts[0] = new Array();
+
+        pts[0][0] = x1;
+        pts[0][1] = y1;
+
+        pts[1] = new Array();
+        pts[1][0] = x2;
+        pts[1][1] = y2;
+
+        pts[2] = new Array();
+        pts[2][0] = x3;
+        pts[2][1] = y3;
+
+//      document.getElementById("output").innerHTML += "<br>" + pts + "<br>";
+//      document.getElementById("output").innerHTML += "width = " +
+(c.width - 15)/15 + "<br>";
+//      document.getElementById("output").innerHTML += "height = " +
+(c.height - 15)/15 + "<br>";
+
+        for (i = 0; i < 3; i++)
+        {
+                for (j = 0; j < 3; j++)
+                {
+                        ctx.strokeStyle="#0000FF";
+                        ctx.beginPath();
+                        ctx.moveTo(15*pts[i][0], 15*pts[i][1]);
+                        ctx.lineTo(15*pts[j][0], 15*pts[j][1]);
+                        ctx.stroke();
+                }
+        }
+
+        ctx.fillText("a",(15*pts[0][0] + 15*pts[1][0])/2 -
+3*(Math.floor(Math.log(i+1)/Math.log(10))+1),(15*pts[0][1] +
+15*pts[1][1])/2+4 - 15);
+        ctx.fillText("b",(15*pts[1][0] + 15*pts[2][0])/2 -
+3*(Math.floor(Math.log(i+1)/Math.log(10))+1)+10,(15*pts[1][1] +
+15*pts[2][1])/2+4 + 10);
+        ctx.fillText("c",(15*pts[2][0] + 15*pts[0][0])/2 -
+3*(Math.floor(Math.log(i+1)/Math.log(10))+1)-15,(15*pts[2][1] +
+15*pts[0][1])/2+4 + 10);
+
+        for (i = 0; i < 3; i++)
+        {
+//              ctx.strokeStyle="#000000";
+//              ctx.beginPath();
+//              ctx.arc(15*pts[i][0],15*pts[i][1],10,0*Math.PI,2*Math.PI);
+//              ctx.stroke();
+
+//              ctx.fillStyle="#00FFFF";
+//              ctx.beginPath();
+//              ctx.arc(15*pts[i][0],15*pts[i][1],10,0*Math.PI,2*Math.PI);
+//              ctx.fill();
+
+                ctx.fillStyle="#000000";
+                ctx.font="10px Arial";
+                if (i == 0)
+                        ctx.fillText("B",15*pts[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1)-15,15*pts[i][1]+4);
+                else if (i == 1)
+                        ctx.fillText("C",15*pts[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1)+15,15*pts[i][1]+4);
+                else
+                        ctx.fillText("A",15*pts[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1),15*pts[i][1]+4+15);
+        }
+}
+
+function init()
+{
+        A = generate();
+        var scenario = Math.floor(Math.random()*10);
+        drawTri(A);
+        document.getElementById("input").innerHTML = "";
+        document.getElementById("output").innerHTML = "";
+
+        switch (scenario)
+        {
+                case 0:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of c, B, and C? <br>";
+                break;
+
+                case 1:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of b, c, and C? <br>";
+                break;
+
+                case 2:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of b, B, and C? <br>";
+                break;
+
+                case 3:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of B, C, and c? <br>";
+                break;
+
+                case 4:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of c, A, and C? <br>";
+                break;
+
+                case 5:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of A, B, and C? <br>";
+                break;
+
+                case 6:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of c, A, and B? <br>";
+                break;
+
+                case 7:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of b, A, and C? <br>";
+                break;
+
+                case 8:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of b, c, and A? <br>";
+                break;
+
+                case 9:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of b, A, and B? <br>";
+                break;
+
+                case 10:
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, c, and C? <br>";
+                break;
+
+                case 11:
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, B, and C? <br>";
+                break;
+
+                case 12:
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, c, and B? <br>";
+                break;
+
+                case 13:
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, b, and C? <br>";
+                break;
+
+                case 14:
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, b, and B? <br>";
+                break;
+
+                case 15:
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, A, and C? <br>";
+                break;
+
+                case 16:
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, A, and c? <br>";
+                break;
+
+                case 17:
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, A, and B? <br>";
+                break;
+
+                case 18:
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, b and A? <br>";
+                break;
+        }
+
+        return scenario;
+}
+
+function solveTri(scenario)
+{
+        var text = "";
+        var show = document.getElementById("show").checked;
+        switch (scenario)
+        {
+                case 0: //a, A, b
+                        if (show)
+                        {
+                                text += "Because we know a, A, and b, we can use the Law of Sines to solve for B. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td></td><td> = </td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(B) = </td><td><table><tr><td class='frac'>b * sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for B by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(B)) = </td><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>b*sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "We enter our values into this formula to obtain the value of B<br>";
+                                text += "<table><tr><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[4] + "*sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>" + A[3] + "</td></tr></table></td><td>)</td></tr></table>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180&deg; - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                        else
+                        {
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                break;
+
+                case 1: //a, A, B
+                        if (show)
+                        {
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+								text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                        else
+                        {
+                                text += "b = " + A[4] + "<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                break;
+
+                case 2: //a, A, c
+                        if (show)
+                        {
+                                text += "Because we know a, A, and c, we can use the Law of Sines to solve for C. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(C) = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for C by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(C)) = </td><td>C = </td><td>arcsin(</td><td><table><tr><td class='frac'>c*sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "We enter our values into this formula to obtain the value of C<br>";
+                                text += "<table><tr><td>C = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[5] + "*sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>" + A[3] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+								text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                        else
+                        {
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                break;
+
+                case 3: //a, A, C
+                        if (show)
+                        {
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+								text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for b. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+								text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                        else
+                        {
+                                text += "c = " + A[5] + "<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                break;
+
+                case 4: //a, b, B
+                        if (show)
+                        {
+                                text += "Because we know a, b, and B, we can use the Law of Sines to solve for A. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(A) = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for A by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(A)) = </td><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>a*sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>" + A[4] + "</td></tr></table></td><td>)</td></tr></table>. <br>";;
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                        else
+                        {
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                break;
+
+                case 5: //a, b, c
+                        if (show)
+                        {
+                                text += "Because we know a, b, and c, we can use the Law of Cosines to solve for C. <br>";
+                                text += "The law of Cosines says that c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup> - 2*a*b*cos(C)<br>"
+								text += "This simplifies to <table><tr><td>cos(C) = </td><td><table><tr><td class='frac'>c<sup>2</sup> - a<sup>2</sup> - b<sup>2</sup></td></tr><tr><td class='none'>-2*a*b</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for C by taking the arccos of both sides<br>";
+                                text += "<table><tr><td>arccos(cos(C)) = </td><td>C = </td><td>arccos(</td><td><table><tr><td class='frac'>c<sup>2</sup> - a<sup>2</sup> - b<sup>2</sup></td></tr><tr><td class='none'>-2*a*b</td></tr></table><td>)</td></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>C = </td><td>arccos(</td><td><table><tr><td class='frac'>" + (Math.round(A[5]*A[5]*100)/100) + " - " + (Math.round(A[3]*A[3]*100)/100) + " - " + (Math.round(A[4]*A[4]*100)/100) + "</td></tr><tr><td class='none'>-2*" + A[3] + "*" + A[4]+ "</td></tr></table><td>)</td></td></tr></table>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now, because we know a, c, and C, we can use the Law of Sines to solve for A. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(A) = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for A by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(A)) = </td><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>a*sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>" + A[5] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                        }
+                        else
+                        {
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                        }
+                break;
+
+                case 6: //a, b, C
+                        if (show)
+                        {
+                                text += "Because we know a, b, and C, we can use the Law of Cosines to solve for c. <br>";
+                                text += "The law of Cosines says that c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup> - 2*a*b*cos(C)<br>"
+                                text += "We can thus solve for c by taking the square root of both sides<br>";
+                                text += "sqrt(c<sup>2</sup>) = c = sqrt(a<sup>2</sup> + b<sup>2</sup> - 2*a*b*cos(C)). <br>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "c = sqrt(" + (Math.round(A[3]*A[3]*100)/100) + " + " + (Math.round(A[4]*A[4]*100/100)) + " - 2*" + A[3] + "*" + A[4] + "*cos(" + A[2] + "&deg;)) <br>";
+                                text += "c = sqrt(" + (Math.round(A[5]*A[5]*100)/100) + ")<br>";
+                                text += "c = " + A[5] + "<br>";
+                                text += "<br>";
+                                text += "Now, because we know a, c, and C, we can use the Law of Sines to solve for A. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(A) = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for A by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(A)) = </td><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>a*sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>" + A[5] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                        }
+                        else
+                        {
+                                text += "c = " + A[5] + "<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                        }
+                break;
+
+                case 7: //a, B, c
+                        if (show)
+                        {
+                                text += "Because we know a, B, and c, we can use the Law of Cosines to solve for b. <br>";
+                                text += "The law of Cosines says that b<sup>2</sup> = a<sup>2</sup> + c<sup>2</sup> - 2*a*c*cos(B)<br>"
+                                text += "We can thus solve for b by taking the square root of both sides<br>";
+                                text += "sqrt(b<sup>2</sup>) = b = sqrt(a<sup>2</sup> + c<sup>2</sup> - 2*a*c*cos(B)). <br>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "b = sqrt(" + (Math.round(A[3]*A[3]*100/100)) + " + " + (Math.round(A[5]*A[5]*100/100)) + " - 2*" + A[3] + "*" + A[5] + "*cos(" + A[1] + "&deg;)) <br>";
+                                text += "b = sqrt(" + (Math.round(A[4]*A[4]*100)/100) + ")<br>";
+                                text += "b = " + A[4] + "<br>";
+                                text += "<br>";
+                                text += "Now, because we know a, b, and B, we can use the Law of Sines to solve for A. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(A) = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for A by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(A)) = </td><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>a*sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>" + A[4] + "</td></tr></table></td><td>)</td></tr></table>. <br>";;
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                        }
+                        else
+                        {
+                                text += "b = " + A[4] + "<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                        }
+                break;
+
+                case 8: //a, B, C
+                        if (show)
+                        {
+                                text += "We can solve for A by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that A = 180 - B - C<Br>";
+                                text += "A = 180 - " + A[1] + "&deg; - " + A[2] + "&deg; = " + A[0] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                                text += "<br>";
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                        else
+                        {
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "b = " + A[4] + "<br>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                break;
+
+                case 9: //a, c, C
+                        if (show)
+                        {
+                                text += "Because we know a, c, and C, we can use the Law of Sines to solve for A. <br>";
+                                text += "The law of Sines says that c / sin(C) = a / sin(A)<br>"
+                                text += "This simplifies to <table><tr><td>sin(A) = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for A by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(A)) = </td><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>a*sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>" + A[5] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                        else
+                        {
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+
+                break;
+
+                case 10:        //A, b, B
+                        if (show)
+                        {
+                                text += "Because we know A, b, and B, we can use the Law of Sines to solve for a. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>b * sin(A)</td></tr><tr><td class='none'>sin(B)</td></tr></table></td></tr></table><br>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[4] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[1] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                        else
+                        {
+                                text += "a = " + A[3] + "<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                break;
+
+                case 11:        //A, b, c
+                        if (show)
+                        {
+                                text += "Because we know A, b, and c, we can use the Law of Cosines to solve for a. <br>";
+                                text += "The law of Cosines says that a<sup>2</sup> = b<sup>2</sup> + c<sup>2</sup> - 2*b*c*cos(A)<br>"
+                                text += "We can thus solve for a by taking the square root of both sides<br>";
+                                text += "sqrt(a<sup>2</sup>) = a = sqrt(b<sup>2</sup> + c<sup>2</sup> - 2*b*c*cos(A)). <br>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "a = sqrt(" + (Math.round(A[4]*A[4]*100)/100) + " + " +  (Math.round(A[5]*A[5]*100)/100) + " - " +  "2*" + A[4] + "*" + A[5] + "*cos(" + A[0] + "&deg;)) <br>";
+                                text += "a = sqrt(" + (Math.round(A[3]*A[3]*100)/100) + ")<br>";
+                                text += "a = " + A[3] + "<br>";
+                                text += "<br>";
+                                text += "Now, because we know a, A, and b, we can use the Law of Sines to solve for B. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(B) = </td><td><table><tr><td class='frac'>b * sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for B by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(B)) = </td><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>b*sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "We enter our values into this formula to obtain the value of B<br>";
+                                text += "<table><tr><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[4] + "*sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>" + A[3] + "</td></tr></table></td><td>)</td></tr></table>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                        }
+                        else
+                        {
+                                text += "a = " + A[3] + "<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                        }
+                break;
+
+                case 12:        //A, b, C
+                        if (show)
+                        {
+                                text += "We can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know B, b, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>b * sin(C)</td></tr><tr><td class='none'>sin(B)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[4] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[1] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                                text += "<br>";
+                                text += "Because we know b, B, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>b * sin(A)</td></tr><tr><td class='none'>sin(B)</td></tr></table></td></tr></table><br>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "a = (" + A[4] + " * sin(" + A[0] + "&deg;)) / sin(" + A[1] + "&deg;)<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                        else
+                        {
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "c = " + A[5] + "<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                break;
+
+                case 13:        //A, B, c
+                        if (show)
+                        {
+                                text += "We can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know C, c, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                                text += "<br>";
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                        else
+                        {
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "a = " + A[3] + "<br>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                break;
+
+                case 14:        //A, c, C
+                        if (show)
+                        {
+                                text += "Because we know c, C, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                        else
+                        {
+                                text += "a = " + A[3] + "<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                break;
+
+                case 15:        //b, B, c
+                        if (show)
+                        {
+                                text += "Because we know b, B, and c, we can use the Law of Sines to solve for C. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(C) = </td><td><table><tr><td class='frac'>c * sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for C by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(C)) = </td><td>C = </td><td>arcsin(</td><td><table><tr><td class='frac'>c*sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of C<br>";
+                                text += "<table><tr><td>C = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[5] + "*sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>" + A[3] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for A by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that A = 180 - B - C<Br>";
+                                text += "A = 180 - " + A[1] + "&deg; - " + A[2] + "&deg; = " + A[0] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know c, C, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                        else
+                        {
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                break;
+
+                case 16:        //b, B, C
+                        if (show)
+                        {
+                                text += "Because we know b, B, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>b * sin(C)</td></tr><tr><td class='none'>sin(B)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[4] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[1] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for A by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that A = 180 - B - C<Br>";
+                                text += "A = 180 - " + A[1] + "&deg; - " + A[2] + "&deg; = " + A[0] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know b, B, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                        else
+                        {
+                                text += "c = " + A[5] + "<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                break;
+
+                case 17:        //b, C, c
+                        if (show)
+                        {
+                                text += "Because we know b, C, and c, we can use the Law of Sines to solve for B. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(B) = </td><td><table><tr><td class='frac'>b * sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for B by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(B)) = </td><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>b*sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "We enter our values into this formula to obtain the value of B<br>";
+                                text += "<table><tr><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[4] + "*sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>" + A[5] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for A by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that A = 180 - B - C<Br>";
+                                text += "A = 180 - " + A[1] + "&deg; - " + A[2] + "&deg; = " + A[0] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know c, C, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                        else
+                        {
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                break;
+
+                case 18:        //B, c, C
+                        if (show)
+                        {
+                                text += "Because we know B, c, and C, we can use the Law of Sines to solve for b. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>c * sin(B)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for A by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that A = 180 - B - C<Br>";
+                                text += "A = 180 - " + A[1] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know c, C, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                        else
+                        {
+                                text += "b = " + A[4] + "<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                break;
+        }
+
+        document.getElementById("output").innerHTML = text;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="javascript, script, triangle, sine, cosine, sin, cos, side, angle, three, formula, law, trig, trigonometry" />
+<meta name="description" content="This is a script which generates random triangles and reveals different properties of the triangle and asks the user to discover the remaining properties. " />
+<title> at LEARNINGlover.com</title>
+<style>
+td {border-style:none; text-align:center}
+td.frac {border-bottom-style:solid; text-align:cnter}
+td.none {border-bottom-style:none; text-align:center}
+</style>
+
+<script type="text/javascript">
+function generate()
+{
+        var A = new Array();
+        var max = 0;
+        A[0] = Math.floor(Math.random()*30) + 1;
+        A[0] *= 5;
+        var rem = 180 - A[0];
+
+        A[1] = Math.floor(Math.random()*(rem / 5 - 1)) + 1;
+        A[1] *= 5;
+        if (A[1] > A[max])
+                max = 1;
+
+        rem -= A[1];
+
+        A[2] = rem;
+        if (A[2] > A[max])
+                max = 2;
+
+        A[max+3] = Math.floor(Math.random()*10)+10;
+        if (max != 0)
+                A[3] = Math.round(((A[max+3]*Math.sin(A[0]*(Math.PI/180))) /
+Math.sin(A[max]*(Math.PI/180)))*100)/100;
+        if (max != 1)
+                A[4] = Math.round(((A[max+3]*Math.sin(A[1]*(Math.PI/180))) /
+Math.sin(A[max]*(Math.PI/180)))*100)/100;
+        if (max != 2)
+                A[5] = Math.round(((A[max+3]*Math.sin(A[2]*(Math.PI/180))) /
+Math.sin(A[max]*(Math.PI/180)))*100)/100;
+
+//      document.getElementById("output").innerHTML += A;
+
+        return A;
+}
+
+function drawTri(A)
+{
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d");
+        ctx.clearRect (0, 0, c.width, c.height);
+
+        var min = 0;
+        for (var i = 0; i < 3; i++)
+                if (A[i] < A[min])
+                        min = i;
+
+        var temp = A[0];
+        A[0] = A[min];
+        A[min] = temp;
+
+        temp = A[3];
+        A[3] = A[min+3];
+        A[min+3] = temp;
+
+        var x1 = ((c.width - 15)/45), x2 = 0, x3 = 0;
+        var y1 = (c.height - 15)/60, y2 = 0, y3 = 0;
+        var height, dist;
+
+        if (A[1] > 90)
+        {
+                x2 = x1 + A[3];
+                height = A[5]*Math.sin((180-A[1])*(Math.PI/180));
+                dist = Math.sqrt(A[5]*A[5] - height*height);
+                x3 = x1 - dist;
+
+                y2 = y1;
+                y3 = y1 + height;
+        }
+        else if (A[2] > 90)
+        {
+                x2 = x1 + A[3];
+                height = A[4]*Math.sin((180-A[1])*(Math.PI/180));
+                dist = Math.sqrt(A[4]*A[4] - height*height);
+                x3 = x2 + dist;
+
+                y2 = y1;
+                y3 = y1 + height;
+        }
+        else if (A[1] == 90)
+        {
+                x2 = x1 + A[3];
+                x3 = x1;
+
+                height = A[5];
+                y3 = y1 + height;
+                y2 = y1;
+        }
+        else if (A[2] == 90)
+        {
+                x2 = x1 + A[3];
+                x3 = x2;
+
+                height = A[4];
+                y3 = y1 + height;
+                y2 = y1;
+        }
+        else
+        {
+                var delta1 = 90 - A[1];
+                var delta2 = 90 - A[2];
+                height = A[5]*Math.sin(A[2]*(Math.PI/180));
+                dist = Math.sqrt(A[5]*A[5] - height*height);
+
+                x2 = x1 + A[3];
+                x3 = x1 + dist;
+
+                y2 = y1;
+                y3 = y1 + height;
+        }
+
+        while(y3 > (c.height - 15)/15)
+        {
+                y2--;
+                y1--;
+                y3--;
+        }
+
+        while(x3 > (c.width - 15)/15)
+        {
+                x2--;
+                x1--;
+                x3--;
+        }
+
+        while(x3 < 15)
+        {
+                x2++;
+                x1++;
+                x3++;
+        }
+
+        var pts = new Array();
+        pts[0] = new Array();
+
+        pts[0][0] = x1;
+        pts[0][1] = y1;
+
+        pts[1] = new Array();
+        pts[1][0] = x2;
+        pts[1][1] = y2;
+
+        pts[2] = new Array();
+        pts[2][0] = x3;
+        pts[2][1] = y3;
+
+//      document.getElementById("output").innerHTML += "<br>" + pts + "<br>";
+//      document.getElementById("output").innerHTML += "width = " +
+(c.width - 15)/15 + "<br>";
+//      document.getElementById("output").innerHTML += "height = " +
+(c.height - 15)/15 + "<br>";
+
+        for (i = 0; i < 3; i++)
+        {
+                for (j = 0; j < 3; j++)
+                {
+                        ctx.strokeStyle="#0000FF";
+                        ctx.beginPath();
+                        ctx.moveTo(15*pts[i][0], 15*pts[i][1]);
+                        ctx.lineTo(15*pts[j][0], 15*pts[j][1]);
+                        ctx.stroke();
+                }
+        }
+
+        ctx.fillText("a",(15*pts[0][0] + 15*pts[1][0])/2 -
+3*(Math.floor(Math.log(i+1)/Math.log(10))+1),(15*pts[0][1] +
+15*pts[1][1])/2+4 - 15);
+        ctx.fillText("b",(15*pts[1][0] + 15*pts[2][0])/2 -
+3*(Math.floor(Math.log(i+1)/Math.log(10))+1)+10,(15*pts[1][1] +
+15*pts[2][1])/2+4 + 10);
+        ctx.fillText("c",(15*pts[2][0] + 15*pts[0][0])/2 -
+3*(Math.floor(Math.log(i+1)/Math.log(10))+1)-15,(15*pts[2][1] +
+15*pts[0][1])/2+4 + 10);
+
+        for (i = 0; i < 3; i++)
+        {
+//              ctx.strokeStyle="#000000";
+//              ctx.beginPath();
+//              ctx.arc(15*pts[i][0],15*pts[i][1],10,0*Math.PI,2*Math.PI);
+//              ctx.stroke();
+
+//              ctx.fillStyle="#00FFFF";
+//              ctx.beginPath();
+//              ctx.arc(15*pts[i][0],15*pts[i][1],10,0*Math.PI,2*Math.PI);
+//              ctx.fill();
+
+                ctx.fillStyle="#000000";
+                ctx.font="10px Arial";
+                if (i == 0)
+                        ctx.fillText("B",15*pts[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1)-15,15*pts[i][1]+4);
+                else if (i == 1)
+                        ctx.fillText("C",15*pts[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1)+15,15*pts[i][1]+4);
+                else
+                        ctx.fillText("A",15*pts[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1),15*pts[i][1]+4+15);
+        }
+}
+
+function init()
+{
+        A = generate();
+        var scenario = Math.floor(Math.random()*10);
+        drawTri(A);
+        document.getElementById("input").innerHTML = "";
+        document.getElementById("output").innerHTML = "";
+
+        switch (scenario)
+        {
+                case 0:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of c, B, and C? <br>";
+                break;
+
+                case 1:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of b, c, and C? <br>";
+                break;
+
+                case 2:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of b, B, and C? <br>";
+                break;
+
+                case 3:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of B, C, and c? <br>";
+                break;
+
+                case 4:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of c, A, and C? <br>";
+                break;
+
+                case 5:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of A, B, and C? <br>";
+                break;
+
+                case 6:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of c, A, and B? <br>";
+                break;
+
+                case 7:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of b, A, and C? <br>";
+                break;
+
+                case 8:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of b, c, and A? <br>";
+                break;
+
+                case 9:
+                        document.getElementById("input").innerHTML += "a = " + A[3] + "<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of b, A, and B? <br>";
+                break;
+
+                case 10:
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, c, and C? <br>";
+                break;
+
+                case 11:
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, B, and C? <br>";
+                break;
+
+                case 12:
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, c, and B? <br>";
+                break;
+
+                case 13:
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, b, and C? <br>";
+                break;
+
+                case 14:
+                        document.getElementById("input").innerHTML += "A = " + A[0] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, b, and B? <br>";
+                break;
+
+                case 15:
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, A, and C? <br>";
+                break;
+
+                case 16:
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, A, and c? <br>";
+                break;
+
+                case 17:
+                        document.getElementById("input").innerHTML += "b = " + A[4] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, A, and B? <br>";
+                break;
+
+                case 18:
+                        document.getElementById("input").innerHTML += "B = " + A[1] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "c = " + A[5] + "<br>";
+                        document.getElementById("input").innerHTML += "C = " + A[2] + "&deg;<br>";
+                        document.getElementById("input").innerHTML += "What are the values of a, b and A? <br>";
+                break;
+        }
+
+        return scenario;
+}
+
+function solveTri(scenario)
+{
+        var text = "";
+        var show = document.getElementById("show").checked;
+        switch (scenario)
+        {
+                case 0: //a, A, b
+                        if (show)
+                        {
+                                text += "Because we know a, A, and b, we can use the Law of Sines to solve for B. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td></td><td> = </td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(B) = </td><td><table><tr><td class='frac'>b * sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for B by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(B)) = </td><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>b*sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "We enter our values into this formula to obtain the value of B<br>";
+                                text += "<table><tr><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[4] + "*sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>" + A[3] + "</td></tr></table></td><td>)</td></tr></table>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180&deg; - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                        else
+                        {
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                break;
+
+                case 1: //a, A, B
+                        if (show)
+                        {
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+								text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                        else
+                        {
+                                text += "b = " + A[4] + "<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                break;
+
+                case 2: //a, A, c
+                        if (show)
+                        {
+                                text += "Because we know a, A, and c, we can use the Law of Sines to solve for C. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(C) = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for C by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(C)) = </td><td>C = </td><td>arcsin(</td><td><table><tr><td class='frac'>c*sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "We enter our values into this formula to obtain the value of C<br>";
+                                text += "<table><tr><td>C = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[5] + "*sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>" + A[3] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+								text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                        else
+                        {
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                break;
+
+                case 3: //a, A, C
+                        if (show)
+                        {
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+								text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for b. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+								text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                        else
+                        {
+                                text += "c = " + A[5] + "<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                break;
+
+                case 4: //a, b, B
+                        if (show)
+                        {
+                                text += "Because we know a, b, and B, we can use the Law of Sines to solve for A. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(A) = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for A by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(A)) = </td><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>a*sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>" + A[4] + "</td></tr></table></td><td>)</td></tr></table>. <br>";;
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                        else
+                        {
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                break;
+
+                case 5: //a, b, c
+                        if (show)
+                        {
+                                text += "Because we know a, b, and c, we can use the Law of Cosines to solve for C. <br>";
+                                text += "The law of Cosines says that c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup> - 2*a*b*cos(C)<br>"
+								text += "This simplifies to <table><tr><td>cos(C) = </td><td><table><tr><td class='frac'>c<sup>2</sup> - a<sup>2</sup> - b<sup>2</sup></td></tr><tr><td class='none'>-2*a*b</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for C by taking the arccos of both sides<br>";
+                                text += "<table><tr><td>arccos(cos(C)) = </td><td>C = </td><td>arccos(</td><td><table><tr><td class='frac'>c<sup>2</sup> - a<sup>2</sup> - b<sup>2</sup></td></tr><tr><td class='none'>-2*a*b</td></tr></table><td>)</td></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>C = </td><td>arccos(</td><td><table><tr><td class='frac'>" + (Math.round(A[5]*A[5]*100)/100) + " - " + (Math.round(A[3]*A[3]*100)/100) + " - " + (Math.round(A[4]*A[4]*100)/100) + "</td></tr><tr><td class='none'>-2*" + A[3] + "*" + A[4]+ "</td></tr></table><td>)</td></td></tr></table>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now, because we know a, c, and C, we can use the Law of Sines to solve for A. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(A) = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for A by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(A)) = </td><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>a*sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>" + A[5] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                        }
+                        else
+                        {
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                        }
+                break;
+
+                case 6: //a, b, C
+                        if (show)
+                        {
+                                text += "Because we know a, b, and C, we can use the Law of Cosines to solve for c. <br>";
+                                text += "The law of Cosines says that c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup> - 2*a*b*cos(C)<br>"
+                                text += "We can thus solve for c by taking the square root of both sides<br>";
+                                text += "sqrt(c<sup>2</sup>) = c = sqrt(a<sup>2</sup> + b<sup>2</sup> - 2*a*b*cos(C)). <br>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "c = sqrt(" + (Math.round(A[3]*A[3]*100)/100) + " + " + (Math.round(A[4]*A[4]*100/100)) + " - 2*" + A[3] + "*" + A[4] + "*cos(" + A[2] + "&deg;)) <br>";
+                                text += "c = sqrt(" + (Math.round(A[5]*A[5]*100)/100) + ")<br>";
+                                text += "c = " + A[5] + "<br>";
+                                text += "<br>";
+                                text += "Now, because we know a, c, and C, we can use the Law of Sines to solve for A. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(A) = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for A by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(A)) = </td><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>a*sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>" + A[5] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                        }
+                        else
+                        {
+                                text += "c = " + A[5] + "<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                        }
+                break;
+
+                case 7: //a, B, c
+                        if (show)
+                        {
+                                text += "Because we know a, B, and c, we can use the Law of Cosines to solve for b. <br>";
+                                text += "The law of Cosines says that b<sup>2</sup> = a<sup>2</sup> + c<sup>2</sup> - 2*a*c*cos(B)<br>"
+                                text += "We can thus solve for b by taking the square root of both sides<br>";
+                                text += "sqrt(b<sup>2</sup>) = b = sqrt(a<sup>2</sup> + c<sup>2</sup> - 2*a*c*cos(B)). <br>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "b = sqrt(" + (Math.round(A[3]*A[3]*100/100)) + " + " + (Math.round(A[5]*A[5]*100/100)) + " - 2*" + A[3] + "*" + A[5] + "*cos(" + A[1] + "&deg;)) <br>";
+                                text += "b = sqrt(" + (Math.round(A[4]*A[4]*100)/100) + ")<br>";
+                                text += "b = " + A[4] + "<br>";
+                                text += "<br>";
+                                text += "Now, because we know a, b, and B, we can use the Law of Sines to solve for A. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(A) = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for A by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(A)) = </td><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>a*sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>" + A[4] + "</td></tr></table></td><td>)</td></tr></table>. <br>";;
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                        }
+                        else
+                        {
+                                text += "b = " + A[4] + "<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                        }
+                break;
+
+                case 8: //a, B, C
+                        if (show)
+                        {
+                                text += "We can solve for A by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that A = 180 - B - C<Br>";
+                                text += "A = 180 - " + A[1] + "&deg; - " + A[2] + "&deg; = " + A[0] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                                text += "<br>";
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                        else
+                        {
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "b = " + A[4] + "<br>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                break;
+
+                case 9: //a, c, C
+                        if (show)
+                        {
+                                text += "Because we know a, c, and C, we can use the Law of Sines to solve for A. <br>";
+                                text += "The law of Sines says that c / sin(C) = a / sin(A)<br>"
+                                text += "This simplifies to <table><tr><td>sin(A) = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for A by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(A)) = </td><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>a*sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of A<br>";
+                                text += "<table><tr><td>A = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[3] + "*sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>" + A[5] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                        else
+                        {
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+
+                break;
+
+                case 10:        //A, b, B
+                        if (show)
+                        {
+                                text += "Because we know A, b, and B, we can use the Law of Sines to solve for a. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>b * sin(A)</td></tr><tr><td class='none'>sin(B)</td></tr></table></td></tr></table><br>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[4] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[1] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>a * sin(C)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                        else
+                        {
+                                text += "a = " + A[3] + "<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "c = " + A[5] + "<br>";
+                        }
+                break;
+
+                case 11:        //A, b, c
+                        if (show)
+                        {
+                                text += "Because we know A, b, and c, we can use the Law of Cosines to solve for a. <br>";
+                                text += "The law of Cosines says that a<sup>2</sup> = b<sup>2</sup> + c<sup>2</sup> - 2*b*c*cos(A)<br>"
+                                text += "We can thus solve for a by taking the square root of both sides<br>";
+                                text += "sqrt(a<sup>2</sup>) = a = sqrt(b<sup>2</sup> + c<sup>2</sup> - 2*b*c*cos(A)). <br>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "a = sqrt(" + (Math.round(A[4]*A[4]*100)/100) + " + " +  (Math.round(A[5]*A[5]*100)/100) + " - " +  "2*" + A[4] + "*" + A[5] + "*cos(" + A[0] + "&deg;)) <br>";
+                                text += "a = sqrt(" + (Math.round(A[3]*A[3]*100)/100) + ")<br>";
+                                text += "a = " + A[3] + "<br>";
+                                text += "<br>";
+                                text += "Now, because we know a, A, and b, we can use the Law of Sines to solve for B. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(B) = </td><td><table><tr><td class='frac'>b * sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for B by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(B)) = </td><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>b*sin(A)</td></tr><tr><td class='none'>a</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "We enter our values into this formula to obtain the value of B<br>";
+                                text += "<table><tr><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[4] + "*sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>" + A[3] + "</td></tr></table></td><td>)</td></tr></table>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "Now we can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                        }
+                        else
+                        {
+                                text += "a = " + A[3] + "<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                        }
+                break;
+
+                case 12:        //A, b, C
+                        if (show)
+                        {
+                                text += "We can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "B = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know B, b, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>b * sin(C)</td></tr><tr><td class='none'>sin(B)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[4] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[1] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                                text += "<br>";
+                                text += "Because we know b, B, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>b * sin(A)</td></tr><tr><td class='none'>sin(B)</td></tr></table></td></tr></table><br>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "a = (" + A[4] + " * sin(" + A[0] + "&deg;)) / sin(" + A[1] + "&deg;)<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                        else
+                        {
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "c = " + A[5] + "<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                break;
+
+                case 13:        //A, B, c
+                        if (show)
+                        {
+                                text += "We can solve for C by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that C = 180 - A - B<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[1] + "&deg; = " + A[2] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know C, c, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                                text += "<br>";
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                        else
+                        {
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "a = " + A[3] + "<br>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                break;
+
+                case 14:        //A, c, C
+                        if (show)
+                        {
+                                text += "Because we know c, C, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for B by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that B = 180 - A - C<Br>";
+                                text += "C = 180 - " + A[0] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know a, A, and B, we can use the Law of Sines to solve for b. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>a * sin(B)</td></tr><tr><td class='none'>sin(A)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[3] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[0] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                        else
+                        {
+                                text += "a = " + A[3] + "<br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "b = " + A[4] + "<br>";
+                        }
+                break;
+
+                case 15:        //b, B, c
+                        if (show)
+                        {
+                                text += "Because we know b, B, and c, we can use the Law of Sines to solve for C. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(C) = </td><td><table><tr><td class='frac'>c * sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for C by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(C)) = </td><td>C = </td><td>arcsin(</td><td><table><tr><td class='frac'>c*sin(B)</td></tr><tr><td class='none'>b</td></tr></table></td><td>)</td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of C<br>";
+                                text += "<table><tr><td>C = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[5] + "*sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>" + A[3] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for A by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that A = 180 - B - C<Br>";
+                                text += "A = 180 - " + A[1] + "&deg; - " + A[2] + "&deg; = " + A[0] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know c, C, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                        else
+                        {
+                                text += "C = " + A[2] + "&deg;<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                break;
+
+                case 16:        //b, B, C
+                        if (show)
+                        {
+                                text += "Because we know b, B, and C, we can use the Law of Sines to solve for c. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>c = </td><td><table><tr><td class='frac'>b * sin(C)</td></tr><tr><td class='none'>sin(B)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of c<br>";
+                                text += "<table><tr><td>c = </td><td><table><tr><td class='frac'>" + A[4] + " * sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[1] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "c = " + A[5] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for A by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that A = 180 - B - C<Br>";
+                                text += "A = 180 - " + A[1] + "&deg; - " + A[2] + "&deg; = " + A[0] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know b, B, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                        else
+                        {
+                                text += "c = " + A[5] + "<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                break;
+
+                case 17:        //b, C, c
+                        if (show)
+                        {
+                                text += "Because we know b, C, and c, we can use the Law of Sines to solve for B. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>sin(B) = </td><td><table><tr><td class='frac'>b * sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td></tr></table>";
+                                text += "We can thus solve for B by taking the arcsin of both sides<br>";
+                                text += "<table><tr><td>arcsin(sin(B)) = </td><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>b*sin(C)</td></tr><tr><td class='none'>c</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "We enter our values into this formula to obtain the value of B<br>";
+                                text += "<table><tr><td>B = </td><td>arcsin(</td><td><table><tr><td class='frac'>" + A[4] + "*sin(" + A[2] + "&deg;)</td></tr><tr><td class='none'>" + A[5] + "</td></tr></table></td><td>)</td></tr></table>. <br>";
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "<br>";
+                                text += "Now we can solve for A by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that A = 180 - B - C<Br>";
+                                text += "A = 180 - " + A[1] + "&deg; - " + A[2] + "&deg; = " + A[0] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know c, C, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                        else
+                        {
+                                text += "B = " + A[1] + "&deg;<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                break;
+
+                case 18:        //B, c, C
+                        if (show)
+                        {
+                                text += "Because we know B, c, and C, we can use the Law of Sines to solve for b. <br>";
+                                text += "The law of Sines says that <table><tr><td><table><tr><td class='frac'> b </td></tr><tr><td class='none'> sin(B)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>"
+                                text += "This simplifies to <table><tr><td>b = </td><td><table><tr><td class='frac'>c * sin(B)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of b<br>";
+                                text += "<table><tr><td>b = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[1] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "b = " + A[4] + "<br>";
+                                text += "<br>";
+                                text += "Now we can solve for A by remembering that the sum of the interior angles of a triangle is 180 degrees. <br>";
+                                text += "This implies that A = 180 - B - C<Br>";
+                                text += "A = 180 - " + A[1] + "&deg; - " + A[2] + "&deg; = " + A[1] + "&deg;<br>";
+                                text += "<br>"
+                                text += "Because we know c, C, and A, we can use the Law of Sines to solve for a. <br>";
+                                text += "The Law of Sines says that <table><tr><td><table><tr><td class='frac'> a </td></tr><tr><td class='none'> sin(A)</td></tr></table></td><td> = </td><td></td><td><table><tr><td class='frac'> c </td></tr><tr><td class='none'> sin(C)</td></tr></table></td></tr></table>";
+                                text += "This simplifies to <table><tr><td>a = </td><td><table><tr><td class='frac'>c * sin(A)</td></tr><tr><td class='none'>sin(C)</td></tr></table></td></tr></table>";
+                                text += "We enter our values into this formula to obtain the value of a<br>";
+                                text += "<table><tr><td>a = </td><td><table><tr><td class='frac'>" + A[5] + " * sin(" + A[0] + "&deg;)</td></tr><tr><td class='none'>sin(" + A[2] + "&deg;)</td></tr></table></td></tr></table>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                        else
+                        {
+                                text += "b = " + A[4] + "<br>";
+                                text += "A = " + A[0] + "&deg;<br>";
+                                text += "a = " + A[3] + "<br>";
+                        }
+                break;
+        }
+
+        document.getElementById("output").innerHTML = text;
+}
+</script>
+<h3><center></center></h3>
+<p><p>This script helps
+users understand the properties of triangles. It is based on two laws
+that we learn in trigonometry: the law of sines and the law of
+cosines. Assume that we have a triangle with sides of lengths a, b,
+and c and respective angles A, B and C (where the angle A does not
+touch the side a, the angle B does not touch the side b, and the angle
+C does not touch the side c). These laws are as stated as follows:
+</p>
+
+
+<table>
+<tr>
+<td>
+<b>Law of Sines</b><br>
+<table><tr>
+        <td><table><tr><td class='frac'> a </td></tr><tr><td class='none'>
+sin(A) </td></tr></table></td><td> = </td>
+        <td><table><tr><td class='frac'> b </td></tr><tr><td class='none'>
+sin(B) </td></tr></table></td><td> = </td>
+        <td><table><tr><td class='frac'> c </td></tr><tr><td class='none'>
+sin(C) </td></tr></table></td>
+</tr></table>
+</td>
+<td>
+<b>Law of Cosines</b><br>
+c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup> - 2*a*b*cos(C)<br>
+</td>
+</tr>
+</table>
+<p>We can use these laws to determine the sides of a triangle given
+almost any combination of sides and angles of that triangle (the only
+one we cannot determine properties from is if we are given all three
+angles, as this leads to many solutions). </p>
+
+<p>The script generates random triangles, with different combinations
+of sides and angles revealed and the user's job is to try to determine
+the missing sides. </P></p></p>
+<p name="input" id="input"></p>
+<input type=checkbox id="show" name="show">Show Work<br>
+<input type="button" value="Solve" onclick="solveTri(ans)"><br>
+<input type="button" value="New Problem" onclick="ans = init();"><br>
+<canvas id="myCanvas" width="550" height="350" style="border:1px solid #d3d3d3;">
+your browser does not support the canvas tag
+</canvas>
+<p name="output" id="output"></p>
+<script type="text/javascript">
+var A;
+var ans = init();
+
+</script>

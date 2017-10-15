@@ -1,0 +1,999 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+SingleVariableEquations<style>
+td {border-style:none; text-align:center}
+td.frac {border-bottom-style:solid; text-align:cnter}
+td.none {border-bottom-style:none; text-align:center}
+</style>
+<script type="text/javascript">
+var text = "";
+function solve(arr)
+{
+	document.getElementById("output").innerHTML = "";
+	var newconst = new Array();
+	var newcoeff = new Array();
+	var ans = new Array();
+	if (arr[0])
+	{
+		if (arr[13])
+			if (arr[14])
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>1. We start by adding </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> to both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x - </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+
+				newconst = sum(-1*arr[8], arr[9], arr[5], arr[6]);
+
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+			else
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>2. We start by adding </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> to both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+
+				newconst = sum(arr[8], arr[9], arr[5], arr[6]);
+				
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td clas='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+		else
+		{
+			if (arr[14])
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>3. We start by subtracting </td><td class='nonw'>" + disp(arr[5], arr[6]) + "</td><td class='none'> from both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x - </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+				
+				newconst = diff(-1*arr[8], arr[9], arr[5], arr[6]);
+			
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td clas='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+			else
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>4. We start by subtracting </td><td class='nonw'>" + disp(arr[5], arr[6]) + "</td><td class='none'> from both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+				newconst = diff(arr[8], arr[9], arr[5], arr[6]);
+			
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td clas='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+		}
+		
+		if (document.getElementById("show").checked)
+		{
+			text += "<table><tr><td class='none'>5. Now we subtract </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'> x from both sides of the equation. </td></tr></table>";
+			text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x</td><td class='none'> = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td clas='none'>" + disp(newconst[0], newconst[1]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x</td></tr></table>";
+		}
+				
+		newcoeff = diff(arr[2], arr[3], arr[11], arr[12]);
+		
+		if (document.getElementById("show").checked)
+			text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(newcoeff[0], newcoeff[1]) + "</td><td class='none'> x = </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+		
+		if (newcoeff[0] != 1 || newcoeff[1] != 1)
+			ans = quot(newconst[0], newconst[1], newcoeff[0], newcoeff[1]);
+		else
+		{
+			ans[0] = 1;
+			ans[1] = 1;
+		}
+	}
+	else
+	{
+		if (arr[13])
+		{
+			if (arr[14])
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>6. We start by adding </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> to both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>-" + disp(arr[8], arr[9]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+				newconst = sum(-1*arr[8], arr[9], arr[5], arr[6]);
+
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+			else
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>7. We start by adding </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> to both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+
+				newconst = sum(arr[8], arr[9], arr[5], arr[6]);
+				
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+		}
+		else
+		{
+			if (arr[14])
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>8. We start by subtracting </td><td class='nonw'>" + disp(arr[5], arr[6]) + "</td><td class='none'> from both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>-" + disp(arr[8], arr[9]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+				
+				newconst = diff(arr[8], arr[9], arr[5], arr[6]);
+			
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+			else
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>9. We start by subtracting </td><td class='nonw'>" + disp(arr[5], arr[6]) + "</td><td class='none'> from both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+				
+				newconst = diff(arr[8], arr[9], arr[5], arr[6]);
+			
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+		}
+		newcoeff[0] = arr[2];
+		newcoeff[1] = arr[3];
+		
+		if (document.getElementById("show").checked && (newcoeff[0] != 1 || newcoeff[1] != 1))
+		{
+			text += "<table><tr><td class='none'>10. Finally we divide by </td><td class='nonw'>" + disp(newcoeff[0], newcoeff[1]) + "</td><td class='none'> on both sides of the equation. </td></tr></table>";
+			text += "<table><tr><td class='none'>(</td><td class='none'>" + disp(newcoeff[0], newcoeff[1]) + "</td><td class='none'>/</td><td class='none'>" + disp(newcoeff[0], newcoeff[1]) + "</td><td class='none'>)</td><td class='none'> x = </td><td class='none'>(</td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td><td class='none'>/</td><td class='none'>" + disp(newcoeff[0], newcoeff[1]) + "</td><td class='none'>)</td></tr></table>";
+		}
+				
+		if (newcoeff[0] != 1 || newcoeff[1] != 1)
+			ans = quot(newconst[0], newconst[1], newcoeff[0], newcoeff[1]);
+		else
+		{
+			ans[0] = 1;
+			ans[1] = 1;
+		}
+			
+		if (document.getElementById("show").checked)
+			text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'> x = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td></tr></table>";
+	}
+	
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("output").innerHTML += "<table><tr><td class='none'>x = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td></tr></table>";
+}
+
+function gcd(u, v)
+{
+ 	if (v == 0)
+		return u;
+	else
+ 	{
+		return gcd(v, u % v);
+	}
+}
+
+function sum(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	ans[0] = num1*den2 + den1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+	{
+		text += "<table><tr><td class='none'>The formula to add two fractions of the form </td><td class='none'><table><tr><td class='frac'> a </td></tr><tr><td class='none'> b </td></tr></table></td><td class='none'> + </td><td class='none'><table><tr><td class='frac'> c </td></tr><tr><td class='none'> d </td></tr></table></td><td class='none'> is </td><td class='none'>" + disp("a*d + b*c", "b*d") +  "</td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> + </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(num1 + "*" + den2 + " + " + den1 + "*" + num2, den1 + "*" + den2) + "</td><td class='none'><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && common != -1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	if (ans[1] < 0)
+	{
+		ans[0] = ans[0] * -1;
+		ans[1] = ans[1] * -1;
+	}
+	
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+		text += "<table><tr><td class='none'>So </td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> + </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+		
+	return ans;
+}
+
+function diff(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	ans[0] = num1*den2 - den1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+	{
+		text += "<table><tr><td class='none'>The formula to subtract two fractions of the form </td><td class='none'>" + disp("a", "b") + "</td><td class='none'> - </td><td class='none'>" + disp("c", "d") + "</td><td class='none'> is </td><td class='none'>" + disp("a*d - b*c", "b*d") + "</td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> - </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(num1 + "*" + den2 + " - " + den1 + "*" + num2, den1 + "*" + den2) + "</td><td class='none'><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && common != -1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	if (ans[1] < 0)
+	{
+		ans[0] = ans[0] * -1;
+		ans[1] = ans[1] * -1;
+	}
+	
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+		text += "<table><tr><td class='none'>So </td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> - </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+		
+	return ans;
+}
+
+function prod(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	ans[0] = num1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+	{
+		text += "<table><tr><td class='none'>The formula to multiply two fractions of the form </td><td class='none'>" + disp("a", "b") + "</td><td class='none'> * </td><td class='none'>" + disp("c", "d") + "</td><td class='none'> is </td><td class='none'>" + disp("a*c", "b*d") + "</td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> * </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(num1 + "*" + num2, den1 + "*" + den2) + "</td><td class='none'><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && common != -1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	if (ans[1] < 0)
+	{
+		ans[0] = ans[0] * -1;
+		ans[1] = ans[1] * -1;
+	}
+	
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+		text += "<table><tr><td class='none'>So </td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> * </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+		
+	return ans;
+}
+
+function quot(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	ans[0] = num1*den2;
+	ans[1] = num2*den1;
+
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+	{
+		text += "<table><tr><td class='none'>The formula to divide two fractions of the form </td><td class='none'>" + disp("a", "b") + "</td><td class='none'> / </td><td class='none'>" + disp("c", "d") + "</td><td class='none'> is </td><td class='none'>" + disp("a*d", "b*c") + "</td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> / </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(num1 + "*" + den2, den1 + "*" + num2) + "</td><td class='none'><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && common != -1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	if (ans[1] < 0)
+	{
+		ans[0] = ans[0] * -1;
+		ans[1] = ans[1] * -1;
+	}
+	
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+		text += "<table><tr><td class='none'>So </td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> / </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+		
+	return ans;
+}
+
+function disp(num, den)
+{
+	var outtext = "";
+	if (den != 1)
+	{
+		outtext = "<table><tr><td class='frac'>" + num + "</td></tr><tr><td class='none'>" + den + "</td></tr></table>";
+	}
+	else if (num != 0)
+	{
+		outtext = num + ""; 
+	}
+	else
+	{
+		outtext = "0";
+	}
+	
+	return outtext;
+}
+
+function clr()
+{
+	text = "";
+	document.getElementById("input").innerHTML = "";
+	document.getElementById("output").innerHTML = "";
+}
+
+function init()
+{
+	var ans = new Array();
+	var common;
+	ans[0] = Math.floor(Math.random()*2);		//This tells whether we have variables on both sides of the equation. 
+	ans[1] = Math.floor(Math.random()*2);		//This tells whether the coefficient of the left side x is a fraction. 
+	do
+	{
+		ans[2] = Math.floor(Math.random()*20)+1;	//This is the numerator for the coefficient of the left side x. 
+	}
+	while(ans[2] == 0);
+	
+	if (ans[1])
+		do
+		{
+			ans[3] = Math.floor(Math.random()*20)+1;	//This is the denominator for the coefficient of the left side x. 
+		}
+		while (ans[3] == 0);
+	else
+		ans[3] = 1;
+	common = gcd(ans[2], ans[3]);
+	if (common != 1)
+	{
+		ans[2] = ans[2] / common;
+		ans[3] = ans[3] / common;
+	}
+	ans[4] = Math.floor(Math.random()*2);		//This tells whether the left side constant is a fraction
+	do
+	{
+		ans[5] = Math.floor(Math.random()*20)+1		//This is the numerator for the left side constant. 
+	}
+	while (ans[5] == 0);
+	
+	if (ans[4])
+		do
+		{
+			ans[6] = Math.floor(Math.random()*20)+1;	//This is the denominator for the left side constant. 
+		}
+		while (ans[6] == 0);
+	else
+		ans[6] = 1;
+	common = gcd(ans[5], ans[6]);
+	if (common != 1)
+	{
+		ans[5] = ans[5] / common;
+		ans[6] = ans[6] / common;
+	}
+	ans[7] = Math.floor(Math.random()*2);		//This tells whether the right side constant is a fraction.
+	do
+	{
+		ans[8] = Math.floor(Math.random()*20)+1		//This is the numerator for the right side constant. 
+	}
+	while (ans[8] == 0);
+	
+	if (ans[7])
+		do
+		{
+			ans[9] = Math.floor(Math.random()*20)+1;	//This is the denominator fot the right side constant. 
+		}
+		while (ans[9] == 0);
+	else
+		ans[9] = 1;
+	common = gcd(ans[8], ans[9]);
+	if (common != 1)
+	{
+		ans[8] = ans[8] / common;
+		ans[9] = ans[9] / common;
+	}
+		
+	if (ans[0])
+	{
+		ans[10] = Math.floor(Math.random()*2);	//This tells whether the right side coefficient is a fraction. 
+		do
+		{
+			ans[11] = Math.floor(Math.random()*20)+1;	//This is the numerator of the right side coefficient. 
+		}
+		while (ans[11] == 0);
+		
+		if (ans[10])
+			do
+			{
+				ans[12] = Math.floor(Math.random()*20)+1;	//This is the denominator for the right side coefficient. 
+			}
+			while (ans[12] == 0);
+		else
+			ans[12] = 1;
+	}
+	else
+	{
+		ans[10] = 0;
+		ans[11] = 0;
+		ans[12] = 1;
+	}
+	
+	common = gcd(ans[11], ans[12]);
+	if (common != 1)
+	{
+		ans[11] = ans[11] / common;
+		ans[12] = ans[12] / common;
+	}
+	
+	ans[13] = Math.floor(Math.random()*2);	//This is the left side operator.
+	if (ans[0])
+		ans[14] = Math.floor(Math.random()*2);	//This is the right side operator. 
+	else
+		ans[14] = 0;
+	
+	var outtxt = "";
+	
+	switch (ans[13])
+	{
+	case 0:
+		outtxt += "Solve for x:<br><table><tr><td class='none'>" + disp(ans[2], ans[3]) + "</td><td class='none'> x + </td><td class='none'>" + disp(ans[5], ans[6]) + "</td><td class='none'> = </td>";
+		break;
+	case 1:
+		outtxt += "Solve for x:<br><table><tr><td class='none'>" + disp(ans[2], ans[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(ans[5], ans[6]) + "</td><td class='none'> = </td>";
+		break;
+	}
+	
+	switch (ans[14])
+	{
+	case 0:
+		if (ans[0] == 1)
+			outtxt += "<td class='none'>" + disp(ans[11], ans[12]) + "</td><td class='none'> x + </td><td class='none'>" + disp(ans[8], ans[9]) + "</td>";
+		else
+			outtxt += "<td class='none'>" + disp(ans[8], ans[9]) + "</td>";
+		break;
+	case 1:
+		if (ans[0] == 1)
+			outtxt += "<td class='none'>" + disp(ans[11], ans[12]) + "</td><td class='none'> x - </td><td class='none'>" + disp(ans[8], ans[9]) + "</td>";
+		else
+			outtxt += "<td class='none'> - </td><td class='none'>" + disp(ans[8], ans[9]) + "</td></tr></table>";
+		break;
+	}
+	
+	var i;
+		
+	document.getElementById("input").innerHTML += outtxt;
+	
+	return ans;
+}
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="single, variable, equation, solve, x, javascript, algorithm, fraction, add, subtract, multiply, divide, equals, equality" />
+<meta name="description" content="This script generates a random single variable equation and asks to you solve for x. " />
+
+<title> at LEARNINGlover.com</title>
+<style>
+td {border-style:none; text-align:center}
+td.frac {border-bottom-style:solid; text-align:cnter}
+td.none {border-bottom-style:none; text-align:center}
+</style>
+<script type="text/javascript">
+var text = "";
+function solve(arr)
+{
+	document.getElementById("output").innerHTML = "";
+	var newconst = new Array();
+	var newcoeff = new Array();
+	var ans = new Array();
+	if (arr[0])
+	{
+		if (arr[13])
+			if (arr[14])
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>1. We start by adding </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> to both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x - </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+
+				newconst = sum(-1*arr[8], arr[9], arr[5], arr[6]);
+
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+			else
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>2. We start by adding </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> to both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+
+				newconst = sum(arr[8], arr[9], arr[5], arr[6]);
+				
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td clas='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+		else
+		{
+			if (arr[14])
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>3. We start by subtracting </td><td class='nonw'>" + disp(arr[5], arr[6]) + "</td><td class='none'> from both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x - </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+				
+				newconst = diff(-1*arr[8], arr[9], arr[5], arr[6]);
+			
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td clas='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+			else
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>4. We start by subtracting </td><td class='nonw'>" + disp(arr[5], arr[6]) + "</td><td class='none'> from both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+				newconst = diff(arr[8], arr[9], arr[5], arr[6]);
+			
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td clas='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+		}
+		
+		if (document.getElementById("show").checked)
+		{
+			text += "<table><tr><td class='none'>5. Now we subtract </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'> x from both sides of the equation. </td></tr></table>";
+			text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x</td><td class='none'> = </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x + </td><td clas='none'>" + disp(newconst[0], newconst[1]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[11], arr[12]) + "</td><td class='none'>x</td></tr></table>";
+		}
+				
+		newcoeff = diff(arr[2], arr[3], arr[11], arr[12]);
+		
+		if (document.getElementById("show").checked)
+			text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(newcoeff[0], newcoeff[1]) + "</td><td class='none'> x = </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+		
+		if (newcoeff[0] != 1 || newcoeff[1] != 1)
+			ans = quot(newconst[0], newconst[1], newcoeff[0], newcoeff[1]);
+		else
+		{
+			ans[0] = 1;
+			ans[1] = 1;
+		}
+	}
+	else
+	{
+		if (arr[13])
+		{
+			if (arr[14])
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>6. We start by adding </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> to both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>-" + disp(arr[8], arr[9]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+				newconst = sum(-1*arr[8], arr[9], arr[5], arr[6]);
+
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+			else
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>7. We start by adding </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> to both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+
+				newconst = sum(arr[8], arr[9], arr[5], arr[6]);
+				
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+		}
+		else
+		{
+			if (arr[14])
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>8. We start by subtracting </td><td class='nonw'>" + disp(arr[5], arr[6]) + "</td><td class='none'> from both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>-" + disp(arr[8], arr[9]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+				
+				newconst = diff(arr[8], arr[9], arr[5], arr[6]);
+			
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+			else
+			{
+				if (document.getElementById("show").checked)
+				{
+					text += "<table><tr><td class='none'>9. We start by subtracting </td><td class='nonw'>" + disp(arr[5], arr[6]) + "</td><td class='none'> from both sides of the equation. </td></tr></table>";
+					text += "<table><tr><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x + </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td><td class='none'> = </td><td class='none'>" + disp(arr[8], arr[9]) + "</td><td class='none'> - </td><td class='none'>" + disp(arr[5], arr[6]) + "</td></tr></table>";
+				}
+				
+				newconst = diff(arr[8], arr[9], arr[5], arr[6]);
+			
+				if (document.getElementById("show").checked)
+					text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'>" + disp(arr[2], arr[3]) + "</td><td class='none'> x = </td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td></tr></table>";
+			}
+		}
+		newcoeff[0] = arr[2];
+		newcoeff[1] = arr[3];
+		
+		if (document.getElementById("show").checked && (newcoeff[0] != 1 || newcoeff[1] != 1))
+		{
+			text += "<table><tr><td class='none'>10. Finally we divide by </td><td class='nonw'>" + disp(newcoeff[0], newcoeff[1]) + "</td><td class='none'> on both sides of the equation. </td></tr></table>";
+			text += "<table><tr><td class='none'>(</td><td class='none'>" + disp(newcoeff[0], newcoeff[1]) + "</td><td class='none'>/</td><td class='none'>" + disp(newcoeff[0], newcoeff[1]) + "</td><td class='none'>)</td><td class='none'> x = </td><td class='none'>(</td><td class='none'>" + disp(newconst[0], newconst[1]) + "</td><td class='none'>/</td><td class='none'>" + disp(newcoeff[0], newcoeff[1]) + "</td><td class='none'>)</td></tr></table>";
+		}
+				
+		if (newcoeff[0] != 1 || newcoeff[1] != 1)
+			ans = quot(newconst[0], newconst[1], newcoeff[0], newcoeff[1]);
+		else
+		{
+			ans[0] = 1;
+			ans[1] = 1;
+		}
+			
+		if (document.getElementById("show").checked)
+			text += "<table><tr><td class='none'>Now the equation reads</td><td class='none'> x = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td></tr></table>";
+	}
+	
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("output").innerHTML += "<table><tr><td class='none'>x = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td></tr></table>";
+}
+
+function gcd(u, v)
+{
+ 	if (v == 0)
+		return u;
+	else
+ 	{
+		return gcd(v, u % v);
+	}
+}
+
+function sum(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	ans[0] = num1*den2 + den1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+	{
+		text += "<table><tr><td class='none'>The formula to add two fractions of the form </td><td class='none'><table><tr><td class='frac'> a </td></tr><tr><td class='none'> b </td></tr></table></td><td class='none'> + </td><td class='none'><table><tr><td class='frac'> c </td></tr><tr><td class='none'> d </td></tr></table></td><td class='none'> is </td><td class='none'>" + disp("a*d + b*c", "b*d") +  "</td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> + </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(num1 + "*" + den2 + " + " + den1 + "*" + num2, den1 + "*" + den2) + "</td><td class='none'><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && common != -1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	if (ans[1] < 0)
+	{
+		ans[0] = ans[0] * -1;
+		ans[1] = ans[1] * -1;
+	}
+	
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+		text += "<table><tr><td class='none'>So </td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> + </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+		
+	return ans;
+}
+
+function diff(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	ans[0] = num1*den2 - den1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+	{
+		text += "<table><tr><td class='none'>The formula to subtract two fractions of the form </td><td class='none'>" + disp("a", "b") + "</td><td class='none'> - </td><td class='none'>" + disp("c", "d") + "</td><td class='none'> is </td><td class='none'>" + disp("a*d - b*c", "b*d") + "</td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> - </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(num1 + "*" + den2 + " - " + den1 + "*" + num2, den1 + "*" + den2) + "</td><td class='none'><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && common != -1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	if (ans[1] < 0)
+	{
+		ans[0] = ans[0] * -1;
+		ans[1] = ans[1] * -1;
+	}
+	
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+		text += "<table><tr><td class='none'>So </td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> - </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+		
+	return ans;
+}
+
+function prod(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	ans[0] = num1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+	{
+		text += "<table><tr><td class='none'>The formula to multiply two fractions of the form </td><td class='none'>" + disp("a", "b") + "</td><td class='none'> * </td><td class='none'>" + disp("c", "d") + "</td><td class='none'> is </td><td class='none'>" + disp("a*c", "b*d") + "</td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> * </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(num1 + "*" + num2, den1 + "*" + den2) + "</td><td class='none'><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && common != -1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	if (ans[1] < 0)
+	{
+		ans[0] = ans[0] * -1;
+		ans[1] = ans[1] * -1;
+	}
+	
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+		text += "<table><tr><td class='none'>So </td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> * </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+		
+	return ans;
+}
+
+function quot(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	ans[0] = num1*den2;
+	ans[1] = num2*den1;
+
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+	{
+		text += "<table><tr><td class='none'>The formula to divide two fractions of the form </td><td class='none'>" + disp("a", "b") + "</td><td class='none'> / </td><td class='none'>" + disp("c", "d") + "</td><td class='none'> is </td><td class='none'>" + disp("a*d", "b*c") + "</td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> / </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(num1 + "*" + den2, den1 + "*" + num2) + "</td><td class='none'><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && common != -1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	if (ans[1] < 0)
+	{
+		ans[0] = ans[0] * -1;
+		ans[1] = ans[1] * -1;
+	}
+	
+	if (document.getElementById("show").checked && (den1 != 1 || den2 != 1))
+		text += "<table><tr><td class='none'>So </td><td class='none'>" + disp(num1, den1) + "</td><td class='none'> / </td><td class='none'>" + disp(num2, den2) + "</td><td class='none'> = </td><td class='none'>" + disp(ans[0], ans[1]) + "</td><td class='none'> </td></tr></table>";
+		
+	return ans;
+}
+
+function disp(num, den)
+{
+	var outtext = "";
+	if (den != 1)
+	{
+		outtext = "<table><tr><td class='frac'>" + num + "</td></tr><tr><td class='none'>" + den + "</td></tr></table>";
+	}
+	else if (num != 0)
+	{
+		outtext = num + ""; 
+	}
+	else
+	{
+		outtext = "0";
+	}
+	
+	return outtext;
+}
+
+function clr()
+{
+	text = "";
+	document.getElementById("input").innerHTML = "";
+	document.getElementById("output").innerHTML = "";
+}
+
+function init()
+{
+	var ans = new Array();
+	var common;
+	ans[0] = Math.floor(Math.random()*2);		//This tells whether we have variables on both sides of the equation. 
+	ans[1] = Math.floor(Math.random()*2);		//This tells whether the coefficient of the left side x is a fraction. 
+	do
+	{
+		ans[2] = Math.floor(Math.random()*20)+1;	//This is the numerator for the coefficient of the left side x. 
+	}
+	while(ans[2] == 0);
+	
+	if (ans[1])
+		do
+		{
+			ans[3] = Math.floor(Math.random()*20)+1;	//This is the denominator for the coefficient of the left side x. 
+		}
+		while (ans[3] == 0);
+	else
+		ans[3] = 1;
+	common = gcd(ans[2], ans[3]);
+	if (common != 1)
+	{
+		ans[2] = ans[2] / common;
+		ans[3] = ans[3] / common;
+	}
+	ans[4] = Math.floor(Math.random()*2);		//This tells whether the left side constant is a fraction
+	do
+	{
+		ans[5] = Math.floor(Math.random()*20)+1		//This is the numerator for the left side constant. 
+	}
+	while (ans[5] == 0);
+	
+	if (ans[4])
+		do
+		{
+			ans[6] = Math.floor(Math.random()*20)+1;	//This is the denominator for the left side constant. 
+		}
+		while (ans[6] == 0);
+	else
+		ans[6] = 1;
+	common = gcd(ans[5], ans[6]);
+	if (common != 1)
+	{
+		ans[5] = ans[5] / common;
+		ans[6] = ans[6] / common;
+	}
+	ans[7] = Math.floor(Math.random()*2);		//This tells whether the right side constant is a fraction.
+	do
+	{
+		ans[8] = Math.floor(Math.random()*20)+1		//This is the numerator for the right side constant. 
+	}
+	while (ans[8] == 0);
+	
+	if (ans[7])
+		do
+		{
+			ans[9] = Math.floor(Math.random()*20)+1;	//This is the denominator fot the right side constant. 
+		}
+		while (ans[9] == 0);
+	else
+		ans[9] = 1;
+	common = gcd(ans[8], ans[9]);
+	if (common != 1)
+	{
+		ans[8] = ans[8] / common;
+		ans[9] = ans[9] / common;
+	}
+		
+	if (ans[0])
+	{
+		ans[10] = Math.floor(Math.random()*2);	//This tells whether the right side coefficient is a fraction. 
+		do
+		{
+			ans[11] = Math.floor(Math.random()*20)+1;	//This is the numerator of the right side coefficient. 
+		}
+		while (ans[11] == 0);
+		
+		if (ans[10])
+			do
+			{
+				ans[12] = Math.floor(Math.random()*20)+1;	//This is the denominator for the right side coefficient. 
+			}
+			while (ans[12] == 0);
+		else
+			ans[12] = 1;
+	}
+	else
+	{
+		ans[10] = 0;
+		ans[11] = 0;
+		ans[12] = 1;
+	}
+	
+	common = gcd(ans[11], ans[12]);
+	if (common != 1)
+	{
+		ans[11] = ans[11] / common;
+		ans[12] = ans[12] / common;
+	}
+	
+	ans[13] = Math.floor(Math.random()*2);	//This is the left side operator.
+	if (ans[0])
+		ans[14] = Math.floor(Math.random()*2);	//This is the right side operator. 
+	else
+		ans[14] = 0;
+	
+	var outtxt = "";
+	
+	switch (ans[13])
+	{
+	case 0:
+		outtxt += "Solve for x:<br><table><tr><td class='none'>" + disp(ans[2], ans[3]) + "</td><td class='none'> x + </td><td class='none'>" + disp(ans[5], ans[6]) + "</td><td class='none'> = </td>";
+		break;
+	case 1:
+		outtxt += "Solve for x:<br><table><tr><td class='none'>" + disp(ans[2], ans[3]) + "</td><td class='none'> x - </td><td class='none'>" + disp(ans[5], ans[6]) + "</td><td class='none'> = </td>";
+		break;
+	}
+	
+	switch (ans[14])
+	{
+	case 0:
+		if (ans[0] == 1)
+			outtxt += "<td class='none'>" + disp(ans[11], ans[12]) + "</td><td class='none'> x + </td><td class='none'>" + disp(ans[8], ans[9]) + "</td>";
+		else
+			outtxt += "<td class='none'>" + disp(ans[8], ans[9]) + "</td>";
+		break;
+	case 1:
+		if (ans[0] == 1)
+			outtxt += "<td class='none'>" + disp(ans[11], ans[12]) + "</td><td class='none'> x - </td><td class='none'>" + disp(ans[8], ans[9]) + "</td>";
+		else
+			outtxt += "<td class='none'> - </td><td class='none'>" + disp(ans[8], ans[9]) + "</td></tr></table>";
+		break;
+	}
+	
+	var i;
+		
+	document.getElementById("input").innerHTML += outtxt;
+	
+	return ans;
+}
+</script>
+
+<h3><center></center></h3>
+<p>This script generates a random single variable equation and asks to you solve for x. 
+</p>
+<p name="input" id="input"></p>
+<form>
+Show Work <input type=checkbox id="show"><br>
+<input type="button" value="Calculate" onclick="solve(prob)"><br>
+<input type="button" value="New Problem" onclick="clr();prob = init();"><br>
+</form>
+<p name="output" id="output"></p>
+<script type="text/javascript">
+var prob = init();
+</script>

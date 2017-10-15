@@ -1,0 +1,305 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+InsertionSortAlgorithm<script type="text/javascript">
+function insertionSort(A) 
+{
+ 	count = 0;
+ 	text = "";
+// 	if (document.getElementById("show").checked)
+// 		text += "<table><tr><td>" + count + ")</td>" + disp(A) + "</tr></table>";
+  	var i, j;
+  	for (i = 0; i < A.length; i++)
+ 		left[i] = A[i];
+  	for (i = 1; i < left.length; i++)
+ 	{
+ 		swap = 0;
+ 		v = left[i];
+ 		j = i;
+ 		while (left[j - 1] > v)
+ 		{
+ 			swap ++;
+ 			left[j] = left[j-1];
+ 			j--;
+ 		}
+ 		left[j] = v;
+		if (swap > 0)
+		{
+			htory[count] = new Array();
+			for(var k = 0; k < left.length; k++)
+			{
+				htory[count][k] = left[k];	
+			};
+			count ++;
+		}
+	}
+	
+	return left; 
+}
+	
+function getMax(list)
+{
+	var maxLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (maxLoc == -1 || list[i] > list[maxLoc])
+		{
+			maxLoc = i;
+		}
+	}
+	
+	return list[maxLoc];
+}
+function disp(set)
+{
+	var text = "<td width=50>";
+	text += "set = </td><td>(";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+	}
+	text += ")</td>";
+
+	return text;
+}
+
+function plotGraph(list)
+{
+	document.getElementById("output").innerHTML = "";
+	for (var k = 0; k < list.length; k++)
+	{
+		var mycanvas = document.createElement("canvas");
+		mycanvas.id = "canvas" + k;
+		mycanvas.height = '200';
+		mycanvas.width = '500';
+		mycanvas.style="border:1px solid #d3d3d3;"
+
+		document.getElementById("output").appendChild(mycanvas);
+		var c = document.getElementById("canvas" + k);
+		var ctx = c.getContext("2d");
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, c.width, c.height);
+		ctx.fill();
+
+		var barWidth = Math.floor(c.width / (list[k].length + 2));
+		var unitHght = Math.floor(c.height / (getMax(list[k]) + 2));
+		var clr = new Array();
+		for (var j = 0; j < 6; j++)
+		{
+			clr[j] = Math.floor(Math.random()*16);
+			if (clr[j] == 10)
+			{
+				clr[j] = "A"
+			}
+			else if (clr[j] == 11)
+			{
+				clr[j] = "B"
+			}
+			else if (clr[j] == 12)
+			{
+				clr[j] = "C"
+			}
+			else if (clr[j] == 13)
+			{
+				clr[j] = "D"
+			}
+			else if (clr[j] == 14)
+			{
+				clr[j] = "E"
+			}
+			else if (clr[j] == 15)
+			{
+				clr[j] = "F"
+			}
+		}
+
+		for (var i = 0; i < list[k].length; i++)
+		{	
+			ctx.fillStyle = "#" + clr[0] + clr[1] + clr[2] + clr[3] + clr[4] + clr[5];
+			ctx.fillRect(i*barWidth + barWidth/2 + i, c.height - unitHght * list[k][i] - unitHght, barWidth, unitHght * list[k][i]);
+			ctx.fillText(list[k][i], i*barWidth + barWidth + i - 2, c.height - 10);
+			ctx.fill();
+		}
+	}
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="algorithm, programming, script, insertion sort, insertionsort, sort, comparison, minimum, repeated, iteration, comparison sort" /> 
+<meta name="description" content="This page contains a script I've written to help understand the InsertionSort Algorithm" />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function insertionSort(A) 
+{
+ 	count = 0;
+ 	text = "";
+// 	if (document.getElementById("show").checked)
+// 		text += "<table><tr><td>" + count + ")</td>" + disp(A) + "</tr></table>";
+  	var i, j;
+  	for (i = 0; i < A.length; i++)
+ 		left[i] = A[i];
+  	for (i = 1; i < left.length; i++)
+ 	{
+ 		swap = 0;
+ 		v = left[i];
+ 		j = i;
+ 		while (left[j - 1] > v)
+ 		{
+ 			swap ++;
+ 			left[j] = left[j-1];
+ 			j--;
+ 		}
+ 		left[j] = v;
+		if (swap > 0)
+		{
+			htory[count] = new Array();
+			for(var k = 0; k < left.length; k++)
+			{
+				htory[count][k] = left[k];	
+			};
+			count ++;
+		}
+	}
+	
+	return left; 
+}
+	
+function getMax(list)
+{
+	var maxLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (maxLoc == -1 || list[i] > list[maxLoc])
+		{
+			maxLoc = i;
+		}
+	}
+	
+	return list[maxLoc];
+}
+function disp(set)
+{
+	var text = "<td width=50>";
+	text += "set = </td><td>(";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+	}
+	text += ")</td>";
+
+	return text;
+}
+
+function plotGraph(list)
+{
+	document.getElementById("output").innerHTML = "";
+	for (var k = 0; k < list.length; k++)
+	{
+		var mycanvas = document.createElement("canvas");
+		mycanvas.id = "canvas" + k;
+		mycanvas.height = '200';
+		mycanvas.width = '500';
+		mycanvas.style="border:1px solid #d3d3d3;"
+
+		document.getElementById("output").appendChild(mycanvas);
+		var c = document.getElementById("canvas" + k);
+		var ctx = c.getContext("2d");
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, c.width, c.height);
+		ctx.fill();
+
+		var barWidth = Math.floor(c.width / (list[k].length + 2));
+		var unitHght = Math.floor(c.height / (getMax(list[k]) + 2));
+		var clr = new Array();
+		for (var j = 0; j < 6; j++)
+		{
+			clr[j] = Math.floor(Math.random()*16);
+			if (clr[j] == 10)
+			{
+				clr[j] = "A"
+			}
+			else if (clr[j] == 11)
+			{
+				clr[j] = "B"
+			}
+			else if (clr[j] == 12)
+			{
+				clr[j] = "C"
+			}
+			else if (clr[j] == 13)
+			{
+				clr[j] = "D"
+			}
+			else if (clr[j] == 14)
+			{
+				clr[j] = "E"
+			}
+			else if (clr[j] == 15)
+			{
+				clr[j] = "F"
+			}
+		}
+
+		for (var i = 0; i < list[k].length; i++)
+		{	
+			ctx.fillStyle = "#" + clr[0] + clr[1] + clr[2] + clr[3] + clr[4] + clr[5];
+			ctx.fillRect(i*barWidth + barWidth/2 + i, c.height - unitHght * list[k][i] - unitHght, barWidth, unitHght * list[k][i]);
+			ctx.fillText(list[k][i], i*barWidth + barWidth + i - 2, c.height - 10);
+			ctx.fill();
+		}
+	}
+}
+</script>
+<h3><center></center></h3>
+<p>This is the Insertion Sort Algorithm. <br>
+<br>
+The pseudo-code for this algorithm is as follows:<br>
+InsertionSort(A, start, end):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (i = start to end)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val <- A[i]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j <- i<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (A[j - 1] > val)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A[j] <- A[j-1]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j <- j - 1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end while<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A[j] <- val<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end for<br>
+end InsertionSort<br></p>
+<form name=data id=data>
+ <input type=button onclick="javascript:location.reload(true)" value="New Problem"><br>
+ <TEXTAREA style="WIDTH: 350px; HEIGHT: 150px" id=list cols=41 rows=6 name=list></TEXTAREA><br>
+ <input type="checkbox" name="show" id="show">Show Work?
+ <input type="button" value="Sort" onclick="ans = insertionSort(A); plotGraph(htory);">  
+</FORM> 
+<script type="text/javascript"> 
+A = []; 
+size = Math.floor(Math.random()*10)+1; 
+for (i = 0; i < 5*size; i++)
+	A[i] = Math.floor(Math.random()*201);
+text = ""; 
+left = []; 
+right = []; 
+n = []; 
+mid = []; 
+result = []; 
+var htory = new Array();
+for (i = 0; i < A.length; i++) 
+{
+ 	if (i < A.length - 1)
+ 		text += A[i] + ", ";
+ 	else
+ 		text += A[i]; 
+}
+ 
+document.getElementById("list").value = text; 
+text = ""; 
+</SCRIPT>
+<p name="output" id="output" width=100%>
+</p>

@@ -1,0 +1,818 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+NimGames<script type="text/javascript">
+function buildTable(moves, pile)
+{
+	var winner = new Array();
+	winner[0] = 0;
+//	document.getElementById("gamedata").innerHTML += "(" + moves[0] + ", " + moves[1] + ", " + moves[2] + ")-NIM<br>.";
+//	document.getElementById("gamedata").innerHTML += "If its your turn with 0 stones left, you lose<br>.";
+	var found = false;
+	
+	for (var zen = 1; zen <= pile; zen++)
+	{
+		found = false;
+		for (var yin = 0; yin < moves.length && !found; yin++)
+		{
+			if (zen - moves[yin] >= 0 && winner[zen - moves[yin]] == 0)
+			{
+//				document.getElementById("gamedata").innerHTML += "If its your turn with " + zen + " stones left, you can remove " + moves[yin] + "stones and arrive at a winning position, " + eval(zen-moves[yin]) + "<br>";
+				winner[zen] = 1;
+				found = true;
+			}
+		}
+		if (!found)
+			{
+//				document.getElementById("gamedata").innerHTML += "If its your turn with " + zen + " stones left, you have no moves to get to a winning position. <br>";
+				winner[zen] = 0;
+			}
+	}
+	
+	return winner;
+}
+
+
+function getCpu(moves, pile, winner)
+{
+	var cpuMove = -1;
+	var found = false;
+	
+	moves = remMoves(pile, moves);
+	
+	if (moves.length > 0)
+	{
+		for (var zen = 0; zen < moves.length && !found; zen++)
+		{
+			if (winner[pile - moves[zen]] == 0)
+			{
+				cpuMove = moves[zen];
+				found = true;
+			}
+		}
+	
+		if (!found)
+		{		
+			cpuMove = Math.floor(Math.random() * moves.length);
+			cpuMove = moves[cpuMove];
+		}
+		
+		pile = pile - cpuMove;
+		document.getElementById("gamedata").innerHTML += "The computer just removed " + cpuMove + " stones from the pile. There are now " + pile + " stones remaining. <br>";
+		if (cpuMove > 1)
+		{
+			drawMsg("Computer Removes " + cpuMove + " stones");
+		}
+		else
+		{
+			drawMsg("Computer Removes " + cpuMove + " stone");
+		}
+	}
+	
+	return pile;
+}
+
+function remMoves(pile, moves)
+{
+	for (var zen = moves.length-1; zen >= 0; zen--)
+	{
+//		document.getElementById("gamedata").innerHTML += "trying " + moves[zen] + "<br>";
+		if (moves[zen] > pile)
+		{
+//			document.getElementById("gamedata").innerHTML += moves[zen] + " is greater than " + pile + "<br>";
+			moves.length--;
+			document.getElementById("btn" + eval(zen+1)).disabled = true;
+		}
+	}
+	
+//	document.getElementById("gamedata").innerHTML += "moves = " + moves + "<br>";
+	
+	return moves;
+}
+
+function checkDone(moves, turn)
+{
+	if (moves.length == 0)
+	{
+		if (!turn && !finished)
+		{
+			document.getElementById("gamedata").innerHTML += "You win!<br>";
+			drawMsg("You Win!!!!");
+			finished = true;
+		}
+		else if (turn && !finished)
+		{
+			document.getElementById("gamedata").innerHTML += "The Computer wins!<br>";
+			drawMsg("The Computer Wins!!!");
+			finished = true;
+		}
+	}
+}
+
+function getMove(pile, move)
+{
+	if (moves.indexOf(move) != -1 && pile - move >= 0)
+	{
+		pile = pile - move;
+		document.getElementById("gamedata").innerHTML += "You just removed " + move + " stones from the pile. There are now " + pile + " stones remaining. <br>";
+		
+		moves = remMoves(pile, moves);
+	}
+	else if (pile - move < 0)
+	{
+		document.getElementById("gamedata").innerHTML += "That is an invalid number of stones to remove from the pile. Please remove less than " + eval(pile+1) + "stones. <br>";
+	}
+	else
+	{
+		document.getElementById("gamedata").innerHTML += "That is an invalid number of stones to remove from the pile.<br>";
+	}
+	
+	return pile;
+}
+
+function reset()
+{
+	moves = movesOrig;
+	pile = pileOrig;
+	fin = finOrig;
+	
+	var theta = new Array();
+	var nodes = new Array();
+	finished = false;
+	
+	var val0 = moves[0];
+	var val1 = moves[1];
+	var val2 = moves[2];
+	
+	var ans = buildTable(moves, pile);
+	
+	document.getElementById("btn1").disabled = false;
+	document.getElementById("btn2").disabled = false;
+	document.getElementById("btn3").disabled = false;
+	
+	for (var zen = 0; zen < pile; zen++)
+	{
+		theta[zen] = (2*Math.PI*zen) / pile;
+		
+		nodes[zen] = new Object();
+		nodes[zen].xVal = 120*Math.cos(theta[zen]) + 150;
+		nodes[zen].yVal = 120*Math.sin(theta[zen]) + 150;
+		nodes[zen].label = zen+1;
+	}
+	
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	ctx.clearRect (0, 0, c.width,  c.height);
+
+	drawGraph(nodes, pile);
+	
+	document.getElementById("btn1").value = "Remove" + moves[0];
+	document.getElementById("btn1").onclick = function() { var diff = pile; pile = getMove(pile, val0); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+	document.getElementById("btn2").value = "Remove" + moves[1];
+	document.getElementById("btn2").onclick = function() { var diff = pile; pile = getMove(pile, val1); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+	document.getElementById("btn3").value = "Remove" + moves[2];
+	document.getElementById("btn3").onclick = function() { var diff = pile; pile = getMove(pile, val2); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+
+}
+
+function hint(pile, moves)
+{
+	var ans = buildTable(moves, pile);
+	var found = false;
+	var usrMve = -1;
+	
+	for (var zen = 0; zen < moves.length && !found; zen++)
+	{
+		if (pile - moves[zen] >= 0 && ans[pile - moves[zen]] == 0)
+		{
+			usrMve = moves[zen];
+			found = true;
+		}
+	}
+	
+	if (found)
+	{
+		document.getElementById("gamedata").innerHTML += "A desirable move would be to remove " + usrMve + "<br>";
+	}
+	else
+	{
+		document.getElementById("gamedata").innerHTML += "There are no moves that would result in a winning strategy. <br>";
+	}
+}
+
+function alyzeGm()
+{
+	document.getElementById("gamedata").innerHTML += "Originally, there were " + pileOrig + " stones in the pile, with the options of removing " + movesOrig[0] + ", " + movesOrig[1] + ", or " + movesOrig[2] + " moves available. <br>";
+	
+	var ans = buildTable(moves, pile);
+	var table = "<table><tr>";
+	for (var zen = 0; zen < ans.length; zen++)
+	{
+		table += "<td>" + zen + "</td>";
+	}
+	table += "</tr><tr>";
+	for (var zen = 0; zen < ans.length; zen++)
+	{
+		table += "<td>" + ans[zen] + "</td>";
+	}
+	table += "</tr></table>";
+
+	document.getElementById("gamedata").innerHTML += "This leads to the following gameplay table: " + table + "<br>";
+	
+	if (ans[pileOrig] == 1)
+	{
+		document.getElementById("gamedata").innerHTML += "Since column " + pileOrig + " of this list has a 1 entry, you should win this game if you play optimally. <br>"; 
+		var mv;
+		var found = false;
+		
+		for (var zen = 0; zen < moves.length && !found; zen++)
+		{
+			if (pile - moves[zen] >= 0 && ans[pile - moves[zen]] == 0)
+			{
+				mv = moves[zen];
+				found = true;
+			}
+		}	
+		
+		document.getElementById("gamedata").innerHTML += "A good first move would be to remove " + mv + " stones from the pile because as we see in the list above, " + eval(pile - mv) + " places the computer in a position where they are guaranteed to lose<br>"; 
+		document.getElementById("gamedata").innerHTML += "If you continue to make similar moves, then you will win the game. <br>";
+	}
+	else
+	{
+		document.getElementById("gamedata").innerHTML += "Since colum " + pileOrig + " of this list has a 0 entry, there is no move you can make that would guarantee you a victory. Your only hope is that the computer makes a mistake<br>";
+	}
+}
+        
+function init()
+{
+	document.getElementById("gamedata").innerHTML = "";
+	document.getElementById("btn1").disabled = false;
+	document.getElementById("btn2").disabled = false;
+	document.getElementById("btn3").disabled = false;
+	
+	drawMsg("");
+	
+	moves = new Array();
+	finished = false;
+	for (var zen = 0; zen < 3; zen++)
+	{
+		var next;
+		do
+		{
+			next = Math.floor(Math.random()*7) + 1;
+		}
+		while(moves.indexOf(next) != -1);
+		
+		moves[zen] = next;
+	}
+	
+	moves = moves.sort(function(a,b){return a-b});
+	movesOrig = new Array();
+	movesOrig[0] = moves[0];
+	movesOrig[1] = moves[1];
+	movesOrig[2] = moves[2];
+	
+	pile = Math.floor(Math.random()*25) + 10;
+	pileOrig = pile;
+	
+	finOrig = false;
+	
+	document.getElementById("gamedsc").innerHTML = "Lets play a game of (" + moves[0] + ", " + moves[1] + ", " + moves[2] + ")-NIM on a pile of " + pile + " stones. ";
+	
+	var ans = buildTable(moves, pile);
+//	var table = "<table><tr>";
+//	for (var zen = 0; zen < ans.length; zen++)
+//	{
+//		table += "<td>" + zen + "</td>";
+//	}
+//	table += "</tr><tr>";
+//	for (var zen = 0; zen < ans.length; zen++)
+//	{
+//		table += "<td>" + ans[zen] + "</td>";
+//	}
+//	table += "</tr></table>";
+//	
+//	document.getElementById("gamedata").innerHTML += table + "<br>";
+	
+	var val0 = moves[0];
+	var val1 = moves[1];
+	var val2 = moves[2];
+	
+	var theta = new Array();
+	var nodes = new Array();
+	
+	for (var zen = 0; zen < pile; zen++)
+	{
+		theta[zen] = (2*Math.PI*zen) / pile;
+		
+		nodes[zen] = new Object;
+		nodes[zen].xVal = 120*Math.cos(theta[zen]) + 150;
+		nodes[zen].yVal = 120*Math.sin(theta[zen]) + 150;
+		nodes[zen].label = zen+1;
+	}
+	
+	drawGraph(nodes, pile);
+	
+	document.getElementById("btn1").value = "Remove" + moves[0];
+	document.getElementById("btn1").onclick = function() { var diff = pile; pile = getMove(pile, val0); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+	document.getElementById("btn2").value = "Remove" + moves[1];
+	document.getElementById("btn2").onclick = function() { var diff = pile; pile = getMove(pile, val1); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+	document.getElementById("btn3").value = "Remove" + moves[2];
+	document.getElementById("btn3").onclick = function() { var diff = pile; pile = getMove(pile, val2); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+}
+
+function drawMsg(msg)
+{
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	ctx.clearRect (0, 0, c.width,  c.height);
+
+	ctx.fillStyle = "#F535AA";
+	ctx.font = "20px Arial";
+	ctx.textAlign = 'center';
+
+	ctx.fillText(msg, c.width/2, 330);
+}
+
+function drawGraph(nodes, pile)
+{
+	if (pile == 0)
+	{
+		return;
+	}
+	
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	ctx.clearRect (0, 0, c.width,  300);
+	
+	for (var zen = 0; zen < pile; zen++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(nodes[zen].xVal, nodes[zen].yVal, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+
+//		if (used[i])
+//		{
+			ctx.fillStyle = "#00FFFF";
+//		}
+//		else
+//		{
+//			ctx.fillStyle = "#c9c9c9";
+//		}
+		ctx.beginPath();
+		ctx.arc(nodes[zen].xVal, nodes[zen].yVal, 10, 0*Math.PI, 2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle = "#000000";
+		ctx.font = "10px Arial";
+		ctx.textAlign = "left";
+		ctx.fillText(nodes[zen].label, nodes[zen].xVal-3*(Math.floor(Math.log(nodes[zen].label)/Math.log(10))+1), nodes[zen].yVal+2);
+	}
+	
+	ctx.fillStyle = "#000000";
+	ctx.font = "40px Arial";
+	ctx.textAlign = "center";
+	if (pile > 0)
+	{
+		ctx.fillText(pile, 150, 150+2);
+	}
+	else
+	{
+		ctx.fillText(pile, 150, 150+2);
+	}
+
+//	for (var i = 0; i < forest.nodes.length; i++)
+//	{
+//		ctx.fillText (forest.nodes[i].value, forest.nodes[i].xVal, forest.nodes[i].yVal);
+//		document.getElementById ("output").innerHTML += forest.trees[i][0].xVal.toFixed (4) + ", " + forest.trees[i][0].yVal.toFixed (4) + "<br>";
+//	}
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, computer science, algorithms, javascript, script, animation, programming, nim, games, grundy, combinatorics, combinatorial games" />
+<meta name="description" content="This gives users a chance to play NIM games where users have a select options of how many stones they can remove. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function buildTable(moves, pile)
+{
+	var winner = new Array();
+	winner[0] = 0;
+//	document.getElementById("gamedata").innerHTML += "(" + moves[0] + ", " + moves[1] + ", " + moves[2] + ")-NIM<br>.";
+//	document.getElementById("gamedata").innerHTML += "If its your turn with 0 stones left, you lose<br>.";
+	var found = false;
+	
+	for (var zen = 1; zen <= pile; zen++)
+	{
+		found = false;
+		for (var yin = 0; yin < moves.length && !found; yin++)
+		{
+			if (zen - moves[yin] >= 0 && winner[zen - moves[yin]] == 0)
+			{
+//				document.getElementById("gamedata").innerHTML += "If its your turn with " + zen + " stones left, you can remove " + moves[yin] + "stones and arrive at a winning position, " + eval(zen-moves[yin]) + "<br>";
+				winner[zen] = 1;
+				found = true;
+			}
+		}
+		if (!found)
+			{
+//				document.getElementById("gamedata").innerHTML += "If its your turn with " + zen + " stones left, you have no moves to get to a winning position. <br>";
+				winner[zen] = 0;
+			}
+	}
+	
+	return winner;
+}
+
+
+function getCpu(moves, pile, winner)
+{
+	var cpuMove = -1;
+	var found = false;
+	
+	moves = remMoves(pile, moves);
+	
+	if (moves.length > 0)
+	{
+		for (var zen = 0; zen < moves.length && !found; zen++)
+		{
+			if (winner[pile - moves[zen]] == 0)
+			{
+				cpuMove = moves[zen];
+				found = true;
+			}
+		}
+	
+		if (!found)
+		{		
+			cpuMove = Math.floor(Math.random() * moves.length);
+			cpuMove = moves[cpuMove];
+		}
+		
+		pile = pile - cpuMove;
+		document.getElementById("gamedata").innerHTML += "The computer just removed " + cpuMove + " stones from the pile. There are now " + pile + " stones remaining. <br>";
+		if (cpuMove > 1)
+		{
+			drawMsg("Computer Removes " + cpuMove + " stones");
+		}
+		else
+		{
+			drawMsg("Computer Removes " + cpuMove + " stone");
+		}
+	}
+	
+	return pile;
+}
+
+function remMoves(pile, moves)
+{
+	for (var zen = moves.length-1; zen >= 0; zen--)
+	{
+//		document.getElementById("gamedata").innerHTML += "trying " + moves[zen] + "<br>";
+		if (moves[zen] > pile)
+		{
+//			document.getElementById("gamedata").innerHTML += moves[zen] + " is greater than " + pile + "<br>";
+			moves.length--;
+			document.getElementById("btn" + eval(zen+1)).disabled = true;
+		}
+	}
+	
+//	document.getElementById("gamedata").innerHTML += "moves = " + moves + "<br>";
+	
+	return moves;
+}
+
+function checkDone(moves, turn)
+{
+	if (moves.length == 0)
+	{
+		if (!turn && !finished)
+		{
+			document.getElementById("gamedata").innerHTML += "You win!<br>";
+			drawMsg("You Win!!!!");
+			finished = true;
+		}
+		else if (turn && !finished)
+		{
+			document.getElementById("gamedata").innerHTML += "The Computer wins!<br>";
+			drawMsg("The Computer Wins!!!");
+			finished = true;
+		}
+	}
+}
+
+function getMove(pile, move)
+{
+	if (moves.indexOf(move) != -1 && pile - move >= 0)
+	{
+		pile = pile - move;
+		document.getElementById("gamedata").innerHTML += "You just removed " + move + " stones from the pile. There are now " + pile + " stones remaining. <br>";
+		
+		moves = remMoves(pile, moves);
+	}
+	else if (pile - move < 0)
+	{
+		document.getElementById("gamedata").innerHTML += "That is an invalid number of stones to remove from the pile. Please remove less than " + eval(pile+1) + "stones. <br>";
+	}
+	else
+	{
+		document.getElementById("gamedata").innerHTML += "That is an invalid number of stones to remove from the pile.<br>";
+	}
+	
+	return pile;
+}
+
+function reset()
+{
+	moves = movesOrig;
+	pile = pileOrig;
+	fin = finOrig;
+	
+	var theta = new Array();
+	var nodes = new Array();
+	finished = false;
+	
+	var val0 = moves[0];
+	var val1 = moves[1];
+	var val2 = moves[2];
+	
+	var ans = buildTable(moves, pile);
+	
+	document.getElementById("btn1").disabled = false;
+	document.getElementById("btn2").disabled = false;
+	document.getElementById("btn3").disabled = false;
+	
+	for (var zen = 0; zen < pile; zen++)
+	{
+		theta[zen] = (2*Math.PI*zen) / pile;
+		
+		nodes[zen] = new Object();
+		nodes[zen].xVal = 120*Math.cos(theta[zen]) + 150;
+		nodes[zen].yVal = 120*Math.sin(theta[zen]) + 150;
+		nodes[zen].label = zen+1;
+	}
+	
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	ctx.clearRect (0, 0, c.width,  c.height);
+
+	drawGraph(nodes, pile);
+	
+	document.getElementById("btn1").value = "Remove" + moves[0];
+	document.getElementById("btn1").onclick = function() { var diff = pile; pile = getMove(pile, val0); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+	document.getElementById("btn2").value = "Remove" + moves[1];
+	document.getElementById("btn2").onclick = function() { var diff = pile; pile = getMove(pile, val1); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+	document.getElementById("btn3").value = "Remove" + moves[2];
+	document.getElementById("btn3").onclick = function() { var diff = pile; pile = getMove(pile, val2); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+
+}
+
+function hint(pile, moves)
+{
+	var ans = buildTable(moves, pile);
+	var found = false;
+	var usrMve = -1;
+	
+	for (var zen = 0; zen < moves.length && !found; zen++)
+	{
+		if (pile - moves[zen] >= 0 && ans[pile - moves[zen]] == 0)
+		{
+			usrMve = moves[zen];
+			found = true;
+		}
+	}
+	
+	if (found)
+	{
+		document.getElementById("gamedata").innerHTML += "A desirable move would be to remove " + usrMve + "<br>";
+	}
+	else
+	{
+		document.getElementById("gamedata").innerHTML += "There are no moves that would result in a winning strategy. <br>";
+	}
+}
+
+function alyzeGm()
+{
+	document.getElementById("gamedata").innerHTML += "Originally, there were " + pileOrig + " stones in the pile, with the options of removing " + movesOrig[0] + ", " + movesOrig[1] + ", or " + movesOrig[2] + " moves available. <br>";
+	
+	var ans = buildTable(moves, pile);
+	var table = "<table><tr>";
+	for (var zen = 0; zen < ans.length; zen++)
+	{
+		table += "<td>" + zen + "</td>";
+	}
+	table += "</tr><tr>";
+	for (var zen = 0; zen < ans.length; zen++)
+	{
+		table += "<td>" + ans[zen] + "</td>";
+	}
+	table += "</tr></table>";
+
+	document.getElementById("gamedata").innerHTML += "This leads to the following gameplay table: " + table + "<br>";
+	
+	if (ans[pileOrig] == 1)
+	{
+		document.getElementById("gamedata").innerHTML += "Since column " + pileOrig + " of this list has a 1 entry, you should win this game if you play optimally. <br>"; 
+		var mv;
+		var found = false;
+		
+		for (var zen = 0; zen < moves.length && !found; zen++)
+		{
+			if (pile - moves[zen] >= 0 && ans[pile - moves[zen]] == 0)
+			{
+				mv = moves[zen];
+				found = true;
+			}
+		}	
+		
+		document.getElementById("gamedata").innerHTML += "A good first move would be to remove " + mv + " stones from the pile because as we see in the list above, " + eval(pile - mv) + " places the computer in a position where they are guaranteed to lose<br>"; 
+		document.getElementById("gamedata").innerHTML += "If you continue to make similar moves, then you will win the game. <br>";
+	}
+	else
+	{
+		document.getElementById("gamedata").innerHTML += "Since colum " + pileOrig + " of this list has a 0 entry, there is no move you can make that would guarantee you a victory. Your only hope is that the computer makes a mistake<br>";
+	}
+}
+        
+function init()
+{
+	document.getElementById("gamedata").innerHTML = "";
+	document.getElementById("btn1").disabled = false;
+	document.getElementById("btn2").disabled = false;
+	document.getElementById("btn3").disabled = false;
+	
+	drawMsg("");
+	
+	moves = new Array();
+	finished = false;
+	for (var zen = 0; zen < 3; zen++)
+	{
+		var next;
+		do
+		{
+			next = Math.floor(Math.random()*7) + 1;
+		}
+		while(moves.indexOf(next) != -1);
+		
+		moves[zen] = next;
+	}
+	
+	moves = moves.sort(function(a,b){return a-b});
+	movesOrig = new Array();
+	movesOrig[0] = moves[0];
+	movesOrig[1] = moves[1];
+	movesOrig[2] = moves[2];
+	
+	pile = Math.floor(Math.random()*25) + 10;
+	pileOrig = pile;
+	
+	finOrig = false;
+	
+	document.getElementById("gamedsc").innerHTML = "Lets play a game of (" + moves[0] + ", " + moves[1] + ", " + moves[2] + ")-NIM on a pile of " + pile + " stones. ";
+	
+	var ans = buildTable(moves, pile);
+//	var table = "<table><tr>";
+//	for (var zen = 0; zen < ans.length; zen++)
+//	{
+//		table += "<td>" + zen + "</td>";
+//	}
+//	table += "</tr><tr>";
+//	for (var zen = 0; zen < ans.length; zen++)
+//	{
+//		table += "<td>" + ans[zen] + "</td>";
+//	}
+//	table += "</tr></table>";
+//	
+//	document.getElementById("gamedata").innerHTML += table + "<br>";
+	
+	var val0 = moves[0];
+	var val1 = moves[1];
+	var val2 = moves[2];
+	
+	var theta = new Array();
+	var nodes = new Array();
+	
+	for (var zen = 0; zen < pile; zen++)
+	{
+		theta[zen] = (2*Math.PI*zen) / pile;
+		
+		nodes[zen] = new Object;
+		nodes[zen].xVal = 120*Math.cos(theta[zen]) + 150;
+		nodes[zen].yVal = 120*Math.sin(theta[zen]) + 150;
+		nodes[zen].label = zen+1;
+	}
+	
+	drawGraph(nodes, pile);
+	
+	document.getElementById("btn1").value = "Remove" + moves[0];
+	document.getElementById("btn1").onclick = function() { var diff = pile; pile = getMove(pile, val0); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+	document.getElementById("btn2").value = "Remove" + moves[1];
+	document.getElementById("btn2").onclick = function() { var diff = pile; pile = getMove(pile, val1); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+	document.getElementById("btn3").value = "Remove" + moves[2];
+	document.getElementById("btn3").onclick = function() { var diff = pile; pile = getMove(pile, val2); if (Math.abs(diff - pile) != 0){ checkDone(moves, 0); pile = getCpu(moves, pile, ans); moves = remMoves(pile, moves); checkDone(moves, 1); drawGraph(nodes, pile) } } ;
+}
+
+function drawMsg(msg)
+{
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	ctx.clearRect (0, 0, c.width,  c.height);
+
+	ctx.fillStyle = "#F535AA";
+	ctx.font = "20px Arial";
+	ctx.textAlign = 'center';
+
+	ctx.fillText(msg, c.width/2, 330);
+}
+
+function drawGraph(nodes, pile)
+{
+	if (pile == 0)
+	{
+		return;
+	}
+	
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	ctx.clearRect (0, 0, c.width,  300);
+	
+	for (var zen = 0; zen < pile; zen++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(nodes[zen].xVal, nodes[zen].yVal, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+
+//		if (used[i])
+//		{
+			ctx.fillStyle = "#00FFFF";
+//		}
+//		else
+//		{
+//			ctx.fillStyle = "#c9c9c9";
+//		}
+		ctx.beginPath();
+		ctx.arc(nodes[zen].xVal, nodes[zen].yVal, 10, 0*Math.PI, 2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle = "#000000";
+		ctx.font = "10px Arial";
+		ctx.textAlign = "left";
+		ctx.fillText(nodes[zen].label, nodes[zen].xVal-3*(Math.floor(Math.log(nodes[zen].label)/Math.log(10))+1), nodes[zen].yVal+2);
+	}
+	
+	ctx.fillStyle = "#000000";
+	ctx.font = "40px Arial";
+	ctx.textAlign = "center";
+	if (pile > 0)
+	{
+		ctx.fillText(pile, 150, 150+2);
+	}
+	else
+	{
+		ctx.fillText(pile, 150, 150+2);
+	}
+
+//	for (var i = 0; i < forest.nodes.length; i++)
+//	{
+//		ctx.fillText (forest.nodes[i].value, forest.nodes[i].xVal, forest.nodes[i].yVal);
+//		document.getElementById ("output").innerHTML += forest.trees[i][0].xVal.toFixed (4) + ", " + forest.trees[i][0].yVal.toFixed (4) + "<br>";
+//	}
+}
+</script>
+<h3><center></center></h3>
+<p>In a game of (X, Y, Z)-NIM, there is an initial pile of rocks and players alternate removing either X, Y, or Z stones from the pile (where X, Y, and Z are integers) until a player is unable to make a valid move. When a player is unable to make a valid move, the opposing player is the winner. </p>
+<center>
+<form name="nimgame" id="nimgame">
+<p name="gamedsc" id="gamedsc"></p>
+<input type="button" name="btn1" id="btn1">
+<input type="button" name="btn2" id="btn2">
+<input type="button" name="btn3" id="btn3"><br>
+</form>
+<canvas id="myCanvas" width="300" height="350" style="border:1px solid #d3d3d3;" tabindex="1">
+your browser does not support the canvas tag
+</canvas><br>
+<input type="button" name="reset" id="reset" onclick="reset()" value="Reset">
+<input type="button" name="hint" id="hint" onclick="hint(pile, moves)" value="Hint">
+<input type="button" name="alyze" id="alyze" onclick="alyzeGm()" value="Analyze Game"><br>
+<input type="button" name="ngme" id="ngme" onclick="init()" value="New Game"><br>
+
+<p name="gamedata" id="gamedata"></p>
+</center>
+<script>
+var moves;
+var movesOrig;
+var pile;
+var pileOrig;
+var nodes = new Array();
+var finished;
+var finOrig;
+init();
+</script>

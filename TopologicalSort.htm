@@ -1,0 +1,1290 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+TopologicalSort<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta name="keywords" content="algorithm, computer science, greedy, JavaScript, clique, math, operations research, programming, backtracking, puzzle" />
+<meta name="description" content="" />
+<title>Topological Sort Problems at LEARNINGlover.com</title>
+<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+        display: inline;
+}
+</style>
+<script type="text/javascript">
+function generateDAG()
+{
+	var numNodes = Math.floor(Math.random()*20)+5;
+	var numArcs = Math.floor(Math.random()*((numNodes*(numNodes-1)/4) - numNodes)) + numNodes;
+	var graph = new Array(numNodes);
+	var tree = new Array();
+	var otherNodes = new Array();
+	var count = 0;
+	var rank = new Array(numNodes);
+	var rem = new Array(numNodes);
+	
+	for (var i = 0; i < numNodes; i++)
+	{
+		rem[i] = i;
+	}
+	
+	for (var i = 0; i < numNodes; i++)
+	{
+		var loc = Math.floor(Math.random()*rem.length);
+		rank[i] = rem[loc];
+		rem[loc] = rem[rem.length-1];
+		rem.length--;
+	}
+	
+	rem = null;
+	
+	for (var i = 0; i < numNodes; i++)
+	{
+		graph[i] = new Array(numNodes);
+		for (var j = 0; j < numNodes; j++)
+		{
+			graph[i][j] = Number.MAX_VALUE;
+		}
+	}
+	
+	tree[0] = 0;
+	for (var i = 1; i < numNodes; i++)
+	{
+		otherNodes[i-1] = i;
+	}
+	
+	while (tree.length < numNodes)
+	{
+		var inside = Math.floor(Math.random()*tree.length);
+		var outside = Math.floor(Math.random()*otherNodes.length);
+		
+		if (rank[tree[inside]] < rank[otherNodes[outside]])
+		{
+			graph[tree[inside]][otherNodes[outside]] = 1;
+			graph[otherNodes[outside]][tree[inside]] = -1;
+		}
+		else
+		{
+			graph[tree[inside]][otherNodes[outside]] = -1;
+			graph[otherNodes[outside]][tree[inside]] = 1;
+		}		
+					
+		tree[tree.length] = otherNodes[outside];
+	
+		otherNodes[outside] = otherNodes[otherNodes.length-1];
+		otherNodes.length--;
+	
+		count++;
+	}
+		
+	while (count < numArcs)
+	{
+		var loc1, loc2;
+	
+		do
+		{
+			var loc1 = Math.floor(Math.random()*numNodes);
+			var loc2;
+			var poss = new Array();
+			for (var i = 0; i < graph.length; i++)
+			{
+				if (graph[loc1][i] == Number.MAX_VALUE && i != loc1)
+				{
+					poss[poss.length] = i;
+				}
+			}
+
+			loc2 = Math.floor(Math.random()*poss.length);
+		}
+		while (poss.length == 0);
+		
+		if (rank[loc1] < rank[poss[loc2]])
+		{
+			graph[loc1][poss[loc2]] = 1;
+			graph[poss[loc2]][loc1] = -1;
+		}
+		else
+		{
+			graph[loc1][poss[loc2]] = -1;
+			graph[poss[loc2]][loc1] = 1;
+		}
+		
+		count++;
+	}
+		
+	return graph;
+}
+
+function inDeg(A)
+{
+	var degVec = new Array();
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		degVec[i] = 0;
+		for (var j = 0; j < A[i].length; j++)
+		{
+			if (A[i][j] == -1)
+			{
+				degVec[i] ++;
+			}
+		}
+	}
+	
+	return degVec;
+}
+
+function topSort(A)
+{
+	var ans = new Array();
+	var degVec = new Array();
+	var ready = new Array();
+	
+	var A2 = new Array()
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		A2[i] = new Array();
+		for (var j = 0; j < A[i].length; j++)
+		{
+			A2[i][j] = A[i][j];
+		}
+	}
+	
+	degVec = inDeg(A2);
+	
+	for (var i = 0; i < degVec.length; i++)
+	{
+		if (degVec[i] == 0)
+		{
+			ready[ready.length] = i;
+		}
+	}
+	
+	while (ready.length != 0)
+	{
+		var n = ready[0];
+		ans[ans.length] = n;
+		ready[0] = ready[ready.length - 1];
+		ready.length--;
+		
+		for (var i = 0; i < A2.length; i++)
+		{
+			if (A2[i][n] == 1)
+			{
+				A2[i][n] = Number.MAX_VALUE;
+			}
+			else if (A2[i][n] == -1)
+			{
+				A2[i][n] = Number.MAX_VALUE;
+				degVec[i]--;
+				if (degVec[i] == 0)
+				{
+					ready[ready.length] = i;
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < ans.length; i++)
+	{
+		document.getElementById("node_" + i).style.background = "#C8A2C8";
+		document.getElementById("node_" + i + "_2").innerHTML = ans[i];
+		userAns[i] = ans[i];
+	}
+	
+	return ans;
+}
+
+function dispNodes(A)
+{
+	var text = "";
+	
+	text += "<table><tr>";
+	
+	var nodeList = new Array();
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		var loc = nodeList.length; 
+		nodeList[loc] = new Object();
+		nodeList[loc].name = "node" + i;
+		nodeList[loc].text = i;
+	}
+	
+	for (var i = 0; i < nodeList.length; i++)
+	{
+		text += "<td class='c' name='node_" + nodeList[i].text + "' id='node_" + nodeList[i].text + "' onclick=\"changecolor('node_" + i + "'); drawGraph(forest)\">" + nodeList[i].text + "</td>";
+	}
+	
+	text += "</tr>";
+	
+	for (var i = 0; i < nodeList.length; i++)
+	{
+		text += "<td class='c' name='node_" + nodeList[i].text + "' id='node_" + nodeList[i].text + "_2'></td>";
+	}
+	text += "</tr></table>";
+
+	return text;
+}
+
+function changecolor(id)
+{
+	var node = parseInt(id.split("_")[1]);
+	
+	if (document.getElementById(id).style.background == "#C8A2C8" || 
+	    document.getElementById(id).style.background == "rgb(200, 162, 200)" || 
+		document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(200, 162, 200)" || 
+		document.getElementById(id).style.background == "rgb(200, 162, 200) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#ffffff";
+		var loc = userAns.indexOf(node);
+		for (var i = loc; i < A.length; i++)
+		{
+			document.getElementById("node_" + i + "_2").innerHTML = "";
+			document.getElementById("node_" + i).style.background = "#ffffff";
+//			userAns[i] = userAns[userAns.length - 1];
+//			userAns.length--;
+		}
+		
+		userAns.length = loc;
+	}
+	else
+	{
+		document.getElementById(id).style.background = "#C8A2C8";
+		document.getElementById("node_" + userAns.length + "_2").innerHTML = node;
+		userAns[userAns.length] = node;
+	}
+}
+
+function init(A)
+{
+	var forest = new Object();
+	forest.edges = new Array();
+	forest.cost = 0;
+	forest.trees = new Array();
+	forest.nodes = new Array();
+	
+	var theta = new Array();
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		theta[i] = (2*Math.PI*i) / A.length;
+		
+		forest.trees[i] = new Array();
+		
+		forest.nodes[i] = new Object;
+		forest.nodes[i].value = i;
+		forest.nodes[i].xVal = 255*Math.cos(theta[i]) + 275;
+		forest.nodes[i].yVal = 255*Math.sin(theta[i]) + 275;
+		forest.nodes[i].lookup = i;
+		
+		forest.trees[i][0] = forest.nodes[i];
+	}
+	
+	drawGraph(forest);
+	
+	var text = "";
+	text += "<table>";
+	text += "<tr><td>What Node should be selected next?</td></tr>";
+	text += "<tr><td>" + dispNodes(A) + "</td></tr>";
+	text += "<tr><td><input type='button' value='Check' onclick='check(userAns, A)'></td></tr>";
+	text += "<tr><td><input type=button onclick=\"newProb();\" value=\"New Problem\"></td></tr>";
+	text += "</table>";
+	document.getElementById("output").innerHTML = text;
+	
+	return forest;
+}
+
+function drawGraph(forest)
+{
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	var used = new Array(forest.nodes.length);
+	
+	for (var i = 0; i < used.length; i++)
+	{
+		used[i] = false;
+	}
+
+	ctx.clearRect (0, 0, c.width,  c.height);
+	
+//	for (var i = 0; i < forest.edges.length; i++)
+//	{
+//		ctx.lineWidth = 1;
+//		ctx.strokeStyle="#000000";
+//		ctx.beginPath();
+//		ctx.moveTo(forest.edges[i][0].xVal, forest.edges[i][0].yVal);
+//		ctx.lineTo(forest.edges[i][1].xVal, forest.edges[i][1].yVal);
+//		ctx.stroke();
+//		used[forest.edges[i][0].value] = true;
+//		used[forest.edges[i][1].value] = true;
+//	}
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		for (var j = 0; j < A.length; j++)
+		{
+			var edge = new Array();
+			edge[0] = forest.nodes[i];
+			edge[1] = forest.nodes[j];
+			var drawn = false;
+			if (indexOf(forest, edge) == -1 && A[i][j] != Number.MAX_VALUE && A[i][j] >= 0)
+			{
+				if (userAns.indexOf(edge[0].value) == -1 && userAns.indexOf(edge[1].value) == -1)
+				{
+					ctx.lineWidth = 1;
+					ctx.strokeStyle="#000000";
+					ctx.beginPath();
+					ctx.moveTo(forest.nodes[i].xVal, forest.nodes[i].yVal);
+					ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+					ctx.stroke();
+					drawn = true;
+				}
+//				else if (userAns.indexOf(edge[0].value) == -1 || userAns.indexOf(edge[1].value) == -1)
+//				{
+//					ctx.lineWidth = 5;
+//					ctx.strokeStyle="#FFCC00";
+//					ctx.beginPath();
+//					ctx.moveTo(forest.nodes[i].xVal, forest.nodes[i].yVal);
+//					ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+//					ctx.stroke();
+//				}
+//				else
+//				{
+//					ctx.lineWidth = 5;
+//					ctx.strokeStyle="#C8A2C8";
+//					ctx.beginPath();
+//					ctx.moveTo(forest.nodes[i].xVal, forest.nodes[i].yVal);
+//					ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+//					ctx.stroke();
+//				}
+				
+//				ctx.lineWidth = 1;
+//				ctx.strokeStyle="#c0c0c0";
+//				ctx.beginPath();
+//				ctx.moveTo(forest.nodes[i].xVal, forest.nodes[i].yVal);
+//				ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+//				ctx.stroke();
+				
+				if (drawn)
+				{
+					var leftRight = true;
+					
+					if (forest.nodes[i].xVal > forest.nodes[j].xVal)
+					{
+						leftRight = false;
+					}
+					
+					var headlen = 20;
+					var slope1 = (forest.nodes[i].yVal - forest.nodes[j].yVal) / (forest.nodes[i].xVal - forest.nodes[j].xVal);
+					var angle = Math.atan(slope1);
+					
+					if (leftRight)
+					{
+						ctx.beginPath();
+						ctx.moveTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+						ctx.lineTo(forest.nodes[j].xVal - headlen * Math.cos(angle - Math.PI/7), forest.nodes[j].yVal - headlen * Math.sin(angle - Math.PI/7));
+
+						//path from the side point of the arrow, to the other side point
+						ctx.lineTo(forest.nodes[j].xVal - headlen * Math.cos(angle + Math.PI/7), forest.nodes[j].yVal - headlen*Math.sin(angle + Math.PI/7));
+
+						//path from the side point back to the tip of the arrow, and then again to the opposite side point
+						ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+						ctx.lineTo(forest.nodes[j].xVal - headlen * Math.cos(angle - Math.PI/7), forest.nodes[j].yVal - headlen*Math.sin(angle - Math.PI/7));
+					}
+					else
+					{
+						ctx.beginPath();
+						ctx.moveTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+						ctx.lineTo(forest.nodes[j].xVal + headlen * Math.cos(angle - Math.PI/7), forest.nodes[j].yVal + headlen * Math.sin(angle - Math.PI/7));
+
+						//path from the side point of the arrow, to the other side point
+						ctx.lineTo(forest.nodes[j].xVal + headlen * Math.cos(angle + Math.PI/7), forest.nodes[j].yVal + headlen*Math.sin(angle + Math.PI/7));
+
+						//path from the side point back to the tip of the arrow, and then again to the opposite side point
+						ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+						ctx.lineTo(forest.nodes[j].xVal + headlen * Math.cos(angle - Math.PI/7), forest.nodes[j].yVal + headlen*Math.sin(angle - Math.PI/7));
+					}
+
+					//draws the paths created above
+	//				ctx.strokeStyle = "#c0c0c0";
+	//				ctx.lineWidth = 1;
+					ctx.stroke();
+					ctx.fillStyle = "#c0c0c0";
+					ctx.fill();
+					
+	//				var slope1 = (forest.nodes[i].yVal - forest.nodes[j].yVal) / (forest.nodes[i].xVal - forest.nodes[j].xVal);
+	//				var slope2 = -1 / slope1;
+	//				insideX = forest.nodes[j].xVal - (forest.nodes[i].xVal + forest.nodes[j].xVal) / 16;
+	//				insideY = slope2 * (insideX - forest.nodes[j].xVal) + forest.nodes[j].yVal;
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < forest.nodes.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(forest.nodes[i].xVal, forest.nodes[i].yVal, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+
+		if (used[i])
+		{
+			ctx.fillStyle = "#00FFFF";
+		}
+		else
+		{
+			ctx.fillStyle = "#c9c9c9";
+		}
+		ctx.beginPath();
+		ctx.arc(forest.nodes[i].xVal, forest.nodes[i].yVal, 10, 0*Math.PI, 2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		if (forest.nodes[i].value == 0)
+		{
+			ctx.fillText(forest.nodes[i].value, forest.nodes[i].xVal-3*(Math.floor(Math.log(forest.nodes[i].value+1)/Math.log(10))+1), forest.nodes[i].yVal+2);
+		}
+		else
+		{
+			ctx.fillText(forest.nodes[i].value, forest.nodes[i].xVal-3*(Math.floor(Math.log(forest.nodes[i].value)/Math.log(10))+1), forest.nodes[i].yVal+2);
+		}
+	}
+}
+
+function indexOf(forest, edge)
+{
+	var ans = -1;
+	var i = 0;
+	while (i < forest.edges.length && ans == -1)
+	{
+		if ((forest.edges[i][0] == edge[0] && forest.edges[i][1] == edge[1]))
+		{
+			ans = i;
+		}
+		i++;
+	}
+	
+	return ans;
+}
+
+function length(forest)
+{
+	return forest.edges.length;
+}
+
+function addEdge(forest, edge, cost)
+{
+	initLen = forest.trees[forest.nodes[edge[0].value].lookup].length;
+	initLook = forest.nodes[edge[0].value].lookup;
+		
+	for (var i = 0; i < initLen; i++)
+	{
+		forest.trees[forest.nodes[edge[1].value].lookup][forest.trees[forest.nodes[edge[1].value].lookup].length] = forest.trees[initLook][i];
+		forest.nodes[forest.trees[initLook][i].value].lookup = forest.nodes[edge[1].value].lookup;
+	}
+	forest.edges[forest.edges.length] = edge;
+	forest.cost += cost;
+	
+	return forest;
+}
+
+function disp(forest)
+{
+	var text = "";
+	for (var i = 0; i < forest.edges.length; i++)
+	{
+		text += "(" + forest.edges[i][0].value + ", " + forest.edges[i][1].value + ")<br>";
+	}
+	text += "<bbr>Total cost: " + forest.cost + "<br>";
+	
+	return text;
+}
+
+function dispMtrx(A)
+{	
+	var text = "<table>";
+	text += "<tr>";
+	for (var j = 0; j < A.length; j++)
+	{
+		text += "<td>" + j + "</td>";
+	}
+	text += "</tr>";
+
+	for (var i = 0; i < A.length; i++)
+	{	
+		for (var j = 0; j < A.length; j++)
+		{
+			if (A[i][j] != Number.MAX_VALUE)
+			{
+				text += "<td>" + A[i][j] + "</td>";
+			}	
+			else
+			{
+				text += "<td>-</td>";
+			}
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+
+	return text;
+}
+
+function check(userAns, A)
+{
+	var correct = true;
+	var degVec = new Array();
+	var ready = new Array();
+	var A2 = new Array()
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		A2[i] = new Array();
+		for (var j = 0; j < A[i].length; j++)
+		{
+			A2[i][j] = A[i][j];
+		}
+	}
+	
+	degVec = inDeg(A2);
+	
+	for (var i = 0; i < degVec.length; i++)
+	{
+		if (degVec[i] == 0)
+		{
+			ready[ready.length] = i;
+		}
+	}
+	
+	while (ready.length != 0)
+	{
+		var n = userAns[0];
+		var loc = ready.indexOf(n);
+		if (loc == -1)
+		{
+			correct = false;
+			break;
+		}
+		
+		for (var i = 1; i < userAns.length; i++)
+		{
+			userAns[i-1] = userAns[i];
+		}
+		userAns.length--;
+		
+		ready[loc] = ready[ready.length - 1];
+		ready.length--;
+		
+		for (var i = 0; i < A2.length; i++)
+		{
+			if (A2[i][n] == 1)
+			{
+				A2[i][n] = Number.MAX_VALUE;
+			}
+			else if (A2[i][n] == -1)
+			{
+				A2[i][n] = Number.MAX_VALUE;
+				degVec[i]--;
+				if (degVec[i] == 0)
+				{
+					ready[ready.length] = i;
+				}
+			}
+		}
+	}
+	
+	if (correct == true)
+	{
+		alert("You have found a correct solution!");
+	}
+	else
+	{
+		alert("Sorry, but your answer is not correct");
+	}
+}
+
+function newProb()
+{
+	A = generateDAG();
+//	document.getElementById('input').innerHTML = dispMtrx(A);
+	userAns = new Array(); 
+	forest = init(A);
+}
+
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="topological, algorithm, acylic, sort, node, count, indegree, remove,arcs, dag, graph, ordering, javascript, script" />
+
+<meta name="description" content="This page gives an interactive tutorial of the topological sorting algorithm" />
+<title> at LEARNINGlover.com</title>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta name="keywords" content="algorithm, computer science, greedy, JavaScript, clique, math, operations research, programming, backtracking, puzzle" />
+<meta name="description" content="" />
+<title>Topological Sort Problems at LEARNINGlover.com</title>
+<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+        display: inline;
+}
+</style>
+<script type="text/javascript">
+function generateDAG()
+{
+	var numNodes = Math.floor(Math.random()*20)+5;
+	var numArcs = Math.floor(Math.random()*((numNodes*(numNodes-1)/4) - numNodes)) + numNodes;
+	var graph = new Array(numNodes);
+	var tree = new Array();
+	var otherNodes = new Array();
+	var count = 0;
+	var rank = new Array(numNodes);
+	var rem = new Array(numNodes);
+	
+	for (var i = 0; i < numNodes; i++)
+	{
+		rem[i] = i;
+	}
+	
+	for (var i = 0; i < numNodes; i++)
+	{
+		var loc = Math.floor(Math.random()*rem.length);
+		rank[i] = rem[loc];
+		rem[loc] = rem[rem.length-1];
+		rem.length--;
+	}
+	
+	rem = null;
+	
+	for (var i = 0; i < numNodes; i++)
+	{
+		graph[i] = new Array(numNodes);
+		for (var j = 0; j < numNodes; j++)
+		{
+			graph[i][j] = Number.MAX_VALUE;
+		}
+	}
+	
+	tree[0] = 0;
+	for (var i = 1; i < numNodes; i++)
+	{
+		otherNodes[i-1] = i;
+	}
+	
+	while (tree.length < numNodes)
+	{
+		var inside = Math.floor(Math.random()*tree.length);
+		var outside = Math.floor(Math.random()*otherNodes.length);
+		
+		if (rank[tree[inside]] < rank[otherNodes[outside]])
+		{
+			graph[tree[inside]][otherNodes[outside]] = 1;
+			graph[otherNodes[outside]][tree[inside]] = -1;
+		}
+		else
+		{
+			graph[tree[inside]][otherNodes[outside]] = -1;
+			graph[otherNodes[outside]][tree[inside]] = 1;
+		}		
+					
+		tree[tree.length] = otherNodes[outside];
+	
+		otherNodes[outside] = otherNodes[otherNodes.length-1];
+		otherNodes.length--;
+	
+		count++;
+	}
+		
+	while (count < numArcs)
+	{
+		var loc1, loc2;
+	
+		do
+		{
+			var loc1 = Math.floor(Math.random()*numNodes);
+			var loc2;
+			var poss = new Array();
+			for (var i = 0; i < graph.length; i++)
+			{
+				if (graph[loc1][i] == Number.MAX_VALUE && i != loc1)
+				{
+					poss[poss.length] = i;
+				}
+			}
+
+			loc2 = Math.floor(Math.random()*poss.length);
+		}
+		while (poss.length == 0);
+		
+		if (rank[loc1] < rank[poss[loc2]])
+		{
+			graph[loc1][poss[loc2]] = 1;
+			graph[poss[loc2]][loc1] = -1;
+		}
+		else
+		{
+			graph[loc1][poss[loc2]] = -1;
+			graph[poss[loc2]][loc1] = 1;
+		}
+		
+		count++;
+	}
+		
+	return graph;
+}
+
+function inDeg(A)
+{
+	var degVec = new Array();
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		degVec[i] = 0;
+		for (var j = 0; j < A[i].length; j++)
+		{
+			if (A[i][j] == -1)
+			{
+				degVec[i] ++;
+			}
+		}
+	}
+	
+	return degVec;
+}
+
+function topSort(A)
+{
+	var ans = new Array();
+	var degVec = new Array();
+	var ready = new Array();
+	
+	var A2 = new Array()
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		A2[i] = new Array();
+		for (var j = 0; j < A[i].length; j++)
+		{
+			A2[i][j] = A[i][j];
+		}
+	}
+	
+	degVec = inDeg(A2);
+	
+	for (var i = 0; i < degVec.length; i++)
+	{
+		if (degVec[i] == 0)
+		{
+			ready[ready.length] = i;
+		}
+	}
+	
+	while (ready.length != 0)
+	{
+		var n = ready[0];
+		ans[ans.length] = n;
+		ready[0] = ready[ready.length - 1];
+		ready.length--;
+		
+		for (var i = 0; i < A2.length; i++)
+		{
+			if (A2[i][n] == 1)
+			{
+				A2[i][n] = Number.MAX_VALUE;
+			}
+			else if (A2[i][n] == -1)
+			{
+				A2[i][n] = Number.MAX_VALUE;
+				degVec[i]--;
+				if (degVec[i] == 0)
+				{
+					ready[ready.length] = i;
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < ans.length; i++)
+	{
+		document.getElementById("node_" + i).style.background = "#C8A2C8";
+		document.getElementById("node_" + i + "_2").innerHTML = ans[i];
+		userAns[i] = ans[i];
+	}
+	
+	return ans;
+}
+
+function dispNodes(A)
+{
+	var text = "";
+	
+	text += "<table><tr>";
+	
+	var nodeList = new Array();
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		var loc = nodeList.length; 
+		nodeList[loc] = new Object();
+		nodeList[loc].name = "node" + i;
+		nodeList[loc].text = i;
+	}
+	
+	for (var i = 0; i < nodeList.length; i++)
+	{
+		text += "<td class='c' name='node_" + nodeList[i].text + "' id='node_" + nodeList[i].text + "' onclick=\"changecolor('node_" + i + "'); drawGraph(forest)\">" + nodeList[i].text + "</td>";
+	}
+	
+	text += "</tr>";
+	
+	for (var i = 0; i < nodeList.length; i++)
+	{
+		text += "<td class='c' name='node_" + nodeList[i].text + "' id='node_" + nodeList[i].text + "_2'></td>";
+	}
+	text += "</tr></table>";
+
+	return text;
+}
+
+function changecolor(id)
+{
+	var node = parseInt(id.split("_")[1]);
+	
+	if (document.getElementById(id).style.background == "#C8A2C8" || 
+	    document.getElementById(id).style.background == "rgb(200, 162, 200)" || 
+		document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(200, 162, 200)" || 
+		document.getElementById(id).style.background == "rgb(200, 162, 200) none repeat scroll 0% 0%")
+	{
+		document.getElementById(id).style.background = "#ffffff";
+		var loc = userAns.indexOf(node);
+		for (var i = loc; i < A.length; i++)
+		{
+			document.getElementById("node_" + i + "_2").innerHTML = "";
+			document.getElementById("node_" + i).style.background = "#ffffff";
+//			userAns[i] = userAns[userAns.length - 1];
+//			userAns.length--;
+		}
+		
+		userAns.length = loc;
+	}
+	else
+	{
+		document.getElementById(id).style.background = "#C8A2C8";
+		document.getElementById("node_" + userAns.length + "_2").innerHTML = node;
+		userAns[userAns.length] = node;
+	}
+}
+
+function init(A)
+{
+	var forest = new Object();
+	forest.edges = new Array();
+	forest.cost = 0;
+	forest.trees = new Array();
+	forest.nodes = new Array();
+	
+	var theta = new Array();
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		theta[i] = (2*Math.PI*i) / A.length;
+		
+		forest.trees[i] = new Array();
+		
+		forest.nodes[i] = new Object;
+		forest.nodes[i].value = i;
+		forest.nodes[i].xVal = 255*Math.cos(theta[i]) + 275;
+		forest.nodes[i].yVal = 255*Math.sin(theta[i]) + 275;
+		forest.nodes[i].lookup = i;
+		
+		forest.trees[i][0] = forest.nodes[i];
+	}
+	
+	drawGraph(forest);
+	
+	var text = "";
+	text += "<table>";
+	text += "<tr><td>What Node should be selected next?</td></tr>";
+	text += "<tr><td>" + dispNodes(A) + "</td></tr>";
+	text += "<tr><td><input type='button' value='Check' onclick='check(userAns, A)'></td></tr>";
+	text += "<tr><td><input type=button onclick=\"newProb();\" value=\"New Problem\"></td></tr>";
+	text += "</table>";
+	document.getElementById("output").innerHTML = text;
+	
+	return forest;
+}
+
+function drawGraph(forest)
+{
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	var used = new Array(forest.nodes.length);
+	
+	for (var i = 0; i < used.length; i++)
+	{
+		used[i] = false;
+	}
+
+	ctx.clearRect (0, 0, c.width,  c.height);
+	
+//	for (var i = 0; i < forest.edges.length; i++)
+//	{
+//		ctx.lineWidth = 1;
+//		ctx.strokeStyle="#000000";
+//		ctx.beginPath();
+//		ctx.moveTo(forest.edges[i][0].xVal, forest.edges[i][0].yVal);
+//		ctx.lineTo(forest.edges[i][1].xVal, forest.edges[i][1].yVal);
+//		ctx.stroke();
+//		used[forest.edges[i][0].value] = true;
+//		used[forest.edges[i][1].value] = true;
+//	}
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		for (var j = 0; j < A.length; j++)
+		{
+			var edge = new Array();
+			edge[0] = forest.nodes[i];
+			edge[1] = forest.nodes[j];
+			var drawn = false;
+			if (indexOf(forest, edge) == -1 && A[i][j] != Number.MAX_VALUE && A[i][j] >= 0)
+			{
+				if (userAns.indexOf(edge[0].value) == -1 && userAns.indexOf(edge[1].value) == -1)
+				{
+					ctx.lineWidth = 1;
+					ctx.strokeStyle="#000000";
+					ctx.beginPath();
+					ctx.moveTo(forest.nodes[i].xVal, forest.nodes[i].yVal);
+					ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+					ctx.stroke();
+					drawn = true;
+				}
+//				else if (userAns.indexOf(edge[0].value) == -1 || userAns.indexOf(edge[1].value) == -1)
+//				{
+//					ctx.lineWidth = 5;
+//					ctx.strokeStyle="#FFCC00";
+//					ctx.beginPath();
+//					ctx.moveTo(forest.nodes[i].xVal, forest.nodes[i].yVal);
+//					ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+//					ctx.stroke();
+//				}
+//				else
+//				{
+//					ctx.lineWidth = 5;
+//					ctx.strokeStyle="#C8A2C8";
+//					ctx.beginPath();
+//					ctx.moveTo(forest.nodes[i].xVal, forest.nodes[i].yVal);
+//					ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+//					ctx.stroke();
+//				}
+				
+//				ctx.lineWidth = 1;
+//				ctx.strokeStyle="#c0c0c0";
+//				ctx.beginPath();
+//				ctx.moveTo(forest.nodes[i].xVal, forest.nodes[i].yVal);
+//				ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+//				ctx.stroke();
+				
+				if (drawn)
+				{
+					var leftRight = true;
+					
+					if (forest.nodes[i].xVal > forest.nodes[j].xVal)
+					{
+						leftRight = false;
+					}
+					
+					var headlen = 20;
+					var slope1 = (forest.nodes[i].yVal - forest.nodes[j].yVal) / (forest.nodes[i].xVal - forest.nodes[j].xVal);
+					var angle = Math.atan(slope1);
+					
+					if (leftRight)
+					{
+						ctx.beginPath();
+						ctx.moveTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+						ctx.lineTo(forest.nodes[j].xVal - headlen * Math.cos(angle - Math.PI/7), forest.nodes[j].yVal - headlen * Math.sin(angle - Math.PI/7));
+
+						//path from the side point of the arrow, to the other side point
+						ctx.lineTo(forest.nodes[j].xVal - headlen * Math.cos(angle + Math.PI/7), forest.nodes[j].yVal - headlen*Math.sin(angle + Math.PI/7));
+
+						//path from the side point back to the tip of the arrow, and then again to the opposite side point
+						ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+						ctx.lineTo(forest.nodes[j].xVal - headlen * Math.cos(angle - Math.PI/7), forest.nodes[j].yVal - headlen*Math.sin(angle - Math.PI/7));
+					}
+					else
+					{
+						ctx.beginPath();
+						ctx.moveTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+						ctx.lineTo(forest.nodes[j].xVal + headlen * Math.cos(angle - Math.PI/7), forest.nodes[j].yVal + headlen * Math.sin(angle - Math.PI/7));
+
+						//path from the side point of the arrow, to the other side point
+						ctx.lineTo(forest.nodes[j].xVal + headlen * Math.cos(angle + Math.PI/7), forest.nodes[j].yVal + headlen*Math.sin(angle + Math.PI/7));
+
+						//path from the side point back to the tip of the arrow, and then again to the opposite side point
+						ctx.lineTo(forest.nodes[j].xVal, forest.nodes[j].yVal);
+						ctx.lineTo(forest.nodes[j].xVal + headlen * Math.cos(angle - Math.PI/7), forest.nodes[j].yVal + headlen*Math.sin(angle - Math.PI/7));
+					}
+
+					//draws the paths created above
+	//				ctx.strokeStyle = "#c0c0c0";
+	//				ctx.lineWidth = 1;
+					ctx.stroke();
+					ctx.fillStyle = "#c0c0c0";
+					ctx.fill();
+					
+	//				var slope1 = (forest.nodes[i].yVal - forest.nodes[j].yVal) / (forest.nodes[i].xVal - forest.nodes[j].xVal);
+	//				var slope2 = -1 / slope1;
+	//				insideX = forest.nodes[j].xVal - (forest.nodes[i].xVal + forest.nodes[j].xVal) / 16;
+	//				insideY = slope2 * (insideX - forest.nodes[j].xVal) + forest.nodes[j].yVal;
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < forest.nodes.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(forest.nodes[i].xVal, forest.nodes[i].yVal, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+
+		if (used[i])
+		{
+			ctx.fillStyle = "#00FFFF";
+		}
+		else
+		{
+			ctx.fillStyle = "#c9c9c9";
+		}
+		ctx.beginPath();
+		ctx.arc(forest.nodes[i].xVal, forest.nodes[i].yVal, 10, 0*Math.PI, 2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		if (forest.nodes[i].value == 0)
+		{
+			ctx.fillText(forest.nodes[i].value, forest.nodes[i].xVal-3*(Math.floor(Math.log(forest.nodes[i].value+1)/Math.log(10))+1), forest.nodes[i].yVal+2);
+		}
+		else
+		{
+			ctx.fillText(forest.nodes[i].value, forest.nodes[i].xVal-3*(Math.floor(Math.log(forest.nodes[i].value)/Math.log(10))+1), forest.nodes[i].yVal+2);
+		}
+	}
+}
+
+function indexOf(forest, edge)
+{
+	var ans = -1;
+	var i = 0;
+	while (i < forest.edges.length && ans == -1)
+	{
+		if ((forest.edges[i][0] == edge[0] && forest.edges[i][1] == edge[1]))
+		{
+			ans = i;
+		}
+		i++;
+	}
+	
+	return ans;
+}
+
+function length(forest)
+{
+	return forest.edges.length;
+}
+
+function addEdge(forest, edge, cost)
+{
+	initLen = forest.trees[forest.nodes[edge[0].value].lookup].length;
+	initLook = forest.nodes[edge[0].value].lookup;
+		
+	for (var i = 0; i < initLen; i++)
+	{
+		forest.trees[forest.nodes[edge[1].value].lookup][forest.trees[forest.nodes[edge[1].value].lookup].length] = forest.trees[initLook][i];
+		forest.nodes[forest.trees[initLook][i].value].lookup = forest.nodes[edge[1].value].lookup;
+	}
+	forest.edges[forest.edges.length] = edge;
+	forest.cost += cost;
+	
+	return forest;
+}
+
+function disp(forest)
+{
+	var text = "";
+	for (var i = 0; i < forest.edges.length; i++)
+	{
+		text += "(" + forest.edges[i][0].value + ", " + forest.edges[i][1].value + ")<br>";
+	}
+	text += "<bbr>Total cost: " + forest.cost + "<br>";
+	
+	return text;
+}
+
+function dispMtrx(A)
+{	
+	var text = "<table>";
+	text += "<tr>";
+	for (var j = 0; j < A.length; j++)
+	{
+		text += "<td>" + j + "</td>";
+	}
+	text += "</tr>";
+
+	for (var i = 0; i < A.length; i++)
+	{	
+		for (var j = 0; j < A.length; j++)
+		{
+			if (A[i][j] != Number.MAX_VALUE)
+			{
+				text += "<td>" + A[i][j] + "</td>";
+			}	
+			else
+			{
+				text += "<td>-</td>";
+			}
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+
+	return text;
+}
+
+function check(userAns, A)
+{
+	var correct = true;
+	var degVec = new Array();
+	var ready = new Array();
+	var A2 = new Array()
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		A2[i] = new Array();
+		for (var j = 0; j < A[i].length; j++)
+		{
+			A2[i][j] = A[i][j];
+		}
+	}
+	
+	degVec = inDeg(A2);
+	
+	for (var i = 0; i < degVec.length; i++)
+	{
+		if (degVec[i] == 0)
+		{
+			ready[ready.length] = i;
+		}
+	}
+	
+	while (ready.length != 0)
+	{
+		var n = userAns[0];
+		var loc = ready.indexOf(n);
+		if (loc == -1)
+		{
+			correct = false;
+			break;
+		}
+		
+		for (var i = 1; i < userAns.length; i++)
+		{
+			userAns[i-1] = userAns[i];
+		}
+		userAns.length--;
+		
+		ready[loc] = ready[ready.length - 1];
+		ready.length--;
+		
+		for (var i = 0; i < A2.length; i++)
+		{
+			if (A2[i][n] == 1)
+			{
+				A2[i][n] = Number.MAX_VALUE;
+			}
+			else if (A2[i][n] == -1)
+			{
+				A2[i][n] = Number.MAX_VALUE;
+				degVec[i]--;
+				if (degVec[i] == 0)
+				{
+					ready[ready.length] = i;
+				}
+			}
+		}
+	}
+	
+	if (correct == true)
+	{
+		alert("You have found a correct solution!");
+	}
+	else
+	{
+		alert("Sorry, but your answer is not correct");
+	}
+}
+
+function newProb()
+{
+	A = generateDAG();
+//	document.getElementById('input').innerHTML = dispMtrx(A);
+	userAns = new Array(); 
+	forest = init(A);
+}
+
+</script>
+<h3><center></center></h3>
+<p>The topological sort algorithm is used for a lot of things, particularly scheduling. Its input is a directed acyclic graph (which can be drawn by taking a simple undirected graph and giving each edge a direction). The output of the algorithm will be an ordering of the nodes in terms of their "importance". This is important in things such as job scheduling where certain jobs must be completed before others. Performing a topological sort on the set of jobs can give an overall ordering of when to start each job. </p>
+<input type="hidden" id="numNodes" name="numNodes">
+<p name="input" id="input"></p>
+<canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas>
+<p name="output"  id="output"></p>
+<script type="text/javascript">
+var A = generateDAG();
+var userAns = new Array();
+var forest = init(A);
+</script>
+<input type="button" onclick="topSort(A)";" value="Solve">

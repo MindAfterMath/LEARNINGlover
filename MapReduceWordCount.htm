@@ -1,0 +1,364 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+MapReduceWordCount<script type="text/javascript" src="examples/getquote1.js"></script>
+<script type="text/javascript">
+var maxNo = 207;
+function init()
+{
+    var numItems = Math.floor(Math.random()*10)+2;
+    var list = new Array();
+    var words;
+    
+    var text = "";
+    var quotes = new Array();
+    
+    for (var i = 0; i < numItems; i++)
+    {
+        var loc;
+        do
+        {
+            loc = Math.floor(Math.random()*maxNo);
+        }
+        while (list.indexOf(loc) != -1);
+        
+        list[list.length] = loc;
+        
+        quotes[i] = getQuote(loc);
+        text += quotes[i] + "<br>";
+    }
+    
+    document.getElementById("input").innerHTML = text;
+	document.getElementById("SSBtn").hidden = true;
+	document.getElementById("RedBtn").hidden = true;
+	
+	return text;
+}
+
+function wordCountMap(input)
+{	
+	var inputRows = input.split("<br>");
+	var text = "";
+	var allMapOut = new Array();
+	for (var j = 0; j < inputRows.length; j++)
+	{
+		if (inputRows[j].length > 0)
+		{
+			var mapOut = new Object();
+			mapOut.key = new Array;
+			mapOut.val = new Array;
+			
+			var words = inputRows[j].split(" ");
+			for (var i = 0; i < words.length; i++)
+			{
+				words[i] = words[i].replace(/[^a-z0-9]/gi,'');
+				if (words[i].length > 0)
+				{
+					mapOut.key[mapOut.key.length] = words[i].toLowerCase();
+					mapOut.val[mapOut.val.length] = 1;
+				}
+			}
+		
+			text += "<b>Mapper " + j + " Output</b><br>";
+			for (var i = 0; i < mapOut.key.length; i++)
+			{
+				text += "(" + mapOut.key[i] + ", " + mapOut.val[i] + ")";
+				if (i < mapOut.key.length-1)
+				{
+					text += ", ";
+				}
+			}
+			text += "<br>";
+			allMapOut[j] = mapOut;
+		}
+	}
+	
+	document.getElementById("mapOutput").innerHTML = text;
+	document.getElementById("SSBtn").hidden = false;
+	return allMapOut;
+}
+
+function shuffAndSort(mapOut)
+{
+	var ssOut = new Object();
+	ssOut.key = new Array();
+	ssOut.val = new Array();
+	var text = "<b>Shuffle and Sort Output</b><br>";
+	
+	for (var k = 0; k < mapOut.length; k++)
+	{
+		for (var i = 0; i < mapOut[k].key.length; i++)
+		{
+			var loc = ssOut.key.indexOf(mapOut[k].key[i]);
+			if (loc == -1)
+			{
+				loc = ssOut.key.length;
+				ssOut.key[loc] = mapOut[k].key[i];
+				
+				ssOut.val[loc] = new Array();
+				ssOut.val[loc][0] = mapOut[k].val[i];
+			}
+			else
+			{
+				ssOut.val[loc][ssOut.val[loc].length] = mapOut[k].val[i];
+			}
+		}
+	}
+	
+	for (var i = 0; i < ssOut.key.length; i++)
+	{
+		for (var j = 0; j < ssOut.key.length; j++)
+		{
+			if (ssOut.key[i] < ssOut.key[j])
+			{
+				var tempKey = ssOut.key[i];
+				var tempVal = ssOut.val[i];
+				ssOut.key[i] = ssOut.key[j];
+				ssOut.val[i] = ssOut.val[j];
+				ssOut.key[j] = tempKey;
+				ssOut.val[j] = tempVal;
+			}
+		}
+	}
+	
+	for (var i = 0; i < ssOut.key.length; i++)
+	{
+		text += "(" + ssOut.key[i] + ", {";
+		for (var j = 0; j < ssOut.val[i].length; j++)
+		{
+			text += ssOut.val[i][j];
+			if (j < ssOut.val[i].length-1)
+			{
+				text += ", ";
+			}
+		}
+		text += "})";
+		if (i < ssOut.key.length-1)
+		{
+			text += ", ";
+		}
+	}
+
+	document.getElementById("ssOutput").innerHTML = text;
+	document.getElementById("RedBtn").hidden = false;
+	return ssOut;
+}
+
+function wordCountRed(ssOut)
+{
+	var redOut = new Object();
+	redOut.key = new Array();
+	redOut.val = new Array();
+	var text = "<b>Reducer Output</b><br>";
+	
+	for (var i = 0; i < ssOut.key.length; i++)
+	{
+		redOut.key[i] = ssOut.key[i];
+		redOut.val[i] = 0;
+		for (var j = 0; j < ssOut.val[i].length; j++)
+		{
+			redOut.val[i] += ssOut.val[i][j];
+		}
+		
+		text += "(" + redOut.key[i] + ", " + redOut.val[i] + ")";
+		if (i < ssOut.key.length-1)
+		{
+			text += ", ";
+		}
+	}
+	
+	document.getElementById("redOutput").innerHTML = text;
+	return redOut;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, statistics, stats,
+probability, computer science, data mining, machine learning, javascript, script, programming, word count, hadoop, map, reduce, mapreduce, mapper, reducer, shuffle and sort" />
+<meta name="description" content="This page shows how the Word-Cound implementation works in a Map Reduce Environment. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript" src="examples/getquote1.js"></script>
+<script type="text/javascript">
+var maxNo = 207;
+function init()
+{
+    var numItems = Math.floor(Math.random()*10)+2;
+    var list = new Array();
+    var words;
+    
+    var text = "";
+    var quotes = new Array();
+    
+    for (var i = 0; i < numItems; i++)
+    {
+        var loc;
+        do
+        {
+            loc = Math.floor(Math.random()*maxNo);
+        }
+        while (list.indexOf(loc) != -1);
+        
+        list[list.length] = loc;
+        
+        quotes[i] = getQuote(loc);
+        text += quotes[i] + "<br>";
+    }
+    
+    document.getElementById("input").innerHTML = text;
+	document.getElementById("SSBtn").hidden = true;
+	document.getElementById("RedBtn").hidden = true;
+	
+	return text;
+}
+
+function wordCountMap(input)
+{	
+	var inputRows = input.split("<br>");
+	var text = "";
+	var allMapOut = new Array();
+	for (var j = 0; j < inputRows.length; j++)
+	{
+		if (inputRows[j].length > 0)
+		{
+			var mapOut = new Object();
+			mapOut.key = new Array;
+			mapOut.val = new Array;
+			
+			var words = inputRows[j].split(" ");
+			for (var i = 0; i < words.length; i++)
+			{
+				words[i] = words[i].replace(/[^a-z0-9]/gi,'');
+				if (words[i].length > 0)
+				{
+					mapOut.key[mapOut.key.length] = words[i].toLowerCase();
+					mapOut.val[mapOut.val.length] = 1;
+				}
+			}
+		
+			text += "<b>Mapper " + j + " Output</b><br>";
+			for (var i = 0; i < mapOut.key.length; i++)
+			{
+				text += "(" + mapOut.key[i] + ", " + mapOut.val[i] + ")";
+				if (i < mapOut.key.length-1)
+				{
+					text += ", ";
+				}
+			}
+			text += "<br>";
+			allMapOut[j] = mapOut;
+		}
+	}
+	
+	document.getElementById("mapOutput").innerHTML = text;
+	document.getElementById("SSBtn").hidden = false;
+	return allMapOut;
+}
+
+function shuffAndSort(mapOut)
+{
+	var ssOut = new Object();
+	ssOut.key = new Array();
+	ssOut.val = new Array();
+	var text = "<b>Shuffle and Sort Output</b><br>";
+	
+	for (var k = 0; k < mapOut.length; k++)
+	{
+		for (var i = 0; i < mapOut[k].key.length; i++)
+		{
+			var loc = ssOut.key.indexOf(mapOut[k].key[i]);
+			if (loc == -1)
+			{
+				loc = ssOut.key.length;
+				ssOut.key[loc] = mapOut[k].key[i];
+				
+				ssOut.val[loc] = new Array();
+				ssOut.val[loc][0] = mapOut[k].val[i];
+			}
+			else
+			{
+				ssOut.val[loc][ssOut.val[loc].length] = mapOut[k].val[i];
+			}
+		}
+	}
+	
+	for (var i = 0; i < ssOut.key.length; i++)
+	{
+		for (var j = 0; j < ssOut.key.length; j++)
+		{
+			if (ssOut.key[i] < ssOut.key[j])
+			{
+				var tempKey = ssOut.key[i];
+				var tempVal = ssOut.val[i];
+				ssOut.key[i] = ssOut.key[j];
+				ssOut.val[i] = ssOut.val[j];
+				ssOut.key[j] = tempKey;
+				ssOut.val[j] = tempVal;
+			}
+		}
+	}
+	
+	for (var i = 0; i < ssOut.key.length; i++)
+	{
+		text += "(" + ssOut.key[i] + ", {";
+		for (var j = 0; j < ssOut.val[i].length; j++)
+		{
+			text += ssOut.val[i][j];
+			if (j < ssOut.val[i].length-1)
+			{
+				text += ", ";
+			}
+		}
+		text += "})";
+		if (i < ssOut.key.length-1)
+		{
+			text += ", ";
+		}
+	}
+
+	document.getElementById("ssOutput").innerHTML = text;
+	document.getElementById("RedBtn").hidden = false;
+	return ssOut;
+}
+
+function wordCountRed(ssOut)
+{
+	var redOut = new Object();
+	redOut.key = new Array();
+	redOut.val = new Array();
+	var text = "<b>Reducer Output</b><br>";
+	
+	for (var i = 0; i < ssOut.key.length; i++)
+	{
+		redOut.key[i] = ssOut.key[i];
+		redOut.val[i] = 0;
+		for (var j = 0; j < ssOut.val[i].length; j++)
+		{
+			redOut.val[i] += ssOut.val[i][j];
+		}
+		
+		text += "(" + redOut.key[i] + ", " + redOut.val[i] + ")";
+		if (i < ssOut.key.length-1)
+		{
+			text += ", ";
+		}
+	}
+	
+	document.getElementById("redOutput").innerHTML = text;
+	return redOut;
+}
+</script>
+<h3><center></center></h3>
+<p></p>
+<p id="input" name="input"></p>
+<input type="button" value="Run Mapper" onclick="mapOut = wordCountMap(input)" name="MapBtn" id="MapBtn"><br>
+<p id="mapOutput" name="mapOutput"></p>
+<input type="button" value="Shuffle and Sort" onclick="ssOut = shuffAndSort(mapOut)" name="SSBtn" id="SSBtn" hidden><br>
+<p id="ssOutput" name="ssOutput"></p>
+<input type="button" value="Run Reducer" onclick="redOut = wordCountRed(ssOut)" name="RedBtn" id="RedBtn" hidden><br>
+<p id="redOutput" name="redOutput"></p>
+<input type="button" value="New Problem" onclick="input=init();document.getElementById('mapOutput').innerHTML='';document.getElementById('ssOutput').innerHTML='';document.getElementById('redOutput').innerHTML='';" name="Create" id="Create"><br>
+<script type="text/javascript">
+var input = init();
+var mapOut;
+var ssOut;
+var redOut;
+</script>

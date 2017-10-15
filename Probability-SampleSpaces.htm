@@ -1,0 +1,662 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+Probability:SampleSpaces<script type="text/javascript">
+function generate(space, n)
+{
+	var rem = new Array(space.length)
+
+	for (var zen = 0; zen < space.length; zen++)
+	{
+		rem[zen] = space[zen];
+	}
+
+	var A = new Array(n);
+	for (var zen = 0; zen < n; zen++)
+	{
+		var next = Math.floor(Math.random()*rem.length);
+		A[zen] = rem[next];
+		rem[next] = rem[rem.length-1];
+		rem.length--;
+	}
+
+	return A;
+}
+
+function union(set1, set2)
+{
+	var set3 = new Array();
+	var text = "The union of {" + set1 + "}<br> and {" + set2 + "}<br> is ";;
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		set3[i] = set1[i];
+	}
+	
+	for (i = 0; i < set2.length; i++)
+	{
+		if (set3.indexOf(set2[i]) == -1)
+		{
+			set3[set3.length] = set2[i];
+		}
+	}
+	
+	text += "{" + set3 + "}<br>";
+	
+	document.getElementById("output").innerHTML += text;
+
+	return set3;
+}
+
+function intersect(set1, set2)
+{
+	var set3 = new Array();
+	var text = "The intersection of {" + set1 + "}<br> and {" + set2 + "}<br> is ";
+
+	for (var zen = 0; zen < set1.length; zen++)
+	{
+		if (set2.indexOf(set1[zen]) != -1)
+		{
+			set3[set3.length] = set1[zen];
+		}
+	}
+	
+	text += "{" + set3 + "}<br>";
+	document.getElementById("output").innerHTML += text;
+
+	return set3;
+}
+
+function diff(set1, set2)
+{
+	var set3 = new Array();
+	var text = "The difference of {" + set1 + "}<br> and {" + set2 + "}<br> is ";
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		if (set2.indexOf(set1[i]) == -1)
+			set3[set3.length] = set1[i];
+	}
+
+	text += "{" + set3 + "}<br>";
+	document.getElementById("output").innerHTML += text;
+	return set3;
+}
+
+function init(space, n)
+{
+	var prob = new Object();
+	document.getElementById("output").innerHTML = "";
+	prob.space = new Array(n);
+	for (var zen = 0; zen < n; zen++)
+	{
+		prob.space[zen] = zen;
+	}
+	
+	var text = "";	
+	text += "<table><tr><td><div name='sspace' id='sspace'><table><tr><td>Sample Space = </td>";
+	for (var zen = 0; zen < prob.space.length; zen++)
+	{
+		text += "<td bgcolor='" + colors[prob.space[zen]] + "'>" + prob.space[zen] + "</td>";
+	}
+	text += "</tr></table></div></td><td><input type='button' value='Generate New Sample Space' onclick='ans=init(space, n)'></td></tr>";
+	
+	prob.numEvents = Math.floor(Math.random()*5)+2;
+	prob.sets = new Array(prob.numEvents);
+	prob.names = new Array(prob.numEvents);
+	var remNames = new Array(names.length);
+	for (var zen = 0; zen < remNames.length; zen++)
+	{
+		remNames[zen] = names[zen];
+	}
+
+	for (var zen = 0; zen < prob.numEvents; zen++)
+	{
+		var setSize = Math.floor(Math.random()*prob.space.length);
+		var setName = Math.floor(Math.random()*remNames.length);
+		prob.sets[zen] = generate(prob.space, setSize);
+		prob.names[zen] = remNames[setName];
+		remNames[setName] = remNames[remNames.length-1];
+		remNames.length--;
+		
+		text += "<tr><td><div name='set" + zen + "' id='set" + zen + "'><table><tr><td>" + prob.names[zen] + " = </td>";
+		for (var yin = 0; yin < prob.sets[zen].length; yin++)
+		{
+			text += "<td bgcolor='" + colors[prob.sets[zen][yin]] + "'>" + prob.sets[zen][yin] + "</td>";
+		}
+		text += "</tr></table></div></td><td><input type='button' value='Generate New Set' onclick='setSize = Math.floor(Math.random()*ans.space.length); ans.sets[" + zen + "] = generate(ans.space, setSize); document.getElementById(\"set" + zen + "\").innerHTML=\"" + prob.names[zen] + " = {\" + ans.sets[" + zen + "] + \"}\";document.getElementById(\"output\").innerHTML = \"\";'></td></tr>";
+	}
+	
+	text += "<tr><td><div name='prblm' id='prblm'></div></td><td><input type='button' value='New Problem' onclick='askQuest(ans);document.getElementById(\"output\").innerHTML = \"\";'></td></tr></table>";
+	document.getElementById("list").innerHTML = text;
+	askQuest(prob);
+	
+	return prob;
+}
+
+function askQuest(prob)
+{
+	var probType = Math.floor(Math.random()*7);
+	var text = "";
+	
+	switch (probType)
+	{
+	case 0:
+		var setChosen = Math.floor(Math.random()*prob.numEvents);
+		text += "What is P(" + prob.names[setChosen] +")?<input type='button' value='Solve' onclick='getProb(ans.sets[" + setChosen + "], ans.space);'>";
+		break;
+	case 1: 
+		var rem = new Array(prob.numEvents);
+		for (var zen = 0; zen < prob.numEvents; zen++)
+		{
+			rem[zen] = zen;
+		}
+		var setChosen1 = rem[Math.floor(Math.random()*rem.length)];
+		rem[setChosen1] = rem[rem.length-1];
+		rem.length--;
+		var setChosen2 = rem[Math.floor(Math.random()*rem.length)];
+		text += "What is P(" + prob.names[setChosen1] + " &#8746; " + prob.names[setChosen2] + ")?<input type='button' value='Solve' onclick='getProb(union(ans.sets[" + setChosen1 + "], ans.sets[" + setChosen2 + "]), ans.space);'>";
+		break;
+	case 2: 
+		var rem = new Array(prob.numEvents);
+		for (var zen = 0; zen < prob.numEvents; zen++)
+		{
+			rem[zen] = zen;
+		}
+		var setChosen1 = rem[Math.floor(Math.random()*rem.length)];
+		rem[setChosen1] = rem[rem.length-1];
+		rem.length--;
+		var setChosen2 = rem[Math.floor(Math.random()*rem.length)];
+		text += "What is P(" + prob.names[setChosen1] + " &#8745; " + prob.names[setChosen2] + ")?<input type='button' value='Solve' onclick='getProb(intersect(ans.sets[" + setChosen1 + "], ans.sets[" + setChosen2 + "]), ans.space);'>";
+		break;
+	case 3: 
+		var setChosen = Math.floor(Math.random()*prob.numEvents);
+		text += "What is P(" + prob.names[setChosen] + "')?<input type='button' value='Solve' onclick='getProb(diff(ans.space, ans.sets[" + setChosen + "]), ans.space);'>";
+		break;
+	case 4: 
+		var rem = new Array(prob.numEvents);
+		for (var zen = 0; zen < prob.numEvents; zen++)
+		{
+			rem[zen] = zen;
+		}
+		var setChosen1 = rem[Math.floor(Math.random()*rem.length)];
+		rem[setChosen1] = rem[rem.length-1];
+		rem.length--;
+		var setChosen2 = rem[Math.floor(Math.random()*rem.length)];
+		text += "What is P(" + prob.names[setChosen1] + " | " + prob.names[setChosen2] + ")?<input type='button' value='Solve' onclick='condProb(ans.sets[" + setChosen1 + "], ans.sets[" + setChosen2 + "], ans.space);'>";
+		break;
+	case 5: 
+		var rem = new Array(prob.numEvents);
+		for (var zen = 0; zen < prob.numEvents; zen++)
+		{
+			rem[zen] = zen;
+		}
+		var setChosen1 = rem[Math.floor(Math.random()*rem.length)];
+		rem[setChosen1] = rem[rem.length-1];
+		rem.length--;
+		var setChosen2 = rem[Math.floor(Math.random()*rem.length)];
+		text += "Are " + prob.names[setChosen1] + " and " + prob.names[setChosen2] + " independent?<input type='button' value='Solve' onclick='indEvents(ans.sets[" + setChosen1 + "], ans.sets[" + setChosen2 + "], ans.space);'>";
+		break;
+	case 6: 
+		var rem = new Array(prob.numEvents);
+		for (var zen = 0; zen < prob.numEvents; zen++)
+		{
+			rem[zen] = zen;
+		}
+		var setChosen1 = rem[Math.floor(Math.random()*rem.length)];
+		rem[setChosen1] = rem[rem.length-1];
+		rem.length--;
+		var setChosen2 = rem[Math.floor(Math.random()*rem.length)];
+		text += "Are " + prob.names[setChosen1] + " and " + prob.names[setChosen2] + " mutually exclusive?<input type='button' value='Solve' onclick='mutExcl(ans.sets[" + setChosen1 + "], ans.sets[" + setChosen2 + "], ans.space);'>";
+		break;
+	}
+	
+	document.getElementById("prblm").innerHTML = text;
+}
+
+function getProb(event, space)
+{
+	var text = "The probability of {" + event + "} is ";
+	var count = 0;
+	
+	for (var zen = 0; zen < event.length; zen++)
+	{
+		if (space.indexOf(event[zen]) != -1)
+		{
+			count++;
+		}
+	}
+	
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += (count / space.length).toFixed(4) + "<br>";
+	return (count / space.length);
+}
+
+function condProb(event1, event2, space)
+{
+	var subspace = intersect(event1, event2);
+	var prob1 = getProb(event1, space);
+	
+	if (prob1 != 0)
+	{
+		document.getElementById("output").innerHTML += "The conditional probability is " + (getProb(subspace, space) / prob1).toFixed(4) + "<br>";
+	}
+	else
+	{
+		document.getElementById("output").innerHTML += "This conditional probability cannot be calculated because it would result in dividing by zero.<br>";
+	}
+}
+
+function mutExcl(event1, event2, space)
+{
+	var subspace = intersect(event1, event2);
+	
+	if (subspace.length == 0)
+	{
+		document.getElementById("output").innerHTML += "The events are mutually exclusive. ";
+	}
+	else
+	{
+		document.getElementById("output").innerHTML += "The events are NOT mutually exclusive. ";
+	}
+}
+
+function indEvents(event1, event2, space)
+{
+	var subspace = intersect(event1, event2);
+	var subProb = getProb(subspace, space);
+	var prob1 = getProb(event1, space);
+	var prob2 = getProb(event2, space);
+	
+	document.getElementById("output").innerHTML += prob1.toFixed(4) + " &#8729; " + prob2.toFixed(4) + " = " + eval(prob1 * prob2).toFixed(4) + "<br>";
+	
+	if (subProb == prob1 * prob2)
+	{
+		document.getElementById("output").innerHTML += "The events are independent. ";
+	}
+	else
+	{
+		document.getElementById("output").innerHTML += "The events are NOT independent. ";
+	}
+}
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="programming, script, probability, sample space, event, independent, conditional, union, intersection, mutually, exclusive, compliment, discrete" /> 
+
+<meta name="description" content="This page contains a script I've written to help with discrete probability." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function generate(space, n)
+{
+	var rem = new Array(space.length)
+
+	for (var zen = 0; zen < space.length; zen++)
+	{
+		rem[zen] = space[zen];
+	}
+
+	var A = new Array(n);
+	for (var zen = 0; zen < n; zen++)
+	{
+		var next = Math.floor(Math.random()*rem.length);
+		A[zen] = rem[next];
+		rem[next] = rem[rem.length-1];
+		rem.length--;
+	}
+
+	return A;
+}
+
+function union(set1, set2)
+{
+	var set3 = new Array();
+	var text = "The union of {" + set1 + "}<br> and {" + set2 + "}<br> is ";;
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		set3[i] = set1[i];
+	}
+	
+	for (i = 0; i < set2.length; i++)
+	{
+		if (set3.indexOf(set2[i]) == -1)
+		{
+			set3[set3.length] = set2[i];
+		}
+	}
+	
+	text += "{" + set3 + "}<br>";
+	
+	document.getElementById("output").innerHTML += text;
+
+	return set3;
+}
+
+function intersect(set1, set2)
+{
+	var set3 = new Array();
+	var text = "The intersection of {" + set1 + "}<br> and {" + set2 + "}<br> is ";
+
+	for (var zen = 0; zen < set1.length; zen++)
+	{
+		if (set2.indexOf(set1[zen]) != -1)
+		{
+			set3[set3.length] = set1[zen];
+		}
+	}
+	
+	text += "{" + set3 + "}<br>";
+	document.getElementById("output").innerHTML += text;
+
+	return set3;
+}
+
+function diff(set1, set2)
+{
+	var set3 = new Array();
+	var text = "The difference of {" + set1 + "}<br> and {" + set2 + "}<br> is ";
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		if (set2.indexOf(set1[i]) == -1)
+			set3[set3.length] = set1[i];
+	}
+
+	text += "{" + set3 + "}<br>";
+	document.getElementById("output").innerHTML += text;
+	return set3;
+}
+
+function init(space, n)
+{
+	var prob = new Object();
+	document.getElementById("output").innerHTML = "";
+	prob.space = new Array(n);
+	for (var zen = 0; zen < n; zen++)
+	{
+		prob.space[zen] = zen;
+	}
+	
+	var text = "";	
+	text += "<table><tr><td><div name='sspace' id='sspace'><table><tr><td>Sample Space = </td>";
+	for (var zen = 0; zen < prob.space.length; zen++)
+	{
+		text += "<td bgcolor='" + colors[prob.space[zen]] + "'>" + prob.space[zen] + "</td>";
+	}
+	text += "</tr></table></div></td><td><input type='button' value='Generate New Sample Space' onclick='ans=init(space, n)'></td></tr>";
+	
+	prob.numEvents = Math.floor(Math.random()*5)+2;
+	prob.sets = new Array(prob.numEvents);
+	prob.names = new Array(prob.numEvents);
+	var remNames = new Array(names.length);
+	for (var zen = 0; zen < remNames.length; zen++)
+	{
+		remNames[zen] = names[zen];
+	}
+
+	for (var zen = 0; zen < prob.numEvents; zen++)
+	{
+		var setSize = Math.floor(Math.random()*prob.space.length);
+		var setName = Math.floor(Math.random()*remNames.length);
+		prob.sets[zen] = generate(prob.space, setSize);
+		prob.names[zen] = remNames[setName];
+		remNames[setName] = remNames[remNames.length-1];
+		remNames.length--;
+		
+		text += "<tr><td><div name='set" + zen + "' id='set" + zen + "'><table><tr><td>" + prob.names[zen] + " = </td>";
+		for (var yin = 0; yin < prob.sets[zen].length; yin++)
+		{
+			text += "<td bgcolor='" + colors[prob.sets[zen][yin]] + "'>" + prob.sets[zen][yin] + "</td>";
+		}
+		text += "</tr></table></div></td><td><input type='button' value='Generate New Set' onclick='setSize = Math.floor(Math.random()*ans.space.length); ans.sets[" + zen + "] = generate(ans.space, setSize); document.getElementById(\"set" + zen + "\").innerHTML=\"" + prob.names[zen] + " = {\" + ans.sets[" + zen + "] + \"}\";document.getElementById(\"output\").innerHTML = \"\";'></td></tr>";
+	}
+	
+	text += "<tr><td><div name='prblm' id='prblm'></div></td><td><input type='button' value='New Problem' onclick='askQuest(ans);document.getElementById(\"output\").innerHTML = \"\";'></td></tr></table>";
+	document.getElementById("list").innerHTML = text;
+	askQuest(prob);
+	
+	return prob;
+}
+
+function askQuest(prob)
+{
+	var probType = Math.floor(Math.random()*7);
+	var text = "";
+	
+	switch (probType)
+	{
+	case 0:
+		var setChosen = Math.floor(Math.random()*prob.numEvents);
+		text += "What is P(" + prob.names[setChosen] +")?<input type='button' value='Solve' onclick='getProb(ans.sets[" + setChosen + "], ans.space);'>";
+		break;
+	case 1: 
+		var rem = new Array(prob.numEvents);
+		for (var zen = 0; zen < prob.numEvents; zen++)
+		{
+			rem[zen] = zen;
+		}
+		var setChosen1 = rem[Math.floor(Math.random()*rem.length)];
+		rem[setChosen1] = rem[rem.length-1];
+		rem.length--;
+		var setChosen2 = rem[Math.floor(Math.random()*rem.length)];
+		text += "What is P(" + prob.names[setChosen1] + " &#8746; " + prob.names[setChosen2] + ")?<input type='button' value='Solve' onclick='getProb(union(ans.sets[" + setChosen1 + "], ans.sets[" + setChosen2 + "]), ans.space);'>";
+		break;
+	case 2: 
+		var rem = new Array(prob.numEvents);
+		for (var zen = 0; zen < prob.numEvents; zen++)
+		{
+			rem[zen] = zen;
+		}
+		var setChosen1 = rem[Math.floor(Math.random()*rem.length)];
+		rem[setChosen1] = rem[rem.length-1];
+		rem.length--;
+		var setChosen2 = rem[Math.floor(Math.random()*rem.length)];
+		text += "What is P(" + prob.names[setChosen1] + " &#8745; " + prob.names[setChosen2] + ")?<input type='button' value='Solve' onclick='getProb(intersect(ans.sets[" + setChosen1 + "], ans.sets[" + setChosen2 + "]), ans.space);'>";
+		break;
+	case 3: 
+		var setChosen = Math.floor(Math.random()*prob.numEvents);
+		text += "What is P(" + prob.names[setChosen] + "')?<input type='button' value='Solve' onclick='getProb(diff(ans.space, ans.sets[" + setChosen + "]), ans.space);'>";
+		break;
+	case 4: 
+		var rem = new Array(prob.numEvents);
+		for (var zen = 0; zen < prob.numEvents; zen++)
+		{
+			rem[zen] = zen;
+		}
+		var setChosen1 = rem[Math.floor(Math.random()*rem.length)];
+		rem[setChosen1] = rem[rem.length-1];
+		rem.length--;
+		var setChosen2 = rem[Math.floor(Math.random()*rem.length)];
+		text += "What is P(" + prob.names[setChosen1] + " | " + prob.names[setChosen2] + ")?<input type='button' value='Solve' onclick='condProb(ans.sets[" + setChosen1 + "], ans.sets[" + setChosen2 + "], ans.space);'>";
+		break;
+	case 5: 
+		var rem = new Array(prob.numEvents);
+		for (var zen = 0; zen < prob.numEvents; zen++)
+		{
+			rem[zen] = zen;
+		}
+		var setChosen1 = rem[Math.floor(Math.random()*rem.length)];
+		rem[setChosen1] = rem[rem.length-1];
+		rem.length--;
+		var setChosen2 = rem[Math.floor(Math.random()*rem.length)];
+		text += "Are " + prob.names[setChosen1] + " and " + prob.names[setChosen2] + " independent?<input type='button' value='Solve' onclick='indEvents(ans.sets[" + setChosen1 + "], ans.sets[" + setChosen2 + "], ans.space);'>";
+		break;
+	case 6: 
+		var rem = new Array(prob.numEvents);
+		for (var zen = 0; zen < prob.numEvents; zen++)
+		{
+			rem[zen] = zen;
+		}
+		var setChosen1 = rem[Math.floor(Math.random()*rem.length)];
+		rem[setChosen1] = rem[rem.length-1];
+		rem.length--;
+		var setChosen2 = rem[Math.floor(Math.random()*rem.length)];
+		text += "Are " + prob.names[setChosen1] + " and " + prob.names[setChosen2] + " mutually exclusive?<input type='button' value='Solve' onclick='mutExcl(ans.sets[" + setChosen1 + "], ans.sets[" + setChosen2 + "], ans.space);'>";
+		break;
+	}
+	
+	document.getElementById("prblm").innerHTML = text;
+}
+
+function getProb(event, space)
+{
+	var text = "The probability of {" + event + "} is ";
+	var count = 0;
+	
+	for (var zen = 0; zen < event.length; zen++)
+	{
+		if (space.indexOf(event[zen]) != -1)
+		{
+			count++;
+		}
+	}
+	
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += (count / space.length).toFixed(4) + "<br>";
+	return (count / space.length);
+}
+
+function condProb(event1, event2, space)
+{
+	var subspace = intersect(event1, event2);
+	var prob1 = getProb(event1, space);
+	
+	if (prob1 != 0)
+	{
+		document.getElementById("output").innerHTML += "The conditional probability is " + (getProb(subspace, space) / prob1).toFixed(4) + "<br>";
+	}
+	else
+	{
+		document.getElementById("output").innerHTML += "This conditional probability cannot be calculated because it would result in dividing by zero.<br>";
+	}
+}
+
+function mutExcl(event1, event2, space)
+{
+	var subspace = intersect(event1, event2);
+	
+	if (subspace.length == 0)
+	{
+		document.getElementById("output").innerHTML += "The events are mutually exclusive. ";
+	}
+	else
+	{
+		document.getElementById("output").innerHTML += "The events are NOT mutually exclusive. ";
+	}
+}
+
+function indEvents(event1, event2, space)
+{
+	var subspace = intersect(event1, event2);
+	var subProb = getProb(subspace, space);
+	var prob1 = getProb(event1, space);
+	var prob2 = getProb(event2, space);
+	
+	document.getElementById("output").innerHTML += prob1.toFixed(4) + " &#8729; " + prob2.toFixed(4) + " = " + eval(prob1 * prob2).toFixed(4) + "<br>";
+	
+	if (subProb == prob1 * prob2)
+	{
+		document.getElementById("output").innerHTML += "The events are independent. ";
+	}
+	else
+	{
+		document.getElementById("output").innerHTML += "The events are NOT independent. ";
+	}
+}
+</script>
+
+<h3><center></center></h3>
+<p><p>In statistics, any process of observation is referred to as an <b>experiment</b>. In this case, the experiment is the process of the kids observing the colors of cars as they pass by. <br>
+The set of all possible outcomes of an experiment is called the <b>sample space</b> and it is usually denoted by S. Each outcome in a sample space is called an element of the sample space. <br>
+An <b>event</b> is a subset of the sample space or which the event occurs.<br>
+Two events are said to be <b>mutually exclusive</b> if they have no elements in common. </p>
+<p>Similar to set theory, we can form new events by performing operations like unions, intersections and compliments on other events. If A and B are any two subsets of a sample space S, then</p>
+<ul>
+<li>their union A &#8746; B is the subset of S that contains all the elements that are in either A, in B, or in both. 
+<li>their intersection A &#8745; B is the subset of S that contains all the elements that are in both A and B. 
+<li>the compliment A' of A is the subset of S that contains all the elements of S that are not in A. 
+</ul>
+<P>A probability is a function that assigns real numbers to events of a sample space. The following are the axioms of probability that apply when the sample space is discrete (finite or countable).</p>
+<ol>
+<li>Axiom 1: The probability of an event is a nonnegative real number; that is P(A) &#8805; 0 for any subset A of S. 
+<li>Axiom 2: The probability of the entire sample space is 1; that is P(S) = 1. 
+<li>Axiom 3: If A<sub>1</sub>, A<sub>2</sub>, A<sub>3</sub>, ... , is a finite or infinite sequence of mutually exclusive events of S, then <br>P(A<sub>1</sub> &#8746; A<sub>2</sub> &#8746; A<sub>3</sub> &#8746; ...) = P(A<sub>1</sub>) + P(A<sub>2</sub>) + P(A<sub>3</sub>) + ...
+</ol>
+<p>If A and B are any two events in a sample space S and P(A) &#8800; 0, the <b>conditional probability</b> of B given A is [br]
+<table><tr><td>P(B | A) = </td><td><table><tr><td>P(A &#8745; B)</td></tr><tr><td><hr></td></tr><tr><td>P(A)</td></tr></table></td></tr></table><br>
+Two events A and B are <b>independent</b> if and only if P(A &#8745; B) = P(A) &#8729; P(B). </p>
+<p>A group of friends enjoy sitting on the porch and watching the cars that come by as they do their homework. While each student is looking at their work, they will look up from time to time to notice the cars passing by and will make a note of the color of that car. Once they've finished working, they all compare the colors to see how diverse their set is. </p></p>
+<form name=data id=data> 
+<input type=button onclick="k1 = Math.floor(Math.random()*25);k2 = Math.floor(Math.random()*25);ans = init(space, n);set1 = retreive(ans, 0, k1);set2 = retreive(ans, k1, k1+k2);document.getElementById('output').innerHTML = '';" value="New Problem"><br> 
+<p id="list" name="list"></p> 
+<p name="output" id="output"></p>
+</FORM>
+<script type="text/javascript">
+var space = new Array();
+var n = Math.floor(Math.random()*20)+5;
+var names = new Array();
+names[names.length] = "Aaliyah";
+names[names.length] = "Anthony";
+names[names.length] = "Billy";
+names[names.length] = "Brianna";
+names[names.length] = "Cameron";
+names[names.length] = "Chris";
+names[names.length] = "Danielle";
+names[names.length] = "David";
+names[names.length] = "Elijah";
+names[names.length] = "Gabrielle";
+names[names.length] = "Hailey";
+names[names.length] = "Iesha";
+names[names.length] = "Jada";
+names[names.length] = "Jasmine";
+names[names.length] = "Jayden";
+names[names.length] = "Jaylen";
+names[names.length] = "John";
+names[names.length] = "Jordan";
+names[names.length] = "Kai";
+names[names.length] = "Makalya";
+names[names.length] = "Malik";
+names[names.length] = "Maya";
+names[names.length] = "Phil"
+names[names.length] = "Seth";
+names[names.length] = "Sydney";
+names[names.length] = "Yvette";
+names[names.length] = "Xavier";
+
+var colors = new Array();
+
+colors[colors.length] = "#0000FF";
+colors[colors.length] = "#00FF00";
+colors[colors.length] = "#FF0000";
+colors[colors.length] = "#00AAFF";
+colors[colors.length] = "#005555";
+colors[colors.length] = "#AA00AA";
+colors[colors.length] = "#00AAAA";
+colors[colors.length] = "#AAAA00";
+colors[colors.length] = "#AA00FF";
+colors[colors.length] = "#00FFFF";
+colors[colors.length] = "#FFAA00";
+colors[colors.length] = "#FF00FF";
+colors[colors.length] = "#AAAAFF";
+colors[colors.length] = "#D2691E";
+colors[colors.length] = "#FFAAAA";
+colors[colors.length] = "#4682BD";
+colors[colors.length] = "#FFFF00";
+colors[colors.length] = "#FFFFAA";
+colors[colors.length] = "#0000AA";
+colors[colors.length] = "#00AA00";
+colors[colors.length] = "#AA0000";
+colors[colors.length] = "#F0F8FF";
+colors[colors.length] = "#F0F8FF";
+colors[colors.length] = "#FAEBD7";
+colors[colors.length] = "#DEB887";
+
+var ans = init(space, n);
+</script>

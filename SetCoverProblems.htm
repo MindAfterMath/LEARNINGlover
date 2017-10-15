@@ -1,0 +1,1563 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+SetCoverProblems<title>Set Cover Problem</title>
+<script type="text/javascript" src="examples/simplex.js"></script>
+<script type="text/javascript">
+function clearRect()
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	return;
+}
+
+function display(set)
+{
+	var i, text = "";
+	text += "{";
+	for (i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+	}
+	text += "}";
+	
+	return text;
+}
+
+function circlePts(input)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	for (i = 0; i < input.length; i++)
+	{
+		ctx.strokeStyle="#FF0000";
+		ctx.beginPath();
+		ctx.arc(input[i].xLoc, c.height-input[i].yLoc, 15, 0, Math.PI*2);
+		ctx.stroke();
+	}
+}
+
+function circleSet(set)
+{	
+	var i, c = document.getElementById("myCanvas");
+	var minLoc = -1, maxLoc = -1;
+	var ctx = c.getContext("2d");
+	
+	for (i = 0; i < set.length; i++)
+	{
+		if (minLoc == -1 || set[i].xLoc < set[minLoc].xLoc)
+			minLoc = i;
+		if (maxLoc == -1 || set[i].xLoc > set[maxLoc].xLoc)
+			maxLoc = i;
+	}
+	
+	ctx.strokeStyle = "#FF0000";
+	ctx.beginPath();
+	ctx.arc(set[minLoc].xLoc, c.height-set[minLoc].yLoc, 13, Math.PI/2, 3*Math.PI/2);
+	ctx.lineTo(set[maxLoc].xLoc, c.height-set[maxLoc].yLoc-13);
+	ctx.arc(set[maxLoc].xLoc, c.height-set[maxLoc].yLoc, 13, 3*Math.PI/2, Math.PI/2);
+	ctx.lineTo(set[minLoc].xLoc, c.height-set[minLoc].yLoc+13);
+	ctx.stroke();
+}
+
+function dispPts(input)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#000000";
+
+	for (i = 0; i < input.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(input[i].xLoc,c.height-input[i].yLoc,10,0,Math.PI*2);
+		ctx.stroke();
+
+		ctx.fillStyle=input[0].color;
+		ctx.beginPath();
+		ctx.arc(input[i].xLoc,c.height-input[i].yLoc,10,0,Math.PI*2);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(input[i].value, input[i].xLoc-3*(Math.floor(Math.log(input[i].value)/Math.log(10))+1), c.height-input[i].yLoc+4);
+	}
+}
+
+function drawLines(set)
+{
+	var i, j;
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	for (i = 0; i < set.length; i++)
+	{
+		ctx.strokeStyle = "#FF0000";
+		ctx.lineWidth = 2;
+		ctx.beginPath();
+		if (set[i].xLoc < 250)
+		{
+			ctx.moveTo(275, 20);
+			ctx.lineTo(set[i].xLoc + 30, 20);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc + 30, c.height-set[i].yLoc);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc + 15, c.height-set[i].yLoc);
+			ctx.stroke();
+		}
+		else
+		{
+			ctx.moveTo(275, 20);
+			ctx.lineTo(set[i].xLoc - 30, 20);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc - 30, c.height-set[i].yLoc);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc - 15, c.height-set[i].yLoc);
+			ctx.stroke();
+		}
+	}
+	
+	ctx.strokeStyle="#000000";
+	ctx.beginPath();
+	ctx.arc(275, 20,15,0,Math.PI*2);
+	ctx.stroke();
+
+	ctx.fillStyle="#FFFFFF";
+	ctx.beginPath();
+	ctx.arc(275,20,15,0,Math.PI*2);
+	ctx.fill();
+
+	ctx.fillStyle="#000000";
+	ctx.font="15px Arial";
+	ctx.fillText("A", 275-4*(Math.floor(Math.log(1)/Math.log(10))+1), 24);
+}
+
+function generate(univ, n)
+{
+	var A = new Array(n);
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*univ.length);
+		if (search(A, univ[next]) == -1)
+		{
+			A[i] = univ[next];
+		}
+		else
+			i--;
+	}
+	
+	return A;
+}
+
+function init()
+{
+	clearRect();
+	document.getElementById("output").innerHTML = "";
+	var k1 = Math.floor(Math.random()*10)+5;
+	var B = new Array();
+	var univ = new Array();
+	var ans = new Array();
+	var text = "";
+	var i, j;
+	var total = new Array();
+	var A = new Array();
+	var colors = new Array();
+
+	colors[0] = "#0000FF";
+	colors[1] = "#00FF00";
+	colors[2] = "#FF0000";
+	colors[3] = "#00AAFF";
+	colors[4] = "#DEB887";
+	colors[5] = "#AA00AA";
+	colors[6] = "#00AAAA";
+	colors[7] = "#AAAA00";
+	colors[8] = "#AA00FF";
+	colors[9] = "#00FFFF";
+	colors[10] = "#FFAA00";
+	colors[11] = "#FF00FF";
+	colors[12] = "#AAAAFF";
+	colors[13] = "#D2691E";
+	colors[14] = "#FFAAAA";
+	colors[15] = "#4682BD";
+	colors[16] = "#FFFF00";
+	colors[17] = "#FFFFAA";
+	colors[18] = "#0000AA";
+	colors[19] = "#00AA00";
+	colors[20] = "#AA0000";
+	colors[21] = "#F0F8FF";
+	colors[22] = "#F0F8FF";
+	colors[23] = "#FAEBD7";
+	
+	for (i = 1; i < 15; i++)
+	{
+		univ[i-1] = i;
+	}
+	
+	var select = document.getElementById("sets");
+	
+	for (i = 0; i < k1; i++)
+	{
+		var k2 = Math.floor(Math.random()*3)+3;
+		var temp = generate(univ, k2);
+		B[i] = new Array();
+		for (j = 0; j < temp.length; j++)
+		{
+			B[i][j] = new Object();
+			if (j == 0)
+				B[i][j].color = colors[i];
+				
+			B[i][j].value = temp[j];
+			if (total.indexOf(B[i][j].value) == -1)
+				total[total.length] = B[i][j].value;
+		}
+		B[i] = setLocs(B[i], i+1);
+		dispPts(B[i]);
+	}
+	
+	total = sort(total);
+	
+	ans[0] = B;
+	
+	A = new Array();
+	for (i = 0; i < total.length; i++)
+	{
+		A[i] = new Object();
+		A[i].value = total[i];
+	}
+	
+	ans[1] = A;
+	
+	text += "Consider the following instance of the Minimum Set Cover problem. <br>";
+	text += "We have a set U with " + A.length + " elements. <br>";
+	text += "We also have " + B.length + " subsets of this set. <br>";
+	text += "A set of subsets is said to \"cover\" the set U if every element of U belongs to at least one of the selected subsets. <br>";
+	text += "We would like to find a cover of U that selects the minimum number of subsets. <br>";
+
+	text += "<table>";
+	for (var i = 0; i < k1; i++)
+	{
+		text += "<tr><td><b>Set " + (i+1) + "</b>&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+		for (var j = 0; j < B[i].length; j++)
+			text += "<td bgcolor='" + colors[i] + "'>" + B[i][j].value + "</td>";
+		text += "</tr>";
+	}
+	text += "</table><table>";
+	text += "<tr><td><b>Universe </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+	for (var i = 0; i < total.length; i++)
+		text += "<td>" + total[i] + "</td>";
+	text += "</tr>";
+	text += "</table>";
+			
+	document.getElementById("input").innerHTML = text;	
+	
+	return ans;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = -1;
+
+	for (i = 0; i < set.length && ans == -1; i++)
+		if (set[i] == elmnt)
+			ans = i;
+
+	return ans;
+}
+
+function setLocs(set, row)
+{
+	var c = document.getElementById("myCanvas");
+	var i, j, temp;
+		
+	for (i = 0; i < set.length; i++)
+	{
+			set[i].yLoc = row * 25 + 10;
+			set[i].xLoc = (set[i].value % 15) * 30 + 25;
+	}
+	
+	return set;
+}
+
+function union(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+		set3[i] = set1[i];
+	
+	for (i = 0; i < set2.length; i++)
+	{
+		if (search(set3, set2[i]) != -1)
+			set3[set3.length] = set2[i];
+	}
+
+	return set3;
+}
+
+function greedy(prob, show)
+{
+	clearRect();
+	var output = "";
+	var input = "";
+	var rem = new Array();
+	for (var i = 0; i < prob[1].length; i++)
+		rem[i] = prob[1][i].value;
+	
+	for (var i = 0; i < prob[0].length; i++)
+		dispPts(prob[0][i]);
+		
+	document.getElementById("output").innerHTML = "";
+
+	var itms = "";
+	var chosen = new Array();
+
+	if (show)
+	{
+		output += "The greedy approach to the Minimum Set Cover problem works by computing how many new elements of U each set covers. <br>";
+		output += "The items are then sorted in decreasing order of this value. <br>";
+		output += "While there are still elements that are uncovered, the set with the highest value is chosen. <br>";
+	}
+	
+	do
+	{
+		var ratios = new Array();
+		for (var i = 0; i < prob[0].length; i++)
+		{
+			var temp = new Array();
+			for (var j = 0; j < prob[0][i].length; j++)
+				for (var k = 0; k < rem.length; k++)
+					if (rem[k] == prob[0][i][j].value)
+						temp[temp.length] = rem[k];
+			ratios[i] = new Array();
+			ratios[i][0] = i;
+			ratios[i][1] = temp.length;
+		}
+	
+		ratios = sortDec(ratios);
+				
+		chosen[chosen.length] = (ratios[0][0]+1);
+		circleSet(prob[0][ratios[0][0]]);
+		
+		if (show) 
+		{
+			output += "Set " + (ratios[0][0]+1) + " covers " + ratios[0][1] + " new elements, which is maximal. <br>";
+			output += "So we select this set and remove the covered elements from our total set. <br>";
+		}
+		for (var i = 0; i < prob[0][ratios[0][0]].length; i++)
+		{
+			var loc = -1;
+			for (var j = 0; j < rem.length && loc == -1; j++)
+				if (rem[j] == prob[0][ratios[0][0]][i].value)
+					loc = j;
+
+			if (loc != -1)
+			{
+				var temp = rem[loc];
+				rem[loc] = rem[rem.length-1];
+				rem[rem.length-1] = temp;
+				rem.length--;
+			}
+		}
+		
+		if (show)
+			output += "Now the remaining uncovered elements are " + rem + "<br>";
+
+	} while (rem.length > 0);
+		
+	output += "The set of items we selected is {" + chosen + "} with a set cover size of " + chosen.length + "<br>";
+	
+	document.getElementById("output").innerHTML += output;
+	document.getElementById("input").innerHTML += input;
+}
+
+function sortDec(arr2d)
+{
+	var temp
+	for (var i = 0; i < arr2d.length; i++)
+	for (var j = i+1; j < arr2d.length; j++)
+	{
+		if (arr2d[i][1] < arr2d[j][1])
+		{
+			temp = arr2d[i];
+			arr2d[i] = arr2d[j];
+			arr2d[j] = temp;
+		}
+	}
+	
+	return arr2d;
+}
+
+function sort(arr)
+{
+	var temp
+	for (var i = 0; i < arr.length; i++)
+	for (var j = i+1; j < arr.length; j++)
+	{
+		if (arr[i] > arr[j])
+		{
+			temp = arr[i];
+			arr[i] = arr[j];
+			arr[j] = temp;
+		}
+	}
+	
+	return arr;
+}
+
+function randRound(prob, show)
+{
+	clearRect();
+	var output = "";
+	document.getElementById("output").innerHTML = "";
+	var B = new Array();
+	var rem = new Array();
+	
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		dispPts(prob[0][i]);
+		B[i] = new Array();
+		for (var j = 0; j < prob[0][i].length; j++)
+		{
+			B[i][j] = prob[0][i][j].value;
+		}
+	}
+	
+	for (var i = 0; i < prob[1].length; i++)
+		rem[i] = prob[1][i].value;
+	
+	if (show)
+	{
+		output += "In the Linear Program, we create a variable x<sub>i</sub> for each subset i<br>. ";
+		output += "The objective function is to minimize the number of sets taken. <br>";
+		output += "There is a constraint for each element of the set U stating that at least one of the sets containing that element must be selected. <br>";
+	}
+	
+	var c = new Array();
+	var corig = new Array();
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		c[i] = 1;
+		corig[i] = 1;
+	}
+		
+	var A = new Array();
+	var b = new Array();
+	var ineq = new Array();
+	var bds = new Array();
+	
+	for (var i = 0; i < prob[1].length; i++)
+	{
+		b[i] = 1;
+		ineq[i] = 1;
+		A[i] = new Array();
+		
+		for (var j = 0; j < prob[0].length; j++)
+		{
+			if (B[j].indexOf(prob[1][i].value) != -1)
+			{
+				A[i][j] = 1;
+			}
+			else
+				A[i][j] = 0;
+		}		
+	}
+	
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		b[i + prob[1].length] = 1;
+		ineq[i + prob[1].length] = -1;
+		A[i + prob[1].length] = new Array();;
+		for (var j = 0; j < prob[0].length; j++)
+		{
+			if (j == i)
+				A[i + prob[1].length][j] = 1;
+			else
+				A[i + prob[1].length][j] = 0;
+		}
+		bds[i] = 1;
+	}		
+	
+	var opt = 0;
+	var bds = new Array();
+	for (var i = 0; i < prob[0].length; i++)
+		bds[i] = 1;
+	
+	if (show)
+		dispIP(opt, c, A, b, ineq, bds);
+		
+	var solution = simplex(opt, c, A, b, ineq, bds); 
+	
+	var chosen = new Array();
+	if (show)
+	{
+		output += "Because each set can be chosen or not chosen, the LP relaxation will return x<sub>i</sub> values for each set S<sub>i</sub> between the range of 0 and 1. <br>";
+		output += "The randomized rounding approach says to treat the value x<sub>i</sub> as the probability that we select the set S<sub>i</sub>. <br>"
+	}
+	
+	do 
+	{
+		for (var i = 0; i < solution[0].length; i++)
+		{
+			if (solution[0][i] < prob[0].length && chosen.indexOf(solution[0][i]+1) == -1 && Math.random() >= 1 - solution[1][i])
+			{
+				if (show)
+				{
+					output += "The LP Relaxation gives the variable corresponding to set S<sub>" + (solution[0][i] + 1) + "</sub> a value of " + solution[1][i] + "<br>";
+					output += "This means that we will select the set S<sub>" + (solution[0][i] + 1) + "</sub> with a probability of " + solution[1][i] + "<br>";	
+				}
+				chosen[chosen.length] = (solution[0][i]+1);
+				circleSet(prob[0][solution[0][i]]);
+
+				for (var j = 0; j < prob[0][solution[0][i]].length; j++)
+				{
+					var loc = rem.indexOf(prob[0][solution[0][i]][j].value);
+					if (loc != -1)
+					{
+						rem[loc] = rem[rem.length-1];
+						rem[rem.length-1] = rem[loc];
+						rem.length--;
+					}
+				}
+			}
+		}
+	}
+	while (rem.length > 0);
+	if (show)
+	{
+		output += "The randomized rounding solution of this LP is <br>";
+		for (var i = 0; i < chosen.length; i++)
+		{
+				output += "x<sub>" + chosen[i] + "</sub> = 1 <br>";
+		}
+	}
+	
+	output += "The set of items we selected is {" + chosen + "} with a set cover size of " + chosen.length + "<br>";
+	
+	document.getElementById("output").innerHTML += output;
+
+	return solution;
+}
+
+function detRound(prob, show)
+{
+	clearRect();
+	var output = "";
+	document.getElementById("output").innerHTML = "";
+	var B = new Array();
+	
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		dispPts(prob[0][i]);
+		B[i] = new Array();
+		for (var j = 0; j < prob[0][i].length; j++)
+		{
+			B[i][j] = prob[0][i][j].value;
+		}
+	}
+	
+	if (show)
+	{
+		output += "In the Linear Program, we create a variable x<sub>i</sub> for each subset i<br>. ";
+		output += "The objective function is to minimize the number of sets taken. <br>";
+		output += "There is a constraint for each element of the set U stating that at least one of the sets containing that element must be selected. <br>";
+	}
+	
+	var c = new Array();
+	var corig = new Array();
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		c[i] = 1;
+		corig[i] = 1;
+	}
+		
+	var A = new Array();
+	var b = new Array();
+	var ineq = new Array();
+	var bds = new Array();
+	var freq = new Array();
+	var maxLoc = -1;
+	
+	for (var i = 0; i < prob[1].length; i++)
+	{
+		b[i] = 1;
+		ineq[i] = 1;
+		A[i] = new Array();
+		freq[i] = 0;
+		
+		for (var j = 0; j < prob[0].length; j++)
+		{
+			if (B[j].indexOf(prob[1][i].value) != -1)
+			{
+				A[i][j] = 1;
+				freq[i]++;
+			}
+			else
+				A[i][j] = 0;
+		}
+		
+		if (maxLoc == -1 || freq[i] > freq[maxLoc])
+			maxLoc = i;
+	}
+	
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		b[i + prob[1].length] = 1;
+		ineq[i + prob[1].length] = -1;
+		A[i + prob[1].length] = new Array();;
+		for (var j = 0; j < prob[0].length; j++)
+		{
+			if (j == i)
+				A[i + prob[1].length][j] = 1;
+			else
+				A[i + prob[1].length][j] = 0;
+		}
+		bds[i] = 1;
+	}		
+	
+	var opt = 0;
+	var bds = new Array();
+	for (var i = 0; i < prob[0].length; i++)
+		bds[i] = 1;
+	
+	if (show)
+		dispIP(opt, c, A, b, ineq, bds);
+		
+	var solution = simplex(opt, c, A, b, ineq, bds); 
+
+	if (show)
+	{
+		output += "With deterministic rounding, we first find the element that appears the most amongst the subsets<br>";
+		output += "In this example, that is the element " + (prob[1][maxLoc]) + ", which appears in " + (freq[maxLoc]) + " subsets.<br>";
+		output += "The deterministic rounding algorithm selects a set S<sub>i</sub> if the corresponding variable x<sub>i</sub> has a value of at least 1 / " + (freq[maxLoc]) + "<br>";
+	}
+	
+	var chosen = new Array();
+	for (i = 0; i < solution[0].length; i++)
+	{
+		if (solution[0][i] < prob[0].length && solution[1][i] >= 1 / freq[maxLoc])
+		{
+			if (show)
+			{
+				output += "The LP relaxation gives the set S<sub>" + solution[0][i] + "</sub>'s variable a value of " + solution[1][i] + ", which is at least 1 / " + (freq[maxLoc]) + "<br>";
+				output += "So we will include this set in our set cover solution. <br>";
+			}
+			chosen[chosen.length] = (solution[0][i]+1);
+			circleSet(prob[0][solution[0][i]]);
+		}
+		else if (solution[0][i] < prob[0].length)
+		{
+			if (show)
+			{
+				output += "The LP relaxation gives the set S<sub>" + solution[0][i] + "</sub>'s variable a value of " + solution[1][i] + ", which is less than 1 / " + (freq[maxLoc]) + "<br>";
+				output += "So we will NOT include this set in our set cover solution. <br>";
+			}
+		}
+	}
+		
+	if (show)
+	{
+		output += "The deterministic rounding solution of this LP is <br>";
+		for (var i = 0; i < solution[0].length; i++)
+		{
+			if (solution[0][i]+1 <= prob[0].length && solution[1][i] >= 1/freq[maxLoc])
+				output += "x<sub>" + (solution[0][i]+1) + "</sub> = 1 <br>";
+		}
+	}
+	
+	output += "The set of items we selected is {" + chosen + "} with a set cover size of " + chosen.length + "<br>";
+	
+	document.getElementById("output").innerHTML += output;
+
+	return solution;
+}
+
+function maxim(a, b)
+{
+	if (a > b)
+		return a;
+	else
+		return b;
+}
+
+function dispIP(opt, c, A, b, ineq, bds)
+{
+	var text = "";
+
+	if (opt) 
+		text += "Maximize ";
+	else
+		text += "Minimize ";
+
+	for (i = 0; i < c.length; i++)
+	{
+		if (i < c.length-1 && c[i] != 0)
+			text += c[i] + "x<sub>" + (i+1) + "</sub> + ";
+		else if (c[i] != 0)
+			text += c[i] + "x<sub>" + (i+1) + "</sub><br>";
+	}
+
+	text += "Subject to <br>";
+
+	if (text.indexOf("+ Subject to") != -1)
+		text = text.replace("+ Subject to", "<br>Subject to");
+
+	for (i = 0; i < A.length; i++)
+	{
+		for (j = 0; j < A[i].length; j++)
+		{
+			if (j < A[i].length-1 && A[i][j] != 0)
+				text += A[i][j] + "x<sub>" + (j+1) + "</sub> + ";
+			else if (A[i][j] != 0)
+			{
+				text += A[i][j] + "x<sub>" + (j+1) + "</sub>";
+			}
+		}
+
+		if (ineq[i] == -1)
+			text += " <= " + b[i] + "<br>";
+		else if (ineq[i] == 0)
+			text += " = " + b[i] + "<br>";
+		else
+			text += " >= " + b[i] + "<br>";
+
+		if (text.indexOf("+  <=") != -1)
+			text = text.replace("+  <=", " <= ");
+		if (text.indexOf("+  =") != -1)
+			text = text.replace("+  =", " = ");
+		if (text.indexOf("+  >=") != -1)
+			text = text.replace("+  >=", " >= ");
+	}
+
+	while (text.indexOf("+ -") != -1)
+	{
+		text = text.replace("+ -", "- ");
+	}
+
+	for (i = 0; i < bds.length; i++)
+	{
+		text += "x<sub>" + (i+1) + "</sub> >= 0<br>";
+	}
+	
+	document.getElementById('output').innerHTML += text;
+}
+
+function intersect(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		if (search(set2, set1[i]))
+			set3[set3.length] = set1[i];
+	}
+
+	return set3;
+}
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, probability, computer science, algorithms, javascript, script, set theory, set cover, greedy, linear programming, integer programming, randomized, rounding, approximation, search, sort, operations research, research, animation,
+programming" />
+<meta name="description" content="This page generates instances of the set cover problem and implements the greedy, randomized rounding, and deterministic rounding approaches to generate feasible (but not necessarily optimal) solutions" />
+<title> at LEARNINGlover.com</title>
+<title>Set Cover Problem</title>
+<script type="text/javascript" src="examples/simplex.js"></script>
+<script type="text/javascript">
+function clearRect()
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	return;
+}
+
+function display(set)
+{
+	var i, text = "";
+	text += "{";
+	for (i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text += set[i] + ", ";
+		else
+			text += set[i];
+	}
+	text += "}";
+	
+	return text;
+}
+
+function circlePts(input)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	for (i = 0; i < input.length; i++)
+	{
+		ctx.strokeStyle="#FF0000";
+		ctx.beginPath();
+		ctx.arc(input[i].xLoc, c.height-input[i].yLoc, 15, 0, Math.PI*2);
+		ctx.stroke();
+	}
+}
+
+function circleSet(set)
+{	
+	var i, c = document.getElementById("myCanvas");
+	var minLoc = -1, maxLoc = -1;
+	var ctx = c.getContext("2d");
+	
+	for (i = 0; i < set.length; i++)
+	{
+		if (minLoc == -1 || set[i].xLoc < set[minLoc].xLoc)
+			minLoc = i;
+		if (maxLoc == -1 || set[i].xLoc > set[maxLoc].xLoc)
+			maxLoc = i;
+	}
+	
+	ctx.strokeStyle = "#FF0000";
+	ctx.beginPath();
+	ctx.arc(set[minLoc].xLoc, c.height-set[minLoc].yLoc, 13, Math.PI/2, 3*Math.PI/2);
+	ctx.lineTo(set[maxLoc].xLoc, c.height-set[maxLoc].yLoc-13);
+	ctx.arc(set[maxLoc].xLoc, c.height-set[maxLoc].yLoc, 13, 3*Math.PI/2, Math.PI/2);
+	ctx.lineTo(set[minLoc].xLoc, c.height-set[minLoc].yLoc+13);
+	ctx.stroke();
+}
+
+function dispPts(input)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#000000";
+
+	for (i = 0; i < input.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(input[i].xLoc,c.height-input[i].yLoc,10,0,Math.PI*2);
+		ctx.stroke();
+
+		ctx.fillStyle=input[0].color;
+		ctx.beginPath();
+		ctx.arc(input[i].xLoc,c.height-input[i].yLoc,10,0,Math.PI*2);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(input[i].value, input[i].xLoc-3*(Math.floor(Math.log(input[i].value)/Math.log(10))+1), c.height-input[i].yLoc+4);
+	}
+}
+
+function drawLines(set)
+{
+	var i, j;
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	for (i = 0; i < set.length; i++)
+	{
+		ctx.strokeStyle = "#FF0000";
+		ctx.lineWidth = 2;
+		ctx.beginPath();
+		if (set[i].xLoc < 250)
+		{
+			ctx.moveTo(275, 20);
+			ctx.lineTo(set[i].xLoc + 30, 20);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc + 30, c.height-set[i].yLoc);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc + 15, c.height-set[i].yLoc);
+			ctx.stroke();
+		}
+		else
+		{
+			ctx.moveTo(275, 20);
+			ctx.lineTo(set[i].xLoc - 30, 20);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc - 30, c.height-set[i].yLoc);
+			ctx.stroke();
+			ctx.lineTo(set[i].xLoc - 15, c.height-set[i].yLoc);
+			ctx.stroke();
+		}
+	}
+	
+	ctx.strokeStyle="#000000";
+	ctx.beginPath();
+	ctx.arc(275, 20,15,0,Math.PI*2);
+	ctx.stroke();
+
+	ctx.fillStyle="#FFFFFF";
+	ctx.beginPath();
+	ctx.arc(275,20,15,0,Math.PI*2);
+	ctx.fill();
+
+	ctx.fillStyle="#000000";
+	ctx.font="15px Arial";
+	ctx.fillText("A", 275-4*(Math.floor(Math.log(1)/Math.log(10))+1), 24);
+}
+
+function generate(univ, n)
+{
+	var A = new Array(n);
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*univ.length);
+		if (search(A, univ[next]) == -1)
+		{
+			A[i] = univ[next];
+		}
+		else
+			i--;
+	}
+	
+	return A;
+}
+
+function init()
+{
+	clearRect();
+	document.getElementById("output").innerHTML = "";
+	var k1 = Math.floor(Math.random()*10)+5;
+	var B = new Array();
+	var univ = new Array();
+	var ans = new Array();
+	var text = "";
+	var i, j;
+	var total = new Array();
+	var A = new Array();
+	var colors = new Array();
+
+	colors[0] = "#0000FF";
+	colors[1] = "#00FF00";
+	colors[2] = "#FF0000";
+	colors[3] = "#00AAFF";
+	colors[4] = "#DEB887";
+	colors[5] = "#AA00AA";
+	colors[6] = "#00AAAA";
+	colors[7] = "#AAAA00";
+	colors[8] = "#AA00FF";
+	colors[9] = "#00FFFF";
+	colors[10] = "#FFAA00";
+	colors[11] = "#FF00FF";
+	colors[12] = "#AAAAFF";
+	colors[13] = "#D2691E";
+	colors[14] = "#FFAAAA";
+	colors[15] = "#4682BD";
+	colors[16] = "#FFFF00";
+	colors[17] = "#FFFFAA";
+	colors[18] = "#0000AA";
+	colors[19] = "#00AA00";
+	colors[20] = "#AA0000";
+	colors[21] = "#F0F8FF";
+	colors[22] = "#F0F8FF";
+	colors[23] = "#FAEBD7";
+	
+	for (i = 1; i < 15; i++)
+	{
+		univ[i-1] = i;
+	}
+	
+	var select = document.getElementById("sets");
+	
+	for (i = 0; i < k1; i++)
+	{
+		var k2 = Math.floor(Math.random()*3)+3;
+		var temp = generate(univ, k2);
+		B[i] = new Array();
+		for (j = 0; j < temp.length; j++)
+		{
+			B[i][j] = new Object();
+			if (j == 0)
+				B[i][j].color = colors[i];
+				
+			B[i][j].value = temp[j];
+			if (total.indexOf(B[i][j].value) == -1)
+				total[total.length] = B[i][j].value;
+		}
+		B[i] = setLocs(B[i], i+1);
+		dispPts(B[i]);
+	}
+	
+	total = sort(total);
+	
+	ans[0] = B;
+	
+	A = new Array();
+	for (i = 0; i < total.length; i++)
+	{
+		A[i] = new Object();
+		A[i].value = total[i];
+	}
+	
+	ans[1] = A;
+	
+	text += "Consider the following instance of the Minimum Set Cover problem. <br>";
+	text += "We have a set U with " + A.length + " elements. <br>";
+	text += "We also have " + B.length + " subsets of this set. <br>";
+	text += "A set of subsets is said to \"cover\" the set U if every element of U belongs to at least one of the selected subsets. <br>";
+	text += "We would like to find a cover of U that selects the minimum number of subsets. <br>";
+
+	text += "<table>";
+	for (var i = 0; i < k1; i++)
+	{
+		text += "<tr><td><b>Set " + (i+1) + "</b>&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+		for (var j = 0; j < B[i].length; j++)
+			text += "<td bgcolor='" + colors[i] + "'>" + B[i][j].value + "</td>";
+		text += "</tr>";
+	}
+	text += "</table><table>";
+	text += "<tr><td><b>Universe </b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+	for (var i = 0; i < total.length; i++)
+		text += "<td>" + total[i] + "</td>";
+	text += "</tr>";
+	text += "</table>";
+			
+	document.getElementById("input").innerHTML = text;	
+	
+	return ans;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = -1;
+
+	for (i = 0; i < set.length && ans == -1; i++)
+		if (set[i] == elmnt)
+			ans = i;
+
+	return ans;
+}
+
+function setLocs(set, row)
+{
+	var c = document.getElementById("myCanvas");
+	var i, j, temp;
+		
+	for (i = 0; i < set.length; i++)
+	{
+			set[i].yLoc = row * 25 + 10;
+			set[i].xLoc = (set[i].value % 15) * 30 + 25;
+	}
+	
+	return set;
+}
+
+function union(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+		set3[i] = set1[i];
+	
+	for (i = 0; i < set2.length; i++)
+	{
+		if (search(set3, set2[i]) != -1)
+			set3[set3.length] = set2[i];
+	}
+
+	return set3;
+}
+
+function greedy(prob, show)
+{
+	clearRect();
+	var output = "";
+	var input = "";
+	var rem = new Array();
+	for (var i = 0; i < prob[1].length; i++)
+		rem[i] = prob[1][i].value;
+	
+	for (var i = 0; i < prob[0].length; i++)
+		dispPts(prob[0][i]);
+		
+	document.getElementById("output").innerHTML = "";
+
+	var itms = "";
+	var chosen = new Array();
+
+	if (show)
+	{
+		output += "The greedy approach to the Minimum Set Cover problem works by computing how many new elements of U each set covers. <br>";
+		output += "The items are then sorted in decreasing order of this value. <br>";
+		output += "While there are still elements that are uncovered, the set with the highest value is chosen. <br>";
+	}
+	
+	do
+	{
+		var ratios = new Array();
+		for (var i = 0; i < prob[0].length; i++)
+		{
+			var temp = new Array();
+			for (var j = 0; j < prob[0][i].length; j++)
+				for (var k = 0; k < rem.length; k++)
+					if (rem[k] == prob[0][i][j].value)
+						temp[temp.length] = rem[k];
+			ratios[i] = new Array();
+			ratios[i][0] = i;
+			ratios[i][1] = temp.length;
+		}
+	
+		ratios = sortDec(ratios);
+				
+		chosen[chosen.length] = (ratios[0][0]+1);
+		circleSet(prob[0][ratios[0][0]]);
+		
+		if (show) 
+		{
+			output += "Set " + (ratios[0][0]+1) + " covers " + ratios[0][1] + " new elements, which is maximal. <br>";
+			output += "So we select this set and remove the covered elements from our total set. <br>";
+		}
+		for (var i = 0; i < prob[0][ratios[0][0]].length; i++)
+		{
+			var loc = -1;
+			for (var j = 0; j < rem.length && loc == -1; j++)
+				if (rem[j] == prob[0][ratios[0][0]][i].value)
+					loc = j;
+
+			if (loc != -1)
+			{
+				var temp = rem[loc];
+				rem[loc] = rem[rem.length-1];
+				rem[rem.length-1] = temp;
+				rem.length--;
+			}
+		}
+		
+		if (show)
+			output += "Now the remaining uncovered elements are " + rem + "<br>";
+
+	} while (rem.length > 0);
+		
+	output += "The set of items we selected is {" + chosen + "} with a set cover size of " + chosen.length + "<br>";
+	
+	document.getElementById("output").innerHTML += output;
+	document.getElementById("input").innerHTML += input;
+}
+
+function sortDec(arr2d)
+{
+	var temp
+	for (var i = 0; i < arr2d.length; i++)
+	for (var j = i+1; j < arr2d.length; j++)
+	{
+		if (arr2d[i][1] < arr2d[j][1])
+		{
+			temp = arr2d[i];
+			arr2d[i] = arr2d[j];
+			arr2d[j] = temp;
+		}
+	}
+	
+	return arr2d;
+}
+
+function sort(arr)
+{
+	var temp
+	for (var i = 0; i < arr.length; i++)
+	for (var j = i+1; j < arr.length; j++)
+	{
+		if (arr[i] > arr[j])
+		{
+			temp = arr[i];
+			arr[i] = arr[j];
+			arr[j] = temp;
+		}
+	}
+	
+	return arr;
+}
+
+function randRound(prob, show)
+{
+	clearRect();
+	var output = "";
+	document.getElementById("output").innerHTML = "";
+	var B = new Array();
+	var rem = new Array();
+	
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		dispPts(prob[0][i]);
+		B[i] = new Array();
+		for (var j = 0; j < prob[0][i].length; j++)
+		{
+			B[i][j] = prob[0][i][j].value;
+		}
+	}
+	
+	for (var i = 0; i < prob[1].length; i++)
+		rem[i] = prob[1][i].value;
+	
+	if (show)
+	{
+		output += "In the Linear Program, we create a variable x<sub>i</sub> for each subset i<br>. ";
+		output += "The objective function is to minimize the number of sets taken. <br>";
+		output += "There is a constraint for each element of the set U stating that at least one of the sets containing that element must be selected. <br>";
+	}
+	
+	var c = new Array();
+	var corig = new Array();
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		c[i] = 1;
+		corig[i] = 1;
+	}
+		
+	var A = new Array();
+	var b = new Array();
+	var ineq = new Array();
+	var bds = new Array();
+	
+	for (var i = 0; i < prob[1].length; i++)
+	{
+		b[i] = 1;
+		ineq[i] = 1;
+		A[i] = new Array();
+		
+		for (var j = 0; j < prob[0].length; j++)
+		{
+			if (B[j].indexOf(prob[1][i].value) != -1)
+			{
+				A[i][j] = 1;
+			}
+			else
+				A[i][j] = 0;
+		}		
+	}
+	
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		b[i + prob[1].length] = 1;
+		ineq[i + prob[1].length] = -1;
+		A[i + prob[1].length] = new Array();;
+		for (var j = 0; j < prob[0].length; j++)
+		{
+			if (j == i)
+				A[i + prob[1].length][j] = 1;
+			else
+				A[i + prob[1].length][j] = 0;
+		}
+		bds[i] = 1;
+	}		
+	
+	var opt = 0;
+	var bds = new Array();
+	for (var i = 0; i < prob[0].length; i++)
+		bds[i] = 1;
+	
+	if (show)
+		dispIP(opt, c, A, b, ineq, bds);
+		
+	var solution = simplex(opt, c, A, b, ineq, bds); 
+	
+	var chosen = new Array();
+	if (show)
+	{
+		output += "Because each set can be chosen or not chosen, the LP relaxation will return x<sub>i</sub> values for each set S<sub>i</sub> between the range of 0 and 1. <br>";
+		output += "The randomized rounding approach says to treat the value x<sub>i</sub> as the probability that we select the set S<sub>i</sub>. <br>"
+	}
+	
+	do 
+	{
+		for (var i = 0; i < solution[0].length; i++)
+		{
+			if (solution[0][i] < prob[0].length && chosen.indexOf(solution[0][i]+1) == -1 && Math.random() >= 1 - solution[1][i])
+			{
+				if (show)
+				{
+					output += "The LP Relaxation gives the variable corresponding to set S<sub>" + (solution[0][i] + 1) + "</sub> a value of " + solution[1][i] + "<br>";
+					output += "This means that we will select the set S<sub>" + (solution[0][i] + 1) + "</sub> with a probability of " + solution[1][i] + "<br>";	
+				}
+				chosen[chosen.length] = (solution[0][i]+1);
+				circleSet(prob[0][solution[0][i]]);
+
+				for (var j = 0; j < prob[0][solution[0][i]].length; j++)
+				{
+					var loc = rem.indexOf(prob[0][solution[0][i]][j].value);
+					if (loc != -1)
+					{
+						rem[loc] = rem[rem.length-1];
+						rem[rem.length-1] = rem[loc];
+						rem.length--;
+					}
+				}
+			}
+		}
+	}
+	while (rem.length > 0);
+	if (show)
+	{
+		output += "The randomized rounding solution of this LP is <br>";
+		for (var i = 0; i < chosen.length; i++)
+		{
+				output += "x<sub>" + chosen[i] + "</sub> = 1 <br>";
+		}
+	}
+	
+	output += "The set of items we selected is {" + chosen + "} with a set cover size of " + chosen.length + "<br>";
+	
+	document.getElementById("output").innerHTML += output;
+
+	return solution;
+}
+
+function detRound(prob, show)
+{
+	clearRect();
+	var output = "";
+	document.getElementById("output").innerHTML = "";
+	var B = new Array();
+	
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		dispPts(prob[0][i]);
+		B[i] = new Array();
+		for (var j = 0; j < prob[0][i].length; j++)
+		{
+			B[i][j] = prob[0][i][j].value;
+		}
+	}
+	
+	if (show)
+	{
+		output += "In the Linear Program, we create a variable x<sub>i</sub> for each subset i<br>. ";
+		output += "The objective function is to minimize the number of sets taken. <br>";
+		output += "There is a constraint for each element of the set U stating that at least one of the sets containing that element must be selected. <br>";
+	}
+	
+	var c = new Array();
+	var corig = new Array();
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		c[i] = 1;
+		corig[i] = 1;
+	}
+		
+	var A = new Array();
+	var b = new Array();
+	var ineq = new Array();
+	var bds = new Array();
+	var freq = new Array();
+	var maxLoc = -1;
+	
+	for (var i = 0; i < prob[1].length; i++)
+	{
+		b[i] = 1;
+		ineq[i] = 1;
+		A[i] = new Array();
+		freq[i] = 0;
+		
+		for (var j = 0; j < prob[0].length; j++)
+		{
+			if (B[j].indexOf(prob[1][i].value) != -1)
+			{
+				A[i][j] = 1;
+				freq[i]++;
+			}
+			else
+				A[i][j] = 0;
+		}
+		
+		if (maxLoc == -1 || freq[i] > freq[maxLoc])
+			maxLoc = i;
+	}
+	
+	for (var i = 0; i < prob[0].length; i++)
+	{
+		b[i + prob[1].length] = 1;
+		ineq[i + prob[1].length] = -1;
+		A[i + prob[1].length] = new Array();;
+		for (var j = 0; j < prob[0].length; j++)
+		{
+			if (j == i)
+				A[i + prob[1].length][j] = 1;
+			else
+				A[i + prob[1].length][j] = 0;
+		}
+		bds[i] = 1;
+	}		
+	
+	var opt = 0;
+	var bds = new Array();
+	for (var i = 0; i < prob[0].length; i++)
+		bds[i] = 1;
+	
+	if (show)
+		dispIP(opt, c, A, b, ineq, bds);
+		
+	var solution = simplex(opt, c, A, b, ineq, bds); 
+
+	if (show)
+	{
+		output += "With deterministic rounding, we first find the element that appears the most amongst the subsets<br>";
+		output += "In this example, that is the element " + (prob[1][maxLoc]) + ", which appears in " + (freq[maxLoc]) + " subsets.<br>";
+		output += "The deterministic rounding algorithm selects a set S<sub>i</sub> if the corresponding variable x<sub>i</sub> has a value of at least 1 / " + (freq[maxLoc]) + "<br>";
+	}
+	
+	var chosen = new Array();
+	for (i = 0; i < solution[0].length; i++)
+	{
+		if (solution[0][i] < prob[0].length && solution[1][i] >= 1 / freq[maxLoc])
+		{
+			if (show)
+			{
+				output += "The LP relaxation gives the set S<sub>" + solution[0][i] + "</sub>'s variable a value of " + solution[1][i] + ", which is at least 1 / " + (freq[maxLoc]) + "<br>";
+				output += "So we will include this set in our set cover solution. <br>";
+			}
+			chosen[chosen.length] = (solution[0][i]+1);
+			circleSet(prob[0][solution[0][i]]);
+		}
+		else if (solution[0][i] < prob[0].length)
+		{
+			if (show)
+			{
+				output += "The LP relaxation gives the set S<sub>" + solution[0][i] + "</sub>'s variable a value of " + solution[1][i] + ", which is less than 1 / " + (freq[maxLoc]) + "<br>";
+				output += "So we will NOT include this set in our set cover solution. <br>";
+			}
+		}
+	}
+		
+	if (show)
+	{
+		output += "The deterministic rounding solution of this LP is <br>";
+		for (var i = 0; i < solution[0].length; i++)
+		{
+			if (solution[0][i]+1 <= prob[0].length && solution[1][i] >= 1/freq[maxLoc])
+				output += "x<sub>" + (solution[0][i]+1) + "</sub> = 1 <br>";
+		}
+	}
+	
+	output += "The set of items we selected is {" + chosen + "} with a set cover size of " + chosen.length + "<br>";
+	
+	document.getElementById("output").innerHTML += output;
+
+	return solution;
+}
+
+function maxim(a, b)
+{
+	if (a > b)
+		return a;
+	else
+		return b;
+}
+
+function dispIP(opt, c, A, b, ineq, bds)
+{
+	var text = "";
+
+	if (opt) 
+		text += "Maximize ";
+	else
+		text += "Minimize ";
+
+	for (i = 0; i < c.length; i++)
+	{
+		if (i < c.length-1 && c[i] != 0)
+			text += c[i] + "x<sub>" + (i+1) + "</sub> + ";
+		else if (c[i] != 0)
+			text += c[i] + "x<sub>" + (i+1) + "</sub><br>";
+	}
+
+	text += "Subject to <br>";
+
+	if (text.indexOf("+ Subject to") != -1)
+		text = text.replace("+ Subject to", "<br>Subject to");
+
+	for (i = 0; i < A.length; i++)
+	{
+		for (j = 0; j < A[i].length; j++)
+		{
+			if (j < A[i].length-1 && A[i][j] != 0)
+				text += A[i][j] + "x<sub>" + (j+1) + "</sub> + ";
+			else if (A[i][j] != 0)
+			{
+				text += A[i][j] + "x<sub>" + (j+1) + "</sub>";
+			}
+		}
+
+		if (ineq[i] == -1)
+			text += " <= " + b[i] + "<br>";
+		else if (ineq[i] == 0)
+			text += " = " + b[i] + "<br>";
+		else
+			text += " >= " + b[i] + "<br>";
+
+		if (text.indexOf("+  <=") != -1)
+			text = text.replace("+  <=", " <= ");
+		if (text.indexOf("+  =") != -1)
+			text = text.replace("+  =", " = ");
+		if (text.indexOf("+  >=") != -1)
+			text = text.replace("+  >=", " >= ");
+	}
+
+	while (text.indexOf("+ -") != -1)
+	{
+		text = text.replace("+ -", "- ");
+	}
+
+	for (i = 0; i < bds.length; i++)
+	{
+		text += "x<sub>" + (i+1) + "</sub> >= 0<br>";
+	}
+	
+	document.getElementById('output').innerHTML += text;
+}
+
+function intersect(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+	for (i = 0; i < set1.length; i++)
+	{
+		if (search(set2, set1[i]))
+			set3[set3.length] = set1[i];
+	}
+
+	return set3;
+}
+</script>
+
+<h3><center></center></h3>
+<p></p>
+<p id="input" name="input"></p>
+<form name=data id=data>
+<input type="button" value="Greedy Algorithm" onclick="greedy(prob, document.getElementById('show').checked)">
+<!--<input type="button" value="DP Algorithm" onclick="dynamic(prob, document.getElementById('show').checked)">-->
+<input type="button" value="Randomized Rounding" onclick="randRound(prob, document.getElementById('show').checked)">
+<input type="button" value="Deterministic Rounding" onclick="detRound(prob, document.getElementById('show').checked)">
+<input type="checkbox" name="show" id="show"> Show Work?<br>
+<input type="button" value="New Problem" onclick="prob = init()"><br>
+</FORM>
+<p name="output" id="output"></p>
+<canvas id="myCanvas" width="550" height="400" style="border:1px solid
+#c3c3c3;">
+Your browser does not support the canvas element.
+</canvas>
+<script type="text/javascript">
+	var prob = init();
+</script>

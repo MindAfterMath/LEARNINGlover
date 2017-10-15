@@ -1,0 +1,5830 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+TheStochasticAirTrafficFlowMangementProblem<script type="text/javascript">
+function indexOf(list, elmt)
+{
+	var loc = -1
+	for (var i = 0; i < list.length && loc == -1; i++)
+	{
+		if (list[i] == elmt)
+		loc = i;
+	}
+	return loc;
+}
+
+function getData()
+{
+	var prob = new Object();
+	prob.flights = new Array();
+
+	document.getElementById("B6").hidden = true;
+	document.getElementById("B7").hidden = true;
+	document.getElementById("B8").hidden = true;
+	document.getElementById("B9").hidden = true;
+	document.getElementById("B10").hidden = true;
+	document.getElementById("B11").hidden = true;
+	document.getElementById("B12").hidden = true;
+	
+	var arr = document.getElementById("arrs").innerHTML.split(/<br.*?>/gi);
+	var len = document.getElementById("lens").innerHTML.split(/<br.*?>/gi);
+//	var numsl = 10*arr.length + 5;
+	var numsl = 45;
+
+	prob.slots = new Array(numsl);
+
+	var Max_Dev = document.getElementById("dev").value;
+
+	for (var k = 0; k < arr.length; k++)
+	{
+		prob.flights[k] = new Object();
+		prob.flights[k].arr = arr[k];
+		prob.flights[k].len = len[k];
+		prob.flights[k].remFlights = k+1;
+		prob.flights[k].rbs = -1;
+		prob.flights[k].asmt = -1;
+	}
+
+	for (var i = 0; i < numsl; i++)
+	{
+		prob.slots[i] = new Object();
+		prob.slots[i].time  = i+5;
+		prob.slots[i].asmt = -1;
+	}
+
+	prob.scen = new Array();
+
+	for (var t = 0; t < 7; t++)
+	{
+		prob.scen[t] = new Object();
+	}
+
+	prob.scen[0].time = -150;
+	prob.scen[1].time = -90;
+	prob.scen[2].time = -80;
+	prob.scen[3].time = -70;
+	prob.scen[4].time = -60;
+	prob.scen[5].time = -50;
+	prob.scen[6].time = 0;
+
+	var scenCase = document.getElementById("scenario").value;
+	switch (parseInt(scenCase))
+	{
+	case 0:
+		prob.scen[0].prb = eval(1/7);
+		prob.scen[1].prb = eval(1/7);
+		prob.scen[2].prb = eval(1/7);
+		prob.scen[3].prb = eval(1/7);
+		prob.scen[4].prb = eval(1/7);
+		prob.scen[5].prb = eval(1/7);
+		prob.scen[6].prb = eval(1/7);
+	break;
+	case 1:
+		prob.scen[0].prb = eval(1/64);
+		prob.scen[1].prb = eval(1/64);
+		prob.scen[2].prb = eval(1/32);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/8);
+		prob.scen[5].prb = eval(1/4);
+		prob.scen[6].prb = eval(1/2);
+	break;
+	case 2:
+		prob.scen[0].prb = eval(1/2);
+		prob.scen[1].prb = eval(1/4);
+		prob.scen[2].prb = eval(1/8);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/32);
+		prob.scen[5].prb = eval(1/64);
+		prob.scen[6].prb = eval(1/64);
+	break;
+	}
+	prob = setCaps(prob);
+	prob = dbrbs(prob);
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		if (eval(parseInt(prob.flights[k].rbs) + parseInt(Max_Dev)) < numsl)
+		{
+			prob.flights[k].latest_arr = prob.slots[eval(parseInt(prob.flights[k].rbs) + parseInt(Max_Dev))].time;
+		}
+		else
+		{
+			prob.flight[k].latest_arr = prob.slots[prob.slots.length-1].time
+		}
+		prob.flights[k].asmt = -1;
+	}
+	
+	for (var j = 0; j < prob.slots.length; j++)
+	{
+		prob.slots[j].finalCap = new Array();
+		prob.slots[j].used = new Array();
+		prob.slots[j].comp = new Array();
+		
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.slots[j].finalCap[t] = 1;
+			prob.slots[j].used[t] = 0;
+			prob.slots[j].comp[t] = -1;
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].want = new Array();
+		prob.flights[k].cost = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			prob.flights[k].want[i] = new Array();
+			prob.flights[k].cost[i] = new Array();
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				prob.flights[k].want[i][t] = new Array();
+				prob.flights[k].cost[i][t] = new Array();
+				for (var j = 0; j < prob.slots.length; j++)
+				{
+					if (prob.slots[i].time >= prob.flights[k].arr &&
+						prob.slots[j].time >= prob.flights[k].arr &&
+						prob.slots[i].time <= prob.flights[k].latest_arr &&
+						((prob.slots[j].time <= prob.slots[i].time && prob.scen[t].time <= prob.slots[i].time - prob.flights[k].len) || 
+						(prob.slots[i].time == prob.slots[j].time && prob.scen[t].time > prob.slots[i].time - prob.flights[k].len) || 
+						(prob.slots[j].time >= prob.slots[i].time)) &&
+						prob.slots[i].initCap >= 1 && prob.slots[j].finalCap[t] >= 1)
+					{
+						prob.flights[k].want[i][t][prob.flights[k].want[i][t].length] = j ;
+						prob.flights[k].cost[i][t][prob.flights[k].cost[i][t].length] = eval(prob.scen[t].prb*(prob.slots[j].time - prob.flights[k].arr));
+					}
+				}
+			}
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].finalAsmt = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.flights[k].finalAsmt[t] = -1;
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].ecost = new Array();
+		prob.flights[k].eloc = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			prob.flights[k].ecost[i] = 0;
+			prob.flights[k].eloc[i] = new Array();
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					var mincost = 100000;
+					var minloc = -1;
+					for (var j = 0; j < prob.flights[k].cost[i][t].length; j++)
+					{
+						if (prob.flights[k].cost[i][t][j] < mincost)
+						{
+							mincost = prob.flights[k].cost[i][t][j];
+							minloc = j;
+						}
+					}
+					prob.flights[k].ecost[i] += prob.flights[k].cost[i][t][minloc];
+					prob.flights[k].eloc[i][t] = prob.flights[k].want[i][t][minloc];
+				}
+			}
+		}
+	}
+
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#000000";
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].yLoc = k*75+100;
+		prob.flights[k].xLoc = (0 + c.width) / 5;
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+//		if (prob.slots[i].initCap > 0 && prob.slots[i].time <= 30)
+//		{
+			prob.slots[i].yLoc = i*20+50;
+			prob.slots[i].xLoc = 4*(0 + c.width) / 5;
+//		}
+	}
+	
+	c = new Array();
+	ctx = new Array();
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#000000";
+	}
+
+	
+	var count = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].asmtXLocs = new Array();
+		prob.flights[k].asmtYLocs = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				prob.flights[k].asmtYLocs[i] = count*15 + 75;
+				prob.flights[k].asmtXLocs[i] = 10+(0 + c[0].width)/5;
+				
+				count++;
+			}
+		}
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		prob.slots[i].finalXLoc = new Array();
+		prob.slots[i].finalYLoc = new Array();
+		for (var t = 1; t <= prob.scen.length; t++)
+		{
+//			if (prob.slots[i].time <= 30)
+//			{
+				prob.slots[i].finalYLoc[t-1] = i*17+30;
+				prob.slots[i].finalXLoc[t-1] = 4*(0 + c[t-1].width) / 5;
+//			}
+		}
+	}
+	
+	return prob;
+}
+
+function ea(prob, k, i, t)
+{
+	var ea_var = -1;
+
+	if (eval(parseInt(prob.slots[i].time) - parseInt(prob.flights[k].len)) <= parseInt(prob.scen[t].time))
+	{
+		ea_var = i;
+	}
+	else if (eval(parseInt(prob.flights[k].arr) - parseInt(prob.flights[k].len)) <= parseInt(prob.scen[t].time) && parseInt(prob.scen[t].time) < eval(parseInt(prob.slots[i].time) - parseInt(prob.flights[k].len)))
+	{
+		var found = false;
+		
+		for (var j = 0; j < prob.slots.length && !found; j++)
+		{
+			if (parseInt(prob.slots[j].time) >= eval(parseInt(prob.scen[t].time) + parseInt(prob.flights[k].len)) && parseInt(prob.slots[j].finalCap[t]) >= 1 && parseInt(prob.slots[j].time) >= parseInt(prob.flights[k].arr))
+			{
+				ea_var = j;
+				found = true;
+			}
+		}
+	}
+	else if (parseInt(prob.scen[t].time) < eval(parseInt(prob.flights[k].arr) - parseInt(prob.flights[k].len)))
+	{
+		var found = false;
+		for (var j = 0; j < prob.slots.length && !found; j++)
+		{
+			if (parseInt(prob.slots[j].finalCap[t]) >= 1 && parseInt(prob.slots[j].time) >= parseInt(prob.flights[k].arr))
+			{
+				ea_var = j;
+				found = true;
+			}
+		}
+	}
+
+	return ea_var;
+}
+
+function earliest(slots)
+/*
+This function finds the earliest remaining slot with non-zero capacity. 
+*/
+{
+	var ans = -1;
+
+	for(var i = 0; i < slots.length && ans == -1; i++)
+	{
+		if (slots[i].initCap >= 1)
+		{
+			ans = i;
+		}
+	}
+	return ans;
+}
+
+function earliest2(flight, slots)
+/*
+This function finds the earliest remaining slot with non-zero capacity that a given flight can be scheduled to. 
+*/
+{
+	var ans = -1;
+
+	for(var i = 0; i < slots.length && ans == -1; i++)
+	{
+		if (parseInt(slots[i].initCap) >= 1 && 
+			parseInt(slots[i].time) >= parseInt(flight.arr) &&
+			parseInt(slots[i].time) <= parseInt(flight.latest_arr))
+		{
+			ans = i;
+		}
+	}
+	
+	return ans;
+}
+
+function GSlot(prob)
+{
+	document.getElementById("output").innerHTML = "GSlot<br>";
+	prob = getData();
+	var count = 0;
+	var text = "";
+	while(sizeRemF(prob.flights) != 0)
+	{
+		var i = earliest(prob.slots);
+		var found = false;
+		var k;
+		for (k = 0; k < prob.flights.length && !found; k++)
+		{
+			if (prob.slots[i].time == prob.flights[k].latest_arr && !found && prob.flights[k].remFlights != -1)
+			{
+				found = true;
+			}
+		}
+		k--;
+		if (!found)
+		{
+			k = longest2(prob.slots[i].time, prob.flights);
+		}
+		if (k != -1)
+		{
+			prob.flights[k].asmt = i ;
+			prob.slots[i].asmt = k;
+			prob.flights[k].remFlights = -1;
+			prob.slots[i].initCap--;
+		}
+		else
+		{
+			prob.slots[i].initCap--;
+		}
+	}
+	
+	text += dispAsmt(prob);
+	
+//	prob = developSol(prob);
+//	
+	var primalcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		primalcost += prob.flights[k].ecost[prob.flights[k].asmt];
+	}
+	
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("B6").hidden = false;
+	document.getElementById("B14").hidden = false;
+	prob = setCaps(prob);
+	prob = setInitBasis(prob);
+	document.getElementById("output").innerHTML += dispBasis(prob);
+	drawStage1Sol(prob);
+	
+	return prob;
+}
+
+function GDist(prob)
+{
+	document.getElementById("output").innerHTML = "GDist<br>";
+
+	prob=getData();
+	var text = "";
+	var poss = new Array();
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		poss[k] = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time >= prob.flights[k].arr && prob.slots[i].time <= prob.flights[k].latest_arr && prob.slots[i].initCap >= 1)
+			{
+				poss[k][poss[k].length] = i;
+			}
+		}
+	}
+	
+	while(sizeRemF(prob.flights) != 0)
+	{
+		var lowestDeg = -1;
+		var lowestLoc = -1;
+		for (var k = 0; k < poss.length; k++)
+		{
+			if (prob.flights[k].remFlights != -1 && (lowestDeg == -1 || poss[k].length < lowestDeg))
+			{
+				lowestDeg = poss[k].length;
+				lowestLoc = k;
+			}
+		}
+
+		if (lowestDeg == 1)
+		{
+			var found = false;
+			var slotLoc = -1;
+
+			for (var i = 0; i < poss[lowestLoc].length && !found; i++)
+			{
+				if (prob.slots[poss[lowestLoc][i]].initCap >= 1)
+				{
+					slotLoc = poss[lowestLoc][i];
+					found = true;
+				}
+			}
+			prob.flights[lowestLoc].asmt = slotLoc;
+			prob.slots[slotLoc].asmt = lowestLoc;
+			prob.slots[slotLoc].initCap--;
+			prob.flights[lowestLoc].remFlights = -1;
+			for (var k1 = 0; k1 < prob.flights.length; k1++)
+			{
+				if (indexOf(poss[k1], parseInt(slotLoc)) != -1)
+				{
+					var loc = indexOf(poss[k1], parseInt(slotLoc));
+					poss[k1][loc] = poss[k1][poss[k1].length-1];
+					poss[k1].length--;
+				}
+			}
+		}
+		else
+		{
+			var k = longest(prob.flights);
+			var i = earliest2(prob.flights[k], prob.slots);
+			prob.flights[k].asmt = i ;
+			prob.slots[i].asmt = k;
+			prob.slots[i].initCap--;
+			prob.flights[k].remFlights = -1;
+			for (var k1 = 0; k1 < prob.flights.length; k1++)
+			{
+				if (indexOf(poss[k1], i) != -1)
+				{
+					var loc = indexOf(poss[k1], i);
+					poss[k1][loc] = poss[k1][poss[k1].length-1];
+					poss[k1].length--;
+				}
+			}
+		}
+	}
+	
+	text += dispAsmt(prob);
+	
+//	prob = developSol(prob);
+//	
+	var primalcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		primalcost += prob.flights[k].ecost[prob.flights[k].asmt];
+	}
+	
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("B6").hidden = false;
+	document.getElementById("B14").hidden = false;
+	prob = setCaps(prob);
+	prob = setInitBasis(prob);
+	drawStage1Sol(prob);
+	
+	return prob;
+}
+
+function developSol(prob)
+{
+	var text = "";
+	text += "The Algorithm gives the following solution to stage 1: <br>";
+	text += dispAsmt(prob);
+	text += "In order to get a primal feasible solution, we need to solve every scenario in stage two of this problem. <br>";
+	text += "For each flight, we will simply reassign it to the earliest slot that it can be reallocated to in each scenario<br>";
+	
+	prob = detStage2(prob);
+	
+	text += dispStg2Asmt(prob);
+	text += "Now that we've formulated a stage 1 solution, we want to form a dual solution to check optimality. The first step in the construction of a dual solution is the determination of the continuous slots (comps) in each scenario. <br>";
+	
+	prob = detComps(prob);
+	prob = lastComps(prob);
+	
+	text += dispComps(prob);	
+	text += "The construction of our dual solutions are based on comps. The first dual variables we will solve for will be for the slots in each scenario of slage two. We will use the following formula to solve for these dual variables: <br>";
+	text += "<img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = p<sub>t</sub>(j - j<sub><img src='http://www.learninglover.com/chars/beta.gif'>(t)</sub>)<br>";
+	text += "Where j<sub><img src='http://www.learninglover.com/chars/beta.gif'>(t)</sub> is the time of the last node in the same comp as j (if j is not in a comp, then we can assign <img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = 0).<br>";
+	
+	prob = setDualSlotVals(prob);
+	
+	text += dispDualSlotVals(prob);
+	text += "Now that the dual variables for the stage two slots are set, we need to set dual variables for the stage two assingment nodes. In each scenario of stage two, each possible assignment (arc) of stage 1 is given a node.<br>";
+	text += "We set these dual variables by first finding the minimum slot j in scenario t that the assignment (k, i) can be reassigned to. We then use the equation :<br>";
+	text += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>k, i, t</sub> + <img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = cost(k, i, j, t)<br>";
+
+	prob = setDualFlightVals(prob);
+	
+	text += dispDualFlightVals(prob);
+	text += "Next we need to set a value for the dual slack slot in each scenario. This variable is set equal to -1 times the minimum value of all the Dual Assignment Variables in each scenario<br>.";
+	
+	prob = setDualSlackSlot(prob);
+	
+	text += dispDualSlackSlot(prob);
+	text += "Now that we have the dual slack slot and the dual assignment variables, we can set values to the dual y variables. These are set to satisfy the following equation: <br>";
+	text += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>k, i, t</sub> + <img src='http://www.learninglover.com/chars/delta.gif'><sub>slack, t </sub> + y<sub>k, i, t</sub> = 0<br>";
+	
+	prob = setDualYVars(prob);
+	
+	text += dispDualYVars(prob);
+	text += "Next, we set the dual slack flight in each scenario. <br>";
+
+	prob = setDualSlackFlight(prob);
+	text += dispDualSlackFlight(prob);
+	
+	text += "Now we can solve for the dual feasible solution to stage 1 by solving this as an assignment problem. If the result is a feasible dual solution, then we will have constructed a primal feasible solution and a dual feasible solution that satisfy complementary slackness conditions implying optimality.<br>";
+	text += "If we need to pivit on the degenerate basis, replacing one arc of zero flow with another, then our solution is still valid. <br>";
+	text += "If, however, we need to pivot out an arc with nonzero flow, then we will need to re-compute the stage 1 solution, followed by a recomputation of the stage 2 solution,  the stage 2 dual and then the stage 1 dual as we have done above. <br>";
+	
+	document.getElementById("output").innerHTML += text;
+	
+	prob = solveDualStage1(prob);
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].remFlights = k+1;
+	}
+	
+	return prob;
+}
+
+function dispAsmt(prob)
+{	
+	var text = "";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		text += "Flight " + k + " is assigned to slot " + prob.flights[k].asmt + ", which has time " + prob.slots[prob.flights[k].asmt].time + "<br>";
+	}
+	
+	return text;
+}
+
+function dispStg2Asmt(prob)
+{
+	var text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for(var k = 0; k < prob.flights.length; k++)
+	{
+		text += "<tr>";
+		text += "<td>x<sub>" + k + ", " + prob.slots[prob.flights[k].asmt].time + "</sub></td>";
+		text += "<td>" + eval(parseInt(prob.slots[prob.flights[k].asmt].time) - parseInt(prob.flights[k].len)) + "</td>";
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			text += "<td>w<sub>" + k + ", " + prob.slots[prob.flights[k].asmt].time + ", " + prob.slots[prob.flights[k].finalAsmt[t]].time + ", " + t + "</sub></td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	return text;
+}	
+	
+function dispComps(prob)
+{
+	var text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Comps: </td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>";
+		for (var j = 0; j < prob.scen[t].comps.length; j++)
+		{
+			text += (j+1) + ") " + prob.scen[t].comps[j] + "<br>";
+		}
+		text += "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Last: </td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>";
+		for (var j = 0; j < prob.scen[t].last.length; j++)
+		{
+			text += (j+1) + ") " + prob.scen[t].last[j] + "<br>";
+		}
+		text += "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+	return text;
+}
+	
+function dispDualSlotVals(prob)
+{	
+	var text = "<table>";
+	text += "<tr><td>Slot Number</td><td>Slot Time</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		text += "<tr><td>Slot " + i + "</td><td>" + prob.slots[i].time + "</td>";
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			text += "<td><img src='http://www.learninglover.com/chars/delta.gif'><sub>" + i + ", " + t + "</sub> = " + prob.slots[i].dualVal[t].toFixed(3) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	return text;
+}	
+	
+function dispDualFlightVals(prob)
+{
+	var text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				if (prob.flights[k].asmt == i)
+				{
+					text += "<tr><td><b>Assignment (" + k + ", " + i + ")</td><td>" + eval(prob.slots[i].time - prob.flights[k].len) + "</td>";
+				}
+				else
+				{
+					text += "<tr><td>Assignment (" + k + ", " + i + ")</td><td>" + eval(prob.slots[i].time - prob.flights[k].len) + "</td>";
+				}
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					text += "<td>";
+					if (prob.flights[k].asmt == i)
+					{
+						text += "<b>";
+					}
+					text += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>" + k + ", " + i + ", " + t + "</sub> = " + prob.flights[k].dualVal[i][t].toFixed(3) + "<br>";
+//					if (eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]) < prob.flights[k].dualVal[i][t])
+//					{
+//						text += "CONSTRAINT VIOLATED<br>";
+//					}
+					if (prob.flights[k].asmt == i)
+					{
+						text += "</b>";
+					}
+					text += "</td>";
+				}
+				if (prob.flights[k].asmt == i)
+				{
+					text += "</b></tr>";
+				}
+				else
+				{
+					text += "</tr>";
+				}
+			}
+		}
+	}
+	text += "</table>";
+	
+	return text;
+}
+	
+function dispDualSlackSlot(prob)
+{
+	var text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Slack Slot</td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>" + prob.scen[t].slackSlot.toFixed(3) + "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+	return text;
+}
+	
+function dispDualYVars(prob)
+{		
+	var text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				if (prob.flights[k].asmt == i)
+				{
+					text += "<tr><td><b>Assignment (" + k + ", " + i + "</td><td></td>";
+				}
+				else
+				{
+					text += "<tr><td>Assignment (" + k + ", " + i + ")</td><td></td>";
+				}
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					text += "<td>";
+					if (prob.flights[k].asmt == i)
+					{
+						text += "<b>";
+					}
+					text += "y<sub>" + k + ", " + i + ", " + t + "</sub> = " + prob.flights[k].yVar[i][t].toFixed(3) + "<br>";
+					if (prob.flights[k].asmt == i)
+					{
+						text += "</b>";
+					}
+					text += "</td>";
+				}
+				if (prob.flights[k].asmt == i)
+				{
+					text += "</b></tr>";
+				}
+				else
+				{
+					text += "</tr>";
+				}
+			}
+		}
+	}
+	text += "</table>";
+	
+	return text;
+}
+
+function dispDualSlackFlight(prob)
+{	
+	text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Slack Flight</td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>" + prob.scen[t].slackFlight.toFixed(3) + "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+//	document.getElementById("output").innerHTML += text;
+	text += "This completes the construction of a stage 2 dual solution to the problem. We can now formulate this problem as an assignment problem to solve for the dual variables to stage 1<br>";
+
+	prob = setCaps(prob);
+	
+	text += "<table>";
+	text += "<tr><td></td>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		text += "<td>Flight " + k + "</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].initCap > 0 && i <= 25)
+		{
+			text += "<tr><td>Slot " + i + "</td>";
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				if (prob.flights[k].want[i][0].length > 0)
+				{
+					text += "<td>";
+					var sum = 0;
+					for (var t = 0; t < prob.scen.length; t++)
+					{
+						sum += prob.flights[k].yVar[i][t];
+					}
+					text += eval(-sum).toFixed(3) + "</td>";
+				}
+				else 
+				{
+					text += "<td> - </td>";
+				}
+			}
+			text += "</tr>";
+		}
+	}
+	text += "</table>";
+
+	return text;
+}
+
+function setDualSlotVals(prob)
+{
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		prob.slots[i].dualVal = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			if (prob.slots[i].comp[t] != -1)
+			{
+				prob.slots[i].dualVal[t] = prob.scen[t].prb * (prob.slots[i].time - prob.slots[prob.scen[t].last[prob.slots[i].comp[t]]].time);
+			}
+			else
+			{
+				prob.slots[i].dualVal[t] = 0;
+			}
+		}
+	}
+	
+	document.getElementById("output").innerHTML += dispDualSlotVals(prob);
+	
+	return prob;
+}
+
+function setDualFlightVals(prob)
+{
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].dualVal = new Array();
+		prob.flights[k].earliest = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				prob.flights[k].dualVal[i] = new Array();
+				prob.flights[k].earliest[i] = new Array();
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					var mincost = 100000;
+					var minloc = -1;
+					for (var j = 0; j < prob.flights[k].want[i][t].length; j++)
+					{
+						if (eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]) < mincost)
+						{
+							mincost = eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]);
+							minloc = j;
+						}
+					}
+					prob.flights[k].dualVal[i][t] = eval(prob.flights[k].cost[i][t][minloc] - prob.slots[prob.flights[k].want[i][t][minloc]].dualVal[t]);
+					prob.flights[k].earliest[i][t] = prob.flights[k].want[i][t][minloc];
+				}
+			}
+		}
+	}
+	
+	document.getElementById("output").innerHTML += dispDualFlightVals(prob);
+	document.getElementById("B9").hidden = false;
+	drawStage2Duals(prob);
+
+	return prob;
+}
+
+function setDualSlackSlot(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{	
+		var mincost = 100000;
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				if (prob.flights[k].want[i][t].length > 0 && prob.flights[k].asmt != i && prob.flights[k].dualVal[i][t] < mincost)
+				{
+					mincost = prob.flights[k].dualVal[i][t];
+				}
+			}
+		}
+		prob.scen[t].slackSlot = eval(-1 * mincost);
+	}
+	
+	document.getElementById("output").innerHTML += dispDualSlackSlot(prob);
+	
+	return prob;
+}
+
+function setDualSlackFlight(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{	
+		var mincost = 100000;
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].comp[t] == -1 && prob.slots[i].dualVal[t] < mincost)
+			{
+				mincost = prob.slots[i].dualVal[t];
+			}
+		}
+		prob.scen[t].slackFlight = eval(-1 * mincost);
+	}
+
+	document.getElementById("output").innerHTML += dispDualSlackFlight(prob);
+	
+	return prob;
+}
+
+function setDualYVars(prob)
+{
+	for (var k = 0; k < prob.flights.length; k++)
+	{	
+		prob.flights[k].yVar = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			prob.flights[k].yVar[i] = new Array();
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				if (prob.flights[k].want[i][t].length > 0)
+				{
+					prob.flights[k].yVar[i][t] = eval(-1 * prob.flights[k].dualVal[i][t] - prob.scen[t].slackSlot);
+				}
+			}
+		}
+	}
+	
+	document.getElementById("output").innerHTML += dispDualYVars(prob);
+	
+	return prob;
+}
+
+function solveDualStage1(prob)
+{
+/*
+	First we must initialize the basis. These willl always be in 
+	(flight, slot) pairs, where flight is the location of the flight
+	in the array of flights and slot is the location of the slot in the
+	array of slots (NOT the slot time). 
+*/
+	var text = "";
+	
+	document.getElementById("output").innerHTML += dispBasis(prob);
+
+	var queue = new Array();
+	var curr = 0;
+	queue[curr] = prob.basis[prob.basis.length-1][0] + "-F";
+	prob.flights[prob.basis[prob.basis.length-1][0]].uVar = 0;
+	while (curr < 2*prob.flights.length-1)
+	{
+		var temp = queue[curr].split("-");
+		if (temp[1] == "F")
+		{
+			for (var iter = 0; iter < prob.basis.length; iter++)
+			{
+				if (prob.basis[iter][0] == temp[0])
+				{
+					if (indexOf(queue, prob.basis[iter][1] + "-S") == -1)
+					{
+						queue[queue.length] = prob.basis[iter][1] + "-S";
+						var sum = 0;
+						for (var t = 0; t < prob.scen.length; t++)
+						{
+							sum += prob.flights[temp[0]].yVar[prob.basis[iter][1]][t];
+						}
+						prob.slots[prob.basis[iter][1]].vVar = eval(-1*sum - prob.flights[temp[0]].uVar);
+					}
+				}
+			}
+		}
+		else
+		{
+			for (var iter = 0; iter < prob.basis.length; iter++)
+			{
+				if (prob.basis[iter][1] == temp[0])
+				{
+					if (indexOf(queue, prob.basis[iter][0] + "-F") == -1)
+					{
+						queue[queue.length] = prob.basis[iter][0] + "-F";
+						var sum = 0;
+						for (var t = 0; t < prob.scen.length; t++)
+						{
+							sum += prob.flights[prob.basis[iter][0]].yVar[temp[0]][t];
+						}
+						prob.flights[prob.basis[iter][0]].uVar = eval(-1*sum - prob.slots[temp[0]].vVar);
+					}
+				}
+			}
+		}
+		
+		curr++;
+	}
+	
+	//Now we have the dual variables for the basis. 
+	
+	text += "This process gives the following dual variables: <br>";
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].asmt == -1)
+		{
+			prob.slots[i].vVar = 0;
+		}
+	}
+	
+	//This should be put into a function dispStage1Dual(prob)
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		text += "u<sub>" + k + "</sub> = " + prob.flights[k].uVar.toFixed(3) + "<br>";
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		text += "v<sub>" + i + "</sub> = " + prob.slots[i].vVar.toFixed(3) + "<br>";
+	}
+	
+	//End of should be function. 
+	
+	//This should be in a function setStage1SlackFlight(prob)
+	
+	var maxim = -100000;
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].vVar > maxim)
+		{
+			maxim = prob.slots[i].vVar;
+		}
+	}
+	prob.slots.slack = eval(-1*maxim);
+	
+	//End of should be function
+	
+	text += "The slack slot for stage 1 is " + prob.slots.slack.toFixed(3) + "<br>";
+//	text += "Now we have finished the construction of a dual solution and need to check that no dual constraints are violated. <br>";
+	
+	//This should be in a function setUnusedStg1SlotDuals(prob)
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].asmt == -1)
+		{
+			prob.slots[i].vVar = eval(-1*prob.slots.slack);
+		}
+	}
+	
+	//End of should be function. 
+
+	document.getElementById("output").innerHTML += text;
+	drawStage1Basis(prob);
+	document.getElementById("B10").hidden = false;
+	document.getElementById("B13").hidden = false;
+	
+	return prob;
+}
+
+function pivot(prob)
+{		
+	var text = "";
+	if (!prob.feasible)
+	{
+		text += "We have violated the constraint: <br>";
+		text += "u<sub>" + prob.newFl + "</sub> + v<sub>" + prob.newSl + "</sub> <= " + prob.rhs.toFixed(3) + "<br>";
+		text += "So we will add the corresponding edge to the basis and remove another arc. <br>";
+		var queue = new Array();
+		var parent = new Array();
+		var curr = 0;
+		queue[curr] = prob.newFl + "-F";
+		parent[curr] = -1;
+		var found = false;
+		while (!found)
+		{
+			text += curr + ") queue = " + queue + " - " + queue.length + "<br>";
+			text += curr + ") parent = " + parent + " - " + parent.length + "<br>";
+			var temp = queue[curr].split("-");
+			for (var iter = 0; iter < prob.basis.length && !found; iter++)
+			{
+				if (temp[1] == "F" && prob.basis[iter][0] == temp[0])
+				{
+					if (indexOf(queue, prob.basis[iter][1] + "-S") == -1)
+					{
+						queue[queue.length] = prob.basis[iter][1] + "-S";
+						if (parent[curr] != -1)
+							parent[parent.length] = parent[curr] + "->" + curr;
+						else
+							parent[parent.length] = curr;
+						if (prob.basis[iter][1] == prob.newSl)
+						{
+							found = true;
+						}
+					}
+				}
+				else if (temp[1] == "S" && prob.basis[iter][1] == temp[0])
+				{
+					if (indexOf(queue, prob.basis[iter][0] + "-F") == -1)
+					{
+						queue[queue.length] = prob.basis[iter][0] + "-F";
+						if (parent[curr] != -1)
+							parent[parent.length] = parent[curr] + "->" + curr;
+						else
+							parent[parent.length] = curr;
+					}
+				}
+			}
+			curr++;
+		}
+		curr--;
+		
+		text += "The path from " + prob.newFl + " to " + prob.newSl + " that already exists in our basis is: <br>";
+		
+		var path = parent[parent.length-1].split("->");
+		var edges = new Array();
+		for (var i = 0; i < path.length; i++)
+		{
+			edges[i] = new Array();
+			if (i < path.length - 1 && i % 2 == 0)
+			{
+				edges[i][0] = queue[path[i]].split("-")[0];
+				edges[i][1] = queue[path[i+1]].split("-")[0];
+				text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+			}
+			else if (i < path.length - 1 && i % 2 == 1)
+			{
+				edges[i][1] = queue[path[i]].split("-")[0];
+				edges[i][0] = queue[path[i+1]].split("-")[0];
+				text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+			}
+			else
+			{
+				edges[i][0] = queue[path[i]].split("-")[0];
+				edges[i][1] = queue[queue.length-1].split("-")[0];
+				text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+			}
+		}
+		
+		var degen = false;
+		for (var iter_1 = 0; iter_1 < edges.length && !degen; iter_1 += 2)
+		{
+			text += "flight " + edges[iter_1][0] + " is assigned to " + prob.flights[edges[iter_1][0]].asmt + " and we're looking at " + edges[iter_1][1] + "<br>";
+			if (prob.flights[edges[iter_1][0]].asmt != edges[iter_1][1])
+			{
+				degen = true;
+			}
+		}
+		
+		if (!degen)
+		{
+			text += "This solution is NOT degenerate<br>";
+			var newBasis = new Array();
+			newBasis[0] = new Array();
+			newBasis[0][0] = prob.newFl;
+			newBasis[0][1] = prob.newSl;
+		
+			for (var iter_1 = 1; iter_1 < edges.length; iter_1 += 2)
+			{
+				var loc = newBasis.length;
+				newBasis[loc] = new Array();
+				newBasis[loc][0] = edges[iter_1][0];
+				newBasis[loc][1] = edges[iter_1][1];
+			}
+			
+			for (var iter_0 = 0; iter_0 < newBasis.length; iter_0++)
+			{
+				prob.flights[newBasis[iter_0][0]].asmt = newBasis[iter_0][1];
+				prob.slots[newBasis[iter_0][1]].asmt = newBasis[iter_0][0];
+			}
+			
+			for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+			{
+				var found = false;
+				for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+				{
+					if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+					{
+						found = true;
+					}
+				}
+				if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+				{
+					var loc = newBasis.length;
+					newBasis[loc] = new Array();
+					newBasis[loc][0] = prob.basis[iter_0][0];
+					newBasis[loc][1] = prob.basis[iter_0][1];
+				}
+			}
+		}
+		else
+		{
+			text += "This solution is degenerate<br>";
+			var newBasis = new Array();
+			newBasis[0] = new Array();
+			newBasis[0][0] = prob.newFl;
+			newBasis[0][1] = prob.newSl;
+			
+			for (var iter_1 = 1; iter_1 < edges.length; iter_1++)
+			{
+				var loc = newBasis.length;
+				newBasis[loc] = new Array();
+				newBasis[loc][0] = edges[iter_1][0];
+				newBasis[loc][1] = edges[iter_1][1];
+			}
+			
+			for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+			{
+				var found = false;
+				for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+				{
+					if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+					{
+						found = true;
+					}
+				}
+				if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+				{
+					var loc = newBasis.length;
+					newBasis[loc] = new Array();
+					newBasis[loc][0] = prob.basis[iter_0][0];
+					newBasis[loc][1] = prob.basis[iter_0][1];
+				}
+			}
+		}
+		
+		for (var iter_1 = 0; iter_1 < newBasis.length; iter_1++)
+		{
+			if (prob.flights[newBasis[iter_1][0]].asmt == newBasis[iter_1][1])
+			{
+				text += "<b>newBasis(" + iter_1 + ") = (" + newBasis[iter_1][0] + ", " + newBasis[iter_1][1] + ")</b><br>";
+			}
+			else
+			{
+				text += "newBasis(" + iter_1 + ") = (" + newBasis[iter_1][0] + ", " + newBasis[iter_1][1] + ")<br>";
+			}
+		}
+		
+		prob.basis = new Array();
+		
+		for (var iter = 0; iter < newBasis.length; iter++)
+		{
+			prob.basis[iter] = new Array();
+			prob.basis[iter][0] = newBasis[iter][0];
+			prob.basis[iter][1] = newBasis[iter][1];
+		}
+		
+//		text += "New Stage 1 Solution: <br>";
+//		for (var k = 0; k < prob.flights.length; k++)
+//		{
+//			text += "Flight " + k + " is assigned to Slot " + prob.flights[k].asmt + "<br>";
+//		}
+
+		text += dispBasis(prob);
+		resetCanvas(prob);
+		drawStage1Sol(prob);
+		drawStage2(prob);
+		
+		text += "Because our assignment changed, we need to recompute the stage 2 primal, stage 2 dual and stage 1 dual variables again to correspond with this new stage 1 primal<br>";
+		document.getElementById("B7").hidden = true;
+		document.getElementById("B8").hidden = true;
+		document.getElementById("B9").hidden = true;
+		document.getElementById("B10").hidden = true;
+		document.getElementById("B11").hidden = true;
+		document.getElementById("B12").hidden = true;
+		document.getElementById("B13").hidden = true;
+		
+		document.getElementById("output").innerHTML += text;
+		
+//		prob = setCaps(prob);
+//		
+//		prob = detStage2(prob);
+//		text += dispStg2Asmt(prob);
+//		prob = detComps(prob);
+//		prob = lastComps(prob);
+//		text += dispComps(prob);
+//		prob = setDualSlotVals(prob);
+//		text += dispDualSlotVals(prob);
+//		prob = setDualFlightVals(prob);
+//		text += dispDualFlightVals(prob);
+//		prob = setDualSlackSlot(prob);
+//		text += dispDualSlackSlot(prob);
+//		prob = setDualYVars(prob);
+//		text += dispDualYVars(prob);
+//		text += dispDualSlackFlight(prob);
+	}
+	
+	return prob;
+}
+
+function primalObj(prob)
+{
+	var primalcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			primalcost += prob.flights[k].cost[prob.flights[k].asmt][t][indexOf(prob.flights[k].want[prob.flights[k].asmt][t], prob.flights[k].finalAsmt[t])];
+		}
+	}
+
+	return primalcost;
+}
+
+function dualObj(prob)
+{
+	prob = setCaps(prob);
+	
+	var dualcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		dualcost += prob.flights[k].uVar;
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		dualcost += prob.slots[i].vVar;
+	}
+	
+	var count = 0;
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].asmt == -1)
+		{
+			count++;
+		}
+	}
+	dualcost += count * prob.slots.slack;
+	
+	var arcs = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				arcs ++;
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					dualcost += prob.flights[k].dualVal[i][t];
+					dualcost += prob.flights[k].yVar[i][t];
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			dualcost += prob.slots[i].dualVal[t];
+		}
+	}
+	
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		dualcost += (prob.slots.length - prob.flights.length) * prob.scen[t].slackFlight;
+	}
+	
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		dualcost += (arcs - prob.flights.length) * prob.scen[t].slackSlot;
+	}
+	
+	return dualcost;
+}
+
+function eearlyObj(prob)
+{
+	var ecost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		ecost += prob.flights[k].ecost[prob.flights[k].asmt];
+	}
+
+	return ecost;
+}
+
+function testStage1(prob)
+{	
+	var text = "";
+	prob.feas = true;
+	prob.newFl = -1;
+	prob.newSl = -1;
+	prob.rhs = -1;
+	for (var k = 0; k < prob.flights.length && prob.feas; k++)
+	{
+		for (var i = 0; i < prob.slots.length && prob.feas; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				var found = false;
+				for (var iter = 0; iter < prob.basis.length; iter++)
+				{
+					if (prob.basis[iter][0] == k && prob.basis[iter][1] == i)
+					{
+						found = true;
+					}
+				}
+				if (!found)
+				{
+					var sum = 0;
+					for (var t = 0; t < prob.scen.length; t++)
+					{
+						sum += prob.flights[k].yVar[i][t];
+					}
+					if (eval(prob.flights[k].uVar + prob.slots[i].vVar + sum) > 0.0000001)  
+					{
+						text += "The following constraint is violated by this solution<br>";
+						text += "u<sub>" + k + "</sub> + v<sub>" + i + "</sub> <= " + eval(-1*sum.toFixed(3)) + "<br>";
+						text += prob.flights[k].uVar.toFixed(3) + " + " + prob.slots[i].vVar.toFixed(3) + " <= " +  eval(-1*sum.toFixed(3)) + "<br>";
+						text += eval(prob.flights[k].uVar + prob.slots[i].vVar).toFixed(3) + " <= " + eval(-1*sum.toFixed(3)) + "<br>";
+
+						prob.feas = false;
+						prob.newFl = k;
+						prob.newSl = i;
+						prob.rhs = sum;
+						
+						drawStage1Infeas(prob);
+					}
+				}
+			}
+		}
+	}
+	
+	if (prob.feas)
+	{
+		text += "We did not find any dual constraints violated, so this solution is optimal.<br>";
+	}
+	else
+	{
+		document.getElementById("B11").hidden = false;
+	}
+	
+	document.getElementById("output").innerHTML += text;
+		
+	return prob;
+}
+
+function lastComps(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		prob.scen[t].last = new Array();
+		for (var j = 0; j < prob.scen[t].comps.length; j++)
+		{
+			var max = -1;
+			var maxLoc = -1;
+			for (var i = 0; i < prob.scen[t].comps[j].length; i++)
+			{
+				if (prob.scen[t].comps[j][i] > max)
+				{
+					max = prob.scen[t].comps[j][i];
+					maxLoc = i;
+				}
+			}
+			// document.getElementById("output").innerHTML += j + ") " + max + "<br>";
+			prob.scen[t].last[prob.scen[t].last.length] = prob.scen[t].comps[j][maxLoc];
+		}
+	}
+	
+	document.getElementById("output").innerHTML += dispComps(prob);
+	document.getElementById("B8").hidden = false;
+	return prob;
+}
+
+function longest(flights)
+{
+	var lgth = 0;
+	var pos = -1;
+	for(var k = 0; k < flights.length; k++)
+	{
+		if (parseInt(flights[k].remFlights) != -1 && parseInt(lgth) < parseInt(flights[k].len))
+		{
+			lgth = flights[k].len;
+			pos = k;
+		}
+	}
+	return pos;
+}
+
+function longest2(slotTime, flights)
+{
+	var lgth = -1;
+	var pos = -1;
+
+	for(var k = 0; k < flights.length; k++)
+	{
+		if (parseInt(flights[k].remFlights) != -1 && 
+			lgth < parseInt(flights[k].len) && 
+			parseInt(slotTime) >= parseInt(flights[k].arr) && 
+			parseInt(slotTime) <= parseInt(flights[k].latest_arr))
+		{
+			lgth = flights[k].len;
+			pos = k;
+		}
+	}
+
+	return pos;
+}
+
+function sizeRemF(flights)
+{
+	var count = 0;
+
+	for (var k = 0; k < flights.length; k++)
+	{
+		if (parseInt(flights[k].remFlights) != -1)
+		{
+		count++;
+		}
+	}
+
+	return count;
+}
+
+function genProb(numfl)
+{
+	resetBoard();
+
+	var flights = new Array();
+	for (var i = 0; i < numfl; i++)
+	{
+		flights[i] = new Object();
+		flights[i].arr = Math.floor(Math.random()*10);
+		flights[i].len = Math.floor(Math.random()*160)+45;
+		document.getElementById("arrs").innerHTML += flights[i].arr;
+		document.getElementById("lens").innerHTML += flights[i].len;
+		if (i < numfl-1)
+		{
+			document.getElementById("arrs").innerHTML += "<br>";
+			document.getElementById("lens").innerHTML += "<br>";
+		}
+	}
+	var prob = getData();
+	return prob;
+}
+
+function buildLP(prob)
+{
+	var text = "";
+	text += "Objective Function: <br>";
+	text += "minimize ";
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			for (var j = 0; j < prob.slots.length; j++)
+			{
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					if (prob.slots[i].time  >= prob.flights[k].arr && 
+						prob.slots[j].time  >= prob.flights[k].arr && 
+						prob.slots[i].time  <= prob.flights[k].latest_arr && 
+						((prob.slots[j].time  <= prob.slots[i].time  && prob.scen[t].time <= prob.slots[i].time  - prob.flights[k].len) || 
+						(prob.slots[i].time  == prob.slots[j].time  && prob.scen[t].time > prob.slots[i].time  - prob.flights[k].len)) && 
+						prob.slots[i].initCap >= 1 && prob.slots[i].finalCap[t] >= 1)
+					{
+						if (eval(prob.scen[t].prb*(prob.slots[j].time  - prob.slots[i].time )) != 0)
+						{
+							text +=  + eval(prob.scen[t].prb*(prob.slots[j].time  - prob.slots[i].time )) + " * w<sub>" + k + ", " + i + ", " + j + ", " + t + "</sub> + ";
+						}
+					}
+				}
+			}
+		}
+	}
+	text = text.substring(0, text.length-3);
+	text += "<br><br>Subject to: <br><br>";
+	var count = 0;
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time  >= prob.flights[k].arr && prob.slots[i].time  <= prob.flights[k].latest_arr && prob.slots[i].initCap >= 1)
+			{
+				text += "x<sub>" + k + ", " + i + "</sub> + ";
+				count++;
+			}
+		}
+		text = text.substring(0, text.length-3);
+		text += " = 1<br>";
+	}
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			if (prob.slots[i].time  >= prob.flights[k].arr && prob.slots[i].time  <= prob.flights[k].latest_arr)
+			{
+				text += "x<sub>" + k + ", " + i + "</sub> + ";
+			}
+		}
+		text += " x<sub>s, " + i + "</sub> = 1<br>";
+	}
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		text += "x<sub>s, " + i + "</sub> + ";
+	}
+	text = text.substring(0, text.length-3);
+	text += " = " + eval(prob.slots.length - prob.flights.length) + "<br>";
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				for (var j = 0; j < prob.slots.length; j++)
+				{
+					if (prob.slots[i].time  >= prob.flights[k].arr && 
+						prob.slots[j].time  >= prob.flights[k].arr && 
+						prob.slots[i].time  <= prob.flights[k].latest_arr && 
+						((prob.slots[i].time  <= prob.slots[j].time  && prob.scen[t].tau <= prob.slots[i].time  - prob.flights[k].len) || 
+						(prob.slots[i].time  == prob.slots[j].time  && prob.scen[t].tau > prob.slots[i].time  - prob.flights[k].len)) && 
+						prob.slots[i].initCap >= 1 && prob.slots[j].finalCap[t] >= 1)
+					{
+						text += "w<sub>" + k + ", " + i + ", " + j + ", " + t + "</sub> + ";
+					}
+				}
+				text += "w<sub>" + k + ", " + i + ", p, " + t + "</sub> = 1<br>";
+			}
+		}
+	}
+	for (var j = 0; j < prob.slots.length; j++)
+	{
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				for (var i = 0; i < prob.slots.length; i++)
+				{
+					if (prob.slots[i].time  >= prob.flights[k].arr && 
+						prob.slots[j].time  >= prob.flights[k].arr && 
+						prob.slots[i].time  <= prob.flights[k].latest_arr && 
+						((prob.slots[i].time  <= prob.slots[j].time  && prob.scen[t].tau <= prob.slots[i].time  - prob.flights[k].len) || 
+						(prob.slots[i].time  == prob.slots[j].time  && prob.scen[t].tau > prob.slots[i].time  - prob.flights[k].len)) && 
+						prob.slots[i].initCap >= 1 && prob.slots[j].finalCap[t] >= 1)
+					{
+						text += "w<sub>" + k + ", " + i + ", " + j + ", " + t + "</sub> + ";
+					}
+				}
+			}
+			text += "w<sub>s, " + j + ", " + t + "</sub> = 1<br>";
+		}
+	}
+
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		for (var j = 0; j < prob.slots.length; j++)
+		{
+			text += "w<sub>s, " + j + ", " + t + "</sub> + ";
+		}
+		text = text.substring(0, text.length-3);
+		text += " = " + eval(count - prob.flights.length);
+	}
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				text += "w<sub>" + k + ", " + i + ", p, " + t + "</sub> + x<sub>" + k + ", " + i + "</sub> = 1<br>";
+			}
+		}
+	}
+	document.getElementById("output").innerHTML += text;
+}
+
+function setProbs(prob)
+{
+	var scenCase = document.getElementById("scenario").value;
+	switch (parseInt(scenCase))
+	{
+	case 0:
+		prob.scen[0].prb = eval(1/7);
+		prob.scen[1].prb = eval(1/7);
+		prob.scen[2].prb = eval(1/7);
+		prob.scen[3].prb = eval(1/7);
+		prob.scen[4].prb = eval(1/7);
+		prob.scen[5].prb = eval(1/7);
+		prob.scen[6].prb = eval(1/7);
+	break;
+	case 1:
+		prob.scen[0].prb = eval(1/64);
+		prob.scen[1].prb = eval(1/64);
+		prob.scen[2].prb = eval(1/32);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/8);
+		prob.scen[5].prb = eval(1/4);
+		prob.scen[6].prb = eval(1/2);
+	break;
+	case 2:
+		prob.scen[0].prb = eval(1/2);
+		prob.scen[1].prb = eval(1/4);
+		prob.scen[2].prb = eval(1/8);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/32);
+		prob.scen[5].prb = eval(1/64);
+		prob.scen[6].prb = eval(1/64);
+	break;
+	}
+
+	return prob;
+}
+
+function detComps(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		var comp = new Array();
+		prob.scen[t].comps = new Array();
+		for (var j = 0; j < prob.slots.length; j++)
+		{
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				if (j == prob.flights[k].finalAsmt[t])
+				{
+					prob.slots[j].used[t] = 1;
+				}
+			}
+		}
+		for (var j = 0; j < prob.slots.length; j++)
+		{
+			if (prob.slots[j].used[t] == 1)
+			{
+				comp[comp.length] = j;
+				prob.slots[j].comp[t] = prob.scen[t].comps.length;
+			}
+			else if (comp.length > 0)
+			{
+				prob.scen[t].comps[prob.scen[t].comps.length] = comp;
+				comp = new Array();
+			}
+		}
+	}
+	return prob;
+}
+
+function detStage2(prob)
+{
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			var mincost = 100000;
+			var minloc = -1;
+			for (var j = 0; j < prob.flights[k].cost[prob.flights[k].asmt][t].length; j++)
+			{
+				if (prob.flights[k].cost[prob.flights[k].asmt][t][j] < mincost && prob.slots[prob.flights[k].want[prob.flights[k].asmt][t][j]].finalCap[t] >= 1)
+				{
+					mincost = prob.flights[k].cost[prob.flights[k].asmt][t][j];
+					minloc = j;
+				}
+			}
+			prob.flights[k].finalAsmt[t] = prob.flights[k].want[prob.flights[k].asmt][t][minloc];
+			prob.slots[prob.flights[k].want[prob.flights[k].asmt][t][minloc]].finalCap[t] --;
+		}
+	}
+	
+	drawStage2Sol(prob);
+	
+	document.getElementById("output").innerHTML += dispStg2Asmt(prob);
+	document.getElementById("B7").hidden = false;
+	document.getElementById("B12").hidden = false;
+	return prob;
+}
+
+function reass(prob)
+{
+	var text = "";
+	prob = setProbs(prob);
+	text += "<table><tr><td></td><td>Departure Time</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>" + prob.scen[t].time + "</td>";
+	}
+	text += "<td>Expected Cost</td></tr>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			var estCost = 0;
+			if (prob.slots[i].time  >= prob.flights[k].arr && prob.slots[i].time  <= prob.flights[k].latest_arr && prob.slots[i].initCap >= 1)
+			{
+				text += "<tr><td>x<sub>" + k + ", " + prob.slots[i].time  + "</sub></td>";
+				text += "<td>" + eval(prob.slots[i].time  - prob.flights[k].len) + "</td>";
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					var reloc = ea(k, prob.slots[i].time , prob.flights[k].arr, prob.flights[k].len, prob.scen[t].time, prob.slots);
+					text += "<td>" + reloc + "</td>";
+					estCost += prob.scen[t].prb * (reloc - prob.flights[k].arr);
+				}
+				text += "<td>" + estCost + "</td>";
+				text += "</tr>";
+			}
+		}
+	}
+	text += "</table>";
+	document.getElementById("output").innerHTML += text;
+}
+
+function dispExpStg1(prob)
+{
+	var text = "";
+	
+	text = "<table>";
+	text += "<tr><td></td>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		text += "<td>Flight " + k + "</td>";
+	}
+	text += "</tr>";
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].initCap > 0 && i <= 25)
+		{
+			text += "<tr><td>Slot " + i + "</td>";
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				if (prob.flights[k].want[i][0].length > 0)
+				{
+					text += "<td>" + prob.flights[k].ecost[i].toFixed(3) + "</td>";
+				}
+				else
+				{
+					text += "<td>-</td>";
+				}
+			}
+			text += "</tr>";
+		}
+	}
+	text += "</table>";
+	
+	return text;
+}
+
+function setInitBasis(prob)
+{
+	prob.basis = new Array();
+	for (var k = 0; k < prob.flights.length-1; k++)
+	{
+		var loc = prob.basis.length;
+		prob.basis[loc] = new Array();
+		prob.basis[loc][0] = k;
+		prob.basis[loc][1] = prob.flights[k].asmt;
+		
+//		alert(k + ", " + prob.flights[k].asmt);
+		
+		loc++;
+		prob.basis[loc] = new Array();
+		var found = false;
+		for (var k2 = k+1; k2 < prob.flights.length && !found; k2++)
+		{
+			document.getElementById("output").innerHTML += "trying arc (" + k + ", " + prob.flights[k2].asmt + ")<br>";
+			if (prob.flights[k].want[prob.flights[k2].asmt][0].length > 0)
+			{
+				prob.basis[loc][0] = k;
+				prob.basis[loc][1] = prob.flights[k2].asmt;
+				found = true;
+			}
+		}
+		if (!found)
+		{
+			prob.basis[loc][0] = k;
+			found = false;
+			var loc2 = -1;
+			for (var i = 0; i < prob.slots.length && !found; i++)
+			{
+				if (prob.slots[i].time >= prob.flights[k].arr && prob.slots[i].asmt != -1 && i != prob.flights[k].asmt)
+				{
+					found = true;
+					loc2 = i;
+				}
+			}
+			prob.basis[loc][1] = loc2;
+		}
+	}
+	
+	var loc = prob.basis.length;
+	prob.basis[loc] = new Array();
+	prob.basis[loc][0] = k;
+	prob.basis[loc][1] = prob.flights[k].asmt;
+	
+	return prob;
+}
+
+function dispBasis(prob)
+{
+	var text = "";
+	for (var init = 0; init < prob.basis.length; init++)
+	{
+		if (prob.flights[prob.basis[init][0]].asmt == prob.basis[init][1])
+		{
+			text += "<b>(" + prob.basis[init][0] + ", " + prob.basis[init][1] + ")</b><br>";
+		}
+		else
+		{
+			text += "(" + prob.basis[init][0] + ", " + prob.basis[init][1] + ")<br>";
+		}
+	}
+	return text;
+}
+
+function expStg1(prob)
+{
+	document.getElementById("output").innerHTML = "Expected Earliest Problem<br>";
+	var text = "";
+	prob=getData();
+	text += dispExpStg1(prob);
+	drawEarliest(prob);
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].asmt = prob.flights[k].rbs;
+		prob.slots[prob.flights[k].rbs].asmt = k;
+	}
+	
+	/*
+	First we must initialize the basis. These will always be in 
+	(flight, slot) pairs, where flight is the location of the flight
+	in the array of flights and slot is the location of the slot in the
+	array of slots (NOT the slot time). 
+*/	
+	prob = setInitBasis(prob);
+	
+	do
+	{
+		var queue = new Array();
+		var curr = 0;
+		k = prob.basis[prob.basis.length-1][0];
+		queue[curr] = k + "-F";
+		prob.flights[k].uVar = 0;
+		while (curr < 2*prob.flights.length-1)
+		{
+			var temp = queue[curr].split("-");
+			if (temp[1] == "F")
+			{
+				for (var iter = 0; iter < prob.basis.length; iter++)
+				{
+					if (prob.basis[iter][0] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][1] + "-S") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][1] + "-S";
+							prob.slots[prob.basis[iter][1]].vVar = eval(prob.flights[prob.basis[iter][0]].ecost[prob.basis[iter][1]] - prob.flights[prob.basis[iter][0]].uVar);
+						}
+					}
+				}
+			}
+			else
+			{
+				for (var iter = 0; iter < prob.basis.length; iter++)
+				{
+					if (prob.basis[iter][1] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][0] + "-F") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][0] + "-F";
+							prob.flights[prob.basis[iter][0]].uVar = eval(prob.flights[prob.basis[iter][0]].ecost[prob.basis[iter][1]] - prob.slots[prob.basis[iter][1]].vVar);
+						}
+					}
+				}
+			}
+			
+			curr++;
+		}
+		
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].asmt == -1)
+			{
+				prob.slots[i].vVar = 0;
+			}
+		}
+		
+		var maxim = -100000;
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].vVar > maxim)
+			{
+				maxim = prob.slots[i].vVar;
+			}
+		}
+		prob.slots.slack = eval(-1*maxim);
+		
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].asmt == -1)
+			{
+				prob.slots[i].vVar = eval(-1*prob.slots.slack);
+			}
+		}
+		
+		var violated = false;
+		var newFl = -1;
+		var newSl = -1;
+		var rhs = -1;
+		for (var k = 0; k < prob.flights.length && !violated; k++)
+		{
+			for (var i = 0; i < prob.slots.length && !violated; i++)
+			{
+				if (prob.flights[k].want[i][0].length > 0)
+				{
+					var found = false;
+					for (var iter = 0; iter < prob.basis.length; iter++)
+					{
+						if (prob.basis[iter][0] == k && prob.basis[iter][1] == i)
+						{
+							found = true;
+						}
+					}
+					if (!found)
+					{
+						if (eval(prob.flights[k].uVar + prob.slots[i].vVar - prob.flights[k].ecost[i]) > 0.0000001)  
+						{
+							violated = true;
+							newFl = k;
+							newSl = i;
+							rhs = prob.flights[k].ecost[i];
+						}
+					}
+				}
+			}
+		}
+				
+		if (violated && prob.slots[newSl].asmt != -1)
+		{
+			queue = new Array();
+			var parent = new Array();
+			curr = 0;
+			queue[curr] = newFl + "-F";
+			parent[curr] = -1;
+			var found = false;
+			while (!found)
+			{
+				var temp = queue[curr].split("-");
+				for (var iter = 0; iter < prob.basis.length && !found; iter++)
+				{
+					if (temp[1] == "F" && prob.basis[iter][0] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][1] + "-S") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][1] + "-S";
+							if (parent[curr] != -1)
+								parent[parent.length] = parent[curr] + "->" + curr;
+							else
+								parent[parent.length] = curr;
+							if (prob.basis[iter][1] == newSl)
+							{
+								found = true;
+							}
+						}
+					}
+					else if (temp[1] == "S" && prob.basis[iter][1] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][0] + "-F") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][0] + "-F";
+							if (parent[curr] != -1)
+								parent[parent.length] = parent[curr] + "->" + curr;
+							else
+								parent[parent.length] = curr;
+						}
+					}
+				}
+				curr++;
+			}
+			curr--;
+			
+			var path = parent[parent.length-1].split("->");
+			var edges = new Array();
+			for (var i = 0; i < path.length; i++)
+			{
+				edges[i] = new Array();
+				if (i < path.length - 1 && i % 2 == 0)
+				{
+					edges[i][0] = queue[path[i]].split("-")[0];
+					edges[i][1] = queue[path[i+1]].split("-")[0];
+//					document.getElementById("output").innerHTML += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+				}
+				else if (i < path.length - 1 && i % 2 == 1)
+				{
+					edges[i][1] = queue[path[i]].split("-")[0];
+					edges[i][0] = queue[path[i+1]].split("-")[0];
+//					document.getElementById("output").innerHTML += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+				}
+				else
+				{
+					edges[i][0] = queue[path[i]].split("-")[0];
+					edges[i][1] = queue[queue.length-1].split("-")[0];
+//					document.getElementById("output").innerHTML += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+				}
+			}
+			
+			var degen = false;
+			for (var iter_1 = 0; iter_1 < edges.length && !degen; iter_1 += 2)
+			{
+//				text += "flight " + edges[iter_1][0] + " is assigned to " + prob.flights[edges[iter_1][0]].asmt + " and we're looking at " + edges[iter_1][1] + "<br>";
+				if (prob.flights[edges[iter_1][0]].asmt != edges[iter_1][1])
+				{
+					degen = true;
+				}
+			}
+			
+			if (!degen)
+			{
+//				text += "This solution is NOT degenerate<br>";
+				var newBasis = new Array();
+				newBasis[0] = new Array();
+				newBasis[0][0] = newFl;
+				newBasis[0][1] = newSl;
+			
+				for (var iter_1 = 1; iter_1 < edges.length; iter_1 += 2)
+				{
+					var loc = newBasis.length;
+					newBasis[loc] = new Array();
+					newBasis[loc][0] = edges[iter_1][0];
+					newBasis[loc][1] = edges[iter_1][1];
+				}
+				
+				for (var iter_0 = 0; iter_0 < newBasis.length; iter_0++)
+				{
+					prob.flights[newBasis[iter_0][0]].asmt = newBasis[iter_0][1];
+					prob.slots[newBasis[iter_0][1]].asmt = newBasis[iter_0][0];
+				}
+				
+				for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+				{
+					var found = false;
+					for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+					{
+						if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+						{
+							found = true;
+						}
+					}
+					if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+					{
+						var loc = newBasis.length;
+						newBasis[loc] = new Array();
+						newBasis[loc][0] = prob.basis[iter_0][0];
+						newBasis[loc][1] = prob.basis[iter_0][1];
+					}
+				}
+			}
+			else
+			{
+//				text += "This solution is degenerate<br>";
+				var newBasis = new Array();
+				newBasis[0] = new Array();
+				newBasis[0][0] = newFl;
+				newBasis[0][1] = newSl;
+				
+				for (var iter_1 = 1; iter_1 < edges.length; iter_1++)
+				{
+					var loc = newBasis.length;
+					newBasis[loc] = new Array();
+					newBasis[loc][0] = edges[iter_1][0];
+					newBasis[loc][1] = edges[iter_1][1];
+				}
+				
+				for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+				{
+					var found = false;
+					for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+					{
+						if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+						{
+							found = true;
+						}
+					}
+					if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+					{
+						var loc = newBasis.length;
+						newBasis[loc] = new Array();
+						newBasis[loc][0] = prob.basis[iter_0][0];
+						newBasis[loc][1] = prob.basis[iter_0][1];
+					}
+				}
+			}
+									
+			prob.basis = new Array();
+			
+			for (var iter = 0; iter < newBasis.length; iter++)
+			{
+				prob.basis[iter] = new Array();
+				prob.basis[iter][0] = newBasis[iter][0];
+				prob.basis[iter][1] = newBasis[iter][1];
+			}
+		}
+		else if (violated && prob.slots[newSl].asmt == -1)
+		{
+			for (var iter = 0; iter < prob.basis.length; iter++)
+			{
+				if (prob.basis[iter][0] == newFl && prob.basis[iter][1] == prob.flights[prob.basis[iter][0]].asmt)
+				{
+					prob.basis[iter][0] = newFl;
+					prob.basis[iter][1] = newSl;
+					prob.flights[newFl].asmt = newSl;
+					prob.slots[newSl].asmt = newFl;
+				}
+			}
+		}
+	}
+	while (violated);
+		
+	var primalcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		primalcost += prob.flights[k].ecost[prob.flights[k].asmt];
+	}
+	
+	text += dispAsmt(prob);
+	
+//	var dualcost = 0;
+//	for (var k = 0; k < prob.flights.length; k++)
+//	{
+//		dualcost += prob.flights[k].uVar;
+//	}
+//	
+//	for (var i = 0; i < prob.slots.length; i++)
+//	{
+//		dualcost += prob.slots[i].vVar;
+//	}
+//	
+//	var count = 0;
+//	for (var i = 0; i < prob.slots.length; i++)
+//	{
+//		if (prob.slots[i].asmt == -1)
+//		{
+//			count++;
+//		}
+//	}
+//	dualcost += count * prob.slots.slack;
+//	
+//	text += "The total ecost of the dual solution is " + dualcost.toFixed(3) + "<br>";
+
+	document.getElementById("output").innerHTML += text;	
+	document.getElementById("B6").hidden = false;
+	document.getElementById("B14").hidden = false;
+	prob = setInitBasis(prob);
+	drawStage1Sol(prob);
+	return prob;
+}
+
+function dbrbs(prob)
+{
+	while(sizeRemF(prob.flights) != 0)
+	{
+		var locEarly = -1;
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			if ((locEarly == -1 && prob.flights[k].remFlights != -1) || (locEarly != -1 && prob.flights[k].arr < prob.flights[locEarly].arr && prob.flights[k].remFlights != -1))
+			{
+				locEarly = k;
+			}
+		}
+		var locEarlySlot = -1;
+		for (var i = 0; i < prob.slots.length && locEarlySlot == -1; i++)
+		{
+			if (prob.slots[i].time  >= prob.flights[locEarly].arr && prob.slots[i].initCap >= 1 && prob.flights[locEarly].rbs == -1)
+			{
+				locEarlySlot = i;
+			}
+		}
+		prob.flights[locEarly].rbs = locEarlySlot ;
+		prob.flights[locEarly].remFlights = -1;
+		prob.slots[locEarlySlot].initCap--;
+	}
+	document.getElementById("rbss").innerHTML = "";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		document.getElementById("rbss").innerHTML += prob.slots[prob.flights[k].rbs].time;
+		if (k < prob.flights.length-1)
+		{
+			document.getElementById("rbss").innerHTML += "<br>";
+		}
+	}
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].remFlights = k+1;
+	}
+	prob = setCaps(prob);
+	return prob;
+}
+
+function setCaps(prob)
+{
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if ((prob.slots[i].time % 5 == 0) || (prob.slots[i].time  > 30))
+		{
+			prob.slots[i].initCap = 1
+		}
+		else
+		{
+			prob.slots[i].initCap = 0
+		}
+		prob.slots[i].finalCap = new Array();
+		prob.slots[i].used = new Array();
+		prob.slots[i].comp = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.slots[i].finalCap[t] = 1;
+			prob.slots[i].used[t] = 0;
+			prob.slots[i].comp[t] = -1;
+		}
+	}
+	return prob;
+}
+
+function resetBoard()
+{
+	document.getElementById('output').innerHTML='';
+	document.getElementById('arrs').innerHTML='';
+	document.getElementById('lens').innerHTML='';
+	document.getElementById('rbss').innerHTML='';
+	resetCanvas(prob);
+	drawStage1(prob);
+	drawStage2(prob);
+}
+
+function drawStage1(prob)
+{
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#000000";
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		if (k != 0)
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.flights[k].yLoc+4);
+		else
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.flights[k].yLoc+4);
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].initCap > 0 && prob.slots[i].time <= 30)
+		{
+			if (prob.slots[i].time != 0)
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.slots[i].yLoc+4);
+			else
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.slots[i].yLoc+4);
+		}
+	}
+	
+	ctx.strokeStyle = "#FF00FF";
+	ctx.lineWidth = 1;
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time <= 30 && prob.flights[k].want[i][0].length > 0)
+			{
+				ctx.beginPath();
+				ctx.moveTo(prob.flights[k].xLoc + 10, prob.flights[k].yLoc);
+				ctx.lineTo(prob.slots[i].xLoc - 10, prob.slots[i].yLoc);
+				ctx.stroke();
+			}
+		}
+	}
+	
+	document.getElementById("stage1").focus();
+}
+
+function drawStage1Sol(prob)
+{
+	resetCanvas(prob);
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	ctx.fillStyle = "#000000";
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		if (k != 0)
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.flights[k].yLoc+4);
+		else
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.flights[k].yLoc+4);
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].time <= 30)
+		{
+			if (prob.slots[i].time != 0)
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.slots[i].yLoc+4);
+			else
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.slots[i].yLoc+4);
+		}
+	}
+		
+	ctx.font = '8pt Calibri';
+		
+	ctx.font = '8pt Calibri';
+	ctx.strokeStyle = "#C0C0C0";
+	ctx.lineWidth = 1;
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time <= 30 && prob.flights[k].want[i][0].length > 0)
+			{
+				ctx.beginPath();
+				ctx.moveTo(prob.flights[k].xLoc + 10, prob.flights[k].yLoc);
+				ctx.lineTo(prob.slots[i].xLoc - 10, prob.slots[i].yLoc);
+				ctx.stroke();
+			}
+		}
+	}
+	
+	ctx.strokeStyle = "#0000FF";
+	ctx.lineWidth = 2;
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.flights[k].xLoc + 10, prob.flights[k].yLoc);
+		ctx.lineTo(prob.slots[prob.flights[k].asmt].xLoc - 10, prob.slots[prob.flights[k].asmt].yLoc);
+		ctx.stroke();
+	}
+	
+	ctx.strokeStyle = "#00FFFF";
+	ctx.lineWidth = 1;
+	
+	for (var iter = 0; iter < prob.basis.length; iter++)
+	{
+		if (prob.flights[prob.basis[iter][0]].asmt != prob.basis[iter][1])
+		{
+			ctx.beginPath();
+			ctx.moveTo(prob.flights[prob.basis[iter][0]].xLoc + 10, prob.flights[prob.basis[iter][0]].yLoc);
+			ctx.lineTo(prob.slots[prob.basis[iter][1]].xLoc - 10, prob.slots[prob.basis[iter][1]].yLoc);
+			ctx.stroke();
+		}
+	}
+	
+	drawStage2(prob);
+	document.getElementById("stage1").focus();
+}
+
+function drawStage1Basis(prob)
+{
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	ctx.fillStyle = "#000000";
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		if (k != 0)
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.flights[k].yLoc+4);
+		else
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.flights[k].yLoc+4);
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].time <= 30)
+		{
+			if (prob.slots[i].time != 0)
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.slots[i].yLoc+4);
+			else
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.slots[i].yLoc+4);
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		ctx.font = '6pt Calibri';
+		ctx.fillStyle = '#0000FF';
+		ctx.fillText(prob.flights[k].uVar.toFixed(2), prob.flights[k].xLoc - 35, prob.flights[k].yLoc+4);
+	}
+	
+	ctx.font = '8pt Calibri';
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].time <= 30)
+		{
+			ctx.font = '6pt Calibri';
+			ctx.fillStyle = '#0000FF';
+			ctx.fillText(prob.slots[i].vVar.toFixed(2), prob.slots[i].xLoc + 25, prob.slots[i].yLoc+4);
+		}
+	}
+	
+	ctx.font = '8pt Calibri';
+	ctx.strokeStyle = "#C0C0C0";
+	ctx.lineWidth = 1;
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time <= 30 && prob.flights[k].want[i][0].length > 0)
+			{
+				ctx.beginPath();
+				ctx.moveTo(prob.flights[k].xLoc + 10, prob.flights[k].yLoc);
+				ctx.lineTo(prob.slots[i].xLoc - 10, prob.slots[i].yLoc);
+				ctx.stroke();
+			}
+		}
+	}
+	
+	ctx.strokeStyle = "#0000FF";
+	ctx.lineWidth = 2;
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.flights[k].xLoc + 10, prob.flights[k].yLoc);
+		ctx.lineTo(prob.slots[prob.flights[k].asmt].xLoc - 10, prob.slots[prob.flights[k].asmt].yLoc);
+		ctx.stroke();
+	}
+	
+	ctx.strokeStyle = "#00FFFF";
+	ctx.lineWidth = 1;
+	
+	for (var iter = 0; iter < prob.basis.length; iter++)
+	{
+		if (prob.flights[prob.basis[iter][0]].asmt != prob.basis[iter][1])
+		{
+			ctx.beginPath();
+			ctx.moveTo(prob.flights[prob.basis[iter][0]].xLoc + 10, prob.flights[prob.basis[iter][0]].yLoc);
+			ctx.lineTo(prob.slots[prob.basis[iter][1]].xLoc - 10, prob.slots[prob.basis[iter][1]].yLoc);
+			ctx.stroke();
+		}
+	}
+	
+	document.getElementById("stage1").focus();
+}
+
+function drawStage1Infeas(prob)
+{
+	if (!prob.feas)
+	{
+		var c = document.getElementById("stage1");
+		var ctx = c.getContext("2d");
+		
+		ctx.strokeStyle = "#FF0000";
+		ctx.beginPath();
+		ctx.moveTo(prob.flights[prob.newFl].xLoc + 10, prob.flights[prob.newFl].yLoc);
+		ctx.lineTo(prob.slots[prob.newSl].xLoc - 10, prob.slots[prob.newSl].yLoc);
+		ctx.stroke();
+	}
+	
+	document.getElementById("stage1").focus();
+}
+
+function drawStage2Duals(prob)
+{
+	var c = new Array();
+	var ctx = new Array();
+	
+	for (var t = 1; t <= 7; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#000000";
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i <= 25; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				for (var t = 1; t <= prob.scen.length; t++)
+				{
+					ctx[t-1].font = '6pt Calibri';
+					ctx[t-1].fillStyle = '#0000FF';
+					ctx[t-1].fillText(prob.flights[k].dualVal[i][t-1].toFixed(2), prob.flights[k].asmtXLocs[i]-3*7-20, prob.flights[k].asmtYLocs[i]+4);
+				}
+			}
+		}
+	}
+		
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var t = 1; t <= prob.scen.length; t++)
+		{
+			if (prob.slots[i].time <= 30)
+			{
+				ctx[t-1].font = '6pt Calibri';
+				ctx[t-1].fillText(prob.slots[i].dualVal[t-1].toFixed(2), prob.slots[i].finalXLoc[t-1]-3*(Math.floor(Math.log(prob.slots[i].time)/Math.log(10))-5), prob.slots[i].finalYLoc[t-1]+4);
+			}
+			ctx[t-1].font = '8pt Calibri';
+		}
+	}
+	
+	document.getElementById("stg2scen4").focus();
+}
+
+
+function drawStage2(prob)
+{
+	var c = new Array();
+	var ctx = new Array();
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#000000";
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i <= 25; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				for (var t = 1; t <= prob.scen.length; t++)
+				{
+					ctx[t-1].fillText("(" + k + ", " + prob.slots[i].time + ")", prob.flights[k].asmtXLocs[i]-3*7+1, prob.flights[k].asmtYLocs[i]+4);
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var t = 1; t <= prob.scen.length; t++)
+		{
+			if (prob.slots[i].finalCap[t-1] > 0 && prob.slots[i].time <= 30)
+			{
+				ctx[t-1].fillText(prob.slots[i].time, prob.slots[i].finalXLoc[t-1]-3*(Math.floor(Math.log(prob.slots[i].time)/Math.log(10))+1), prob.slots[i].finalYLoc[t-1]+4);
+			}
+		}
+	}
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#FF00FF";
+		ctx[t-1].lineWidth = 1;
+	
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				for (var j = 0; j < prob.flights[k].want[i][t-1].length; j++)
+				{
+					if (prob.slots[prob.flights[k].want[i][t-1][j]].time <= prob.slots[i].time && prob.slots[i].time <= 30)
+					{
+						ctx[t-1].beginPath();
+						ctx[t-1].moveTo(prob.flights[k].asmtXLocs[i] + 10, prob.flights[k].asmtYLocs[i]);
+						ctx[t-1].lineTo(prob.slots[prob.flights[k].want[i][t-1][j]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].want[i][t-1][j]].finalYLoc[t-1]);
+						ctx[t-1].stroke();
+					}
+				}
+			}
+		}
+	}
+	
+	document.getElementById("stg2scen4").focus();
+}
+
+function resetCanvas(prob)
+{
+	var c = new Array();
+	var ctx = new Array();
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#FFFFFF";
+		ctx[t-1].fillRect(0, 0, c[t-1].width, c[t-1].height);
+		ctx[t-1].fill();
+	}
+	
+	c = document.getElementById("stage1");
+	ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+}
+
+function drawStage2Sol(prob)
+{
+	var c = new Array();
+	var ctx = new Array();
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#FFFFFF";
+		ctx[t-1].fillRect(0, 0, c[t-1].width, c[t-1].height);
+		ctx[t-1].fill();
+		ctx[t-1].fillStyle = "#000000";
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i <= 25; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				for (var t = 1; t <= prob.scen.length; t++)
+				{
+					ctx[t-1].fillText("(" + k + ", " + prob.slots[i].time + ")", prob.flights[k].asmtXLocs[i]-3*7+1, prob.flights[k].asmtYLocs[i]+4);
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var t = 1; t <= prob.scen.length; t++)
+		{
+			if (prob.slots[i].time <= 30)
+			{
+				ctx[t-1].fillText(prob.slots[i].time, prob.slots[i].finalXLoc[t-1]-3*(Math.floor(Math.log(prob.slots[i].time)/Math.log(10))+1), prob.slots[i].finalYLoc[t-1]+4);
+			}
+		}
+	}
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#C0C0C0";
+		ctx[t-1].lineWidth = 1;
+	
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				for (var j = 0; j < prob.flights[k].want[i][t-1].length; j++)
+				{
+					if (prob.slots[i].time <= 30 && prob.slots[prob.flights[k].want[i][t-1][j]].time <= prob.slots[i].time)
+					{
+						ctx[t-1].beginPath();
+						ctx[t-1].moveTo(prob.flights[k].asmtXLocs[i] + 10, prob.flights[k].asmtYLocs[i]);
+						ctx[t-1].lineTo(prob.slots[prob.flights[k].want[i][t-1][j]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].want[i][t-1][j]].finalYLoc[t-1]);
+						ctx[t-1].stroke();
+					}
+				}
+			}
+		}
+	}
+
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#00FF00";
+		ctx[t-1].lineWidth = 1;
+		
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				if (prob.flights[k].want[i][t-1].length > 0 && prob.flights[k].asmt == i)
+				{
+					ctx[t-1].beginPath();
+					ctx[t-1].moveTo(prob.flights[k].asmtXLocs[i] + 10, prob.flights[k].asmtYLocs[i]);
+					ctx[t-1].lineTo(prob.slots[prob.flights[k].eloc[i][t-1]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].eloc[i][t-1]].finalYLoc[t-1]);
+					ctx[t-1].stroke();
+				}
+			}
+		}
+	}
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#0000FF";
+		ctx[t-1].lineWidth = 1;
+		
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			ctx[t-1].beginPath();
+			ctx[t-1].moveTo(prob.flights[k].asmtXLocs[prob.flights[k].asmt] + 10, prob.flights[k].asmtYLocs[prob.flights[k].asmt]);
+			ctx[t-1].lineTo(prob.slots[prob.flights[k].finalAsmt[t-1]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].finalAsmt[t-1]].finalYLoc[t-1]);
+			ctx[t-1].stroke();
+		}
+	}
+	
+	document.getElementById("stg2scen4").focus();
+}
+
+function drawEarliest(prob)
+{
+	var c = new Array();
+	var ctx = new Array();
+	
+	for (var t = 1; t <= 7; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#000000";
+	}
+		
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#C0C0C0";
+		ctx[t-1].lineWidth = 1;
+	
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				for (var j = 0; j < prob.flights[k].want[i][t-1].length; j++)
+				{
+					if (prob.slots[prob.flights[k].want[i][t-1][j]].time <= prob.slots[i].time)
+					{
+						ctx[t-1].beginPath();
+						ctx[t-1].moveTo(prob.flights[k].asmtXLocs[i] + 10, prob.flights[k].asmtYLocs[i]);
+						ctx[t-1].lineTo(prob.slots[prob.flights[k].want[i][t-1][j]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].want[i][t-1][j]].finalYLoc[t-1]);
+						ctx[t-1].stroke();
+					}
+				}
+			}
+		}
+	}
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#00FF00";
+		ctx[t-1].lineWidth = 1;
+		
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				if (prob.flights[k].want[i][t-1].length > 0)
+				{
+					ctx[t-1].beginPath();
+					ctx[t-1].moveTo(prob.flights[k].asmtXLocs[i] + 10, prob.flights[k].asmtYLocs[i]);
+					ctx[t-1].lineTo(prob.slots[prob.flights[k].eloc[i][t-1]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].eloc[i][t-1]].finalYLoc[t-1]);
+					ctx[t-1].stroke();
+				}
+			}
+		}
+	}
+
+	document.getElementById("stg2scen4").focus();
+}
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function indexOf(list, elmt)
+{
+	var loc = -1
+	for (var i = 0; i < list.length && loc == -1; i++)
+	{
+		if (list[i] == elmt)
+		loc = i;
+	}
+	return loc;
+}
+
+function getData()
+{
+	var prob = new Object();
+	prob.flights = new Array();
+
+	document.getElementById("B6").hidden = true;
+	document.getElementById("B7").hidden = true;
+	document.getElementById("B8").hidden = true;
+	document.getElementById("B9").hidden = true;
+	document.getElementById("B10").hidden = true;
+	document.getElementById("B11").hidden = true;
+	document.getElementById("B12").hidden = true;
+	
+	var arr = document.getElementById("arrs").innerHTML.split(/<br.*?>/gi);
+	var len = document.getElementById("lens").innerHTML.split(/<br.*?>/gi);
+//	var numsl = 10*arr.length + 5;
+	var numsl = 45;
+
+	prob.slots = new Array(numsl);
+
+	var Max_Dev = document.getElementById("dev").value;
+
+	for (var k = 0; k < arr.length; k++)
+	{
+		prob.flights[k] = new Object();
+		prob.flights[k].arr = arr[k];
+		prob.flights[k].len = len[k];
+		prob.flights[k].remFlights = k+1;
+		prob.flights[k].rbs = -1;
+		prob.flights[k].asmt = -1;
+	}
+
+	for (var i = 0; i < numsl; i++)
+	{
+		prob.slots[i] = new Object();
+		prob.slots[i].time  = i+5;
+		prob.slots[i].asmt = -1;
+	}
+
+	prob.scen = new Array();
+
+	for (var t = 0; t < 7; t++)
+	{
+		prob.scen[t] = new Object();
+	}
+
+	prob.scen[0].time = -150;
+	prob.scen[1].time = -90;
+	prob.scen[2].time = -80;
+	prob.scen[3].time = -70;
+	prob.scen[4].time = -60;
+	prob.scen[5].time = -50;
+	prob.scen[6].time = 0;
+
+	var scenCase = document.getElementById("scenario").value;
+	switch (parseInt(scenCase))
+	{
+	case 0:
+		prob.scen[0].prb = eval(1/7);
+		prob.scen[1].prb = eval(1/7);
+		prob.scen[2].prb = eval(1/7);
+		prob.scen[3].prb = eval(1/7);
+		prob.scen[4].prb = eval(1/7);
+		prob.scen[5].prb = eval(1/7);
+		prob.scen[6].prb = eval(1/7);
+	break;
+	case 1:
+		prob.scen[0].prb = eval(1/64);
+		prob.scen[1].prb = eval(1/64);
+		prob.scen[2].prb = eval(1/32);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/8);
+		prob.scen[5].prb = eval(1/4);
+		prob.scen[6].prb = eval(1/2);
+	break;
+	case 2:
+		prob.scen[0].prb = eval(1/2);
+		prob.scen[1].prb = eval(1/4);
+		prob.scen[2].prb = eval(1/8);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/32);
+		prob.scen[5].prb = eval(1/64);
+		prob.scen[6].prb = eval(1/64);
+	break;
+	}
+	prob = setCaps(prob);
+	prob = dbrbs(prob);
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		if (eval(parseInt(prob.flights[k].rbs) + parseInt(Max_Dev)) < numsl)
+		{
+			prob.flights[k].latest_arr = prob.slots[eval(parseInt(prob.flights[k].rbs) + parseInt(Max_Dev))].time;
+		}
+		else
+		{
+			prob.flight[k].latest_arr = prob.slots[prob.slots.length-1].time
+		}
+		prob.flights[k].asmt = -1;
+	}
+	
+	for (var j = 0; j < prob.slots.length; j++)
+	{
+		prob.slots[j].finalCap = new Array();
+		prob.slots[j].used = new Array();
+		prob.slots[j].comp = new Array();
+		
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.slots[j].finalCap[t] = 1;
+			prob.slots[j].used[t] = 0;
+			prob.slots[j].comp[t] = -1;
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].want = new Array();
+		prob.flights[k].cost = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			prob.flights[k].want[i] = new Array();
+			prob.flights[k].cost[i] = new Array();
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				prob.flights[k].want[i][t] = new Array();
+				prob.flights[k].cost[i][t] = new Array();
+				for (var j = 0; j < prob.slots.length; j++)
+				{
+					if (prob.slots[i].time >= prob.flights[k].arr &&
+						prob.slots[j].time >= prob.flights[k].arr &&
+						prob.slots[i].time <= prob.flights[k].latest_arr &&
+						((prob.slots[j].time <= prob.slots[i].time && prob.scen[t].time <= prob.slots[i].time - prob.flights[k].len) || 
+						(prob.slots[i].time == prob.slots[j].time && prob.scen[t].time > prob.slots[i].time - prob.flights[k].len) || 
+						(prob.slots[j].time >= prob.slots[i].time)) &&
+						prob.slots[i].initCap >= 1 && prob.slots[j].finalCap[t] >= 1)
+					{
+						prob.flights[k].want[i][t][prob.flights[k].want[i][t].length] = j ;
+						prob.flights[k].cost[i][t][prob.flights[k].cost[i][t].length] = eval(prob.scen[t].prb*(prob.slots[j].time - prob.flights[k].arr));
+					}
+				}
+			}
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].finalAsmt = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.flights[k].finalAsmt[t] = -1;
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].ecost = new Array();
+		prob.flights[k].eloc = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			prob.flights[k].ecost[i] = 0;
+			prob.flights[k].eloc[i] = new Array();
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					var mincost = 100000;
+					var minloc = -1;
+					for (var j = 0; j < prob.flights[k].cost[i][t].length; j++)
+					{
+						if (prob.flights[k].cost[i][t][j] < mincost)
+						{
+							mincost = prob.flights[k].cost[i][t][j];
+							minloc = j;
+						}
+					}
+					prob.flights[k].ecost[i] += prob.flights[k].cost[i][t][minloc];
+					prob.flights[k].eloc[i][t] = prob.flights[k].want[i][t][minloc];
+				}
+			}
+		}
+	}
+
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#000000";
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].yLoc = k*75+100;
+		prob.flights[k].xLoc = (0 + c.width) / 5;
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+//		if (prob.slots[i].initCap > 0 && prob.slots[i].time <= 30)
+//		{
+			prob.slots[i].yLoc = i*20+50;
+			prob.slots[i].xLoc = 4*(0 + c.width) / 5;
+//		}
+	}
+	
+	c = new Array();
+	ctx = new Array();
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#000000";
+	}
+
+	
+	var count = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].asmtXLocs = new Array();
+		prob.flights[k].asmtYLocs = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				prob.flights[k].asmtYLocs[i] = count*15 + 75;
+				prob.flights[k].asmtXLocs[i] = 10+(0 + c[0].width)/5;
+				
+				count++;
+			}
+		}
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		prob.slots[i].finalXLoc = new Array();
+		prob.slots[i].finalYLoc = new Array();
+		for (var t = 1; t <= prob.scen.length; t++)
+		{
+//			if (prob.slots[i].time <= 30)
+//			{
+				prob.slots[i].finalYLoc[t-1] = i*17+30;
+				prob.slots[i].finalXLoc[t-1] = 4*(0 + c[t-1].width) / 5;
+//			}
+		}
+	}
+	
+	return prob;
+}
+
+function ea(prob, k, i, t)
+{
+	var ea_var = -1;
+
+	if (eval(parseInt(prob.slots[i].time) - parseInt(prob.flights[k].len)) <= parseInt(prob.scen[t].time))
+	{
+		ea_var = i;
+	}
+	else if (eval(parseInt(prob.flights[k].arr) - parseInt(prob.flights[k].len)) <= parseInt(prob.scen[t].time) && parseInt(prob.scen[t].time) < eval(parseInt(prob.slots[i].time) - parseInt(prob.flights[k].len)))
+	{
+		var found = false;
+		
+		for (var j = 0; j < prob.slots.length && !found; j++)
+		{
+			if (parseInt(prob.slots[j].time) >= eval(parseInt(prob.scen[t].time) + parseInt(prob.flights[k].len)) && parseInt(prob.slots[j].finalCap[t]) >= 1 && parseInt(prob.slots[j].time) >= parseInt(prob.flights[k].arr))
+			{
+				ea_var = j;
+				found = true;
+			}
+		}
+	}
+	else if (parseInt(prob.scen[t].time) < eval(parseInt(prob.flights[k].arr) - parseInt(prob.flights[k].len)))
+	{
+		var found = false;
+		for (var j = 0; j < prob.slots.length && !found; j++)
+		{
+			if (parseInt(prob.slots[j].finalCap[t]) >= 1 && parseInt(prob.slots[j].time) >= parseInt(prob.flights[k].arr))
+			{
+				ea_var = j;
+				found = true;
+			}
+		}
+	}
+
+	return ea_var;
+}
+
+function earliest(slots)
+/*
+This function finds the earliest remaining slot with non-zero capacity. 
+*/
+{
+	var ans = -1;
+
+	for(var i = 0; i < slots.length && ans == -1; i++)
+	{
+		if (slots[i].initCap >= 1)
+		{
+			ans = i;
+		}
+	}
+	return ans;
+}
+
+function earliest2(flight, slots)
+/*
+This function finds the earliest remaining slot with non-zero capacity that a given flight can be scheduled to. 
+*/
+{
+	var ans = -1;
+
+	for(var i = 0; i < slots.length && ans == -1; i++)
+	{
+		if (parseInt(slots[i].initCap) >= 1 && 
+			parseInt(slots[i].time) >= parseInt(flight.arr) &&
+			parseInt(slots[i].time) <= parseInt(flight.latest_arr))
+		{
+			ans = i;
+		}
+	}
+	
+	return ans;
+}
+
+function GSlot(prob)
+{
+	document.getElementById("output").innerHTML = "GSlot<br>";
+	prob = getData();
+	var count = 0;
+	var text = "";
+	while(sizeRemF(prob.flights) != 0)
+	{
+		var i = earliest(prob.slots);
+		var found = false;
+		var k;
+		for (k = 0; k < prob.flights.length && !found; k++)
+		{
+			if (prob.slots[i].time == prob.flights[k].latest_arr && !found && prob.flights[k].remFlights != -1)
+			{
+				found = true;
+			}
+		}
+		k--;
+		if (!found)
+		{
+			k = longest2(prob.slots[i].time, prob.flights);
+		}
+		if (k != -1)
+		{
+			prob.flights[k].asmt = i ;
+			prob.slots[i].asmt = k;
+			prob.flights[k].remFlights = -1;
+			prob.slots[i].initCap--;
+		}
+		else
+		{
+			prob.slots[i].initCap--;
+		}
+	}
+	
+	text += dispAsmt(prob);
+	
+//	prob = developSol(prob);
+//	
+	var primalcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		primalcost += prob.flights[k].ecost[prob.flights[k].asmt];
+	}
+	
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("B6").hidden = false;
+	document.getElementById("B14").hidden = false;
+	prob = setCaps(prob);
+	prob = setInitBasis(prob);
+	document.getElementById("output").innerHTML += dispBasis(prob);
+	drawStage1Sol(prob);
+	
+	return prob;
+}
+
+function GDist(prob)
+{
+	document.getElementById("output").innerHTML = "GDist<br>";
+
+	prob=getData();
+	var text = "";
+	var poss = new Array();
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		poss[k] = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time >= prob.flights[k].arr && prob.slots[i].time <= prob.flights[k].latest_arr && prob.slots[i].initCap >= 1)
+			{
+				poss[k][poss[k].length] = i;
+			}
+		}
+	}
+	
+	while(sizeRemF(prob.flights) != 0)
+	{
+		var lowestDeg = -1;
+		var lowestLoc = -1;
+		for (var k = 0; k < poss.length; k++)
+		{
+			if (prob.flights[k].remFlights != -1 && (lowestDeg == -1 || poss[k].length < lowestDeg))
+			{
+				lowestDeg = poss[k].length;
+				lowestLoc = k;
+			}
+		}
+
+		if (lowestDeg == 1)
+		{
+			var found = false;
+			var slotLoc = -1;
+
+			for (var i = 0; i < poss[lowestLoc].length && !found; i++)
+			{
+				if (prob.slots[poss[lowestLoc][i]].initCap >= 1)
+				{
+					slotLoc = poss[lowestLoc][i];
+					found = true;
+				}
+			}
+			prob.flights[lowestLoc].asmt = slotLoc;
+			prob.slots[slotLoc].asmt = lowestLoc;
+			prob.slots[slotLoc].initCap--;
+			prob.flights[lowestLoc].remFlights = -1;
+			for (var k1 = 0; k1 < prob.flights.length; k1++)
+			{
+				if (indexOf(poss[k1], parseInt(slotLoc)) != -1)
+				{
+					var loc = indexOf(poss[k1], parseInt(slotLoc));
+					poss[k1][loc] = poss[k1][poss[k1].length-1];
+					poss[k1].length--;
+				}
+			}
+		}
+		else
+		{
+			var k = longest(prob.flights);
+			var i = earliest2(prob.flights[k], prob.slots);
+			prob.flights[k].asmt = i ;
+			prob.slots[i].asmt = k;
+			prob.slots[i].initCap--;
+			prob.flights[k].remFlights = -1;
+			for (var k1 = 0; k1 < prob.flights.length; k1++)
+			{
+				if (indexOf(poss[k1], i) != -1)
+				{
+					var loc = indexOf(poss[k1], i);
+					poss[k1][loc] = poss[k1][poss[k1].length-1];
+					poss[k1].length--;
+				}
+			}
+		}
+	}
+	
+	text += dispAsmt(prob);
+	
+//	prob = developSol(prob);
+//	
+	var primalcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		primalcost += prob.flights[k].ecost[prob.flights[k].asmt];
+	}
+	
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("B6").hidden = false;
+	document.getElementById("B14").hidden = false;
+	prob = setCaps(prob);
+	prob = setInitBasis(prob);
+	drawStage1Sol(prob);
+	
+	return prob;
+}
+
+function developSol(prob)
+{
+	var text = "";
+	text += "The Algorithm gives the following solution to stage 1: <br>";
+	text += dispAsmt(prob);
+	text += "In order to get a primal feasible solution, we need to solve every scenario in stage two of this problem. <br>";
+	text += "For each flight, we will simply reassign it to the earliest slot that it can be reallocated to in each scenario<br>";
+	
+	prob = detStage2(prob);
+	
+	text += dispStg2Asmt(prob);
+	text += "Now that we've formulated a stage 1 solution, we want to form a dual solution to check optimality. The first step in the construction of a dual solution is the determination of the continuous slots (comps) in each scenario. <br>";
+	
+	prob = detComps(prob);
+	prob = lastComps(prob);
+	
+	text += dispComps(prob);	
+	text += "The construction of our dual solutions are based on comps. The first dual variables we will solve for will be for the slots in each scenario of slage two. We will use the following formula to solve for these dual variables: <br>";
+	text += "<img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = p<sub>t</sub>(j - j<sub><img src='http://www.learninglover.com/chars/beta.gif'>(t)</sub>)<br>";
+	text += "Where j<sub><img src='http://www.learninglover.com/chars/beta.gif'>(t)</sub> is the time of the last node in the same comp as j (if j is not in a comp, then we can assign <img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = 0).<br>";
+	
+	prob = setDualSlotVals(prob);
+	
+	text += dispDualSlotVals(prob);
+	text += "Now that the dual variables for the stage two slots are set, we need to set dual variables for the stage two assingment nodes. In each scenario of stage two, each possible assignment (arc) of stage 1 is given a node.<br>";
+	text += "We set these dual variables by first finding the minimum slot j in scenario t that the assignment (k, i) can be reassigned to. We then use the equation :<br>";
+	text += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>k, i, t</sub> + <img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = cost(k, i, j, t)<br>";
+
+	prob = setDualFlightVals(prob);
+	
+	text += dispDualFlightVals(prob);
+	text += "Next we need to set a value for the dual slack slot in each scenario. This variable is set equal to -1 times the minimum value of all the Dual Assignment Variables in each scenario<br>.";
+	
+	prob = setDualSlackSlot(prob);
+	
+	text += dispDualSlackSlot(prob);
+	text += "Now that we have the dual slack slot and the dual assignment variables, we can set values to the dual y variables. These are set to satisfy the following equation: <br>";
+	text += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>k, i, t</sub> + <img src='http://www.learninglover.com/chars/delta.gif'><sub>slack, t </sub> + y<sub>k, i, t</sub> = 0<br>";
+	
+	prob = setDualYVars(prob);
+	
+	text += dispDualYVars(prob);
+	text += "Next, we set the dual slack flight in each scenario. <br>";
+
+	prob = setDualSlackFlight(prob);
+	text += dispDualSlackFlight(prob);
+	
+	text += "Now we can solve for the dual feasible solution to stage 1 by solving this as an assignment problem. If the result is a feasible dual solution, then we will have constructed a primal feasible solution and a dual feasible solution that satisfy complementary slackness conditions implying optimality.<br>";
+	text += "If we need to pivit on the degenerate basis, replacing one arc of zero flow with another, then our solution is still valid. <br>";
+	text += "If, however, we need to pivot out an arc with nonzero flow, then we will need to re-compute the stage 1 solution, followed by a recomputation of the stage 2 solution,  the stage 2 dual and then the stage 1 dual as we have done above. <br>";
+	
+	document.getElementById("output").innerHTML += text;
+	
+	prob = solveDualStage1(prob);
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].remFlights = k+1;
+	}
+	
+	return prob;
+}
+
+function dispAsmt(prob)
+{	
+	var text = "";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		text += "Flight " + k + " is assigned to slot " + prob.flights[k].asmt + ", which has time " + prob.slots[prob.flights[k].asmt].time + "<br>";
+	}
+	
+	return text;
+}
+
+function dispStg2Asmt(prob)
+{
+	var text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for(var k = 0; k < prob.flights.length; k++)
+	{
+		text += "<tr>";
+		text += "<td>x<sub>" + k + ", " + prob.slots[prob.flights[k].asmt].time + "</sub></td>";
+		text += "<td>" + eval(parseInt(prob.slots[prob.flights[k].asmt].time) - parseInt(prob.flights[k].len)) + "</td>";
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			text += "<td>w<sub>" + k + ", " + prob.slots[prob.flights[k].asmt].time + ", " + prob.slots[prob.flights[k].finalAsmt[t]].time + ", " + t + "</sub></td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	return text;
+}	
+	
+function dispComps(prob)
+{
+	var text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Comps: </td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>";
+		for (var j = 0; j < prob.scen[t].comps.length; j++)
+		{
+			text += (j+1) + ") " + prob.scen[t].comps[j] + "<br>";
+		}
+		text += "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Last: </td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>";
+		for (var j = 0; j < prob.scen[t].last.length; j++)
+		{
+			text += (j+1) + ") " + prob.scen[t].last[j] + "<br>";
+		}
+		text += "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+	return text;
+}
+	
+function dispDualSlotVals(prob)
+{	
+	var text = "<table>";
+	text += "<tr><td>Slot Number</td><td>Slot Time</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		text += "<tr><td>Slot " + i + "</td><td>" + prob.slots[i].time + "</td>";
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			text += "<td><img src='http://www.learninglover.com/chars/delta.gif'><sub>" + i + ", " + t + "</sub> = " + prob.slots[i].dualVal[t].toFixed(3) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	return text;
+}	
+	
+function dispDualFlightVals(prob)
+{
+	var text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				if (prob.flights[k].asmt == i)
+				{
+					text += "<tr><td><b>Assignment (" + k + ", " + i + ")</td><td>" + eval(prob.slots[i].time - prob.flights[k].len) + "</td>";
+				}
+				else
+				{
+					text += "<tr><td>Assignment (" + k + ", " + i + ")</td><td>" + eval(prob.slots[i].time - prob.flights[k].len) + "</td>";
+				}
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					text += "<td>";
+					if (prob.flights[k].asmt == i)
+					{
+						text += "<b>";
+					}
+					text += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>" + k + ", " + i + ", " + t + "</sub> = " + prob.flights[k].dualVal[i][t].toFixed(3) + "<br>";
+//					if (eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]) < prob.flights[k].dualVal[i][t])
+//					{
+//						text += "CONSTRAINT VIOLATED<br>";
+//					}
+					if (prob.flights[k].asmt == i)
+					{
+						text += "</b>";
+					}
+					text += "</td>";
+				}
+				if (prob.flights[k].asmt == i)
+				{
+					text += "</b></tr>";
+				}
+				else
+				{
+					text += "</tr>";
+				}
+			}
+		}
+	}
+	text += "</table>";
+	
+	return text;
+}
+	
+function dispDualSlackSlot(prob)
+{
+	var text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Slack Slot</td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>" + prob.scen[t].slackSlot.toFixed(3) + "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+	return text;
+}
+	
+function dispDualYVars(prob)
+{		
+	var text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				if (prob.flights[k].asmt == i)
+				{
+					text += "<tr><td><b>Assignment (" + k + ", " + i + "</td><td></td>";
+				}
+				else
+				{
+					text += "<tr><td>Assignment (" + k + ", " + i + ")</td><td></td>";
+				}
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					text += "<td>";
+					if (prob.flights[k].asmt == i)
+					{
+						text += "<b>";
+					}
+					text += "y<sub>" + k + ", " + i + ", " + t + "</sub> = " + prob.flights[k].yVar[i][t].toFixed(3) + "<br>";
+					if (prob.flights[k].asmt == i)
+					{
+						text += "</b>";
+					}
+					text += "</td>";
+				}
+				if (prob.flights[k].asmt == i)
+				{
+					text += "</b></tr>";
+				}
+				else
+				{
+					text += "</tr>";
+				}
+			}
+		}
+	}
+	text += "</table>";
+	
+	return text;
+}
+
+function dispDualSlackFlight(prob)
+{	
+	text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Slack Flight</td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>" + prob.scen[t].slackFlight.toFixed(3) + "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+//	document.getElementById("output").innerHTML += text;
+	text += "This completes the construction of a stage 2 dual solution to the problem. We can now formulate this problem as an assignment problem to solve for the dual variables to stage 1<br>";
+
+	prob = setCaps(prob);
+	
+	text += "<table>";
+	text += "<tr><td></td>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		text += "<td>Flight " + k + "</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].initCap > 0 && i <= 25)
+		{
+			text += "<tr><td>Slot " + i + "</td>";
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				if (prob.flights[k].want[i][0].length > 0)
+				{
+					text += "<td>";
+					var sum = 0;
+					for (var t = 0; t < prob.scen.length; t++)
+					{
+						sum += prob.flights[k].yVar[i][t];
+					}
+					text += eval(-sum).toFixed(3) + "</td>";
+				}
+				else 
+				{
+					text += "<td> - </td>";
+				}
+			}
+			text += "</tr>";
+		}
+	}
+	text += "</table>";
+
+	return text;
+}
+
+function setDualSlotVals(prob)
+{
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		prob.slots[i].dualVal = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			if (prob.slots[i].comp[t] != -1)
+			{
+				prob.slots[i].dualVal[t] = prob.scen[t].prb * (prob.slots[i].time - prob.slots[prob.scen[t].last[prob.slots[i].comp[t]]].time);
+			}
+			else
+			{
+				prob.slots[i].dualVal[t] = 0;
+			}
+		}
+	}
+	
+	document.getElementById("output").innerHTML += dispDualSlotVals(prob);
+	
+	return prob;
+}
+
+function setDualFlightVals(prob)
+{
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].dualVal = new Array();
+		prob.flights[k].earliest = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				prob.flights[k].dualVal[i] = new Array();
+				prob.flights[k].earliest[i] = new Array();
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					var mincost = 100000;
+					var minloc = -1;
+					for (var j = 0; j < prob.flights[k].want[i][t].length; j++)
+					{
+						if (eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]) < mincost)
+						{
+							mincost = eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]);
+							minloc = j;
+						}
+					}
+					prob.flights[k].dualVal[i][t] = eval(prob.flights[k].cost[i][t][minloc] - prob.slots[prob.flights[k].want[i][t][minloc]].dualVal[t]);
+					prob.flights[k].earliest[i][t] = prob.flights[k].want[i][t][minloc];
+				}
+			}
+		}
+	}
+	
+	document.getElementById("output").innerHTML += dispDualFlightVals(prob);
+	document.getElementById("B9").hidden = false;
+	drawStage2Duals(prob);
+
+	return prob;
+}
+
+function setDualSlackSlot(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{	
+		var mincost = 100000;
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				if (prob.flights[k].want[i][t].length > 0 && prob.flights[k].asmt != i && prob.flights[k].dualVal[i][t] < mincost)
+				{
+					mincost = prob.flights[k].dualVal[i][t];
+				}
+			}
+		}
+		prob.scen[t].slackSlot = eval(-1 * mincost);
+	}
+	
+	document.getElementById("output").innerHTML += dispDualSlackSlot(prob);
+	
+	return prob;
+}
+
+function setDualSlackFlight(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{	
+		var mincost = 100000;
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].comp[t] == -1 && prob.slots[i].dualVal[t] < mincost)
+			{
+				mincost = prob.slots[i].dualVal[t];
+			}
+		}
+		prob.scen[t].slackFlight = eval(-1 * mincost);
+	}
+
+	document.getElementById("output").innerHTML += dispDualSlackFlight(prob);
+	
+	return prob;
+}
+
+function setDualYVars(prob)
+{
+	for (var k = 0; k < prob.flights.length; k++)
+	{	
+		prob.flights[k].yVar = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			prob.flights[k].yVar[i] = new Array();
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				if (prob.flights[k].want[i][t].length > 0)
+				{
+					prob.flights[k].yVar[i][t] = eval(-1 * prob.flights[k].dualVal[i][t] - prob.scen[t].slackSlot);
+				}
+			}
+		}
+	}
+	
+	document.getElementById("output").innerHTML += dispDualYVars(prob);
+	
+	return prob;
+}
+
+function solveDualStage1(prob)
+{
+/*
+	First we must initialize the basis. These willl always be in 
+	(flight, slot) pairs, where flight is the location of the flight
+	in the array of flights and slot is the location of the slot in the
+	array of slots (NOT the slot time). 
+*/
+	var text = "";
+	
+	document.getElementById("output").innerHTML += dispBasis(prob);
+
+	var queue = new Array();
+	var curr = 0;
+	queue[curr] = prob.basis[prob.basis.length-1][0] + "-F";
+	prob.flights[prob.basis[prob.basis.length-1][0]].uVar = 0;
+	while (curr < 2*prob.flights.length-1)
+	{
+		var temp = queue[curr].split("-");
+		if (temp[1] == "F")
+		{
+			for (var iter = 0; iter < prob.basis.length; iter++)
+			{
+				if (prob.basis[iter][0] == temp[0])
+				{
+					if (indexOf(queue, prob.basis[iter][1] + "-S") == -1)
+					{
+						queue[queue.length] = prob.basis[iter][1] + "-S";
+						var sum = 0;
+						for (var t = 0; t < prob.scen.length; t++)
+						{
+							sum += prob.flights[temp[0]].yVar[prob.basis[iter][1]][t];
+						}
+						prob.slots[prob.basis[iter][1]].vVar = eval(-1*sum - prob.flights[temp[0]].uVar);
+					}
+				}
+			}
+		}
+		else
+		{
+			for (var iter = 0; iter < prob.basis.length; iter++)
+			{
+				if (prob.basis[iter][1] == temp[0])
+				{
+					if (indexOf(queue, prob.basis[iter][0] + "-F") == -1)
+					{
+						queue[queue.length] = prob.basis[iter][0] + "-F";
+						var sum = 0;
+						for (var t = 0; t < prob.scen.length; t++)
+						{
+							sum += prob.flights[prob.basis[iter][0]].yVar[temp[0]][t];
+						}
+						prob.flights[prob.basis[iter][0]].uVar = eval(-1*sum - prob.slots[temp[0]].vVar);
+					}
+				}
+			}
+		}
+		
+		curr++;
+	}
+	
+	//Now we have the dual variables for the basis. 
+	
+	text += "This process gives the following dual variables: <br>";
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].asmt == -1)
+		{
+			prob.slots[i].vVar = 0;
+		}
+	}
+	
+	//This should be put into a function dispStage1Dual(prob)
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		text += "u<sub>" + k + "</sub> = " + prob.flights[k].uVar.toFixed(3) + "<br>";
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		text += "v<sub>" + i + "</sub> = " + prob.slots[i].vVar.toFixed(3) + "<br>";
+	}
+	
+	//End of should be function. 
+	
+	//This should be in a function setStage1SlackFlight(prob)
+	
+	var maxim = -100000;
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].vVar > maxim)
+		{
+			maxim = prob.slots[i].vVar;
+		}
+	}
+	prob.slots.slack = eval(-1*maxim);
+	
+	//End of should be function
+	
+	text += "The slack slot for stage 1 is " + prob.slots.slack.toFixed(3) + "<br>";
+//	text += "Now we have finished the construction of a dual solution and need to check that no dual constraints are violated. <br>";
+	
+	//This should be in a function setUnusedStg1SlotDuals(prob)
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].asmt == -1)
+		{
+			prob.slots[i].vVar = eval(-1*prob.slots.slack);
+		}
+	}
+	
+	//End of should be function. 
+
+	document.getElementById("output").innerHTML += text;
+	drawStage1Basis(prob);
+	document.getElementById("B10").hidden = false;
+	document.getElementById("B13").hidden = false;
+	
+	return prob;
+}
+
+function pivot(prob)
+{		
+	var text = "";
+	if (!prob.feasible)
+	{
+		text += "We have violated the constraint: <br>";
+		text += "u<sub>" + prob.newFl + "</sub> + v<sub>" + prob.newSl + "</sub> <= " + prob.rhs.toFixed(3) + "<br>";
+		text += "So we will add the corresponding edge to the basis and remove another arc. <br>";
+		var queue = new Array();
+		var parent = new Array();
+		var curr = 0;
+		queue[curr] = prob.newFl + "-F";
+		parent[curr] = -1;
+		var found = false;
+		while (!found)
+		{
+			text += curr + ") queue = " + queue + " - " + queue.length + "<br>";
+			text += curr + ") parent = " + parent + " - " + parent.length + "<br>";
+			var temp = queue[curr].split("-");
+			for (var iter = 0; iter < prob.basis.length && !found; iter++)
+			{
+				if (temp[1] == "F" && prob.basis[iter][0] == temp[0])
+				{
+					if (indexOf(queue, prob.basis[iter][1] + "-S") == -1)
+					{
+						queue[queue.length] = prob.basis[iter][1] + "-S";
+						if (parent[curr] != -1)
+							parent[parent.length] = parent[curr] + "->" + curr;
+						else
+							parent[parent.length] = curr;
+						if (prob.basis[iter][1] == prob.newSl)
+						{
+							found = true;
+						}
+					}
+				}
+				else if (temp[1] == "S" && prob.basis[iter][1] == temp[0])
+				{
+					if (indexOf(queue, prob.basis[iter][0] + "-F") == -1)
+					{
+						queue[queue.length] = prob.basis[iter][0] + "-F";
+						if (parent[curr] != -1)
+							parent[parent.length] = parent[curr] + "->" + curr;
+						else
+							parent[parent.length] = curr;
+					}
+				}
+			}
+			curr++;
+		}
+		curr--;
+		
+		text += "The path from " + prob.newFl + " to " + prob.newSl + " that already exists in our basis is: <br>";
+		
+		var path = parent[parent.length-1].split("->");
+		var edges = new Array();
+		for (var i = 0; i < path.length; i++)
+		{
+			edges[i] = new Array();
+			if (i < path.length - 1 && i % 2 == 0)
+			{
+				edges[i][0] = queue[path[i]].split("-")[0];
+				edges[i][1] = queue[path[i+1]].split("-")[0];
+				text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+			}
+			else if (i < path.length - 1 && i % 2 == 1)
+			{
+				edges[i][1] = queue[path[i]].split("-")[0];
+				edges[i][0] = queue[path[i+1]].split("-")[0];
+				text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+			}
+			else
+			{
+				edges[i][0] = queue[path[i]].split("-")[0];
+				edges[i][1] = queue[queue.length-1].split("-")[0];
+				text += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+			}
+		}
+		
+		var degen = false;
+		for (var iter_1 = 0; iter_1 < edges.length && !degen; iter_1 += 2)
+		{
+			text += "flight " + edges[iter_1][0] + " is assigned to " + prob.flights[edges[iter_1][0]].asmt + " and we're looking at " + edges[iter_1][1] + "<br>";
+			if (prob.flights[edges[iter_1][0]].asmt != edges[iter_1][1])
+			{
+				degen = true;
+			}
+		}
+		
+		if (!degen)
+		{
+			text += "This solution is NOT degenerate<br>";
+			var newBasis = new Array();
+			newBasis[0] = new Array();
+			newBasis[0][0] = prob.newFl;
+			newBasis[0][1] = prob.newSl;
+		
+			for (var iter_1 = 1; iter_1 < edges.length; iter_1 += 2)
+			{
+				var loc = newBasis.length;
+				newBasis[loc] = new Array();
+				newBasis[loc][0] = edges[iter_1][0];
+				newBasis[loc][1] = edges[iter_1][1];
+			}
+			
+			for (var iter_0 = 0; iter_0 < newBasis.length; iter_0++)
+			{
+				prob.flights[newBasis[iter_0][0]].asmt = newBasis[iter_0][1];
+				prob.slots[newBasis[iter_0][1]].asmt = newBasis[iter_0][0];
+			}
+			
+			for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+			{
+				var found = false;
+				for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+				{
+					if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+					{
+						found = true;
+					}
+				}
+				if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+				{
+					var loc = newBasis.length;
+					newBasis[loc] = new Array();
+					newBasis[loc][0] = prob.basis[iter_0][0];
+					newBasis[loc][1] = prob.basis[iter_0][1];
+				}
+			}
+		}
+		else
+		{
+			text += "This solution is degenerate<br>";
+			var newBasis = new Array();
+			newBasis[0] = new Array();
+			newBasis[0][0] = prob.newFl;
+			newBasis[0][1] = prob.newSl;
+			
+			for (var iter_1 = 1; iter_1 < edges.length; iter_1++)
+			{
+				var loc = newBasis.length;
+				newBasis[loc] = new Array();
+				newBasis[loc][0] = edges[iter_1][0];
+				newBasis[loc][1] = edges[iter_1][1];
+			}
+			
+			for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+			{
+				var found = false;
+				for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+				{
+					if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+					{
+						found = true;
+					}
+				}
+				if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+				{
+					var loc = newBasis.length;
+					newBasis[loc] = new Array();
+					newBasis[loc][0] = prob.basis[iter_0][0];
+					newBasis[loc][1] = prob.basis[iter_0][1];
+				}
+			}
+		}
+		
+		for (var iter_1 = 0; iter_1 < newBasis.length; iter_1++)
+		{
+			if (prob.flights[newBasis[iter_1][0]].asmt == newBasis[iter_1][1])
+			{
+				text += "<b>newBasis(" + iter_1 + ") = (" + newBasis[iter_1][0] + ", " + newBasis[iter_1][1] + ")</b><br>";
+			}
+			else
+			{
+				text += "newBasis(" + iter_1 + ") = (" + newBasis[iter_1][0] + ", " + newBasis[iter_1][1] + ")<br>";
+			}
+		}
+		
+		prob.basis = new Array();
+		
+		for (var iter = 0; iter < newBasis.length; iter++)
+		{
+			prob.basis[iter] = new Array();
+			prob.basis[iter][0] = newBasis[iter][0];
+			prob.basis[iter][1] = newBasis[iter][1];
+		}
+		
+//		text += "New Stage 1 Solution: <br>";
+//		for (var k = 0; k < prob.flights.length; k++)
+//		{
+//			text += "Flight " + k + " is assigned to Slot " + prob.flights[k].asmt + "<br>";
+//		}
+
+		text += dispBasis(prob);
+		resetCanvas(prob);
+		drawStage1Sol(prob);
+		drawStage2(prob);
+		
+		text += "Because our assignment changed, we need to recompute the stage 2 primal, stage 2 dual and stage 1 dual variables again to correspond with this new stage 1 primal<br>";
+		document.getElementById("B7").hidden = true;
+		document.getElementById("B8").hidden = true;
+		document.getElementById("B9").hidden = true;
+		document.getElementById("B10").hidden = true;
+		document.getElementById("B11").hidden = true;
+		document.getElementById("B12").hidden = true;
+		document.getElementById("B13").hidden = true;
+		
+		document.getElementById("output").innerHTML += text;
+		
+//		prob = setCaps(prob);
+//		
+//		prob = detStage2(prob);
+//		text += dispStg2Asmt(prob);
+//		prob = detComps(prob);
+//		prob = lastComps(prob);
+//		text += dispComps(prob);
+//		prob = setDualSlotVals(prob);
+//		text += dispDualSlotVals(prob);
+//		prob = setDualFlightVals(prob);
+//		text += dispDualFlightVals(prob);
+//		prob = setDualSlackSlot(prob);
+//		text += dispDualSlackSlot(prob);
+//		prob = setDualYVars(prob);
+//		text += dispDualYVars(prob);
+//		text += dispDualSlackFlight(prob);
+	}
+	
+	return prob;
+}
+
+function primalObj(prob)
+{
+	var primalcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			primalcost += prob.flights[k].cost[prob.flights[k].asmt][t][indexOf(prob.flights[k].want[prob.flights[k].asmt][t], prob.flights[k].finalAsmt[t])];
+		}
+	}
+
+	return primalcost;
+}
+
+function dualObj(prob)
+{
+	prob = setCaps(prob);
+	
+	var dualcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		dualcost += prob.flights[k].uVar;
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		dualcost += prob.slots[i].vVar;
+	}
+	
+	var count = 0;
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].asmt == -1)
+		{
+			count++;
+		}
+	}
+	dualcost += count * prob.slots.slack;
+	
+	var arcs = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				arcs ++;
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					dualcost += prob.flights[k].dualVal[i][t];
+					dualcost += prob.flights[k].yVar[i][t];
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			dualcost += prob.slots[i].dualVal[t];
+		}
+	}
+	
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		dualcost += (prob.slots.length - prob.flights.length) * prob.scen[t].slackFlight;
+	}
+	
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		dualcost += (arcs - prob.flights.length) * prob.scen[t].slackSlot;
+	}
+	
+	return dualcost;
+}
+
+function eearlyObj(prob)
+{
+	var ecost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		ecost += prob.flights[k].ecost[prob.flights[k].asmt];
+	}
+
+	return ecost;
+}
+
+function testStage1(prob)
+{	
+	var text = "";
+	prob.feas = true;
+	prob.newFl = -1;
+	prob.newSl = -1;
+	prob.rhs = -1;
+	for (var k = 0; k < prob.flights.length && prob.feas; k++)
+	{
+		for (var i = 0; i < prob.slots.length && prob.feas; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				var found = false;
+				for (var iter = 0; iter < prob.basis.length; iter++)
+				{
+					if (prob.basis[iter][0] == k && prob.basis[iter][1] == i)
+					{
+						found = true;
+					}
+				}
+				if (!found)
+				{
+					var sum = 0;
+					for (var t = 0; t < prob.scen.length; t++)
+					{
+						sum += prob.flights[k].yVar[i][t];
+					}
+					if (eval(prob.flights[k].uVar + prob.slots[i].vVar + sum) > 0.0000001)  
+					{
+						text += "The following constraint is violated by this solution<br>";
+						text += "u<sub>" + k + "</sub> + v<sub>" + i + "</sub> <= " + eval(-1*sum.toFixed(3)) + "<br>";
+						text += prob.flights[k].uVar.toFixed(3) + " + " + prob.slots[i].vVar.toFixed(3) + " <= " +  eval(-1*sum.toFixed(3)) + "<br>";
+						text += eval(prob.flights[k].uVar + prob.slots[i].vVar).toFixed(3) + " <= " + eval(-1*sum.toFixed(3)) + "<br>";
+
+						prob.feas = false;
+						prob.newFl = k;
+						prob.newSl = i;
+						prob.rhs = sum;
+						
+						drawStage1Infeas(prob);
+					}
+				}
+			}
+		}
+	}
+	
+	if (prob.feas)
+	{
+		text += "We did not find any dual constraints violated, so this solution is optimal.<br>";
+	}
+	else
+	{
+		document.getElementById("B11").hidden = false;
+	}
+	
+	document.getElementById("output").innerHTML += text;
+		
+	return prob;
+}
+
+function lastComps(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		prob.scen[t].last = new Array();
+		for (var j = 0; j < prob.scen[t].comps.length; j++)
+		{
+			var max = -1;
+			var maxLoc = -1;
+			for (var i = 0; i < prob.scen[t].comps[j].length; i++)
+			{
+				if (prob.scen[t].comps[j][i] > max)
+				{
+					max = prob.scen[t].comps[j][i];
+					maxLoc = i;
+				}
+			}
+			// document.getElementById("output").innerHTML += j + ") " + max + "<br>";
+			prob.scen[t].last[prob.scen[t].last.length] = prob.scen[t].comps[j][maxLoc];
+		}
+	}
+	
+	document.getElementById("output").innerHTML += dispComps(prob);
+	document.getElementById("B8").hidden = false;
+	return prob;
+}
+
+function longest(flights)
+{
+	var lgth = 0;
+	var pos = -1;
+	for(var k = 0; k < flights.length; k++)
+	{
+		if (parseInt(flights[k].remFlights) != -1 && parseInt(lgth) < parseInt(flights[k].len))
+		{
+			lgth = flights[k].len;
+			pos = k;
+		}
+	}
+	return pos;
+}
+
+function longest2(slotTime, flights)
+{
+	var lgth = -1;
+	var pos = -1;
+
+	for(var k = 0; k < flights.length; k++)
+	{
+		if (parseInt(flights[k].remFlights) != -1 && 
+			lgth < parseInt(flights[k].len) && 
+			parseInt(slotTime) >= parseInt(flights[k].arr) && 
+			parseInt(slotTime) <= parseInt(flights[k].latest_arr))
+		{
+			lgth = flights[k].len;
+			pos = k;
+		}
+	}
+
+	return pos;
+}
+
+function sizeRemF(flights)
+{
+	var count = 0;
+
+	for (var k = 0; k < flights.length; k++)
+	{
+		if (parseInt(flights[k].remFlights) != -1)
+		{
+		count++;
+		}
+	}
+
+	return count;
+}
+
+function genProb(numfl)
+{
+	resetBoard();
+
+	var flights = new Array();
+	for (var i = 0; i < numfl; i++)
+	{
+		flights[i] = new Object();
+		flights[i].arr = Math.floor(Math.random()*10);
+		flights[i].len = Math.floor(Math.random()*160)+45;
+		document.getElementById("arrs").innerHTML += flights[i].arr;
+		document.getElementById("lens").innerHTML += flights[i].len;
+		if (i < numfl-1)
+		{
+			document.getElementById("arrs").innerHTML += "<br>";
+			document.getElementById("lens").innerHTML += "<br>";
+		}
+	}
+	var prob = getData();
+	return prob;
+}
+
+function buildLP(prob)
+{
+	var text = "";
+	text += "Objective Function: <br>";
+	text += "minimize ";
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			for (var j = 0; j < prob.slots.length; j++)
+			{
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					if (prob.slots[i].time  >= prob.flights[k].arr && 
+						prob.slots[j].time  >= prob.flights[k].arr && 
+						prob.slots[i].time  <= prob.flights[k].latest_arr && 
+						((prob.slots[j].time  <= prob.slots[i].time  && prob.scen[t].time <= prob.slots[i].time  - prob.flights[k].len) || 
+						(prob.slots[i].time  == prob.slots[j].time  && prob.scen[t].time > prob.slots[i].time  - prob.flights[k].len)) && 
+						prob.slots[i].initCap >= 1 && prob.slots[i].finalCap[t] >= 1)
+					{
+						if (eval(prob.scen[t].prb*(prob.slots[j].time  - prob.slots[i].time )) != 0)
+						{
+							text +=  + eval(prob.scen[t].prb*(prob.slots[j].time  - prob.slots[i].time )) + " * w<sub>" + k + ", " + i + ", " + j + ", " + t + "</sub> + ";
+						}
+					}
+				}
+			}
+		}
+	}
+	text = text.substring(0, text.length-3);
+	text += "<br><br>Subject to: <br><br>";
+	var count = 0;
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time  >= prob.flights[k].arr && prob.slots[i].time  <= prob.flights[k].latest_arr && prob.slots[i].initCap >= 1)
+			{
+				text += "x<sub>" + k + ", " + i + "</sub> + ";
+				count++;
+			}
+		}
+		text = text.substring(0, text.length-3);
+		text += " = 1<br>";
+	}
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			if (prob.slots[i].time  >= prob.flights[k].arr && prob.slots[i].time  <= prob.flights[k].latest_arr)
+			{
+				text += "x<sub>" + k + ", " + i + "</sub> + ";
+			}
+		}
+		text += " x<sub>s, " + i + "</sub> = 1<br>";
+	}
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		text += "x<sub>s, " + i + "</sub> + ";
+	}
+	text = text.substring(0, text.length-3);
+	text += " = " + eval(prob.slots.length - prob.flights.length) + "<br>";
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				for (var j = 0; j < prob.slots.length; j++)
+				{
+					if (prob.slots[i].time  >= prob.flights[k].arr && 
+						prob.slots[j].time  >= prob.flights[k].arr && 
+						prob.slots[i].time  <= prob.flights[k].latest_arr && 
+						((prob.slots[i].time  <= prob.slots[j].time  && prob.scen[t].tau <= prob.slots[i].time  - prob.flights[k].len) || 
+						(prob.slots[i].time  == prob.slots[j].time  && prob.scen[t].tau > prob.slots[i].time  - prob.flights[k].len)) && 
+						prob.slots[i].initCap >= 1 && prob.slots[j].finalCap[t] >= 1)
+					{
+						text += "w<sub>" + k + ", " + i + ", " + j + ", " + t + "</sub> + ";
+					}
+				}
+				text += "w<sub>" + k + ", " + i + ", p, " + t + "</sub> = 1<br>";
+			}
+		}
+	}
+	for (var j = 0; j < prob.slots.length; j++)
+	{
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				for (var i = 0; i < prob.slots.length; i++)
+				{
+					if (prob.slots[i].time  >= prob.flights[k].arr && 
+						prob.slots[j].time  >= prob.flights[k].arr && 
+						prob.slots[i].time  <= prob.flights[k].latest_arr && 
+						((prob.slots[i].time  <= prob.slots[j].time  && prob.scen[t].tau <= prob.slots[i].time  - prob.flights[k].len) || 
+						(prob.slots[i].time  == prob.slots[j].time  && prob.scen[t].tau > prob.slots[i].time  - prob.flights[k].len)) && 
+						prob.slots[i].initCap >= 1 && prob.slots[j].finalCap[t] >= 1)
+					{
+						text += "w<sub>" + k + ", " + i + ", " + j + ", " + t + "</sub> + ";
+					}
+				}
+			}
+			text += "w<sub>s, " + j + ", " + t + "</sub> = 1<br>";
+		}
+	}
+
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		for (var j = 0; j < prob.slots.length; j++)
+		{
+			text += "w<sub>s, " + j + ", " + t + "</sub> + ";
+		}
+		text = text.substring(0, text.length-3);
+		text += " = " + eval(count - prob.flights.length);
+	}
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				text += "w<sub>" + k + ", " + i + ", p, " + t + "</sub> + x<sub>" + k + ", " + i + "</sub> = 1<br>";
+			}
+		}
+	}
+	document.getElementById("output").innerHTML += text;
+}
+
+function setProbs(prob)
+{
+	var scenCase = document.getElementById("scenario").value;
+	switch (parseInt(scenCase))
+	{
+	case 0:
+		prob.scen[0].prb = eval(1/7);
+		prob.scen[1].prb = eval(1/7);
+		prob.scen[2].prb = eval(1/7);
+		prob.scen[3].prb = eval(1/7);
+		prob.scen[4].prb = eval(1/7);
+		prob.scen[5].prb = eval(1/7);
+		prob.scen[6].prb = eval(1/7);
+	break;
+	case 1:
+		prob.scen[0].prb = eval(1/64);
+		prob.scen[1].prb = eval(1/64);
+		prob.scen[2].prb = eval(1/32);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/8);
+		prob.scen[5].prb = eval(1/4);
+		prob.scen[6].prb = eval(1/2);
+	break;
+	case 2:
+		prob.scen[0].prb = eval(1/2);
+		prob.scen[1].prb = eval(1/4);
+		prob.scen[2].prb = eval(1/8);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/32);
+		prob.scen[5].prb = eval(1/64);
+		prob.scen[6].prb = eval(1/64);
+	break;
+	}
+
+	return prob;
+}
+
+function detComps(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		var comp = new Array();
+		prob.scen[t].comps = new Array();
+		for (var j = 0; j < prob.slots.length; j++)
+		{
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				if (j == prob.flights[k].finalAsmt[t])
+				{
+					prob.slots[j].used[t] = 1;
+				}
+			}
+		}
+		for (var j = 0; j < prob.slots.length; j++)
+		{
+			if (prob.slots[j].used[t] == 1)
+			{
+				comp[comp.length] = j;
+				prob.slots[j].comp[t] = prob.scen[t].comps.length;
+			}
+			else if (comp.length > 0)
+			{
+				prob.scen[t].comps[prob.scen[t].comps.length] = comp;
+				comp = new Array();
+			}
+		}
+	}
+	return prob;
+}
+
+function detStage2(prob)
+{
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			var mincost = 100000;
+			var minloc = -1;
+			for (var j = 0; j < prob.flights[k].cost[prob.flights[k].asmt][t].length; j++)
+			{
+				if (prob.flights[k].cost[prob.flights[k].asmt][t][j] < mincost && prob.slots[prob.flights[k].want[prob.flights[k].asmt][t][j]].finalCap[t] >= 1)
+				{
+					mincost = prob.flights[k].cost[prob.flights[k].asmt][t][j];
+					minloc = j;
+				}
+			}
+			prob.flights[k].finalAsmt[t] = prob.flights[k].want[prob.flights[k].asmt][t][minloc];
+			prob.slots[prob.flights[k].want[prob.flights[k].asmt][t][minloc]].finalCap[t] --;
+		}
+	}
+	
+	drawStage2Sol(prob);
+	
+	document.getElementById("output").innerHTML += dispStg2Asmt(prob);
+	document.getElementById("B7").hidden = false;
+	document.getElementById("B12").hidden = false;
+	return prob;
+}
+
+function reass(prob)
+{
+	var text = "";
+	prob = setProbs(prob);
+	text += "<table><tr><td></td><td>Departure Time</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>" + prob.scen[t].time + "</td>";
+	}
+	text += "<td>Expected Cost</td></tr>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			var estCost = 0;
+			if (prob.slots[i].time  >= prob.flights[k].arr && prob.slots[i].time  <= prob.flights[k].latest_arr && prob.slots[i].initCap >= 1)
+			{
+				text += "<tr><td>x<sub>" + k + ", " + prob.slots[i].time  + "</sub></td>";
+				text += "<td>" + eval(prob.slots[i].time  - prob.flights[k].len) + "</td>";
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					var reloc = ea(k, prob.slots[i].time , prob.flights[k].arr, prob.flights[k].len, prob.scen[t].time, prob.slots);
+					text += "<td>" + reloc + "</td>";
+					estCost += prob.scen[t].prb * (reloc - prob.flights[k].arr);
+				}
+				text += "<td>" + estCost + "</td>";
+				text += "</tr>";
+			}
+		}
+	}
+	text += "</table>";
+	document.getElementById("output").innerHTML += text;
+}
+
+function dispExpStg1(prob)
+{
+	var text = "";
+	
+	text = "<table>";
+	text += "<tr><td></td>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		text += "<td>Flight " + k + "</td>";
+	}
+	text += "</tr>";
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].initCap > 0 && i <= 25)
+		{
+			text += "<tr><td>Slot " + i + "</td>";
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				if (prob.flights[k].want[i][0].length > 0)
+				{
+					text += "<td>" + prob.flights[k].ecost[i].toFixed(3) + "</td>";
+				}
+				else
+				{
+					text += "<td>-</td>";
+				}
+			}
+			text += "</tr>";
+		}
+	}
+	text += "</table>";
+	
+	return text;
+}
+
+function setInitBasis(prob)
+{
+	prob.basis = new Array();
+	for (var k = 0; k < prob.flights.length-1; k++)
+	{
+		var loc = prob.basis.length;
+		prob.basis[loc] = new Array();
+		prob.basis[loc][0] = k;
+		prob.basis[loc][1] = prob.flights[k].asmt;
+		
+//		alert(k + ", " + prob.flights[k].asmt);
+		
+		loc++;
+		prob.basis[loc] = new Array();
+		var found = false;
+		for (var k2 = k+1; k2 < prob.flights.length && !found; k2++)
+		{
+			document.getElementById("output").innerHTML += "trying arc (" + k + ", " + prob.flights[k2].asmt + ")<br>";
+			if (prob.flights[k].want[prob.flights[k2].asmt][0].length > 0)
+			{
+				prob.basis[loc][0] = k;
+				prob.basis[loc][1] = prob.flights[k2].asmt;
+				found = true;
+			}
+		}
+		if (!found)
+		{
+			prob.basis[loc][0] = k;
+			found = false;
+			var loc2 = -1;
+			for (var i = 0; i < prob.slots.length && !found; i++)
+			{
+				if (prob.slots[i].time >= prob.flights[k].arr && prob.slots[i].asmt != -1 && i != prob.flights[k].asmt)
+				{
+					found = true;
+					loc2 = i;
+				}
+			}
+			prob.basis[loc][1] = loc2;
+		}
+	}
+	
+	var loc = prob.basis.length;
+	prob.basis[loc] = new Array();
+	prob.basis[loc][0] = k;
+	prob.basis[loc][1] = prob.flights[k].asmt;
+	
+	return prob;
+}
+
+function dispBasis(prob)
+{
+	var text = "";
+	for (var init = 0; init < prob.basis.length; init++)
+	{
+		if (prob.flights[prob.basis[init][0]].asmt == prob.basis[init][1])
+		{
+			text += "<b>(" + prob.basis[init][0] + ", " + prob.basis[init][1] + ")</b><br>";
+		}
+		else
+		{
+			text += "(" + prob.basis[init][0] + ", " + prob.basis[init][1] + ")<br>";
+		}
+	}
+	return text;
+}
+
+function expStg1(prob)
+{
+	document.getElementById("output").innerHTML = "Expected Earliest Problem<br>";
+	var text = "";
+	prob=getData();
+	text += dispExpStg1(prob);
+	drawEarliest(prob);
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].asmt = prob.flights[k].rbs;
+		prob.slots[prob.flights[k].rbs].asmt = k;
+	}
+	
+	/*
+	First we must initialize the basis. These will always be in 
+	(flight, slot) pairs, where flight is the location of the flight
+	in the array of flights and slot is the location of the slot in the
+	array of slots (NOT the slot time). 
+*/	
+	prob = setInitBasis(prob);
+	
+	do
+	{
+		var queue = new Array();
+		var curr = 0;
+		k = prob.basis[prob.basis.length-1][0];
+		queue[curr] = k + "-F";
+		prob.flights[k].uVar = 0;
+		while (curr < 2*prob.flights.length-1)
+		{
+			var temp = queue[curr].split("-");
+			if (temp[1] == "F")
+			{
+				for (var iter = 0; iter < prob.basis.length; iter++)
+				{
+					if (prob.basis[iter][0] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][1] + "-S") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][1] + "-S";
+							prob.slots[prob.basis[iter][1]].vVar = eval(prob.flights[prob.basis[iter][0]].ecost[prob.basis[iter][1]] - prob.flights[prob.basis[iter][0]].uVar);
+						}
+					}
+				}
+			}
+			else
+			{
+				for (var iter = 0; iter < prob.basis.length; iter++)
+				{
+					if (prob.basis[iter][1] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][0] + "-F") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][0] + "-F";
+							prob.flights[prob.basis[iter][0]].uVar = eval(prob.flights[prob.basis[iter][0]].ecost[prob.basis[iter][1]] - prob.slots[prob.basis[iter][1]].vVar);
+						}
+					}
+				}
+			}
+			
+			curr++;
+		}
+		
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].asmt == -1)
+			{
+				prob.slots[i].vVar = 0;
+			}
+		}
+		
+		var maxim = -100000;
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].vVar > maxim)
+			{
+				maxim = prob.slots[i].vVar;
+			}
+		}
+		prob.slots.slack = eval(-1*maxim);
+		
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].asmt == -1)
+			{
+				prob.slots[i].vVar = eval(-1*prob.slots.slack);
+			}
+		}
+		
+		var violated = false;
+		var newFl = -1;
+		var newSl = -1;
+		var rhs = -1;
+		for (var k = 0; k < prob.flights.length && !violated; k++)
+		{
+			for (var i = 0; i < prob.slots.length && !violated; i++)
+			{
+				if (prob.flights[k].want[i][0].length > 0)
+				{
+					var found = false;
+					for (var iter = 0; iter < prob.basis.length; iter++)
+					{
+						if (prob.basis[iter][0] == k && prob.basis[iter][1] == i)
+						{
+							found = true;
+						}
+					}
+					if (!found)
+					{
+						if (eval(prob.flights[k].uVar + prob.slots[i].vVar - prob.flights[k].ecost[i]) > 0.0000001)  
+						{
+							violated = true;
+							newFl = k;
+							newSl = i;
+							rhs = prob.flights[k].ecost[i];
+						}
+					}
+				}
+			}
+		}
+				
+		if (violated && prob.slots[newSl].asmt != -1)
+		{
+			queue = new Array();
+			var parent = new Array();
+			curr = 0;
+			queue[curr] = newFl + "-F";
+			parent[curr] = -1;
+			var found = false;
+			while (!found)
+			{
+				var temp = queue[curr].split("-");
+				for (var iter = 0; iter < prob.basis.length && !found; iter++)
+				{
+					if (temp[1] == "F" && prob.basis[iter][0] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][1] + "-S") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][1] + "-S";
+							if (parent[curr] != -1)
+								parent[parent.length] = parent[curr] + "->" + curr;
+							else
+								parent[parent.length] = curr;
+							if (prob.basis[iter][1] == newSl)
+							{
+								found = true;
+							}
+						}
+					}
+					else if (temp[1] == "S" && prob.basis[iter][1] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][0] + "-F") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][0] + "-F";
+							if (parent[curr] != -1)
+								parent[parent.length] = parent[curr] + "->" + curr;
+							else
+								parent[parent.length] = curr;
+						}
+					}
+				}
+				curr++;
+			}
+			curr--;
+			
+			var path = parent[parent.length-1].split("->");
+			var edges = new Array();
+			for (var i = 0; i < path.length; i++)
+			{
+				edges[i] = new Array();
+				if (i < path.length - 1 && i % 2 == 0)
+				{
+					edges[i][0] = queue[path[i]].split("-")[0];
+					edges[i][1] = queue[path[i+1]].split("-")[0];
+//					document.getElementById("output").innerHTML += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+				}
+				else if (i < path.length - 1 && i % 2 == 1)
+				{
+					edges[i][1] = queue[path[i]].split("-")[0];
+					edges[i][0] = queue[path[i+1]].split("-")[0];
+//					document.getElementById("output").innerHTML += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+				}
+				else
+				{
+					edges[i][0] = queue[path[i]].split("-")[0];
+					edges[i][1] = queue[queue.length-1].split("-")[0];
+//					document.getElementById("output").innerHTML += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+				}
+			}
+			
+			var degen = false;
+			for (var iter_1 = 0; iter_1 < edges.length && !degen; iter_1 += 2)
+			{
+//				text += "flight " + edges[iter_1][0] + " is assigned to " + prob.flights[edges[iter_1][0]].asmt + " and we're looking at " + edges[iter_1][1] + "<br>";
+				if (prob.flights[edges[iter_1][0]].asmt != edges[iter_1][1])
+				{
+					degen = true;
+				}
+			}
+			
+			if (!degen)
+			{
+//				text += "This solution is NOT degenerate<br>";
+				var newBasis = new Array();
+				newBasis[0] = new Array();
+				newBasis[0][0] = newFl;
+				newBasis[0][1] = newSl;
+			
+				for (var iter_1 = 1; iter_1 < edges.length; iter_1 += 2)
+				{
+					var loc = newBasis.length;
+					newBasis[loc] = new Array();
+					newBasis[loc][0] = edges[iter_1][0];
+					newBasis[loc][1] = edges[iter_1][1];
+				}
+				
+				for (var iter_0 = 0; iter_0 < newBasis.length; iter_0++)
+				{
+					prob.flights[newBasis[iter_0][0]].asmt = newBasis[iter_0][1];
+					prob.slots[newBasis[iter_0][1]].asmt = newBasis[iter_0][0];
+				}
+				
+				for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+				{
+					var found = false;
+					for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+					{
+						if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+						{
+							found = true;
+						}
+					}
+					if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+					{
+						var loc = newBasis.length;
+						newBasis[loc] = new Array();
+						newBasis[loc][0] = prob.basis[iter_0][0];
+						newBasis[loc][1] = prob.basis[iter_0][1];
+					}
+				}
+			}
+			else
+			{
+//				text += "This solution is degenerate<br>";
+				var newBasis = new Array();
+				newBasis[0] = new Array();
+				newBasis[0][0] = newFl;
+				newBasis[0][1] = newSl;
+				
+				for (var iter_1 = 1; iter_1 < edges.length; iter_1++)
+				{
+					var loc = newBasis.length;
+					newBasis[loc] = new Array();
+					newBasis[loc][0] = edges[iter_1][0];
+					newBasis[loc][1] = edges[iter_1][1];
+				}
+				
+				for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+				{
+					var found = false;
+					for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+					{
+						if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+						{
+							found = true;
+						}
+					}
+					if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+					{
+						var loc = newBasis.length;
+						newBasis[loc] = new Array();
+						newBasis[loc][0] = prob.basis[iter_0][0];
+						newBasis[loc][1] = prob.basis[iter_0][1];
+					}
+				}
+			}
+									
+			prob.basis = new Array();
+			
+			for (var iter = 0; iter < newBasis.length; iter++)
+			{
+				prob.basis[iter] = new Array();
+				prob.basis[iter][0] = newBasis[iter][0];
+				prob.basis[iter][1] = newBasis[iter][1];
+			}
+		}
+		else if (violated && prob.slots[newSl].asmt == -1)
+		{
+			for (var iter = 0; iter < prob.basis.length; iter++)
+			{
+				if (prob.basis[iter][0] == newFl && prob.basis[iter][1] == prob.flights[prob.basis[iter][0]].asmt)
+				{
+					prob.basis[iter][0] = newFl;
+					prob.basis[iter][1] = newSl;
+					prob.flights[newFl].asmt = newSl;
+					prob.slots[newSl].asmt = newFl;
+				}
+			}
+		}
+	}
+	while (violated);
+		
+	var primalcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		primalcost += prob.flights[k].ecost[prob.flights[k].asmt];
+	}
+	
+	text += dispAsmt(prob);
+	
+//	var dualcost = 0;
+//	for (var k = 0; k < prob.flights.length; k++)
+//	{
+//		dualcost += prob.flights[k].uVar;
+//	}
+//	
+//	for (var i = 0; i < prob.slots.length; i++)
+//	{
+//		dualcost += prob.slots[i].vVar;
+//	}
+//	
+//	var count = 0;
+//	for (var i = 0; i < prob.slots.length; i++)
+//	{
+//		if (prob.slots[i].asmt == -1)
+//		{
+//			count++;
+//		}
+//	}
+//	dualcost += count * prob.slots.slack;
+//	
+//	text += "The total ecost of the dual solution is " + dualcost.toFixed(3) + "<br>";
+
+	document.getElementById("output").innerHTML += text;	
+	document.getElementById("B6").hidden = false;
+	document.getElementById("B14").hidden = false;
+	prob = setInitBasis(prob);
+	drawStage1Sol(prob);
+	return prob;
+}
+
+function dbrbs(prob)
+{
+	while(sizeRemF(prob.flights) != 0)
+	{
+		var locEarly = -1;
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			if ((locEarly == -1 && prob.flights[k].remFlights != -1) || (locEarly != -1 && prob.flights[k].arr < prob.flights[locEarly].arr && prob.flights[k].remFlights != -1))
+			{
+				locEarly = k;
+			}
+		}
+		var locEarlySlot = -1;
+		for (var i = 0; i < prob.slots.length && locEarlySlot == -1; i++)
+		{
+			if (prob.slots[i].time  >= prob.flights[locEarly].arr && prob.slots[i].initCap >= 1 && prob.flights[locEarly].rbs == -1)
+			{
+				locEarlySlot = i;
+			}
+		}
+		prob.flights[locEarly].rbs = locEarlySlot ;
+		prob.flights[locEarly].remFlights = -1;
+		prob.slots[locEarlySlot].initCap--;
+	}
+	document.getElementById("rbss").innerHTML = "";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		document.getElementById("rbss").innerHTML += prob.slots[prob.flights[k].rbs].time;
+		if (k < prob.flights.length-1)
+		{
+			document.getElementById("rbss").innerHTML += "<br>";
+		}
+	}
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].remFlights = k+1;
+	}
+	prob = setCaps(prob);
+	return prob;
+}
+
+function setCaps(prob)
+{
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if ((prob.slots[i].time % 5 == 0) || (prob.slots[i].time  > 30))
+		{
+			prob.slots[i].initCap = 1
+		}
+		else
+		{
+			prob.slots[i].initCap = 0
+		}
+		prob.slots[i].finalCap = new Array();
+		prob.slots[i].used = new Array();
+		prob.slots[i].comp = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.slots[i].finalCap[t] = 1;
+			prob.slots[i].used[t] = 0;
+			prob.slots[i].comp[t] = -1;
+		}
+	}
+	return prob;
+}
+
+function resetBoard()
+{
+	document.getElementById('output').innerHTML='';
+	document.getElementById('arrs').innerHTML='';
+	document.getElementById('lens').innerHTML='';
+	document.getElementById('rbss').innerHTML='';
+	resetCanvas(prob);
+	drawStage1(prob);
+	drawStage2(prob);
+}
+
+function drawStage1(prob)
+{
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#000000";
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		if (k != 0)
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.flights[k].yLoc+4);
+		else
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.flights[k].yLoc+4);
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].initCap > 0 && prob.slots[i].time <= 30)
+		{
+			if (prob.slots[i].time != 0)
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.slots[i].yLoc+4);
+			else
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.slots[i].yLoc+4);
+		}
+	}
+	
+	ctx.strokeStyle = "#FF00FF";
+	ctx.lineWidth = 1;
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time <= 30 && prob.flights[k].want[i][0].length > 0)
+			{
+				ctx.beginPath();
+				ctx.moveTo(prob.flights[k].xLoc + 10, prob.flights[k].yLoc);
+				ctx.lineTo(prob.slots[i].xLoc - 10, prob.slots[i].yLoc);
+				ctx.stroke();
+			}
+		}
+	}
+	
+	document.getElementById("stage1").focus();
+}
+
+function drawStage1Sol(prob)
+{
+	resetCanvas(prob);
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	ctx.fillStyle = "#000000";
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		if (k != 0)
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.flights[k].yLoc+4);
+		else
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.flights[k].yLoc+4);
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].time <= 30)
+		{
+			if (prob.slots[i].time != 0)
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.slots[i].yLoc+4);
+			else
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.slots[i].yLoc+4);
+		}
+	}
+		
+	ctx.font = '8pt Calibri';
+		
+	ctx.font = '8pt Calibri';
+	ctx.strokeStyle = "#C0C0C0";
+	ctx.lineWidth = 1;
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time <= 30 && prob.flights[k].want[i][0].length > 0)
+			{
+				ctx.beginPath();
+				ctx.moveTo(prob.flights[k].xLoc + 10, prob.flights[k].yLoc);
+				ctx.lineTo(prob.slots[i].xLoc - 10, prob.slots[i].yLoc);
+				ctx.stroke();
+			}
+		}
+	}
+	
+	ctx.strokeStyle = "#0000FF";
+	ctx.lineWidth = 2;
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.flights[k].xLoc + 10, prob.flights[k].yLoc);
+		ctx.lineTo(prob.slots[prob.flights[k].asmt].xLoc - 10, prob.slots[prob.flights[k].asmt].yLoc);
+		ctx.stroke();
+	}
+	
+	ctx.strokeStyle = "#00FFFF";
+	ctx.lineWidth = 1;
+	
+	for (var iter = 0; iter < prob.basis.length; iter++)
+	{
+		if (prob.flights[prob.basis[iter][0]].asmt != prob.basis[iter][1])
+		{
+			ctx.beginPath();
+			ctx.moveTo(prob.flights[prob.basis[iter][0]].xLoc + 10, prob.flights[prob.basis[iter][0]].yLoc);
+			ctx.lineTo(prob.slots[prob.basis[iter][1]].xLoc - 10, prob.slots[prob.basis[iter][1]].yLoc);
+			ctx.stroke();
+		}
+	}
+	
+	drawStage2(prob);
+	document.getElementById("stage1").focus();
+}
+
+function drawStage1Basis(prob)
+{
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	ctx.fillStyle = "#000000";
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		if (k != 0)
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.flights[k].yLoc+4);
+		else
+			ctx.fillText(k, prob.flights[k].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.flights[k].yLoc+4);
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].time <= 30)
+		{
+			if (prob.slots[i].time != 0)
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(k)/Math.log(10))+1), prob.slots[i].yLoc+4);
+			else
+				ctx.fillText(prob.slots[i].time, prob.slots[i].xLoc-3*(Math.floor(Math.log(1)/Math.log(10))+1), prob.slots[i].yLoc+4);
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		ctx.font = '6pt Calibri';
+		ctx.fillStyle = '#0000FF';
+		ctx.fillText(prob.flights[k].uVar.toFixed(2), prob.flights[k].xLoc - 35, prob.flights[k].yLoc+4);
+	}
+	
+	ctx.font = '8pt Calibri';
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].time <= 30)
+		{
+			ctx.font = '6pt Calibri';
+			ctx.fillStyle = '#0000FF';
+			ctx.fillText(prob.slots[i].vVar.toFixed(2), prob.slots[i].xLoc + 25, prob.slots[i].yLoc+4);
+		}
+	}
+	
+	ctx.font = '8pt Calibri';
+	ctx.strokeStyle = "#C0C0C0";
+	ctx.lineWidth = 1;
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time <= 30 && prob.flights[k].want[i][0].length > 0)
+			{
+				ctx.beginPath();
+				ctx.moveTo(prob.flights[k].xLoc + 10, prob.flights[k].yLoc);
+				ctx.lineTo(prob.slots[i].xLoc - 10, prob.slots[i].yLoc);
+				ctx.stroke();
+			}
+		}
+	}
+	
+	ctx.strokeStyle = "#0000FF";
+	ctx.lineWidth = 2;
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.flights[k].xLoc + 10, prob.flights[k].yLoc);
+		ctx.lineTo(prob.slots[prob.flights[k].asmt].xLoc - 10, prob.slots[prob.flights[k].asmt].yLoc);
+		ctx.stroke();
+	}
+	
+	ctx.strokeStyle = "#00FFFF";
+	ctx.lineWidth = 1;
+	
+	for (var iter = 0; iter < prob.basis.length; iter++)
+	{
+		if (prob.flights[prob.basis[iter][0]].asmt != prob.basis[iter][1])
+		{
+			ctx.beginPath();
+			ctx.moveTo(prob.flights[prob.basis[iter][0]].xLoc + 10, prob.flights[prob.basis[iter][0]].yLoc);
+			ctx.lineTo(prob.slots[prob.basis[iter][1]].xLoc - 10, prob.slots[prob.basis[iter][1]].yLoc);
+			ctx.stroke();
+		}
+	}
+	
+	document.getElementById("stage1").focus();
+}
+
+function drawStage1Infeas(prob)
+{
+	if (!prob.feas)
+	{
+		var c = document.getElementById("stage1");
+		var ctx = c.getContext("2d");
+		
+		ctx.strokeStyle = "#FF0000";
+		ctx.beginPath();
+		ctx.moveTo(prob.flights[prob.newFl].xLoc + 10, prob.flights[prob.newFl].yLoc);
+		ctx.lineTo(prob.slots[prob.newSl].xLoc - 10, prob.slots[prob.newSl].yLoc);
+		ctx.stroke();
+	}
+	
+	document.getElementById("stage1").focus();
+}
+
+function drawStage2Duals(prob)
+{
+	var c = new Array();
+	var ctx = new Array();
+	
+	for (var t = 1; t <= 7; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#000000";
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i <= 25; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				for (var t = 1; t <= prob.scen.length; t++)
+				{
+					ctx[t-1].font = '6pt Calibri';
+					ctx[t-1].fillStyle = '#0000FF';
+					ctx[t-1].fillText(prob.flights[k].dualVal[i][t-1].toFixed(2), prob.flights[k].asmtXLocs[i]-3*7-20, prob.flights[k].asmtYLocs[i]+4);
+				}
+			}
+		}
+	}
+		
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var t = 1; t <= prob.scen.length; t++)
+		{
+			if (prob.slots[i].time <= 30)
+			{
+				ctx[t-1].font = '6pt Calibri';
+				ctx[t-1].fillText(prob.slots[i].dualVal[t-1].toFixed(2), prob.slots[i].finalXLoc[t-1]-3*(Math.floor(Math.log(prob.slots[i].time)/Math.log(10))-5), prob.slots[i].finalYLoc[t-1]+4);
+			}
+			ctx[t-1].font = '8pt Calibri';
+		}
+	}
+	
+	document.getElementById("stg2scen4").focus();
+}
+
+
+function drawStage2(prob)
+{
+	var c = new Array();
+	var ctx = new Array();
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#000000";
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i <= 25; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				for (var t = 1; t <= prob.scen.length; t++)
+				{
+					ctx[t-1].fillText("(" + k + ", " + prob.slots[i].time + ")", prob.flights[k].asmtXLocs[i]-3*7+1, prob.flights[k].asmtYLocs[i]+4);
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var t = 1; t <= prob.scen.length; t++)
+		{
+			if (prob.slots[i].finalCap[t-1] > 0 && prob.slots[i].time <= 30)
+			{
+				ctx[t-1].fillText(prob.slots[i].time, prob.slots[i].finalXLoc[t-1]-3*(Math.floor(Math.log(prob.slots[i].time)/Math.log(10))+1), prob.slots[i].finalYLoc[t-1]+4);
+			}
+		}
+	}
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#FF00FF";
+		ctx[t-1].lineWidth = 1;
+	
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				for (var j = 0; j < prob.flights[k].want[i][t-1].length; j++)
+				{
+					if (prob.slots[prob.flights[k].want[i][t-1][j]].time <= prob.slots[i].time && prob.slots[i].time <= 30)
+					{
+						ctx[t-1].beginPath();
+						ctx[t-1].moveTo(prob.flights[k].asmtXLocs[i] + 10, prob.flights[k].asmtYLocs[i]);
+						ctx[t-1].lineTo(prob.slots[prob.flights[k].want[i][t-1][j]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].want[i][t-1][j]].finalYLoc[t-1]);
+						ctx[t-1].stroke();
+					}
+				}
+			}
+		}
+	}
+	
+	document.getElementById("stg2scen4").focus();
+}
+
+function resetCanvas(prob)
+{
+	var c = new Array();
+	var ctx = new Array();
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#FFFFFF";
+		ctx[t-1].fillRect(0, 0, c[t-1].width, c[t-1].height);
+		ctx[t-1].fill();
+	}
+	
+	c = document.getElementById("stage1");
+	ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+}
+
+function drawStage2Sol(prob)
+{
+	var c = new Array();
+	var ctx = new Array();
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#FFFFFF";
+		ctx[t-1].fillRect(0, 0, c[t-1].width, c[t-1].height);
+		ctx[t-1].fill();
+		ctx[t-1].fillStyle = "#000000";
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i <= 25; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				for (var t = 1; t <= prob.scen.length; t++)
+				{
+					ctx[t-1].fillText("(" + k + ", " + prob.slots[i].time + ")", prob.flights[k].asmtXLocs[i]-3*7+1, prob.flights[k].asmtYLocs[i]+4);
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var t = 1; t <= prob.scen.length; t++)
+		{
+			if (prob.slots[i].time <= 30)
+			{
+				ctx[t-1].fillText(prob.slots[i].time, prob.slots[i].finalXLoc[t-1]-3*(Math.floor(Math.log(prob.slots[i].time)/Math.log(10))+1), prob.slots[i].finalYLoc[t-1]+4);
+			}
+		}
+	}
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#C0C0C0";
+		ctx[t-1].lineWidth = 1;
+	
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				for (var j = 0; j < prob.flights[k].want[i][t-1].length; j++)
+				{
+					if (prob.slots[i].time <= 30 && prob.slots[prob.flights[k].want[i][t-1][j]].time <= prob.slots[i].time)
+					{
+						ctx[t-1].beginPath();
+						ctx[t-1].moveTo(prob.flights[k].asmtXLocs[i] + 10, prob.flights[k].asmtYLocs[i]);
+						ctx[t-1].lineTo(prob.slots[prob.flights[k].want[i][t-1][j]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].want[i][t-1][j]].finalYLoc[t-1]);
+						ctx[t-1].stroke();
+					}
+				}
+			}
+		}
+	}
+
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#00FF00";
+		ctx[t-1].lineWidth = 1;
+		
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				if (prob.flights[k].want[i][t-1].length > 0 && prob.flights[k].asmt == i)
+				{
+					ctx[t-1].beginPath();
+					ctx[t-1].moveTo(prob.flights[k].asmtXLocs[i] + 10, prob.flights[k].asmtYLocs[i]);
+					ctx[t-1].lineTo(prob.slots[prob.flights[k].eloc[i][t-1]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].eloc[i][t-1]].finalYLoc[t-1]);
+					ctx[t-1].stroke();
+				}
+			}
+		}
+	}
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#0000FF";
+		ctx[t-1].lineWidth = 1;
+		
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			ctx[t-1].beginPath();
+			ctx[t-1].moveTo(prob.flights[k].asmtXLocs[prob.flights[k].asmt] + 10, prob.flights[k].asmtYLocs[prob.flights[k].asmt]);
+			ctx[t-1].lineTo(prob.slots[prob.flights[k].finalAsmt[t-1]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].finalAsmt[t-1]].finalYLoc[t-1]);
+			ctx[t-1].stroke();
+		}
+	}
+	
+	document.getElementById("stg2scen4").focus();
+}
+
+function drawEarliest(prob)
+{
+	var c = new Array();
+	var ctx = new Array();
+	
+	for (var t = 1; t <= 7; t++)
+	{
+		c[t-1] = document.getElementById("stg2scen" + t);
+		ctx[t-1] = c[t-1].getContext("2d");
+		ctx[t-1].fillStyle = "#000000";
+	}
+		
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#C0C0C0";
+		ctx[t-1].lineWidth = 1;
+	
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				for (var j = 0; j < prob.flights[k].want[i][t-1].length; j++)
+				{
+					if (prob.slots[prob.flights[k].want[i][t-1][j]].time <= prob.slots[i].time)
+					{
+						ctx[t-1].beginPath();
+						ctx[t-1].moveTo(prob.flights[k].asmtXLocs[i] + 10, prob.flights[k].asmtYLocs[i]);
+						ctx[t-1].lineTo(prob.slots[prob.flights[k].want[i][t-1][j]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].want[i][t-1][j]].finalYLoc[t-1]);
+						ctx[t-1].stroke();
+					}
+				}
+			}
+		}
+	}
+	
+	for (var t = 1; t <= prob.scen.length; t++)
+	{
+		ctx[t-1].strokeStyle = "#00FF00";
+		ctx[t-1].lineWidth = 1;
+		
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				if (prob.flights[k].want[i][t-1].length > 0)
+				{
+					ctx[t-1].beginPath();
+					ctx[t-1].moveTo(prob.flights[k].asmtXLocs[i] + 10, prob.flights[k].asmtYLocs[i]);
+					ctx[t-1].lineTo(prob.slots[prob.flights[k].eloc[i][t-1]].finalXLoc[t-1] - 10, prob.slots[prob.flights[k].eloc[i][t-1]].finalYLoc[t-1]);
+					ctx[t-1].stroke();
+				}
+			}
+		}
+	}
+
+	document.getElementById("stg2scen4").focus();
+}
+</script>
+
+<h3><center></center></h3>
+<p><p>The GBA Airport is expecting a major storm that should significantly impact flights. The airport can generally handle 60 flights per hour, but the storm has reduced this capacity to a measly 12. As with most weather forecasts, this one is uncertain and there are chances that the storm does not hit at all, or that it does not last as long as the forecasters predict. As expected, this has caused major uproar among the differnet airlines about which flights should experience the delay. One option for handling this is the Ration-by-Schedule concept, where flights are awarded landing times based on the order in which they were originally scheduled (so if flight a is before flight b in the original schedule, then flight a will be before flight b in the reduced capacity schedule). <p>
+<p>Some airlines and aviation experts argue that this concept, while agreed upon as fair, does not take advantage of the uncertainty in weather and could lead to the situation where the weather clears up early and there are no flights that can depart their origin cities and land in the arrival times that are become available. Aviation experts have argued in favor of a Ration-by-Distance (RBD) concept which rewards flights with landing times based on their flight length (so the if flight a and flight b are both available to land at a time t, then the flight with the longer distance to travel should be awarded this landing time). Airlines and other aviation experts pushed back stating that this concept unfairly punishes shorter flights by keeping them on the ground for an exceedingly long time just in case the weather clears up early. </p>
+<p>A third alternative that has been proposed is the concept of an equity based Ration-by-Distance (E-RBD). This is somewhat of a middle ground between the RBS and RBD concepts. Arrival times are still awarded to longer flights over shorter flights, but now there is a maximum allowed deviation from a flight's RBS arrival time that allowed. Because each flight has a unique RBS slot, if the maximum deviation is in terms of time slots, the maximum deviation can be formulated that each flight also has a unique latest possible assignment. </p>
+<p><b>Example :</b><br>
+Below we have six flights that were originally scheduled to land at GBA. Each flight has a true arrival time, and a length (in minutes). There are 7 possible cancellation times for the Ground Delay Program (GDP), -150 (Two and a halh hours before the GDP starts), -90(One and a half hours before the GDP starts), -80 (One Hour and 20 minutes before the GDP starts), -70 (One hour and 10 minutes before the GDP starts), -60 (one hour before the GDP starts), -50 (50 minutes before the GDP starts), 0 (Right at the start of the GDP). Each possible cancellation time (henceforth called a scenario) has its own probability. In this case we will assume that all scenarios are equally likely. The set of actions that can be taken in any scenario is dependant on the set of flights that are still on the ground (and the ones that have already departed) in that scenario. Obviously, if a flight has already departed, then it cannot have its departure time made sooner. This example considers some solutions approaches to the E-RBD problem. <p>
+<p>The <b>GreedySlot</b> algorithm considers the earliest remaining arrival time (slot) and assigns to it the longest flight that was originally scheduled to arrive before that time slot. In order to ensure that a feasible solution is reached, it then checks to see if any flight only has its one possible remaingin arc, in which case that flight is assigned to its latest arrival. <b>GreedyDist</b> operates similarly except the algorithm first considers the longest remaining flight and assigns it to the earliest slot that is feasible. </p></p>
+<center><canvas id="stage1" width="400" height="600" style="border:1px solid #d3d3d3;" tabindex="1">
+your browser does not support the canvas tag
+</canvas></center>
+<center><table><tr><td>
+<canvas id="stg2scen1" width="175" height="500" style="border:1px solid #d3d3d3;" tabindex="2">your browser does not support the canvas tag
+</canvas></td><td>
+<canvas id="stg2scen2" width="175" height="500" style="border:1px solid #d3d3d3;" tabindex="3">your browser does not support the canvas tag
+</canvas></td><td>
+<canvas id="stg2scen3" width="175" height="500" style="border:1px solid #d3d3d3;" tabindex="4">your browser does not support the canvas tag
+</canvas></td><td>
+<canvas id="stg2scen4" width="175" height="500" style="border:1px solid #d3d3d3;" tabindex="5">your browser does not support the canvas tag
+</canvas></td><td>
+<canvas id="stg2scen5" width="175" height="500" style="border:1px solid #d3d3d3;" tabindex="6">your browser does not support the canvas tag
+</canvas></td><td>
+<canvas id="stg2scen6" width="175" height="500" style="border:1px solid #d3d3d3;" tabindex="7">your browser does not support the canvas tag
+</canvas></td><td>
+<canvas id="stg2scen7" width="175" height="500" style="border:1px solid #d3d3d3;" tabindex="8">your browser does not support the canvas tag
+</canvas></td></tr>
+<tr><td><center>Scenario 1</center></td>
+    <td><center>Scenario 2</center></td>
+	<td><center>Scenario 3</center></td>
+	<td><center>Scenario 4</center></td>
+	<td><center>Scenario 5</center></td>
+	<td><center>Scenario 6</center></td>
+	<td><center>Scenario 7</center></td></tr></table>
+<table border="0" cellpadding="0" cellspacing="0">
+<tr><td>Arrival Times</td> <td>Lengths</td><td>RBS Slots</td></tr>
+<tr>
+<td>
+<p name="arrs" id="arrs">1<BR>2<BR>3<BR>4<BR>5<BR>6</p>
+</td>
+<td>
+<p name="lens" id="lens">60<BR>65<BR>75<BR>90<BR>120<BR>150</p>
+</td>
+<td>
+<p name="rbss" id="rbss">5<BR>10<BR>15<BR>20<BR>25<BR>30</p>
+</td>
+</tr>
+</table>
+<p>Maximum Deviation from RBS: <input type="text" name="dev" id="dev" size="20" value = 5></p>
+<p>Scenario: 
+<select name="scenario" id="scenario">
+<option value = "0" selected>Equally Likely</option>
+</select></p>
+<input type="reset" value="Reset" name="B1" id="B1" onclick="resetBoard()">
+<input type="button" value="GSlot" name="B2" id="B2" onclick="prob = GSlot(prob)">
+<input type="button" value="GDist" name="B3" id="B3" onclick="prob = GDist(prob)">
+<input type="button" value="Exp Earliest" name="B4" id="B4" onclick="prob=expStg1(prob)">
+<input type="button" value="New Problem" name="B5" id="B5" onclick="prob=genProb(5);resetCanvas(prob);drawStage1(prob);drawStage2(prob);"><br>
+<input type="button" value="Stage 2 Solution" name="B6" id="B6" onclick="prob=detStage2(prob);drawStage2Sol(prob)" hidden><br>
+<input type="button" value="Stage 2 Comps" name="B7" id="B7" onclick="prob=detComps(prob); prob=lastComps(prob);" hidden><br>
+<input type="button" value="Stage 2 Dual" name="B8" id="B8" onclick="prob=setDualSlotVals(prob);prob=setDualFlightVals(prob);setDualSlackSlot(prob);setDualYVars(prob);setDualSlackFlight(prob);drawStage2Duals(prob)" hidden><br>
+<input type="button" value="Stage 1 Dual" name="B9" id="B9" onclick="prob=solveDualStage1(prob);" hidden><br>
+<input type="button" value="Check Violated" name="B10" id="B10" onclick="prob=testStage1(prob);" hidden><br>
+<input type="button" value="Pivot" name="B11" id="B11" onclick="prob=pivot(prob)" hidden><br>
+<input type="button" value="Check Primal Objective" name="B12" id="B12" onclick="document.getElementById('output').innerHTML += 'The primal objective function value is ' + primalObj(prob).toFixed(3) + '<br>'" hidden>
+<input type="button" value="Check Dual Objective" name="B13" id="B13" onclick="document.getElementById('output').innerHTML += 'The dual objective function value is ' + dualObj(prob).toFixed(3) + '<br>'" hidden>
+<input type="button" value="Check Expected Earliest Objective" name="B14" id="B14" onclick="document.getElementById('output').innerHTML += 'The Expected Earliest Objective function value is ' + eearlyObj(prob).toFixed(3) + '<br>'" hidden>
+<br><br><br><br><br>	
+</center>
+<p name="output" id="output"></p>
+<script type="text/javascript">
+var prob=getData();
+drawStage1(prob);
+drawStage2(prob);
+</script>

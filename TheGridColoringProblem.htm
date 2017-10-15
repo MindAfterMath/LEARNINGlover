@@ -1,0 +1,1276 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+TheGridColoringProblem<style type="text/css">
+.c {
+    border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+        display: inline;
+}
+</style>
+<script type="text/javascript">
+function countLs (grid, numclrs)
+{
+var clrs = new Array ();
+for (var k = 0; k < numclrs;  k++)
+{
+clrs [k] = 0;
+}
+
+for (var row1 = 0; row1 < grid.length; row1++)
+{
+for (var row2 = row1 +1; row2 < grid.length; row2++)
+{
+for (clm1 = 0; clm1 < grid [row1].length; clm1++)
+{
+for (clm2 = clm1+1; clm2 < grid[row1].length; clm2++)
+{
+if (grid [row1][clm1] == grid [row1][clm2] && grid [row1][clm1] == grid [row2][clm1] && grid [row1][clm1] != -1)
+{
+clrs[grid[row1][clm1]]++;
+}
+if (grid [row1][clm1] == grid [row1][clm2] && grid [row1][clm1] == grid [row2][clm2] && grid [row1][clm1] != -1)
+{
+clrs[grid[row1][clm1]]++;
+}
+if (grid [row1][clm1] == grid [row2][clm1] && grid [row1][clm1] == grid [row2][clm2] && grid [row1][clm1] != -1)
+{
+clrs[grid[row1][clm1]]++;
+}
+if (grid [row2][clm1] == grid [row1][clm2] && grid [row2][clm1] == grid [row2][clm2] && grid [row2][clm1] != -1)
+{
+clrs[grid[row2][clm1]]++;
+}
+
+}
+}
+}
+}
+
+return clrs;
+}
+
+
+function init()
+{	
+	document.getElementById("coloring").innerHTML = "";
+	numRows = document.getElementById("rows").value;
+	numClms = document.getElementById("clms").value;
+	numClrs = document.getElementById("clrs").value;
+
+	var clrTree = new Object();
+
+	clrTree.grid = new Array();
+	fails = new Array();
+	lookup2 = new Array();
+	for (var i = 0; i < numRows; i++)
+	{
+		clrTree.grid[i] = new Array();
+		fails[i] = new Array();
+		lookup2[i] = new Array();
+		for (var j = 0; j < numClms; j++)
+		{
+			clrTree.grid[i][j] = -1;
+			fails[i][j] = new Array();
+			lookup2[i][j] = -1;
+		}
+	}
+	
+	clrTree.poss = initPoss(numRows, numClms, numClrs);
+	clrTree.parent = null;
+	clrTree.cell = 0;
+	
+	lookup = buildLookup(numRows, numClms);
+	
+	for (var i = 0; i < lookup.length; i++)
+	{
+		lookup2[lookup[i][0]][lookup[i][1]] = i;
+	}
+	
+	clrTree.subs = new Array();
+	var feas = true;
+	
+	for (var i = 0; i < numRows * numClms && feas; i++)
+	{
+		clrTree = colorbk(clrTree, i, 0);
+		i = clrTree.cell -1;
+		dispPoss(clrTree.grid);	
+document.getElementById("coloring").innerHTML += countLs(clrTree.grid, numClrs);
+		if (clrTree.grid[lookup[i][0]][lookup[i][1]] == -1)
+		{
+			feas = false;	
+		}
+	}
+	
+	if (clrTree.grid[numRows-1][numClms-1] != -1)
+	{
+		dispPoss(clrTree.grid);	
+	}
+	else
+	{
+		document.getElementById("coloring").innerHTML += "This Grid is not " + numClrs + "-colorable<br>";	
+	}
+}
+	
+function toString(mtrx)
+{
+	var text = "";
+	
+	for (var i = 0; i < mtrx.length; i++)
+	{
+		for (var j = 0; j < mtrx[i].length; j++)
+		{
+			if (mtrx[i][j] != -1)
+			{
+				text[lookup2[i][j]] = mtrx[i][j];
+			}
+			else
+			{
+				text[lookup2[i][j]] = "_";	
+			}
+		}
+	}
+		
+	return text;
+}
+	
+function colorbk(clrTree, cell, depth)
+{
+//	if (cell == numRows * numClms)
+//	{
+//		document.getElementById("coloring").innerHTML += depth + ") cell = " + cell + ", clrTree.cell = " + clrTree.cell + "<table><tr><td>" + dispPoss2(clrTree.poss) + "</td><td>" + dispPoss2(clrTree.grid) + "</td><td>" + dispPoss2(fails) + "</td></tr></table><br>";
+		window.scrollTo(0,document.body.scrollHeight);
+//	}
+//	alert(depth);
+	
+//	if (depth > 500)
+//	{
+//sdd		return null;
+//	}
+	if (clrTree.grid[numRows-1][numClms-1] != -1)
+	{
+//		document.getElementById("coloring").innerHTML += depth + ") returning full coloring<br>";
+		return clrTree;	
+	}
+	
+	var ftrFnd = false;
+
+	var max = clrTree.grid.length * clrTree.grid[0].length;
+	var row = lookup[cell][0];
+	var clm = lookup[cell][1];
+	
+	if (clrTree.poss[row][clm].length == 0)
+	{
+//		document.getElementById("coloring").innerHTML += depth + ") current cell " + row + ", " + clm + " has no possibilities <br>";
+		var node = clrTree.parent;
+		if (node == null)
+		{
+			return clrTree;
+		}
+		var oldCell = node.cell;
+		var oldRow = lookup[oldCell][0];
+		var oldClm = lookup[oldCell][1];
+//		document.getElementById("coloring").innerHTML += depth + ") color " + clrTree.grid[oldRow][oldClm] + " does not work in cell " + oldRow + ", " + oldClm + "<br>";
+		
+		var loc = node.poss[oldRow][oldClm].indexOf(clrTree.grid[oldRow][oldClm]);
+		fails[oldRow][oldClm][fails[oldRow][oldClm].length] = clrTree.grid[oldRow][oldClm];
+		for (var tempCell = oldCell + 1; tempCell < max; tempCell++)
+		{
+			var tempRow = lookup[tempCell][0];
+			var tempClm = lookup[tempCell][1];
+			fails[tempRow][tempClm] = new Array();
+		}
+		node.grid[oldRow][oldClm] = -1;
+		node.poss[oldRow][oldClm][loc] = node.poss[oldRow][oldClm][node.poss[oldRow][oldClm].length - 1];
+		node.poss[oldRow][oldClm].length--;
+		
+		for (var i = 0; i < clrTree.grid.length; i++)
+		{
+			for (var j = 0; j < clrTree.grid[i].length; j++)
+			{
+				if ((i != oldRow || j != oldClm))
+				{
+					for (var k = 0; k < numClrs; k++)
+					{
+						if (fails[i][j].indexOf(k) == -1 && node.poss[i][j].indexOf(k) == -1)
+						{
+							node.poss[i][j][node.poss[i][j].length] = k;
+						}
+					}
+				}
+			}
+		}
+		
+		node.poss = updatePoss2(node.grid, node.poss, numClrs);
+			
+		node.subs.length --;
+		
+//		document.getElementById("coloring").innerHTML += depth + ") a-trying to color cell " + node.cell + " from cell " + cell + "<br>";
+		return colorbk(node, node.cell, depth+1);
+//		return clrTree;
+	}
+	else
+	{
+//		document.getElementById("coloring").innerHTML += depth + ") current cell " + row + ", " + clm + " has possibilities <br>";
+		for (var cell2 = cell + 1; cell2 < max && ftrFnd == false; cell2++)
+		{
+			var c2row = lookup[cell2][0];
+			var c2clm = lookup[cell2][1];
+			if (clrTree.poss[c2row][c2clm].length == 0)
+			{
+				ftrFnd = true;
+//				document.getElementById("coloring").innerHTML += depth + ") future cell " + c2row + ", " + c2clm + " has no possibilities, " + lookup2[c2row][c2clm] + "<br>";
+				var temp;
+				for (temp = clrTree.parent; temp.poss[lookup[temp.cell][0]][lookup[temp.cell][1]].length <= 1 && temp.parent != null; temp = temp.parent)
+				{
+					
+				}
+				
+				if (temp == null)
+				{
+					return clrTree;
+				}
+				
+				var node = temp;
+				var oldCell = node.cell;
+				var oldRow = lookup[oldCell][0];
+				var oldClm = lookup[oldCell][1];
+				
+//				document.getElementById("coloring").innerHTML += depth + ") color " + clrTree.grid[oldRow][oldClm] + " does not work in cell " + oldRow + ", " + oldClm + "<br>";
+
+				var loc = node.poss[oldRow][oldClm].indexOf(clrTree.grid[oldRow][oldClm]);
+				fails[oldRow][oldClm][fails[oldRow][oldClm].length] = clrTree.grid[oldRow][oldClm];
+				for (var tempCell = oldCell + 1; tempCell < max; tempCell++)
+				{
+					var tempRow = lookup[tempCell][0];
+					var tempClm = lookup[tempCell][1];
+					fails[tempRow][tempClm] = new Array();
+				}
+//				dispPoss(fails);
+				node.grid[oldRow][oldClm] = -1;
+				node.poss[oldRow][oldClm][loc] = node.poss[oldRow][oldClm][node.poss[oldRow][oldClm].length - 1];
+				node.poss[oldRow][oldClm].length--;
+
+				for (var i = 0; i < clrTree.grid.length; i++)
+				{
+					for (var j = 0; j < clrTree.grid[i].length; j++)
+					{
+						if ((i != oldRow || j != oldClm))
+						{
+							for (var k = 0; k < document.getElementById("clrs").value; k++)
+							{
+	//							document.getElementById("coloring").innerHTML += "fails[" + i + "][" + j + "].length = " + fails[i][j].length + ", lookup2 = " + lookup2[i][j] + "<br>";
+//								if (typeof fails[i][j] === "undefined") 
+//								{
+//									alert("something is undefined");
+//								}
+								if (fails[i][j].indexOf(k) == -1 && node.poss[i][j].indexOf(k) == -1)
+								{
+									node.poss[i][j][node.poss[i][j].length] = k;
+								}
+							}
+						}
+					}
+				}
+
+				node.poss = updatePoss2(node.grid, node.poss, numClrs);
+
+				node.subs.length --;
+
+//				document.getElementById("coloring").innerHTML += depth + ") b-trying to color cell " + node.cell + " from cell " + cell + "<br>";
+				return colorbk(node, node.cell, depth+1);
+			}
+		}
+		
+		if (!ftrFnd)
+		{
+//			document.getElementById("coloring").innerHTML += "outside for loop<br>";
+
+			for (var i = 0; i < clrTree.poss[row][clm].length; i++)
+			{
+				clrTree = buildSub(clrTree, clrTree.poss[row][clm][i], cell);
+//			
+//				if (cell+1 < max && clrTree.grid[numRows-1][numClms-1] == -1)
+//				{
+//					document.getElementById("coloring").innerHTML += depth + ") c-trying to color cell " + (cell+1) + " from cell " + cell + "<br>";
+//					document.getElementById("coloring").innerHTML += depth + ") " + node.cell " has " + node.subs.length + "subs<br>";
+//					clrTree = colorbk(clrTree.subs[0], cell+1, depth+1);
+//					document.getElementById("coloring").innerHTML += depth + ") clrTree.cell = " + clrTree.cell + "<br>";
+//					if (clrTree.grid[numRows-1][numClms-1] != -1)
+//					{
+//						return clrTree;	
+//					}
+//				}
+//				else
+//				{
+					return clrTree.subs[0];
+//				}
+			}
+		}
+//		
+//		return clrTree;
+	}
+}
+
+function buildSub(clrTree, clr, cell)
+{
+	var subs = new Object();
+	var numClrs = document.getElementById("clrs").value;
+	
+	subs.grid = new Array();
+	subs.poss = new Array();
+	subs.fails = new Array();
+	for (var i = 0; i < clrTree.grid.length; i++)
+	{
+		subs.grid[i] = new Array();
+		subs.poss[i] = new Array();
+		subs.fails[i] = new Array();
+		for (var j = 0; j < clrTree.grid[i].length; j++)
+		{
+			subs.grid[i][j] = clrTree.grid[i][j];
+			subs.poss[i][j] = clrTree.poss[i][j];
+			subs.fails[i][j] = new Array();
+			for (var k = 0; k < fails[i][j].length; k++)
+			{
+				subs.fails[i][j][k] = fails[i][j][k];
+			}
+		}
+	}
+	
+	var row = lookup[cell][0];
+	var clm = lookup[cell][1];
+	
+	subs.grid[row][clm] = clr;
+	subs.poss = updatePoss(subs.grid, subs.poss, row, clm, numClrs);
+	subs.parent = clrTree;
+	subs.cell = cell+1;
+	subs.subs = new Array();
+	
+	clrTree.subs[clrTree.subs.length] = subs;
+	
+	return clrTree;
+}
+
+function updatePoss(grid, poss, row, clm, numClrs)
+{
+//	document.getElementById("coloring").innerHTML += "inside updatePoss<br>";
+	
+	for (var row2 = 0; row2 < grid.length; row2++)
+	{	
+		if (row2 == row)
+		{
+			continue;
+		}
+		for (var clm2 = 0; clm2 < grid[0].length; clm2++)
+		{	
+			if (clm2 == clm)
+			{
+				continue;
+			}
+			if ((grid[row][clm] == grid[row][clm2]) && grid[row][clm] == grid[row2][clm] && grid[row][clm] != -1)
+			{
+				var loc = poss[row2][clm2].indexOf(grid[row][clm]);
+//				document.getElementById("coloring").innerHTML += "removing " + grid[row][clm] + " from  poss[" + row2 + "][" + clm2 + "]<br>";
+				if (loc != -1 && grid[row2][clm2] == -1)
+				{	
+					poss[row2][clm2][loc] = poss[row2][clm2][poss[row2][clm2].length - 1];
+					poss[row2][clm2].length--;
+				}
+			}
+					
+			if ((grid[row][clm] == grid[row][clm2]) && grid[row][clm] == grid[row2][clm2] && grid[row][clm] != -1)
+			{
+				var loc = poss[row2][clm].indexOf(grid[row][clm]);
+//				document.getElementById("coloring").innerHTML += "removing " + grid[row][clm] + " from  poss[" + row2 + "][" + clm + "]<br>";
+				if (loc != -1 && grid[row2][clm] == -1)
+				{
+					poss[row2][clm][loc] = poss[row2][clm][poss[row2][clm].length - 1];
+					poss[row2][clm].length--;
+				}
+			}
+			
+			if ((grid[row][clm] == grid[row2][clm2]) && grid[row][clm] == grid[row2][clm] && grid[row][clm] != -1)
+			{
+				var loc = poss[row][clm2].indexOf(grid[row][clm]);
+//				document.getElementById("coloring").innerHTML += "removing " + grid[row][clm] + " from  poss[" + row + "][" + clm2 + "]<br>";
+				if (loc != -1 && grid[row][clm2] == -1)
+				{
+					poss[row][clm2][loc] = poss[row][clm2][poss[row][clm2].length - 1];
+					poss[row][clm2].length--;
+				}
+			}
+					
+			if ((grid[row2][clm2] == grid[row][clm2]) && grid[row2][clm2] == grid[row2][clm] && grid[row2][clm2] != -1)
+			{
+				var loc = poss[row][clm].indexOf(grid[row2][clm2]);
+//				document.getElementById("coloring").innerHTML += "removing " + grid[row2][clm2] + " from poss[" + row + "][" + clm + "]<br>";
+				if (loc != -1 && grid[row][clm] == -1)
+				{
+					poss[row][clm][loc] = poss[row][clm][poss[row][clm].length - 1];
+					poss[row][clm].length--;
+				}
+			}
+		}
+	}
+	
+//	document.getElementById("coloring").innerHTML += "leaving updatePoss<br>";
+	
+	return poss;
+}
+	
+function updatePoss2(grid, poss, numClrs)
+{
+//	document.getElementById("coloring").innerHTML += "inside updatePoss2<br>";
+	
+	for (var row1 = 0; row1 < grid.length; row1++)
+	{	
+		for (var clm1 = 0; clm1 < grid[0].length; clm1++)
+		{
+			for (var row2 = row1 + 1; row2 < grid.length; row2++)
+			{	
+				for (var clm2 = clm1 + 1; clm2 < grid[0].length; clm2++)
+				{
+					if ((grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm1] && grid[row1][clm1] != -1)
+					{
+						var loc = poss[row2][clm2].indexOf(grid[row1][clm1]);
+//						document.getElementById("coloring").innerHTML += "removing " + grid[row1][clm1] + " from poss[" + row2 + "][" + clm2 + "]<br>";
+						if (loc != -1 && grid[row2][clm2] == -1)
+						{	
+							poss[row2][clm2][loc] = poss[row2][clm2][poss[row2][clm2].length - 1];
+							poss[row2][clm2].length--;
+						}
+					}
+
+					if ((grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm2] && grid[row1][clm1] != -1)
+					{
+						var loc = poss[row2][clm1].indexOf(grid[row1][clm1]);
+//						document.getElementById("coloring").innerHTML += "removing " + grid[row1][clm1] + " from poss[" + row2 + "][" + clm1 + "]<br>";
+						if (loc != -1 && grid[row2][clm1] == -1)
+						{
+							poss[row2][clm1][loc] = poss[row2][clm1][poss[row2][clm1].length - 1];
+							poss[row2][clm1].length--;
+						}
+					}
+
+					if ((grid[row1][clm1] == grid[row2][clm2]) && grid[row1][clm1] == grid[row2][clm1] && grid[row1][clm1] != -1)
+					{
+						var loc = poss[row1][clm2].indexOf(grid[row1][clm1]);
+//						document.getElementById("coloring").innerHTML += "removing " + grid[row1][clm1] + " from poss[" + row1 + "][" + clm2 + "]<br>";
+						if (loc != -1 && grid[row1][clm2] == -1)
+						{
+							poss[row1][clm2][loc] = poss[row1][clm2][poss[row1][clm2].length - 1];
+							poss[row1][clm2].length--;
+						}
+					}
+
+					if ((grid[row2][clm2] == grid[row1][clm2]) && grid[row2][clm2] == grid[row2][clm1] && grid[row2][clm2] != -1)
+					{
+						var loc = poss[row1][clm1].indexOf(grid[row2][clm2]);
+//						document.getElementById("coloring").innerHTML += "removing " + grid[row2][clm2] + " from poss[" + row1 + "][" + clm1 + "]<br>";
+						if (loc != -1 && grid[row1][clm1] == -1)
+						{
+							poss[row1][clm1][loc] = poss[row1][clm1][poss[row1][clm1].length - 1];
+							poss[row1][clm1].length--;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+//	document.getElementById("coloring").innerHTML += "leaving updatePoss2<br>";
+	
+	return poss;
+}
+
+		
+function initPoss(numRows, numClms, numClrs)
+{
+	var poss = new Array();
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		poss[i] = new Array();
+		for (var j = 0; j < numClms; j++)
+		{
+			poss[i][j] = new Array();
+			var rem = new Array();
+			for (var k = 0; k < numClrs; k++)
+			{
+				rem[k] = k;
+			}
+				
+			for (var k = 0; k < numClrs; k++)
+			{
+				var loc = Math.floor(Math.random()*rem.length);
+				poss[i][j][k] = rem[loc];
+				rem[loc] = rem[rem.length-1];
+				rem.length--;
+			}
+		}
+	}
+	
+	return poss;
+}
+
+function dispPoss(poss)
+{
+	text = "<table>";
+
+	for (var i = 0; i < poss.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < poss[0].length; j++)
+		{
+			if (Array.isArray(poss[i][j]))
+			{
+				text += "<td class='c'>" + poss[i][j] + "</td>";
+			}
+			else
+			{
+				text += "<td class='c' style='background-color:" + colors[poss[i][j]] + "'></td>";
+			}
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	document.getElementById("coloring").innerHTML += text;
+}
+
+function dispPoss2(poss)
+{
+	text = "<table>";
+
+	for (var i = 0; i < poss.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < poss[0].length; j++)
+		{
+//			text += "<td class='c'>";
+			if (Array.isArray(poss[i][j]))
+			{
+				text += "<td class='c'>" + poss[i][j] + "</td>";
+			}
+			else if (poss[i][j] != -1)
+			{
+				text += "<td class='c' style='background-color:" + colors[poss[i][j]] + "'></td>";
+			}
+			else
+			{
+				text += "<td class='c'></td>";
+			}
+//			text +=  "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	return text;
+}
+
+function buildLookup(numRows, numClms)
+{
+	var lookup = new Array();
+	
+	var count = 0;
+
+	for (var line = 0; line < numRows + numClms; line++)
+	{
+		for (var i = 0; i <= line; i++)
+		{
+			var j = line - i;
+			if (i >= 0 && j >= 0 && i < numRows && j < numClms)
+			{
+				lookup[count] = new Array();
+				lookup[count][0] = i;
+				lookup[count][1] = j;
+				count++;
+			}
+		}
+	}
+
+	return lookup;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+
+<title> at LEARNINGlover.com</title>
+<style type="text/css">
+.c {
+    border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+        display: inline;
+}
+</style>
+<script type="text/javascript">
+function countLs (grid, numclrs)
+{
+var clrs = new Array ();
+for (var k = 0; k < numclrs;  k++)
+{
+clrs [k] = 0;
+}
+
+for (var row1 = 0; row1 < grid.length; row1++)
+{
+for (var row2 = row1 +1; row2 < grid.length; row2++)
+{
+for (clm1 = 0; clm1 < grid [row1].length; clm1++)
+{
+for (clm2 = clm1+1; clm2 < grid[row1].length; clm2++)
+{
+if (grid [row1][clm1] == grid [row1][clm2] && grid [row1][clm1] == grid [row2][clm1] && grid [row1][clm1] != -1)
+{
+clrs[grid[row1][clm1]]++;
+}
+if (grid [row1][clm1] == grid [row1][clm2] && grid [row1][clm1] == grid [row2][clm2] && grid [row1][clm1] != -1)
+{
+clrs[grid[row1][clm1]]++;
+}
+if (grid [row1][clm1] == grid [row2][clm1] && grid [row1][clm1] == grid [row2][clm2] && grid [row1][clm1] != -1)
+{
+clrs[grid[row1][clm1]]++;
+}
+if (grid [row2][clm1] == grid [row1][clm2] && grid [row2][clm1] == grid [row2][clm2] && grid [row2][clm1] != -1)
+{
+clrs[grid[row2][clm1]]++;
+}
+
+}
+}
+}
+}
+
+return clrs;
+}
+
+
+function init()
+{	
+	document.getElementById("coloring").innerHTML = "";
+	numRows = document.getElementById("rows").value;
+	numClms = document.getElementById("clms").value;
+	numClrs = document.getElementById("clrs").value;
+
+	var clrTree = new Object();
+
+	clrTree.grid = new Array();
+	fails = new Array();
+	lookup2 = new Array();
+	for (var i = 0; i < numRows; i++)
+	{
+		clrTree.grid[i] = new Array();
+		fails[i] = new Array();
+		lookup2[i] = new Array();
+		for (var j = 0; j < numClms; j++)
+		{
+			clrTree.grid[i][j] = -1;
+			fails[i][j] = new Array();
+			lookup2[i][j] = -1;
+		}
+	}
+	
+	clrTree.poss = initPoss(numRows, numClms, numClrs);
+	clrTree.parent = null;
+	clrTree.cell = 0;
+	
+	lookup = buildLookup(numRows, numClms);
+	
+	for (var i = 0; i < lookup.length; i++)
+	{
+		lookup2[lookup[i][0]][lookup[i][1]] = i;
+	}
+	
+	clrTree.subs = new Array();
+	var feas = true;
+	
+	for (var i = 0; i < numRows * numClms && feas; i++)
+	{
+		clrTree = colorbk(clrTree, i, 0);
+		i = clrTree.cell -1;
+		dispPoss(clrTree.grid);	
+document.getElementById("coloring").innerHTML += countLs(clrTree.grid, numClrs);
+		if (clrTree.grid[lookup[i][0]][lookup[i][1]] == -1)
+		{
+			feas = false;	
+		}
+	}
+	
+	if (clrTree.grid[numRows-1][numClms-1] != -1)
+	{
+		dispPoss(clrTree.grid);	
+	}
+	else
+	{
+		document.getElementById("coloring").innerHTML += "This Grid is not " + numClrs + "-colorable<br>";	
+	}
+}
+	
+function toString(mtrx)
+{
+	var text = "";
+	
+	for (var i = 0; i < mtrx.length; i++)
+	{
+		for (var j = 0; j < mtrx[i].length; j++)
+		{
+			if (mtrx[i][j] != -1)
+			{
+				text[lookup2[i][j]] = mtrx[i][j];
+			}
+			else
+			{
+				text[lookup2[i][j]] = "_";	
+			}
+		}
+	}
+		
+	return text;
+}
+	
+function colorbk(clrTree, cell, depth)
+{
+//	if (cell == numRows * numClms)
+//	{
+//		document.getElementById("coloring").innerHTML += depth + ") cell = " + cell + ", clrTree.cell = " + clrTree.cell + "<table><tr><td>" + dispPoss2(clrTree.poss) + "</td><td>" + dispPoss2(clrTree.grid) + "</td><td>" + dispPoss2(fails) + "</td></tr></table><br>";
+		window.scrollTo(0,document.body.scrollHeight);
+//	}
+//	alert(depth);
+	
+//	if (depth > 500)
+//	{
+//sdd		return null;
+//	}
+	if (clrTree.grid[numRows-1][numClms-1] != -1)
+	{
+//		document.getElementById("coloring").innerHTML += depth + ") returning full coloring<br>";
+		return clrTree;	
+	}
+	
+	var ftrFnd = false;
+
+	var max = clrTree.grid.length * clrTree.grid[0].length;
+	var row = lookup[cell][0];
+	var clm = lookup[cell][1];
+	
+	if (clrTree.poss[row][clm].length == 0)
+	{
+//		document.getElementById("coloring").innerHTML += depth + ") current cell " + row + ", " + clm + " has no possibilities <br>";
+		var node = clrTree.parent;
+		if (node == null)
+		{
+			return clrTree;
+		}
+		var oldCell = node.cell;
+		var oldRow = lookup[oldCell][0];
+		var oldClm = lookup[oldCell][1];
+//		document.getElementById("coloring").innerHTML += depth + ") color " + clrTree.grid[oldRow][oldClm] + " does not work in cell " + oldRow + ", " + oldClm + "<br>";
+		
+		var loc = node.poss[oldRow][oldClm].indexOf(clrTree.grid[oldRow][oldClm]);
+		fails[oldRow][oldClm][fails[oldRow][oldClm].length] = clrTree.grid[oldRow][oldClm];
+		for (var tempCell = oldCell + 1; tempCell < max; tempCell++)
+		{
+			var tempRow = lookup[tempCell][0];
+			var tempClm = lookup[tempCell][1];
+			fails[tempRow][tempClm] = new Array();
+		}
+		node.grid[oldRow][oldClm] = -1;
+		node.poss[oldRow][oldClm][loc] = node.poss[oldRow][oldClm][node.poss[oldRow][oldClm].length - 1];
+		node.poss[oldRow][oldClm].length--;
+		
+		for (var i = 0; i < clrTree.grid.length; i++)
+		{
+			for (var j = 0; j < clrTree.grid[i].length; j++)
+			{
+				if ((i != oldRow || j != oldClm))
+				{
+					for (var k = 0; k < numClrs; k++)
+					{
+						if (fails[i][j].indexOf(k) == -1 && node.poss[i][j].indexOf(k) == -1)
+						{
+							node.poss[i][j][node.poss[i][j].length] = k;
+						}
+					}
+				}
+			}
+		}
+		
+		node.poss = updatePoss2(node.grid, node.poss, numClrs);
+			
+		node.subs.length --;
+		
+//		document.getElementById("coloring").innerHTML += depth + ") a-trying to color cell " + node.cell + " from cell " + cell + "<br>";
+		return colorbk(node, node.cell, depth+1);
+//		return clrTree;
+	}
+	else
+	{
+//		document.getElementById("coloring").innerHTML += depth + ") current cell " + row + ", " + clm + " has possibilities <br>";
+		for (var cell2 = cell + 1; cell2 < max && ftrFnd == false; cell2++)
+		{
+			var c2row = lookup[cell2][0];
+			var c2clm = lookup[cell2][1];
+			if (clrTree.poss[c2row][c2clm].length == 0)
+			{
+				ftrFnd = true;
+//				document.getElementById("coloring").innerHTML += depth + ") future cell " + c2row + ", " + c2clm + " has no possibilities, " + lookup2[c2row][c2clm] + "<br>";
+				var temp;
+				for (temp = clrTree.parent; temp.poss[lookup[temp.cell][0]][lookup[temp.cell][1]].length <= 1 && temp.parent != null; temp = temp.parent)
+				{
+					
+				}
+				
+				if (temp == null)
+				{
+					return clrTree;
+				}
+				
+				var node = temp;
+				var oldCell = node.cell;
+				var oldRow = lookup[oldCell][0];
+				var oldClm = lookup[oldCell][1];
+				
+//				document.getElementById("coloring").innerHTML += depth + ") color " + clrTree.grid[oldRow][oldClm] + " does not work in cell " + oldRow + ", " + oldClm + "<br>";
+
+				var loc = node.poss[oldRow][oldClm].indexOf(clrTree.grid[oldRow][oldClm]);
+				fails[oldRow][oldClm][fails[oldRow][oldClm].length] = clrTree.grid[oldRow][oldClm];
+				for (var tempCell = oldCell + 1; tempCell < max; tempCell++)
+				{
+					var tempRow = lookup[tempCell][0];
+					var tempClm = lookup[tempCell][1];
+					fails[tempRow][tempClm] = new Array();
+				}
+//				dispPoss(fails);
+				node.grid[oldRow][oldClm] = -1;
+				node.poss[oldRow][oldClm][loc] = node.poss[oldRow][oldClm][node.poss[oldRow][oldClm].length - 1];
+				node.poss[oldRow][oldClm].length--;
+
+				for (var i = 0; i < clrTree.grid.length; i++)
+				{
+					for (var j = 0; j < clrTree.grid[i].length; j++)
+					{
+						if ((i != oldRow || j != oldClm))
+						{
+							for (var k = 0; k < document.getElementById("clrs").value; k++)
+							{
+	//							document.getElementById("coloring").innerHTML += "fails[" + i + "][" + j + "].length = " + fails[i][j].length + ", lookup2 = " + lookup2[i][j] + "<br>";
+//								if (typeof fails[i][j] === "undefined") 
+//								{
+//									alert("something is undefined");
+//								}
+								if (fails[i][j].indexOf(k) == -1 && node.poss[i][j].indexOf(k) == -1)
+								{
+									node.poss[i][j][node.poss[i][j].length] = k;
+								}
+							}
+						}
+					}
+				}
+
+				node.poss = updatePoss2(node.grid, node.poss, numClrs);
+
+				node.subs.length --;
+
+//				document.getElementById("coloring").innerHTML += depth + ") b-trying to color cell " + node.cell + " from cell " + cell + "<br>";
+				return colorbk(node, node.cell, depth+1);
+			}
+		}
+		
+		if (!ftrFnd)
+		{
+//			document.getElementById("coloring").innerHTML += "outside for loop<br>";
+
+			for (var i = 0; i < clrTree.poss[row][clm].length; i++)
+			{
+				clrTree = buildSub(clrTree, clrTree.poss[row][clm][i], cell);
+//			
+//				if (cell+1 < max && clrTree.grid[numRows-1][numClms-1] == -1)
+//				{
+//					document.getElementById("coloring").innerHTML += depth + ") c-trying to color cell " + (cell+1) + " from cell " + cell + "<br>";
+//					document.getElementById("coloring").innerHTML += depth + ") " + node.cell " has " + node.subs.length + "subs<br>";
+//					clrTree = colorbk(clrTree.subs[0], cell+1, depth+1);
+//					document.getElementById("coloring").innerHTML += depth + ") clrTree.cell = " + clrTree.cell + "<br>";
+//					if (clrTree.grid[numRows-1][numClms-1] != -1)
+//					{
+//						return clrTree;	
+//					}
+//				}
+//				else
+//				{
+					return clrTree.subs[0];
+//				}
+			}
+		}
+//		
+//		return clrTree;
+	}
+}
+
+function buildSub(clrTree, clr, cell)
+{
+	var subs = new Object();
+	var numClrs = document.getElementById("clrs").value;
+	
+	subs.grid = new Array();
+	subs.poss = new Array();
+	subs.fails = new Array();
+	for (var i = 0; i < clrTree.grid.length; i++)
+	{
+		subs.grid[i] = new Array();
+		subs.poss[i] = new Array();
+		subs.fails[i] = new Array();
+		for (var j = 0; j < clrTree.grid[i].length; j++)
+		{
+			subs.grid[i][j] = clrTree.grid[i][j];
+			subs.poss[i][j] = clrTree.poss[i][j];
+			subs.fails[i][j] = new Array();
+			for (var k = 0; k < fails[i][j].length; k++)
+			{
+				subs.fails[i][j][k] = fails[i][j][k];
+			}
+		}
+	}
+	
+	var row = lookup[cell][0];
+	var clm = lookup[cell][1];
+	
+	subs.grid[row][clm] = clr;
+	subs.poss = updatePoss(subs.grid, subs.poss, row, clm, numClrs);
+	subs.parent = clrTree;
+	subs.cell = cell+1;
+	subs.subs = new Array();
+	
+	clrTree.subs[clrTree.subs.length] = subs;
+	
+	return clrTree;
+}
+
+function updatePoss(grid, poss, row, clm, numClrs)
+{
+//	document.getElementById("coloring").innerHTML += "inside updatePoss<br>";
+	
+	for (var row2 = 0; row2 < grid.length; row2++)
+	{	
+		if (row2 == row)
+		{
+			continue;
+		}
+		for (var clm2 = 0; clm2 < grid[0].length; clm2++)
+		{	
+			if (clm2 == clm)
+			{
+				continue;
+			}
+			if ((grid[row][clm] == grid[row][clm2]) && grid[row][clm] == grid[row2][clm] && grid[row][clm] != -1)
+			{
+				var loc = poss[row2][clm2].indexOf(grid[row][clm]);
+//				document.getElementById("coloring").innerHTML += "removing " + grid[row][clm] + " from  poss[" + row2 + "][" + clm2 + "]<br>";
+				if (loc != -1 && grid[row2][clm2] == -1)
+				{	
+					poss[row2][clm2][loc] = poss[row2][clm2][poss[row2][clm2].length - 1];
+					poss[row2][clm2].length--;
+				}
+			}
+					
+			if ((grid[row][clm] == grid[row][clm2]) && grid[row][clm] == grid[row2][clm2] && grid[row][clm] != -1)
+			{
+				var loc = poss[row2][clm].indexOf(grid[row][clm]);
+//				document.getElementById("coloring").innerHTML += "removing " + grid[row][clm] + " from  poss[" + row2 + "][" + clm + "]<br>";
+				if (loc != -1 && grid[row2][clm] == -1)
+				{
+					poss[row2][clm][loc] = poss[row2][clm][poss[row2][clm].length - 1];
+					poss[row2][clm].length--;
+				}
+			}
+			
+			if ((grid[row][clm] == grid[row2][clm2]) && grid[row][clm] == grid[row2][clm] && grid[row][clm] != -1)
+			{
+				var loc = poss[row][clm2].indexOf(grid[row][clm]);
+//				document.getElementById("coloring").innerHTML += "removing " + grid[row][clm] + " from  poss[" + row + "][" + clm2 + "]<br>";
+				if (loc != -1 && grid[row][clm2] == -1)
+				{
+					poss[row][clm2][loc] = poss[row][clm2][poss[row][clm2].length - 1];
+					poss[row][clm2].length--;
+				}
+			}
+					
+			if ((grid[row2][clm2] == grid[row][clm2]) && grid[row2][clm2] == grid[row2][clm] && grid[row2][clm2] != -1)
+			{
+				var loc = poss[row][clm].indexOf(grid[row2][clm2]);
+//				document.getElementById("coloring").innerHTML += "removing " + grid[row2][clm2] + " from poss[" + row + "][" + clm + "]<br>";
+				if (loc != -1 && grid[row][clm] == -1)
+				{
+					poss[row][clm][loc] = poss[row][clm][poss[row][clm].length - 1];
+					poss[row][clm].length--;
+				}
+			}
+		}
+	}
+	
+//	document.getElementById("coloring").innerHTML += "leaving updatePoss<br>";
+	
+	return poss;
+}
+	
+function updatePoss2(grid, poss, numClrs)
+{
+//	document.getElementById("coloring").innerHTML += "inside updatePoss2<br>";
+	
+	for (var row1 = 0; row1 < grid.length; row1++)
+	{	
+		for (var clm1 = 0; clm1 < grid[0].length; clm1++)
+		{
+			for (var row2 = row1 + 1; row2 < grid.length; row2++)
+			{	
+				for (var clm2 = clm1 + 1; clm2 < grid[0].length; clm2++)
+				{
+					if ((grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm1] && grid[row1][clm1] != -1)
+					{
+						var loc = poss[row2][clm2].indexOf(grid[row1][clm1]);
+//						document.getElementById("coloring").innerHTML += "removing " + grid[row1][clm1] + " from poss[" + row2 + "][" + clm2 + "]<br>";
+						if (loc != -1 && grid[row2][clm2] == -1)
+						{	
+							poss[row2][clm2][loc] = poss[row2][clm2][poss[row2][clm2].length - 1];
+							poss[row2][clm2].length--;
+						}
+					}
+
+					if ((grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm2] && grid[row1][clm1] != -1)
+					{
+						var loc = poss[row2][clm1].indexOf(grid[row1][clm1]);
+//						document.getElementById("coloring").innerHTML += "removing " + grid[row1][clm1] + " from poss[" + row2 + "][" + clm1 + "]<br>";
+						if (loc != -1 && grid[row2][clm1] == -1)
+						{
+							poss[row2][clm1][loc] = poss[row2][clm1][poss[row2][clm1].length - 1];
+							poss[row2][clm1].length--;
+						}
+					}
+
+					if ((grid[row1][clm1] == grid[row2][clm2]) && grid[row1][clm1] == grid[row2][clm1] && grid[row1][clm1] != -1)
+					{
+						var loc = poss[row1][clm2].indexOf(grid[row1][clm1]);
+//						document.getElementById("coloring").innerHTML += "removing " + grid[row1][clm1] + " from poss[" + row1 + "][" + clm2 + "]<br>";
+						if (loc != -1 && grid[row1][clm2] == -1)
+						{
+							poss[row1][clm2][loc] = poss[row1][clm2][poss[row1][clm2].length - 1];
+							poss[row1][clm2].length--;
+						}
+					}
+
+					if ((grid[row2][clm2] == grid[row1][clm2]) && grid[row2][clm2] == grid[row2][clm1] && grid[row2][clm2] != -1)
+					{
+						var loc = poss[row1][clm1].indexOf(grid[row2][clm2]);
+//						document.getElementById("coloring").innerHTML += "removing " + grid[row2][clm2] + " from poss[" + row1 + "][" + clm1 + "]<br>";
+						if (loc != -1 && grid[row1][clm1] == -1)
+						{
+							poss[row1][clm1][loc] = poss[row1][clm1][poss[row1][clm1].length - 1];
+							poss[row1][clm1].length--;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+//	document.getElementById("coloring").innerHTML += "leaving updatePoss2<br>";
+	
+	return poss;
+}
+
+		
+function initPoss(numRows, numClms, numClrs)
+{
+	var poss = new Array();
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		poss[i] = new Array();
+		for (var j = 0; j < numClms; j++)
+		{
+			poss[i][j] = new Array();
+			var rem = new Array();
+			for (var k = 0; k < numClrs; k++)
+			{
+				rem[k] = k;
+			}
+				
+			for (var k = 0; k < numClrs; k++)
+			{
+				var loc = Math.floor(Math.random()*rem.length);
+				poss[i][j][k] = rem[loc];
+				rem[loc] = rem[rem.length-1];
+				rem.length--;
+			}
+		}
+	}
+	
+	return poss;
+}
+
+function dispPoss(poss)
+{
+	text = "<table>";
+
+	for (var i = 0; i < poss.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < poss[0].length; j++)
+		{
+			if (Array.isArray(poss[i][j]))
+			{
+				text += "<td class='c'>" + poss[i][j] + "</td>";
+			}
+			else
+			{
+				text += "<td class='c' style='background-color:" + colors[poss[i][j]] + "'></td>";
+			}
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	document.getElementById("coloring").innerHTML += text;
+}
+
+function dispPoss2(poss)
+{
+	text = "<table>";
+
+	for (var i = 0; i < poss.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < poss[0].length; j++)
+		{
+//			text += "<td class='c'>";
+			if (Array.isArray(poss[i][j]))
+			{
+				text += "<td class='c'>" + poss[i][j] + "</td>";
+			}
+			else if (poss[i][j] != -1)
+			{
+				text += "<td class='c' style='background-color:" + colors[poss[i][j]] + "'></td>";
+			}
+			else
+			{
+				text += "<td class='c'></td>";
+			}
+//			text +=  "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	return text;
+}
+
+function buildLookup(numRows, numClms)
+{
+	var lookup = new Array();
+	
+	var count = 0;
+
+	for (var line = 0; line < numRows + numClms; line++)
+	{
+		for (var i = 0; i <= line; i++)
+		{
+			var j = line - i;
+			if (i >= 0 && j >= 0 && i < numRows && j < numClms)
+			{
+				lookup[count] = new Array();
+				lookup[count][0] = i;
+				lookup[count][1] = j;
+				count++;
+			}
+		}
+	}
+
+	return lookup;
+}
+</script>
+<h3><center></center></h3>
+<p>My Masters scholarly paper involved trying to color each cell of a grid with m rows and n columns with k colors without obtaining a monochromatic rectangle.  A rectangle is four cells at the intersection of two different rows and two different columns. <br></p>
+<script type="text/javascript">
+var lookup = new Array();
+var lookup2 = new Array();
+var numRows;
+var numClms;
+var numClrs;
+var fails = new Array();
+var ssheet1 = "<style type='text/css'>.c {border: 1px black solid;width: 1.2em;height: 1.2em;}.rbeg {border: 1px black solid;white-space:nowrap;width: 1.2em;height: 1.2em;}.cbeg {border: 1px black solid;width: 1.2em;height: 1.2em;}p{display: inline;}</style>";
+var colors = new Array();
+
+	colors[0] = "#0000FF";
+	colors[1] = "#00FF00";
+	colors[2] = "#FF0000";
+	colors[3] = "#00AAFF";
+	colors[4] = "#005555";
+	colors[5] = "#AA00AA";
+	colors[6] = "#00AAAA";
+	colors[7] = "#AAAA00";
+	colors[8] = "#AA00FF";
+	colors[9] = "#00FFFF";
+	colors[10] = "#FFAA00";
+	colors[11] = "#FF00FF";
+	colors[12] = "#AAAAFF";
+	colors[13] = "#D2691E";
+	colors[14] = "#FFAAAA";
+	colors[15] = "#4682BD";
+	colors[16] = "#FFFF00";
+	colors[17] = "#FFFFAA";
+	colors[18] = "#0000AA";
+	colors[19] = "#00AA00";
+	colors[20] = "#AA0000";
+	colors[21] = "#F0F8FF";
+	colors[22] = "#F0F8FF";
+	colors[23] = "#FAEBD7";
+	colors[24] = "#DEB887";
+</script>
+<label>m = </label><input id="rows" value=4><br>
+<label>n = </label><input id="clms" value=6><br>
+<label>k = </label><input id="clrs" value=2><br>
+<input type="button" value="submit" onclick="init()">
+<input type="button" value="clear" onclick="document.getElementById('coloring').innerHTML=''">
+<input type="button" value="Print" onclick="var txt = document.getElementById('coloring').innerHTML; var w = window.open();
+    w.document.open();
+	w.document.write(ssheet1);
+    w.document.write(txt);
+    w.document.close();">
+<p id="coloring"></p>

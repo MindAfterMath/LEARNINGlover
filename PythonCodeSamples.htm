@@ -1,0 +1,1877 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+PythonCodeSamples<style>
+pre {background-color:#00CCCC;}
+</style>
+<script type="text/javascript">
+function getCode()
+{
+	var input = document.getElementById("pgrm").value;
+	var output = "";
+	var output2 = "";
+	
+	if (input == "1")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "print \"Hello, World!\"\n";
+		output += "print 'Hello, World!'\n";
+		output += "print \"Hello,\", \"World!\"\n";
+		
+		output2 = "<pre><br>";
+		output2 += "#!/usr/bin/python\n\n";
+		output2 += "print \"Hello, World!\"\n";
+		output2 += "print 'Hello, World!'\n";
+		output2 += "print \"Hello,\", \"World!\"\n";
+		output2 += "</pre></br>";
+	}
+	else if (input == "2")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Comments in Python\n\n";
+		output += "#This is a comment. \n";
+		output += "print \"Hello, World!\"\n";
+		output += "#Comments start with a # sign. \n";
+		output += "#Everything after the # sign is ignored. \n";
+		output += "#Comments can either go on a new line\n";
+		output += "print \"This is a second output statement\" #comments can go here\n";
+		
+		output2 = "Comments in Python<br><br>";
+		output2 += "<pre>#This is a comment. \n";
+		output2 += "print \"Hello, World!\"</pre>";
+		output2 += "Comments start with a # sign. <br>";
+		output2 += "Everything after the # sign is ignored. </br>";
+		output2 += "Comments can either go on a new line<br>";
+		output2 += "or a comment can go after a python statement<br>";
+		output2 += "<pre>print \"This is a second output statement\" #comments can go here</pre>\n";
+	}
+	else if (input == "3")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Variables in Python\n\n";
+		output += "#Variables store data in memory.\n";
+		output += "#In order to do this you need to give the variable a name so you \n";
+		output += "#can retrieve the information later. \n";
+		output += "#These names must start with either a capital letter, a lowercase \n";
+		output += "#letter, or an underscore\n";
+		output += "#and can only contain letters, numbers and the underscore symbol. \n";
+		output += "#Variable names are case sensitive. \n";
+		output += "Num = 8\n";
+		output += "print Num\n";
+		output += "number_zero = 0\n";
+		output += "print number_zero\n";
+		output += "num = 2.7\n";
+		output += "print num\n";
+		output += "#Notice that Num and num are different variables. \n\n";
+		
+		output2 = "Variables in Python<br><br>";
+		output2 += "Variables store data in memory.<br>";
+		output2 += "In order to do this you need to give the variable a name so you<br>";
+		output2 += "can retrieve the information later. <br>";
+		output2 += "These names must start with either a capital letter, a lowercase <br>";
+		output2 += "letter, or an underscore<br>";
+		output2 += "and can only contain letters, numbers and the underscore symbol. <br>";
+		output2 += "Variable names are case sensitive. <br>";
+		output2 += "<pre>Num = 8\n";
+		output2 += "print Num\n";
+		output2 += "number_zero = 0\n";
+		output2 += "print number_zero\n";
+		output2 += "num = 2.7\n";
+		output2 += "print num</pre>";
+		output2 += "Notice that Num and num are different variables. \n\n";
+	}
+	else if (input == "4a")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Numbers can be integer, long, float or complex\n";
+		output += "#Integers are used for standard operations on \n";
+		output += "#(positive and negative) whole numbers\n";
+		output += "int_num = 8\n";
+		output += "print int_num\n\n";
+	
+		output += "#Longs are used for calculations on really large \n";
+		output += "#whole numbers. The 'L' indicates that its a long num. \n";
+		output += "long_num = 4294967296L\n";
+		output += "print long_num\n";
+		
+		output += "#Floats are used for floating point numbers, or rational \n";
+		output += "#numbers that are not whole numbers. \n";
+		output += "float_num = 3.14159\n";
+		output += "print float_num\n";
+
+		output += "#Dealing with fractions in Python 2.7, you need to \n";
+		output += "#declare it as float \n";
+		output += "float_num2 = float(22)/7\n";
+		output += "print float_num2\n";
+			
+		output += "#Complex numbers are numbers with a real portion and a \n";
+		output += "#imaginary portion. They are indicated by a j \n";
+		output += "#after the number\n";
+		output += "complex_num = 1 + 3j\n";
+		output += "print complex_num\n\n";
+		
+		
+		output2 = "Data Types in Python<br><br>";
+		output2 += "Python has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Lists<br>";
+		output2 += " - Tuples<br>";
+		output2 += " - Dictionaries<br><br>";
+		output2 += "Numbers can be integer, long, float or complex<br>";
+		output2 += "Integers are used for standard operations on <br>";
+		output2 += "(positive and negative) whole numbers<br>";
+		output2 += "<pre>int_num = 8\n";
+		output2 += "print int_num</pre><br><br>";
+	
+		output2 += "Longs are used for calculations on really large <br>";
+		output2 += "whole numbers. The 'L' indicates that its a long num. <br>";
+		output2 += "<pre>long_num = 4294967296L\n";
+		output2 += "print long_num</pre>";
+		
+		output2 += "Floats are used for floating point numbers, or rational <br>";
+		output2 += "numbers that are not whole numbers. <br>";
+		output2 += "<pre>float_num = 3.14159\n";
+		output2 += "print float_num</pre>";
+
+		output2 += "Dealing with fractions in Python 2.7, you need to <br>";
+		output2 += "declare it as float <br>";
+		output2 += "<pre>float_num2 = float(22)/7\n";
+		output2 += "print float_num2</pre>";
+			
+		output2 += "Complex numbers are numbers with a real portion and an <br>";
+		output2 += "imaginary portion. They are indicated by a j <br>";
+		output2 += "after the number<br>";
+		output2 += "<pre>complex_num = 1 + 3j\n";
+		output2 += "print complex_num</pre>";
+	}
+	else if (input == "4b")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Strings are characters between a pair of quotes\n";
+		output += "str1 = \"This is a string\"\n";
+		output += "print str1\n";
+		output += "str2 = 'This is also a string'\n";
+		output += "print str2\n\n";
+		output += "#There are several operations you can do on strings\n";
+		output += "#You can access the characters inside a string by bracket notation: \n";
+		output += "str2 = 'This is also a string'\n";
+		output += "print str2[0]\n";
+		output += "print str2[0:12]\n\n";
+		output += "#You can also format strings nicely: \n";
+		output += "fav = 'The Lion King'\n";
+		output += "user = 'Chris'\n";
+		output += "print '%s\\'s favorite movie is %s' % (user, fav)\n\n";
+		output += "#You can also use formatting to display numbers correctly:\n";
+		output += "cmpl = float(292)/473\n"
+		output += "player = 'Cam Newton'\n";
+		output += "year = '2013'\n";
+		output += "print '%s accuracy in %s was %.2f ' % (player, year, cmpl)\n\n";
+		output += "#The + operator concatenates two strings:\n";
+		output += "first = 'Bruce'\n";
+		output += "last = 'Leroy'\n";
+		output += "full_name = first + ' ' + last\n";
+		output += "print full_name\n\n";
+		output += "#The * operator repeats a string the indicated number of times:\n";
+		output += "first = 'Robert'\n";
+		output += "last = 'Griffin'\n";
+		output += "suffix = 'I'\n";
+		output += "father = first + ' ' + last + ' ' + suffix*2\n";
+		output += "son = first + ' ' + last + ' ' + suffix*3\n";
+		output += "print '%s is the father of %s' % (father, son)\n\n";
+		
+		output2 = "Data Types in Python<br><br>";
+		output2 += "Python has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Lists<br>";
+		output2 += " - Tuples<br>";
+		output2 += " - Dictionaries<br><br>";
+		output2 += "Strings are characters between a pair of quotes<br>";
+		output2 += "<pre>str1 = \"This is a string\"\n";
+		output2 += "print str1\n";
+		output2 += "str2 = 'This is also a string'\n";
+		output2 += "print str2</pre>";
+		output2 += "There are several operations you can do on strings<br>";
+		output2 += "You can access the characters inside a string by bracket notation: <br>";
+		output2 += "<pre>str2 = 'This is also a string'\n";
+		output2 += "print str2[0]\n";
+		output2 += "print str2[0:12]</pre>";
+		output2 += "You can also format strings nicely: <br>";
+		output2 += "<pre>fav = 'The Lion King'\n";
+		output2 += "user = 'Chris'\n";
+		output2 += "print '%s\\'s favorite movie is %s' % (user, fav)</pre>";
+		output2 += "You can also use formatting to display numbers correctly:<br>";
+		output2 += "<pre>cmpl = float(292)/473\n"
+		output2 += "player = 'Cam Newton'\n";
+		output2 += "year = '2013'\n";
+		output2 += "print '%s accuracy in %s was %.2f ' % (player, year, cmpl)</pre>";
+		output2 += "The + operator concatenates two strings:<br>";
+		output2 += "<pre>first = 'Bruce'\n";
+		output2 += "last = 'Leroy'\n";
+		output2 += "full_name = first + ' ' + last\n";
+		output2 += "print full_name</pre>";
+		output2 += "The * operator repeats a string the indicated number of times:<br>";
+		output2 += "<pre>first = 'Robert'\n";
+		output2 += "last = 'Griffin'\n";
+		output2 += "suffix = 'I'\n";
+		output2 += "father = first + ' ' + last + ' ' + suffix*2\n";
+		output2 += "son = first + ' ' + last + ' ' + suffix*3\n";
+		output2 += "print '%s is the father of %s' % (father, son)</pre>";
+	}
+	else if (input == "4c")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Lists are items separated by a comma between square brackets\n";
+		output += "first_primes = [2, 3, 5]\n";
+		output += "print first_primes \n";
+		output += "fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output += "print fav_movies\n";
+		output += "#The items in a list can be of different types\n";
+		output += "fav_things = [\"Music\", [\"Raindrops on roses\", \"Whiskers on Kittens\"]]\n";
+		output += "#You can access the elements of a list, individually with the first \n";
+		output += "#value having location 0. \n";
+		output += "print first_primes[2]\n";
+		output += "#You can change the elements of a list\n";
+		output += "fav_movies[0] = 'The Wood'\n";
+		output += "print fav_movies\n";
+		output += "#You can add to a list with the append method\n";
+		output += "fav_movies.append('Harry Potter')\n";
+		output += "print fav_movies\n";
+		output += "#The remove method will remove specified element from the list. \n";
+		output += "fav_movies.remove('Friday')\n";
+		output += "print fav_movies\n";
+		
+		output2 = "Data Types in Python<br><br>";
+		output2 += "Python has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Lists<br>";
+		output2 += " - Tuples<br>";
+		output2 += " - Dictionaries<br><br>";
+		output2 += "Lists are items separated by a comma between square brackets<br>";
+		output2 += "<pre>first_primes = [2, 3, 5]\n";
+		output2 += "print first_primes </pre>";
+		output2 += "<pre>fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output2 += "print fav_movies</pre>";
+		output2 += "The items in a list can be of different types<br>";
+		output2 += "<pre>fav_things = [\"Music\", [\"Raindrops on roses\", \"Whiskers on Kittens\"]]\n";
+		output2 += "print fav_things</pre>";
+		output2 += "You can access the elements of a list, individually with the first <br>";
+		output2 += "value having location 0. <br>";
+		output2 += "<pre>first_primes = [2, 3, 5]\n";
+		output2 += "print first_primes[2]</pre>";
+		output2 += "You can change the elements of a list<br>";
+		output2 += "<pre>fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output2 += "fav_movies[0] = 'The Wood'\n";
+		output2 += "print fav_movies</pre>";
+		output2 += "You can add to a list with the append method<br>";
+		output2 += "<pre>fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output2 += "fav_movies.append('Harry Potter')\n";
+		output2 += "print fav_movies</pre>";
+		output2 += "The remove method will remove specified element from the list. <br>";
+		output2 += "<pre>fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output2 += "fav_movies.remove('Friday')\n";
+		output2 += "print fav_movies</pre>";
+	}
+	else if (input == "4d")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Tuples are read only lists. They are items separated by a comma \n";
+		output += "#and are within parenthesis\n";
+		output += "first_primes_2 = (2, 3, 5)\n";
+		output += "print first_primes_2 \n";
+		output += "#You can access the elements of a tuple, individually with the \n";
+		output += "#first value having location 0. \n";
+		output += "print first_primes_2[2]\n\n";
+		
+		output2 = "Data Types in Python<br><br>";
+		output2 += "Python has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Lists<br>";
+		output2 += " - Tuples<br>";
+		output2 += " - Dictionaries<br><br>";
+		output2 += "Tuples are read only lists. They are items separated by a comma <br>";
+		output2 += "and are within parenthesis<br>";
+		output2 += "<pre>first_primes_2 = (2, 3, 5)\n";
+		output2 += "print first_primes_2 </pre>";
+		output2 += "You can access the elements of a tuple, individually with the <br>";
+		output2 += "first value having location 0. <br>";
+		output2 += "<pre>print first_primes_2[2]</pre>";
+	}
+	else if (input == "4e")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Dictionaries are like lists, but instead of being indexed by \n";
+		output += "#0, 1, 2, ..., they are indexed by user specified elements. \n";
+		output += "#Dictionaries are defined inside curly brackets, where the item \n";
+		output += "#will be a key, a colon and then a value\n";
+		output += "game = {'Wall' : '28 points', 'Beal' : '16 points', 'Gortat' : '9 points'}\n";
+		output += "print game, game['Wall']\n";
+		
+		output2 = "Data Types in Python<br><br>";
+		output2 += "Python has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Lists<br>";
+		output2 += " - Tuples<br>";
+		output2 += " - Dictionaries<br><br>";
+		output2 += "Dictionaries are like lists, but instead of being indexed by <br>";
+		output2 += "0, 1, 2, ..., they are indexed by user specified elements. <br>";
+		output2 += "Dictionaries are defined inside curly brackets, where the item <br>";
+		output2 += "will be a key, a colon and then a value<br>";
+		output2 += "<pre>game = {'Wall' : '28 points', 'Beal' : '16 points', 'Gortat' : '9 points'}<br>";
+		output2 += "print game, game['Wall']</pre>";
+	}
+	else if (input == "5a")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Basic Operations in Python: \n";
+		output += "# - Arithmetic\n";
+		output += "#The basic operations in Python are: \n";
+		output += "# addition (+), \n";
+		output += "# subtraction (-), \n";
+		output += "# multiplication (*), \n";
+		output += "# division (/), \n";
+		output += "# modulus (%), \n";
+		output += "# and exponent (**).\n";
+		output += "#Given two numbers, the addition operation returns their sum\n";
+		output += "num1 = 3.14\n";
+		output += "num2 = 2.71\n";
+		output += "num3 = num1 + num2\n";
+		output += "print '%f + %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Given two numbers, the subtraction operation returns their difference\n";
+		output += "num1 = 16\n";
+		output += "num2 = 25\n";
+		output += "num3 = num1 - num2\n";
+		output += "print '%f - %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Given two numbers, the multiplication operation returns their product\n";
+		output += "num1 = 4\n";
+		output += "num2 = 11\n";
+		output += "num3 = num1 * num2\n";
+		output += "print '%f * %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Given two numbers, the division operation returns \n";
+		output += "#the floor of the quotient of num1 divided by num2\n";
+		output += "num1 = 5\n";
+		output += "num2 = 2\n";
+		output += "num3 = num1 / num2\n";
+		output += "print '%f / %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Given two numbers, (float(num1)/num2) returns the result of \n";
+		output += "#num1 divided by num2\n";
+		output += "num1 = 5\n";
+		output += "num2 = 2\n";
+		output += "num3 = float(num1) / num2\n";
+		output += "print 'float(%f) / %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Given two integer numbers, the modulus operation returns their \n";
+		output += "#remainder when num1 is divided by num2\n";
+		output += "num1 = 16\n";
+		output += "num2 = 3\n";
+		output += "num3 = num1 % num2\n";
+		output += "print '%f %% %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Python also has an exponent operator given by **\n";
+		output += "num1 = 4\n";
+		output += "num2 = 2\n";
+		output += "num3 = num1 ** num2\n";
+		output += "print '%f ** %f = %f' % (num1, num2, num3)\n\n";
+		
+		output2 = "Basic Operations in Python: <br>";
+		output2 += " - Arithmetic<br>";
+		output2 += "The basic operations in Python are: <br>";
+		output2 += " addition (+), <br>";
+		output2 += " subtraction (-), <br>";
+		output2 += " multiplication (*), <br>";
+		output2 += " division (/), <br>";
+		output2 += " modulus (%), <br>";
+		output2 += " and exponent (**).<br>";
+		output2 += "Given two numbers, the addition operation returns their sum<br>";
+		output2 += "<pre>num1 = 3.14\n";
+		output2 += "num2 = 2.71\n";
+		output2 += "num3 = num1 + num2\n";
+		output2 += "print '%f + %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Given two numbers, the subtraction operation returns their difference<br>";
+		output2 += "<pre>num1 = 16\n";
+		output2 += "num2 = 25\n";
+		output2 += "num3 = num1 - num2\n";
+		output2 += "print '%f - %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Given two numbers, the multiplication operation returns their product<br>";
+		output2 += "<pre>num1 = 4\n";
+		output2 += "num2 = 11\n";
+		output2 += "num3 = num1 * num2\n";
+		output2 += "print '%f * %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Given two numbers, the division operation returns <br>";
+		output2 += "the floor of the quotient of num1 divided by num2<br>";
+		output2 += "<pre>num1 = 5\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = num1 / num2\n";
+		output2 += "print '%f / %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Given two numbers, (float(num1)/num2) returns the result of <br>";
+		output2 += "num1 divided by num2<br>";
+		output2 += "<pre>num1 = 5\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = float(num1) / num2\n";
+		output2 += "print 'float(%f) / %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Given two integer numbers, the modulus operation returns their <br>";
+		output2 += "remainder when num1 is divided by num2<br>";
+		output2 += "<pre>num1 = 16\n";
+		output2 += "num2 = 3\n";
+		output2 += "num3 = num1 % num2\n";
+		output2 += "print '%f %% %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Python also has an exponent operator given by **<br>";
+		output2 += "<pre>num1 = 4\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = num1 ** num2\n";
+		output2 += "print '%f ** %f = %f' % (num1, num2, num3)</pre>";
+	}
+	else if (input == "5b")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Basic Operations in Python: \n";
+		output += "# - Comparison\n";
+		output += "#There are six basic comparison operations in Python: \n";
+		output += "#These are :\n";
+		output += "# - greater than (>), \n";
+		output += "# - less than (<), \n";
+		output += "# - equals (==) \n";
+		output += "# - not equals (!=) \n";
+		output += "# - greater than or equal to (>=) \n";
+		output += "# - less than or equal to (<=) \n";
+		output += "#The less than operator compares two objects and returns true if \n";
+		output += "#the value in the left term is smaller than the value in the right \n";
+		output += "#(however 'smaller' is defined for those objects). \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_lt = num1 < num2\n";
+		output += "print '%s < %s = %s' % (num1, num2, op_lt)\n\n";
+		output += "#The greater than operator compares two objects and returns true if \n";
+		output += "#the value in the left term is larger than the value in the right \n";
+		output += "#(however 'larger' is defined for those objects). \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_gt = num1 > num2\n";
+		output += "print '%s > %s = %s' % (num1, num2, op_gt)\n\n";
+		output += "#The equals operator compares two objects and returns true if \n";
+		output += "#the value in the left term is equal to value in the right \n";
+		output += "#(however 'equal' is defined for those objects. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_eq = num1 == num2\n";
+		output += "print '%s == %s = %s' % (num1, num2, op_eq)\n\n";
+		output += "#The not equals operator compares two objects and returns true if \n";
+		output += "#the value in the left term is not equal to value in the right \n";
+		output += "#(however 'equal' is defined for those objects. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_neq = num1 != num2\n";
+		output += "print '%s != %s = %s' % (num1, num2, op_neq)\n\n";
+		output += "#In addition, we can join together multiple logical operators \n";
+		output += "#using and, or and not terminology.  \n";
+		output += "#The and operator compares two logical objects and returns true if \n";
+		output += "#both these logical objects are true. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "num3 = 0\n";
+		output += "op_and = num3 < num1 and num1 < num2\n";
+		output += "print '%s < %s and %s < %s = %s' % (num3, num1, num1, num2, op_and)\n\n";
+		output += "#The or operator compares two logical objects and returns true if \n";
+		output += "#one of these logical objects is true. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "num3 = 30\n";
+		output += "op_or = num3 < num1 or num1 < num2\n";
+		output += "print '%s < %s or %s < %s = %s' % (num3, num1, num1, num2, op_or)\n\n";
+		output += "#The not operator returns the logical negation of a logical operator. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_not = not(10 < 20)\n";
+		output += "print 'not(%s < %s) = %s' % (num1, num2, op_not)\n\n";
+		
+		output2 = "Basic Operations in Python: <br><br>";
+		output2 += " - Comparison<br>";
+		output2 += "There are six basic comparison operations in Python: <br>";
+		output2 += "These are :<br>";
+		output2 += " - greater than (>), <br>";
+		output2 += " - less than (<), <br>";
+		output2 += " - equals (==) <br>";
+		output2 += " - not equals (!=) <br>";
+		output2 += " - greater than or equal to (>=) <br>";
+		output2 += " - less than or equal to (<=) <br>";
+		output2 += "The less than operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is smaller than the value in the right <br>";
+		output2 += "(however 'smaller' is defined for those objects). <br>";
+
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_lt = num1 < num2\n";
+		output2 += "print '%s < %s = %s' % (num1, num2, op_lt)</pre>";
+		output2 += "The greater than operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is larger than the value in the right <br>";
+		output2 += "(however 'larger' is defined for those objects). <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_gt = num1 > num2\n";
+		output2 += "print '%s > %s = %s' % (num1, num2, op_gt)</pre>";
+		output2 += "The equals operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is equal to value in the right <br>";
+		output2 += "(however 'equal' is defined for those objects. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_eq = num1 == num2\n";
+		output2 += "print '%s == %s = %s' % (num1, num2, op_eq)</pre>";
+		output2 += "The not equals operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is not equal to value in the right <br>";
+		output2 += "(however 'equal' is defined for those objects. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_neq = num1 != num2\n";
+		output2 += "print '%s != %s = %s' % (num1, num2, op_neq)</pre>";
+		output2 += "In addition, we can join together multiple logical operators <br>";
+		output2 += "using and, or and not terminology.  <br>";
+		output2 += "The and operator compares two logical objects and returns true if <br>";
+		output2 += "both these logical objects are true. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "num3 = 0\n";
+		output2 += "op_and = num3 < num1 and num1 < num2\n";
+		output2 += "print '%s < %s and %s < %s = %s' % (num3, num1, num1, num2, op_and)</pre>";
+		output2 += "The or operator compares two logical objects and returns true if <br>";
+		output2 += "one of these logical objects is true. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "num3 = 30\n";
+		output2 += "op_or = num3 < num1 or num1 < num2\n";
+		output2 += "print '%s < %s or %s < %s = %s' % (num3, num1, num1, num2, op_or)</pre>";
+		output2 += "The not operator returns the logical negation of a logical operator. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_not = not(10 < 20)\n";
+		output2 += "print 'not(%s < %s) = %s' % (num1, num2, op_not)</pre>";
+	}
+	else if (input == "5c")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Basic Operations in Python: \n";
+		output += "# - Assignment\n";
+		output += "#There are basic assignment operations in Python are: \n";
+		output += "# - = , \n";
+		output += "# - += , \n";
+		output += "# - -= , \n";
+		output += "# - *= , \n";
+		output += "# - /= , \n";
+		output += "# - %= , \n";
+		output += "# - **= , \n";
+		output += "#The '='	assigns the value on the right hand side to \n";
+		output += "#the variable on the left hand side. \n";
+		output += "num1 = 10\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '+=' is used as a += b and assigns the value of a + b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 += 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '-=' is used as a -= b and assigns the value of a - b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 -= 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '*=' is used as a *= b and assigns the value of a * b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 *= 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '/=' is used as a /= b and assigns the value of a / b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 /= 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '%=' is used as a %= b and assigns the value of a % b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 %= 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '**=' is used as a **= b and assigns the value of a ** b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 **= 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		
+		output2 = "Basic Operations in Python: <br><br>";
+		output2 += " - Assignment<br>";
+		output2 += "There are basic assignment operations in Python are: <br>";
+		output2 += " - = , <br>";
+		output2 += " - += , <br>";
+		output2 += " - -= , <br>";
+		output2 += " - *= , <br>";
+		output2 += " - /= , <br>";
+		output2 += " - %= , <br>";
+		output2 += " - **= , <br>";
+		output2 += "The '=' assigns the value on the right hand side to <br>";
+		output2 += "the variable on the left hand side. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '+=' is used as a += b and assigns the value of a + b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 += 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '-=' is used as a -= b and assigns the value of a - b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 -= 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '*=' is used as a *= b and assigns the value of a * b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 *= 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '/=' is used as a /= b and assigns the value of a / b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 /= 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '%=' is used as a %= b and assigns the value of a % b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 %= 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '**=' is used as a **= b and assigns the value of a ** b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 **= 20\n";
+		output2 += "<pre>print 'num1 = %s' % (num1)</pre>";
+	}
+	else if (input == "6")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Conditionals in Python: \n";
+		output += "#There two basic conditional statements in Python are: \n";
+		output += "# - if statements \n";
+		output += "# - if else statements \n";
+		output += "#An if statement works as if conditional followed by a block of code. \n";
+		output += "#If there are multiple lines in this block of code, they need to have \n";
+		output += "#the same number of spaces in front of the first non-whitespace character. \n";
+		output += "#In an if statement, if the condition is true, then the block of code that \n";
+		output += "#follows is executed, otherwise it is ignored.  \n";
+		output += "num1 = 10\n";
+		output += "if num1 <> 10 : \n";
+		output += " print 'Inside first If, num1 is NOT ten'\n";
+		output += " num1 = 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#Consider the next example, where all that is changed is the space in \n";
+		output += "#front of the line 'num1 = 20' is removed\n";
+		output += "num1 = 10\n";
+		output += "if num1 <> 10 : \n";
+		output += " print 'Inside second If, num1 is NOT ten'\n";
+		output += "num1 = 20\n";
+		output += "print 'Outside second If, num1 = %s' % (num1)\n\n";
+		output += "#In an if ... else statement, if the condition after the if statement is \n";
+		output += "#true, then the first block of code is executed. \n";
+		output += "#If this condition is false, then the  alternative set of actions located \n";
+		output += "#after the else statement is executed. \n";
+		output += "num1 = 10\n";
+		output += "if num1 <> 10 : \n";
+		output += " print 'Inside 3rd If, num1 is NOT ten'\n";
+		output += " num1 = 20\n";
+		output += "else : \n";
+		output += " print 'Inside 3rd Else, num1 is ten'\n";
+		output += " num1 = 30\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		
+		output2 = "Conditionals in Python: <br><br>";
+		output2 += "There two basic conditional statements in Python are: <br>";
+		output2 += " - if statements <br>";
+		output2 += " - if else statements <br>";
+		output2 += "An if statement works as if conditional followed by a block of code. <br>";
+		output2 += "If there are multiple lines in this block of code, they need to have <br>";
+		output2 += "the same number of spaces in front of the first non-whitespace character. <br>";
+		output2 += "In an if statement, if the condition is true, then the block of code that <br>";
+		output2 += "follows is executed, otherwise it is ignored.  <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if num1 <> 10 : \n";
+		output2 += " print 'Inside first If, num1 is NOT ten'\n";
+		output2 += " num1 = 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output += "Consider the next example, where all that is changed is the space in <br>";
+		output += "front of the line 'num1 = 20' is removed<br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if num1 <> 10 : \n";
+		output2 += " print 'Inside second If, num1 is NOT ten'\n";
+		output2 += "num1 = 20\n";
+		output2 += "print 'Outside second If, num1 = %s' % (num1)</pre>";
+		output2 += "In an if ... else statement, if the condition after the if statement is <br>";
+		output2 += "true, then the first block of code is executed. <br>";
+		output2 += "If this condition is false, then the  alternative set of actions located <br>";
+		output2 += "after the else statement is executed. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if num1 <> 10 : \n";
+		output2 += " print 'Inside 3rd If, num1 is NOT ten'\n";
+		output2 += " num1 = 20\n";
+		output2 += "else : \n";
+		output2 += " print 'Inside 3rd Else, num1 is ten'\n";
+		output2 += " num1 = 30\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+	}
+	else if (input == "7a")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Loops in Python: \n";
+		output += "#The two types of loops we'll consider in Python are: \n";
+		output += "# - for loops\n";
+		output += "#The purpose of a for loop is to iterate once for each item in a sequence. \n";
+		output += "#This sequqnce can be a string, a list, or a tuple. \n";
+		output += "#Like with 'if' statements, if there are multiple lines in this block of \n";
+		output += "#code, they need to have the same number of spaces in front of the first \n";
+		output += "#non-whitespace character. \n";
+		output += "school = 'Morehouse'\n";
+		output += "print 'about to begin for loop 1'\n";
+		output += "for letter in school: \n";
+		output += " print letter\n\n";
+		output += "print 'we have finished for loop 1'\n";
+		output += "list1 = ['facebook', 'linkedin', 'meetup', 'twitter', 'google']\n";
+		output += "print 'about to begin for loop 2'\n";
+		output += "for company in list1 : \n";
+		output += " print 'loop2:' + company + ' does social media'\n";
+		output += "print 'we have finished for loop 2'\n\n";
+		output += "print 'about to begin for loop 3'\n";
+		output += "for i in range(len(list1)): \n"
+		output += " print 'loop3: ' + list1[i] + ' does social media'\n\n";
+		output += "print 'we have finished for loop 3'\n";
+		output += "#A for loop can be interrupted by a break statement. This will stop the \n";
+		output += "#current execution of the loop and continue at the next block of \n";
+		output += "#program code. \n";
+		output += "print 'about to begin for loop 4'\n";
+		output += "for i in range(len(list1)): \n"
+		output += " if list1[i] == 'linkedin':\n"
+		output += "  break\n"
+		output += " print 'loop4: ' + list1[i] + ' does social media'\n\n"
+		output += "print 'we have finished for loop 4'\n";
+		output += "#A for loop can also be interrupted by a continue statement. This will \n";
+		output += "#stop the current iteration and begin execution at the \n";
+		output += "#beginning of the next iteration. \n";
+		output += "print 'about to begin for loop 5'\n";
+		output += "for i in range(len(list1)): \n"
+		output += " if list1[i] == 'linkedin':\n"
+		output += "  continue\n"
+		output += " print 'loop5: ' + list1[i] + ' does social media'\n\n"
+		output += "print 'we have finished for loop 5'\n";
+
+		output2 = "Loops in Python: <br><br>";
+		output2 += "The two types of loops we'll consider in Python are: <br>";
+		output2 += " - for loops<br>";
+		output2 += " - while loops<br>";
+		output2 += "The purpose of a for loop is to iterate once for each item in a sequence. <br>";
+		output2 += "This sequqnce can be a string, a list, or a tuple. <br>";
+		output2 += "Like with 'if' statements, if there are multiple lines in this block of <br>";
+		output2 += "code, they need to have the same number of spaces in front of the first <br>";
+		output2 += "non-whitespace character. <br>";
+		output2 += "<pre>school = 'Morehouse'\n";
+		output2 += "print 'about to begin for loop 1'\n";
+		output2 += "for letter in school: \n";
+		output2 += " print letter\n\n";
+		output2 += "print 'we have finished for loop 1'\n";
+		output2 += "list1 = ['facebook', 'linkedin', 'meetup', 'twitter', 'google']\n";
+		output2 += "print 'about to begin for loop 2'\n";
+		output2 += "for company in list1 : \n";
+		output2 += " print 'loop2:' + company + ' does social media'\n";
+		output2 += "print 'we have finished for loop 2'\n\n";
+		output2 += "print 'about to begin for loop 3'\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " print 'loop3: ' + list1[i] + ' does social media'\n\n";
+		output2 += "print 'we have finished for loop 3'</pre>";
+		output2 += "A for loop can be interrupted by a break statement. This will stop the <br>";
+		output2 += "current execution of the loop and continue at the next block of <br>";
+		output2 += "program code. <br>";
+		output2 += "<pre>print 'about to begin for loop 4'\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " if list1[i] == 'linkedin':\n"
+		output2 += "  break\n"
+		output2 += " print 'loop4: ' + list1[i] + ' does social media'\n\n"
+		output2 += "print 'we have finished for loop 4'</pre>";
+		output2 += "A for loop can also be interrupted by a continue statement. This will <br>";
+		output2 += "stop the current iteration and begin execution at the <br>";
+		output2 += "beginning of the next iteration. <br>";
+		output2 += "<pre>print 'about to begin for loop 5'\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " if list1[i] == 'linkedin':\n"
+		output2 += "  continue\n"
+		output2 += " print 'loop5: ' + list1[i] + ' does social media'\n\n"
+		output2 += "print 'we have finished for loop 5'</pre>";
+		}
+	else if (input == "7b")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Loops in Python: \n";
+		output += "#The two types of loops we'll consider in Python are: \n";
+		output += "# - while loops\n";
+		output += "#A while loop is similar to an if statement, in that it checks that a \n";
+		output += "#condition is true and executes a block of code if this condition is true.\n";
+		output += "#Unlike an if statement, however, a while loop will continue to execute this \n";
+		output += "#block of code as long as the condition remains true. \n";
+		output += "#Similar to 'if' statements and 'for' loops, if there are multiple lines in \n";
+		output += "#this block of code, they need to have the same number of spaces in front of \n";
+		output += "#the first non-whitespace character. \n";
+		output += "count = 0\n";
+		output += "print 'about to begin while loop 1'\n";
+		output += "while count < 10: \n";
+		output += " print count\n";
+		output += " count += 1\n";
+		output += "print 'we have finished while loop 1'\n\n";
+		output += "#A while loop can be interrupted by a break statement. This will stop the current \n";
+		output += "#execution of the loop and continue at the next block of program code. \n";
+		output += "print 'about to begin while loop 2'\n";
+		output += "count = 0\n";
+		output += "while count < 10: \n"
+		output += " count += 1\n"
+		output += " if count % 2 == 0:\n"
+		output += "  break\n"
+		output += " print 'loop2: %s' % count\n"
+		output += "print 'we have finished while loop 2'\n";
+		output += "#A while loop can also be interrupted by a continue statement. This will stop the\n";
+		output += "#current iteration and begin execution at the beginning of the next iteration. \n";
+		output += "print 'about to begin while loop 3'\n";
+		output += "count = 0\n";
+		output += "while count < 10: \n"
+		output += " count += 1\n"
+		output += " if count % 2 == 0:\n"
+		output += "  continue\n"
+		output += " print 'loop3: %s' % count\n"
+		output += "print 'we have finished while loop 3'\n";
+		
+		output2 = "Loops in Python: <br><br>";
+		output2 += "The two types of loops we'll consider in Python are: <br>";
+		output2 += " - while loops<br>";
+		output2 += "A while loop is similar to an if statement, in that it checks that a <br>";
+		output2 += "condition is true and executes a block of code if this condition is true.<br>";
+		output2 += "Unlike an if statement, however, a while loop will continue to execute this <br>";
+		output2 += "block of code as long as the condition remains true. <br>";
+		output2 += "Similar to 'if' statements and 'for' loops, if there are multiple lines in <br>";
+		output2 += "this block of code, they need to have the same number of spaces in front of <br>";
+		output2 += "the first non-whitespace character. <br>";
+		output2 += "<pre>count = 0\n";
+		output2 += "print 'about to begin while loop 1'\n";
+		output2 += "while count < 10: \n";
+		output2 += " print count\n";
+		output2 += " count += 1\n";
+		output2 += "print 'we have finished while loop 1'</pre>";
+		output2 += "A while loop can be interrupted by a break statement. This will stop the current <br>";
+		output2 += "execution of the loop and continue at the next block of program code. <br>";
+		output2 += "<pre>print 'about to begin while loop 2'\n";
+		output2 += "count = 0\n";
+		output2 += "while count < 10: \n"
+		output2 += " count += 1\n"
+		output2 += " if count % 2 == 0:\n"
+		output2 += "  break\n"
+		output2 += " print 'loop2: %s' % count\n"
+		output2 += "print 'we have finished while loop 2'</pre>";
+		output2 += "A while loop can also be interrupted by a continue statement. This will stop the<br>";
+		output2 += "current iteration and begin execution at the beginning of the next iteration. <br>";
+		output2 += "<pre>print 'about to begin while loop 3'\n";
+		output2 += "count = 0\n";
+		output2 += "while count < 10: \n"
+		output2 += " count += 1\n"
+		output2 += " if count % 2 == 0:\n"
+		output2 += "  continue\n"
+		output2 += " print 'loop3: %s' % count\n"
+		output2 += "print 'we have finished while loop 3'</pre>";	
+	}
+	else if (input == "8")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Functions in Python: \n";
+		output += "#A function is a block of code that can be called repeatedly. \n";
+		output += "#In Python, functions are defined by the word 'def', followed by the function name, \n";
+		output += "#then the parameters in parenthesis and a colon\n";
+		output += "#Like loops and if statements, blocks of function code need to be equally indented. \n";
+		output += "def printByline(author):\n";
+		output += " print 'written by ' + author + '. '\n\n";
+		output += "name = 'AfterMath'\n"
+		output += "printByline(name)\n\n";
+		
+		output2 = "Functions in Python: <br><br>";
+		output2 += "A function is a block of code that can be called repeatedly. <br>";
+		output2 += "In Python, functions are defined by the word 'def', followed by the function name, <br>";
+		output2 += "then the parameters in parenthesis and a colon<br>";
+		output2 += "Like loops and if statements, blocks of function code need to be equally indented. <br>";
+		output2 += "<pre>def printByline(author):\n";
+		output2 += " print 'written by ' + author + '. '\n\n";
+		output2 += "name = 'AfterMath'\n"
+		output2 += "printByline(name)</pre>";
+	}
+	document.getElementById("code").value = output;
+	document.getElementById("wlkthrgh").innerHTML = output2;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, statistics, stats,
+probability, computer science, programming, code, python, examples" />
+<meta name="description" content="This is a set of Python programs to help users begin programming in Python. " />
+<title> at LEARNINGlover.com</title>
+<style>
+pre {background-color:#00CCCC;}
+</style>
+<script type="text/javascript">
+function getCode()
+{
+	var input = document.getElementById("pgrm").value;
+	var output = "";
+	var output2 = "";
+	
+	if (input == "1")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "print \"Hello, World!\"\n";
+		output += "print 'Hello, World!'\n";
+		output += "print \"Hello,\", \"World!\"\n";
+		
+		output2 = "<pre><br>";
+		output2 += "#!/usr/bin/python\n\n";
+		output2 += "print \"Hello, World!\"\n";
+		output2 += "print 'Hello, World!'\n";
+		output2 += "print \"Hello,\", \"World!\"\n";
+		output2 += "</pre></br>";
+	}
+	else if (input == "2")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Comments in Python\n\n";
+		output += "#This is a comment. \n";
+		output += "print \"Hello, World!\"\n";
+		output += "#Comments start with a # sign. \n";
+		output += "#Everything after the # sign is ignored. \n";
+		output += "#Comments can either go on a new line\n";
+		output += "print \"This is a second output statement\" #comments can go here\n";
+		
+		output2 = "Comments in Python<br><br>";
+		output2 += "<pre>#This is a comment. \n";
+		output2 += "print \"Hello, World!\"</pre>";
+		output2 += "Comments start with a # sign. <br>";
+		output2 += "Everything after the # sign is ignored. </br>";
+		output2 += "Comments can either go on a new line<br>";
+		output2 += "or a comment can go after a python statement<br>";
+		output2 += "<pre>print \"This is a second output statement\" #comments can go here</pre>\n";
+	}
+	else if (input == "3")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Variables in Python\n\n";
+		output += "#Variables store data in memory.\n";
+		output += "#In order to do this you need to give the variable a name so you \n";
+		output += "#can retrieve the information later. \n";
+		output += "#These names must start with either a capital letter, a lowercase \n";
+		output += "#letter, or an underscore\n";
+		output += "#and can only contain letters, numbers and the underscore symbol. \n";
+		output += "#Variable names are case sensitive. \n";
+		output += "Num = 8\n";
+		output += "print Num\n";
+		output += "number_zero = 0\n";
+		output += "print number_zero\n";
+		output += "num = 2.7\n";
+		output += "print num\n";
+		output += "#Notice that Num and num are different variables. \n\n";
+		
+		output2 = "Variables in Python<br><br>";
+		output2 += "Variables store data in memory.<br>";
+		output2 += "In order to do this you need to give the variable a name so you<br>";
+		output2 += "can retrieve the information later. <br>";
+		output2 += "These names must start with either a capital letter, a lowercase <br>";
+		output2 += "letter, or an underscore<br>";
+		output2 += "and can only contain letters, numbers and the underscore symbol. <br>";
+		output2 += "Variable names are case sensitive. <br>";
+		output2 += "<pre>Num = 8\n";
+		output2 += "print Num\n";
+		output2 += "number_zero = 0\n";
+		output2 += "print number_zero\n";
+		output2 += "num = 2.7\n";
+		output2 += "print num</pre>";
+		output2 += "Notice that Num and num are different variables. \n\n";
+	}
+	else if (input == "4a")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Numbers can be integer, long, float or complex\n";
+		output += "#Integers are used for standard operations on \n";
+		output += "#(positive and negative) whole numbers\n";
+		output += "int_num = 8\n";
+		output += "print int_num\n\n";
+	
+		output += "#Longs are used for calculations on really large \n";
+		output += "#whole numbers. The 'L' indicates that its a long num. \n";
+		output += "long_num = 4294967296L\n";
+		output += "print long_num\n";
+		
+		output += "#Floats are used for floating point numbers, or rational \n";
+		output += "#numbers that are not whole numbers. \n";
+		output += "float_num = 3.14159\n";
+		output += "print float_num\n";
+
+		output += "#Dealing with fractions in Python 2.7, you need to \n";
+		output += "#declare it as float \n";
+		output += "float_num2 = float(22)/7\n";
+		output += "print float_num2\n";
+			
+		output += "#Complex numbers are numbers with a real portion and a \n";
+		output += "#imaginary portion. They are indicated by a j \n";
+		output += "#after the number\n";
+		output += "complex_num = 1 + 3j\n";
+		output += "print complex_num\n\n";
+		
+		
+		output2 = "Data Types in Python<br><br>";
+		output2 += "Python has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Lists<br>";
+		output2 += " - Tuples<br>";
+		output2 += " - Dictionaries<br><br>";
+		output2 += "Numbers can be integer, long, float or complex<br>";
+		output2 += "Integers are used for standard operations on <br>";
+		output2 += "(positive and negative) whole numbers<br>";
+		output2 += "<pre>int_num = 8\n";
+		output2 += "print int_num</pre><br><br>";
+	
+		output2 += "Longs are used for calculations on really large <br>";
+		output2 += "whole numbers. The 'L' indicates that its a long num. <br>";
+		output2 += "<pre>long_num = 4294967296L\n";
+		output2 += "print long_num</pre>";
+		
+		output2 += "Floats are used for floating point numbers, or rational <br>";
+		output2 += "numbers that are not whole numbers. <br>";
+		output2 += "<pre>float_num = 3.14159\n";
+		output2 += "print float_num</pre>";
+
+		output2 += "Dealing with fractions in Python 2.7, you need to <br>";
+		output2 += "declare it as float <br>";
+		output2 += "<pre>float_num2 = float(22)/7\n";
+		output2 += "print float_num2</pre>";
+			
+		output2 += "Complex numbers are numbers with a real portion and an <br>";
+		output2 += "imaginary portion. They are indicated by a j <br>";
+		output2 += "after the number<br>";
+		output2 += "<pre>complex_num = 1 + 3j\n";
+		output2 += "print complex_num</pre>";
+	}
+	else if (input == "4b")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Strings are characters between a pair of quotes\n";
+		output += "str1 = \"This is a string\"\n";
+		output += "print str1\n";
+		output += "str2 = 'This is also a string'\n";
+		output += "print str2\n\n";
+		output += "#There are several operations you can do on strings\n";
+		output += "#You can access the characters inside a string by bracket notation: \n";
+		output += "str2 = 'This is also a string'\n";
+		output += "print str2[0]\n";
+		output += "print str2[0:12]\n\n";
+		output += "#You can also format strings nicely: \n";
+		output += "fav = 'The Lion King'\n";
+		output += "user = 'Chris'\n";
+		output += "print '%s\\'s favorite movie is %s' % (user, fav)\n\n";
+		output += "#You can also use formatting to display numbers correctly:\n";
+		output += "cmpl = float(292)/473\n"
+		output += "player = 'Cam Newton'\n";
+		output += "year = '2013'\n";
+		output += "print '%s accuracy in %s was %.2f ' % (player, year, cmpl)\n\n";
+		output += "#The + operator concatenates two strings:\n";
+		output += "first = 'Bruce'\n";
+		output += "last = 'Leroy'\n";
+		output += "full_name = first + ' ' + last\n";
+		output += "print full_name\n\n";
+		output += "#The * operator repeats a string the indicated number of times:\n";
+		output += "first = 'Robert'\n";
+		output += "last = 'Griffin'\n";
+		output += "suffix = 'I'\n";
+		output += "father = first + ' ' + last + ' ' + suffix*2\n";
+		output += "son = first + ' ' + last + ' ' + suffix*3\n";
+		output += "print '%s is the father of %s' % (father, son)\n\n";
+		
+		output2 = "Data Types in Python<br><br>";
+		output2 += "Python has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Lists<br>";
+		output2 += " - Tuples<br>";
+		output2 += " - Dictionaries<br><br>";
+		output2 += "Strings are characters between a pair of quotes<br>";
+		output2 += "<pre>str1 = \"This is a string\"\n";
+		output2 += "print str1\n";
+		output2 += "str2 = 'This is also a string'\n";
+		output2 += "print str2</pre>";
+		output2 += "There are several operations you can do on strings<br>";
+		output2 += "You can access the characters inside a string by bracket notation: <br>";
+		output2 += "<pre>str2 = 'This is also a string'\n";
+		output2 += "print str2[0]\n";
+		output2 += "print str2[0:12]</pre>";
+		output2 += "You can also format strings nicely: <br>";
+		output2 += "<pre>fav = 'The Lion King'\n";
+		output2 += "user = 'Chris'\n";
+		output2 += "print '%s\\'s favorite movie is %s' % (user, fav)</pre>";
+		output2 += "You can also use formatting to display numbers correctly:<br>";
+		output2 += "<pre>cmpl = float(292)/473\n"
+		output2 += "player = 'Cam Newton'\n";
+		output2 += "year = '2013'\n";
+		output2 += "print '%s accuracy in %s was %.2f ' % (player, year, cmpl)</pre>";
+		output2 += "The + operator concatenates two strings:<br>";
+		output2 += "<pre>first = 'Bruce'\n";
+		output2 += "last = 'Leroy'\n";
+		output2 += "full_name = first + ' ' + last\n";
+		output2 += "print full_name</pre>";
+		output2 += "The * operator repeats a string the indicated number of times:<br>";
+		output2 += "<pre>first = 'Robert'\n";
+		output2 += "last = 'Griffin'\n";
+		output2 += "suffix = 'I'\n";
+		output2 += "father = first + ' ' + last + ' ' + suffix*2\n";
+		output2 += "son = first + ' ' + last + ' ' + suffix*3\n";
+		output2 += "print '%s is the father of %s' % (father, son)</pre>";
+	}
+	else if (input == "4c")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Lists are items separated by a comma between square brackets\n";
+		output += "first_primes = [2, 3, 5]\n";
+		output += "print first_primes \n";
+		output += "fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output += "print fav_movies\n";
+		output += "#The items in a list can be of different types\n";
+		output += "fav_things = [\"Music\", [\"Raindrops on roses\", \"Whiskers on Kittens\"]]\n";
+		output += "#You can access the elements of a list, individually with the first \n";
+		output += "#value having location 0. \n";
+		output += "print first_primes[2]\n";
+		output += "#You can change the elements of a list\n";
+		output += "fav_movies[0] = 'The Wood'\n";
+		output += "print fav_movies\n";
+		output += "#You can add to a list with the append method\n";
+		output += "fav_movies.append('Harry Potter')\n";
+		output += "print fav_movies\n";
+		output += "#The remove method will remove specified element from the list. \n";
+		output += "fav_movies.remove('Friday')\n";
+		output += "print fav_movies\n";
+		
+		output2 = "Data Types in Python<br><br>";
+		output2 += "Python has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Lists<br>";
+		output2 += " - Tuples<br>";
+		output2 += " - Dictionaries<br><br>";
+		output2 += "Lists are items separated by a comma between square brackets<br>";
+		output2 += "<pre>first_primes = [2, 3, 5]\n";
+		output2 += "print first_primes </pre>";
+		output2 += "<pre>fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output2 += "print fav_movies</pre>";
+		output2 += "The items in a list can be of different types<br>";
+		output2 += "<pre>fav_things = [\"Music\", [\"Raindrops on roses\", \"Whiskers on Kittens\"]]\n";
+		output2 += "print fav_things</pre>";
+		output2 += "You can access the elements of a list, individually with the first <br>";
+		output2 += "value having location 0. <br>";
+		output2 += "<pre>first_primes = [2, 3, 5]\n";
+		output2 += "print first_primes[2]</pre>";
+		output2 += "You can change the elements of a list<br>";
+		output2 += "<pre>fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output2 += "fav_movies[0] = 'The Wood'\n";
+		output2 += "print fav_movies</pre>";
+		output2 += "You can add to a list with the append method<br>";
+		output2 += "<pre>fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output2 += "fav_movies.append('Harry Potter')\n";
+		output2 += "print fav_movies</pre>";
+		output2 += "The remove method will remove specified element from the list. <br>";
+		output2 += "<pre>fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output2 += "fav_movies.remove('Friday')\n";
+		output2 += "print fav_movies</pre>";
+	}
+	else if (input == "4d")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Tuples are read only lists. They are items separated by a comma \n";
+		output += "#and are within parenthesis\n";
+		output += "first_primes_2 = (2, 3, 5)\n";
+		output += "print first_primes_2 \n";
+		output += "#You can access the elements of a tuple, individually with the \n";
+		output += "#first value having location 0. \n";
+		output += "print first_primes_2[2]\n\n";
+		
+		output2 = "Data Types in Python<br><br>";
+		output2 += "Python has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Lists<br>";
+		output2 += " - Tuples<br>";
+		output2 += " - Dictionaries<br><br>";
+		output2 += "Tuples are read only lists. They are items separated by a comma <br>";
+		output2 += "and are within parenthesis<br>";
+		output2 += "<pre>first_primes_2 = (2, 3, 5)\n";
+		output2 += "print first_primes_2 </pre>";
+		output2 += "You can access the elements of a tuple, individually with the <br>";
+		output2 += "first value having location 0. <br>";
+		output2 += "<pre>print first_primes_2[2]</pre>";
+	}
+	else if (input == "4e")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Data Types in Python\n\n";
+		output += "#Python has 5 basic data types: \n";
+		output += "# - Numbers\n";
+		output += "# - Strings\n";
+		output += "# - Lists\n";
+		output += "# - Tuples\n";
+		output += "# - Dictionaries\n\n";
+		output += "#Dictionaries are like lists, but instead of being indexed by \n";
+		output += "#0, 1, 2, ..., they are indexed by user specified elements. \n";
+		output += "#Dictionaries are defined inside curly brackets, where the item \n";
+		output += "#will be a key, a colon and then a value\n";
+		output += "game = {'Wall' : '28 points', 'Beal' : '16 points', 'Gortat' : '9 points'}\n";
+		output += "print game, game['Wall']\n";
+		
+		output2 = "Data Types in Python<br><br>";
+		output2 += "Python has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Lists<br>";
+		output2 += " - Tuples<br>";
+		output2 += " - Dictionaries<br><br>";
+		output2 += "Dictionaries are like lists, but instead of being indexed by <br>";
+		output2 += "0, 1, 2, ..., they are indexed by user specified elements. <br>";
+		output2 += "Dictionaries are defined inside curly brackets, where the item <br>";
+		output2 += "will be a key, a colon and then a value<br>";
+		output2 += "<pre>game = {'Wall' : '28 points', 'Beal' : '16 points', 'Gortat' : '9 points'}<br>";
+		output2 += "print game, game['Wall']</pre>";
+	}
+	else if (input == "5a")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Basic Operations in Python: \n";
+		output += "# - Arithmetic\n";
+		output += "#The basic operations in Python are: \n";
+		output += "# addition (+), \n";
+		output += "# subtraction (-), \n";
+		output += "# multiplication (*), \n";
+		output += "# division (/), \n";
+		output += "# modulus (%), \n";
+		output += "# and exponent (**).\n";
+		output += "#Given two numbers, the addition operation returns their sum\n";
+		output += "num1 = 3.14\n";
+		output += "num2 = 2.71\n";
+		output += "num3 = num1 + num2\n";
+		output += "print '%f + %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Given two numbers, the subtraction operation returns their difference\n";
+		output += "num1 = 16\n";
+		output += "num2 = 25\n";
+		output += "num3 = num1 - num2\n";
+		output += "print '%f - %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Given two numbers, the multiplication operation returns their product\n";
+		output += "num1 = 4\n";
+		output += "num2 = 11\n";
+		output += "num3 = num1 * num2\n";
+		output += "print '%f * %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Given two numbers, the division operation returns \n";
+		output += "#the floor of the quotient of num1 divided by num2\n";
+		output += "num1 = 5\n";
+		output += "num2 = 2\n";
+		output += "num3 = num1 / num2\n";
+		output += "print '%f / %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Given two numbers, (float(num1)/num2) returns the result of \n";
+		output += "#num1 divided by num2\n";
+		output += "num1 = 5\n";
+		output += "num2 = 2\n";
+		output += "num3 = float(num1) / num2\n";
+		output += "print 'float(%f) / %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Given two integer numbers, the modulus operation returns their \n";
+		output += "#remainder when num1 is divided by num2\n";
+		output += "num1 = 16\n";
+		output += "num2 = 3\n";
+		output += "num3 = num1 % num2\n";
+		output += "print '%f %% %f = %f' % (num1, num2, num3)\n\n";
+		output += "#Python also has an exponent operator given by **\n";
+		output += "num1 = 4\n";
+		output += "num2 = 2\n";
+		output += "num3 = num1 ** num2\n";
+		output += "print '%f ** %f = %f' % (num1, num2, num3)\n\n";
+		
+		output2 = "Basic Operations in Python: <br>";
+		output2 += " - Arithmetic<br>";
+		output2 += "The basic operations in Python are: <br>";
+		output2 += " addition (+), <br>";
+		output2 += " subtraction (-), <br>";
+		output2 += " multiplication (*), <br>";
+		output2 += " division (/), <br>";
+		output2 += " modulus (%), <br>";
+		output2 += " and exponent (**).<br>";
+		output2 += "Given two numbers, the addition operation returns their sum<br>";
+		output2 += "<pre>num1 = 3.14\n";
+		output2 += "num2 = 2.71\n";
+		output2 += "num3 = num1 + num2\n";
+		output2 += "print '%f + %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Given two numbers, the subtraction operation returns their difference<br>";
+		output2 += "<pre>num1 = 16\n";
+		output2 += "num2 = 25\n";
+		output2 += "num3 = num1 - num2\n";
+		output2 += "print '%f - %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Given two numbers, the multiplication operation returns their product<br>";
+		output2 += "<pre>num1 = 4\n";
+		output2 += "num2 = 11\n";
+		output2 += "num3 = num1 * num2\n";
+		output2 += "print '%f * %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Given two numbers, the division operation returns <br>";
+		output2 += "the floor of the quotient of num1 divided by num2<br>";
+		output2 += "<pre>num1 = 5\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = num1 / num2\n";
+		output2 += "print '%f / %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Given two numbers, (float(num1)/num2) returns the result of <br>";
+		output2 += "num1 divided by num2<br>";
+		output2 += "<pre>num1 = 5\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = float(num1) / num2\n";
+		output2 += "print 'float(%f) / %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Given two integer numbers, the modulus operation returns their <br>";
+		output2 += "remainder when num1 is divided by num2<br>";
+		output2 += "<pre>num1 = 16\n";
+		output2 += "num2 = 3\n";
+		output2 += "num3 = num1 % num2\n";
+		output2 += "print '%f %% %f = %f' % (num1, num2, num3)</pre>";
+		output2 += "Python also has an exponent operator given by **<br>";
+		output2 += "<pre>num1 = 4\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = num1 ** num2\n";
+		output2 += "print '%f ** %f = %f' % (num1, num2, num3)</pre>";
+	}
+	else if (input == "5b")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Basic Operations in Python: \n";
+		output += "# - Comparison\n";
+		output += "#There are six basic comparison operations in Python: \n";
+		output += "#These are :\n";
+		output += "# - greater than (>), \n";
+		output += "# - less than (<), \n";
+		output += "# - equals (==) \n";
+		output += "# - not equals (!=) \n";
+		output += "# - greater than or equal to (>=) \n";
+		output += "# - less than or equal to (<=) \n";
+		output += "#The less than operator compares two objects and returns true if \n";
+		output += "#the value in the left term is smaller than the value in the right \n";
+		output += "#(however 'smaller' is defined for those objects). \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_lt = num1 < num2\n";
+		output += "print '%s < %s = %s' % (num1, num2, op_lt)\n\n";
+		output += "#The greater than operator compares two objects and returns true if \n";
+		output += "#the value in the left term is larger than the value in the right \n";
+		output += "#(however 'larger' is defined for those objects). \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_gt = num1 > num2\n";
+		output += "print '%s > %s = %s' % (num1, num2, op_gt)\n\n";
+		output += "#The equals operator compares two objects and returns true if \n";
+		output += "#the value in the left term is equal to value in the right \n";
+		output += "#(however 'equal' is defined for those objects. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_eq = num1 == num2\n";
+		output += "print '%s == %s = %s' % (num1, num2, op_eq)\n\n";
+		output += "#The not equals operator compares two objects and returns true if \n";
+		output += "#the value in the left term is not equal to value in the right \n";
+		output += "#(however 'equal' is defined for those objects. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_neq = num1 != num2\n";
+		output += "print '%s != %s = %s' % (num1, num2, op_neq)\n\n";
+		output += "#In addition, we can join together multiple logical operators \n";
+		output += "#using and, or and not terminology.  \n";
+		output += "#The and operator compares two logical objects and returns true if \n";
+		output += "#both these logical objects are true. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "num3 = 0\n";
+		output += "op_and = num3 < num1 and num1 < num2\n";
+		output += "print '%s < %s and %s < %s = %s' % (num3, num1, num1, num2, op_and)\n\n";
+		output += "#The or operator compares two logical objects and returns true if \n";
+		output += "#one of these logical objects is true. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "num3 = 30\n";
+		output += "op_or = num3 < num1 or num1 < num2\n";
+		output += "print '%s < %s or %s < %s = %s' % (num3, num1, num1, num2, op_or)\n\n";
+		output += "#The not operator returns the logical negation of a logical operator. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_not = not(10 < 20)\n";
+		output += "print 'not(%s < %s) = %s' % (num1, num2, op_not)\n\n";
+		
+		output2 = "Basic Operations in Python: <br><br>";
+		output2 += " - Comparison<br>";
+		output2 += "There are six basic comparison operations in Python: <br>";
+		output2 += "These are :<br>";
+		output2 += " - greater than (>), <br>";
+		output2 += " - less than (<), <br>";
+		output2 += " - equals (==) <br>";
+		output2 += " - not equals (!=) <br>";
+		output2 += " - greater than or equal to (>=) <br>";
+		output2 += " - less than or equal to (<=) <br>";
+		output2 += "The less than operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is smaller than the value in the right <br>";
+		output2 += "(however 'smaller' is defined for those objects). <br>";
+
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_lt = num1 < num2\n";
+		output2 += "print '%s < %s = %s' % (num1, num2, op_lt)</pre>";
+		output2 += "The greater than operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is larger than the value in the right <br>";
+		output2 += "(however 'larger' is defined for those objects). <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_gt = num1 > num2\n";
+		output2 += "print '%s > %s = %s' % (num1, num2, op_gt)</pre>";
+		output2 += "The equals operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is equal to value in the right <br>";
+		output2 += "(however 'equal' is defined for those objects. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_eq = num1 == num2\n";
+		output2 += "print '%s == %s = %s' % (num1, num2, op_eq)</pre>";
+		output2 += "The not equals operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is not equal to value in the right <br>";
+		output2 += "(however 'equal' is defined for those objects. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_neq = num1 != num2\n";
+		output2 += "print '%s != %s = %s' % (num1, num2, op_neq)</pre>";
+		output2 += "In addition, we can join together multiple logical operators <br>";
+		output2 += "using and, or and not terminology.  <br>";
+		output2 += "The and operator compares two logical objects and returns true if <br>";
+		output2 += "both these logical objects are true. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "num3 = 0\n";
+		output2 += "op_and = num3 < num1 and num1 < num2\n";
+		output2 += "print '%s < %s and %s < %s = %s' % (num3, num1, num1, num2, op_and)</pre>";
+		output2 += "The or operator compares two logical objects and returns true if <br>";
+		output2 += "one of these logical objects is true. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "num3 = 30\n";
+		output2 += "op_or = num3 < num1 or num1 < num2\n";
+		output2 += "print '%s < %s or %s < %s = %s' % (num3, num1, num1, num2, op_or)</pre>";
+		output2 += "The not operator returns the logical negation of a logical operator. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_not = not(10 < 20)\n";
+		output2 += "print 'not(%s < %s) = %s' % (num1, num2, op_not)</pre>";
+	}
+	else if (input == "5c")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Basic Operations in Python: \n";
+		output += "# - Assignment\n";
+		output += "#There are basic assignment operations in Python are: \n";
+		output += "# - = , \n";
+		output += "# - += , \n";
+		output += "# - -= , \n";
+		output += "# - *= , \n";
+		output += "# - /= , \n";
+		output += "# - %= , \n";
+		output += "# - **= , \n";
+		output += "#The '='	assigns the value on the right hand side to \n";
+		output += "#the variable on the left hand side. \n";
+		output += "num1 = 10\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '+=' is used as a += b and assigns the value of a + b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 += 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '-=' is used as a -= b and assigns the value of a - b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 -= 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '*=' is used as a *= b and assigns the value of a * b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 *= 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '/=' is used as a /= b and assigns the value of a / b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 /= 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '%=' is used as a %= b and assigns the value of a % b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 %= 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#The '**=' is used as a **= b and assigns the value of a ** b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 **= 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		
+		output2 = "Basic Operations in Python: <br><br>";
+		output2 += " - Assignment<br>";
+		output2 += "There are basic assignment operations in Python are: <br>";
+		output2 += " - = , <br>";
+		output2 += " - += , <br>";
+		output2 += " - -= , <br>";
+		output2 += " - *= , <br>";
+		output2 += " - /= , <br>";
+		output2 += " - %= , <br>";
+		output2 += " - **= , <br>";
+		output2 += "The '=' assigns the value on the right hand side to <br>";
+		output2 += "the variable on the left hand side. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '+=' is used as a += b and assigns the value of a + b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 += 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '-=' is used as a -= b and assigns the value of a - b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 -= 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '*=' is used as a *= b and assigns the value of a * b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 *= 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '/=' is used as a /= b and assigns the value of a / b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 /= 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '%=' is used as a %= b and assigns the value of a % b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 %= 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output2 += "The '**=' is used as a **= b and assigns the value of a ** b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 **= 20\n";
+		output2 += "<pre>print 'num1 = %s' % (num1)</pre>";
+	}
+	else if (input == "6")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Conditionals in Python: \n";
+		output += "#There two basic conditional statements in Python are: \n";
+		output += "# - if statements \n";
+		output += "# - if else statements \n";
+		output += "#An if statement works as if conditional followed by a block of code. \n";
+		output += "#If there are multiple lines in this block of code, they need to have \n";
+		output += "#the same number of spaces in front of the first non-whitespace character. \n";
+		output += "#In an if statement, if the condition is true, then the block of code that \n";
+		output += "#follows is executed, otherwise it is ignored.  \n";
+		output += "num1 = 10\n";
+		output += "if num1 <> 10 : \n";
+		output += " print 'Inside first If, num1 is NOT ten'\n";
+		output += " num1 = 20\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		output += "#Consider the next example, where all that is changed is the space in \n";
+		output += "#front of the line 'num1 = 20' is removed\n";
+		output += "num1 = 10\n";
+		output += "if num1 <> 10 : \n";
+		output += " print 'Inside second If, num1 is NOT ten'\n";
+		output += "num1 = 20\n";
+		output += "print 'Outside second If, num1 = %s' % (num1)\n\n";
+		output += "#In an if ... else statement, if the condition after the if statement is \n";
+		output += "#true, then the first block of code is executed. \n";
+		output += "#If this condition is false, then the  alternative set of actions located \n";
+		output += "#after the else statement is executed. \n";
+		output += "num1 = 10\n";
+		output += "if num1 <> 10 : \n";
+		output += " print 'Inside 3rd If, num1 is NOT ten'\n";
+		output += " num1 = 20\n";
+		output += "else : \n";
+		output += " print 'Inside 3rd Else, num1 is ten'\n";
+		output += " num1 = 30\n";
+		output += "print 'num1 = %s' % (num1)\n\n";
+		
+		output2 = "Conditionals in Python: <br><br>";
+		output2 += "There two basic conditional statements in Python are: <br>";
+		output2 += " - if statements <br>";
+		output2 += " - if else statements <br>";
+		output2 += "An if statement works as if conditional followed by a block of code. <br>";
+		output2 += "If there are multiple lines in this block of code, they need to have <br>";
+		output2 += "the same number of spaces in front of the first non-whitespace character. <br>";
+		output2 += "In an if statement, if the condition is true, then the block of code that <br>";
+		output2 += "follows is executed, otherwise it is ignored.  <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if num1 <> 10 : \n";
+		output2 += " print 'Inside first If, num1 is NOT ten'\n";
+		output2 += " num1 = 20\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+		output += "Consider the next example, where all that is changed is the space in <br>";
+		output += "front of the line 'num1 = 20' is removed<br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if num1 <> 10 : \n";
+		output2 += " print 'Inside second If, num1 is NOT ten'\n";
+		output2 += "num1 = 20\n";
+		output2 += "print 'Outside second If, num1 = %s' % (num1)</pre>";
+		output2 += "In an if ... else statement, if the condition after the if statement is <br>";
+		output2 += "true, then the first block of code is executed. <br>";
+		output2 += "If this condition is false, then the  alternative set of actions located <br>";
+		output2 += "after the else statement is executed. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if num1 <> 10 : \n";
+		output2 += " print 'Inside 3rd If, num1 is NOT ten'\n";
+		output2 += " num1 = 20\n";
+		output2 += "else : \n";
+		output2 += " print 'Inside 3rd Else, num1 is ten'\n";
+		output2 += " num1 = 30\n";
+		output2 += "print 'num1 = %s' % (num1)</pre>";
+	}
+	else if (input == "7a")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Loops in Python: \n";
+		output += "#The two types of loops we'll consider in Python are: \n";
+		output += "# - for loops\n";
+		output += "#The purpose of a for loop is to iterate once for each item in a sequence. \n";
+		output += "#This sequqnce can be a string, a list, or a tuple. \n";
+		output += "#Like with 'if' statements, if there are multiple lines in this block of \n";
+		output += "#code, they need to have the same number of spaces in front of the first \n";
+		output += "#non-whitespace character. \n";
+		output += "school = 'Morehouse'\n";
+		output += "print 'about to begin for loop 1'\n";
+		output += "for letter in school: \n";
+		output += " print letter\n\n";
+		output += "print 'we have finished for loop 1'\n";
+		output += "list1 = ['facebook', 'linkedin', 'meetup', 'twitter', 'google']\n";
+		output += "print 'about to begin for loop 2'\n";
+		output += "for company in list1 : \n";
+		output += " print 'loop2:' + company + ' does social media'\n";
+		output += "print 'we have finished for loop 2'\n\n";
+		output += "print 'about to begin for loop 3'\n";
+		output += "for i in range(len(list1)): \n"
+		output += " print 'loop3: ' + list1[i] + ' does social media'\n\n";
+		output += "print 'we have finished for loop 3'\n";
+		output += "#A for loop can be interrupted by a break statement. This will stop the \n";
+		output += "#current execution of the loop and continue at the next block of \n";
+		output += "#program code. \n";
+		output += "print 'about to begin for loop 4'\n";
+		output += "for i in range(len(list1)): \n"
+		output += " if list1[i] == 'linkedin':\n"
+		output += "  break\n"
+		output += " print 'loop4: ' + list1[i] + ' does social media'\n\n"
+		output += "print 'we have finished for loop 4'\n";
+		output += "#A for loop can also be interrupted by a continue statement. This will \n";
+		output += "#stop the current iteration and begin execution at the \n";
+		output += "#beginning of the next iteration. \n";
+		output += "print 'about to begin for loop 5'\n";
+		output += "for i in range(len(list1)): \n"
+		output += " if list1[i] == 'linkedin':\n"
+		output += "  continue\n"
+		output += " print 'loop5: ' + list1[i] + ' does social media'\n\n"
+		output += "print 'we have finished for loop 5'\n";
+
+		output2 = "Loops in Python: <br><br>";
+		output2 += "The two types of loops we'll consider in Python are: <br>";
+		output2 += " - for loops<br>";
+		output2 += " - while loops<br>";
+		output2 += "The purpose of a for loop is to iterate once for each item in a sequence. <br>";
+		output2 += "This sequqnce can be a string, a list, or a tuple. <br>";
+		output2 += "Like with 'if' statements, if there are multiple lines in this block of <br>";
+		output2 += "code, they need to have the same number of spaces in front of the first <br>";
+		output2 += "non-whitespace character. <br>";
+		output2 += "<pre>school = 'Morehouse'\n";
+		output2 += "print 'about to begin for loop 1'\n";
+		output2 += "for letter in school: \n";
+		output2 += " print letter\n\n";
+		output2 += "print 'we have finished for loop 1'\n";
+		output2 += "list1 = ['facebook', 'linkedin', 'meetup', 'twitter', 'google']\n";
+		output2 += "print 'about to begin for loop 2'\n";
+		output2 += "for company in list1 : \n";
+		output2 += " print 'loop2:' + company + ' does social media'\n";
+		output2 += "print 'we have finished for loop 2'\n\n";
+		output2 += "print 'about to begin for loop 3'\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " print 'loop3: ' + list1[i] + ' does social media'\n\n";
+		output2 += "print 'we have finished for loop 3'</pre>";
+		output2 += "A for loop can be interrupted by a break statement. This will stop the <br>";
+		output2 += "current execution of the loop and continue at the next block of <br>";
+		output2 += "program code. <br>";
+		output2 += "<pre>print 'about to begin for loop 4'\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " if list1[i] == 'linkedin':\n"
+		output2 += "  break\n"
+		output2 += " print 'loop4: ' + list1[i] + ' does social media'\n\n"
+		output2 += "print 'we have finished for loop 4'</pre>";
+		output2 += "A for loop can also be interrupted by a continue statement. This will <br>";
+		output2 += "stop the current iteration and begin execution at the <br>";
+		output2 += "beginning of the next iteration. <br>";
+		output2 += "<pre>print 'about to begin for loop 5'\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " if list1[i] == 'linkedin':\n"
+		output2 += "  continue\n"
+		output2 += " print 'loop5: ' + list1[i] + ' does social media'\n\n"
+		output2 += "print 'we have finished for loop 5'</pre>";
+		}
+	else if (input == "7b")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Loops in Python: \n";
+		output += "#The two types of loops we'll consider in Python are: \n";
+		output += "# - while loops\n";
+		output += "#A while loop is similar to an if statement, in that it checks that a \n";
+		output += "#condition is true and executes a block of code if this condition is true.\n";
+		output += "#Unlike an if statement, however, a while loop will continue to execute this \n";
+		output += "#block of code as long as the condition remains true. \n";
+		output += "#Similar to 'if' statements and 'for' loops, if there are multiple lines in \n";
+		output += "#this block of code, they need to have the same number of spaces in front of \n";
+		output += "#the first non-whitespace character. \n";
+		output += "count = 0\n";
+		output += "print 'about to begin while loop 1'\n";
+		output += "while count < 10: \n";
+		output += " print count\n";
+		output += " count += 1\n";
+		output += "print 'we have finished while loop 1'\n\n";
+		output += "#A while loop can be interrupted by a break statement. This will stop the current \n";
+		output += "#execution of the loop and continue at the next block of program code. \n";
+		output += "print 'about to begin while loop 2'\n";
+		output += "count = 0\n";
+		output += "while count < 10: \n"
+		output += " count += 1\n"
+		output += " if count % 2 == 0:\n"
+		output += "  break\n"
+		output += " print 'loop2: %s' % count\n"
+		output += "print 'we have finished while loop 2'\n";
+		output += "#A while loop can also be interrupted by a continue statement. This will stop the\n";
+		output += "#current iteration and begin execution at the beginning of the next iteration. \n";
+		output += "print 'about to begin while loop 3'\n";
+		output += "count = 0\n";
+		output += "while count < 10: \n"
+		output += " count += 1\n"
+		output += " if count % 2 == 0:\n"
+		output += "  continue\n"
+		output += " print 'loop3: %s' % count\n"
+		output += "print 'we have finished while loop 3'\n";
+		
+		output2 = "Loops in Python: <br><br>";
+		output2 += "The two types of loops we'll consider in Python are: <br>";
+		output2 += " - while loops<br>";
+		output2 += "A while loop is similar to an if statement, in that it checks that a <br>";
+		output2 += "condition is true and executes a block of code if this condition is true.<br>";
+		output2 += "Unlike an if statement, however, a while loop will continue to execute this <br>";
+		output2 += "block of code as long as the condition remains true. <br>";
+		output2 += "Similar to 'if' statements and 'for' loops, if there are multiple lines in <br>";
+		output2 += "this block of code, they need to have the same number of spaces in front of <br>";
+		output2 += "the first non-whitespace character. <br>";
+		output2 += "<pre>count = 0\n";
+		output2 += "print 'about to begin while loop 1'\n";
+		output2 += "while count < 10: \n";
+		output2 += " print count\n";
+		output2 += " count += 1\n";
+		output2 += "print 'we have finished while loop 1'</pre>";
+		output2 += "A while loop can be interrupted by a break statement. This will stop the current <br>";
+		output2 += "execution of the loop and continue at the next block of program code. <br>";
+		output2 += "<pre>print 'about to begin while loop 2'\n";
+		output2 += "count = 0\n";
+		output2 += "while count < 10: \n"
+		output2 += " count += 1\n"
+		output2 += " if count % 2 == 0:\n"
+		output2 += "  break\n"
+		output2 += " print 'loop2: %s' % count\n"
+		output2 += "print 'we have finished while loop 2'</pre>";
+		output2 += "A while loop can also be interrupted by a continue statement. This will stop the<br>";
+		output2 += "current iteration and begin execution at the beginning of the next iteration. <br>";
+		output2 += "<pre>print 'about to begin while loop 3'\n";
+		output2 += "count = 0\n";
+		output2 += "while count < 10: \n"
+		output2 += " count += 1\n"
+		output2 += " if count % 2 == 0:\n"
+		output2 += "  continue\n"
+		output2 += " print 'loop3: %s' % count\n"
+		output2 += "print 'we have finished while loop 3'</pre>";	
+	}
+	else if (input == "8")
+	{
+		output = "#!/usr/bin/python\n\n";
+		output += "#Functions in Python: \n";
+		output += "#A function is a block of code that can be called repeatedly. \n";
+		output += "#In Python, functions are defined by the word 'def', followed by the function name, \n";
+		output += "#then the parameters in parenthesis and a colon\n";
+		output += "#Like loops and if statements, blocks of function code need to be equally indented. \n";
+		output += "def printByline(author):\n";
+		output += " print 'written by ' + author + '. '\n\n";
+		output += "name = 'AfterMath'\n"
+		output += "printByline(name)\n\n";
+		
+		output2 = "Functions in Python: <br><br>";
+		output2 += "A function is a block of code that can be called repeatedly. <br>";
+		output2 += "In Python, functions are defined by the word 'def', followed by the function name, <br>";
+		output2 += "then the parameters in parenthesis and a colon<br>";
+		output2 += "Like loops and if statements, blocks of function code need to be equally indented. <br>";
+		output2 += "<pre>def printByline(author):\n";
+		output2 += " print 'written by ' + author + '. '\n\n";
+		output2 += "name = 'AfterMath'\n"
+		output2 += "printByline(name)</pre>";
+	}
+	document.getElementById("code").value = output;
+	document.getElementById("wlkthrgh").innerHTML = output2;
+}
+</script>
+<h3><center></center></h3>
+<p>Here I have provided a few examples of basic Python 2.7 programming to help users get started with mathematical programming. </p>
+<select name="pgrm" id="pgrm">
+ <option value="1">Hello, World</option>
+ <option value="2">Comments</option>
+ <option value="3">Variables</option>
+ <option value="4a">Data Types - Numbers</option>
+ <option value="4b">Data Types - Strings</option>
+ <option value="4c">Data Types - Lists</option>
+ <option value="4d">Data Types - Tuples</option>
+ <option value="4e">Data Types - Dictionaries</option>
+ <option value="5a">Basic Operations - Arithmetic</option>
+ <option value="5b">Basic Operations - Comparison</option>
+ <option value="5c">Basic Operations - Assignment</option>
+ <option value="6">Conditionals</option>
+ <option value="7a">Loops - For Loop</option>
+ <option value="7b">Loops - While Loop</option>
+ <option value="8">Functions</option>
+</select>
+<input type="button" value="View Code" onclick="getCode()"><br>
+<TEXTAREA readonly style="WIDTH: 550px; HEIGHT: 300px" id="code" name="code" cols=65 rows=6 ></TEXTAREA><br>
+<input type="button" value="Open CompileOnline.com" onclick="window.open('http://www.compileonline.com/execute_python_online.php')"><br>
+<p name="wlkthrgh" id="wlkthrgh"></p>

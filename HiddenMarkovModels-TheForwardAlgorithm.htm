@@ -1,0 +1,789 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+HiddenMarkovModels:TheForwardAlgorithm<script type="text/javascript">
+function newHMM(numDie, stateBhv, diceWght)
+{
+	var model = new Object();
+	model.numStates = numDie;
+	model.sigma = new Array();
+	for (var i = 1; i <= 6; i++)
+	{
+		model.sigma[i-1] = i;
+	}
+	
+	model.initProbs = new Array(numDie);
+	for (var i = 0; i < numDie; i++)
+	{
+		model.initProbs[i] = (1 / (numDie));
+	}
+	
+	model.transProbs = new Array(model.numStates);
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		model.transProbs[i] = new Array(model.numStates);
+		for (var j = 0; j < model.numStates; j++)
+		{	
+			if (stateBhv == 0)
+			{
+				if (i == j)
+				{
+					model.transProbs[i][j] = 0.9;
+				}
+				else
+				{
+					model.transProbs[i][j] = (1/numDie)*0.10;
+				}
+			}
+			else if (stateBhv == 1)
+			{
+				model.transProbs[i][j] = 1 / (numDie);
+			}
+			else
+			{
+				if (i != j)
+				{
+					model.transProbs[i][j] = (1/numDie)*0.9;
+				}
+				else
+				{
+					model.transProbs[i][j] = 0.10;
+				}
+			}
+		}
+	}
+	
+	model.emissProbs = new Array(model.numStates);
+	for (var i = 0; i < model.numStates; i++)
+	{
+		model.emissProbs[i] = new Array(model.sigma.length);
+		for (var j = 0; j < model.sigma.length; j++)
+		{
+			if (diceWght == 0)
+			{
+				if (j < (6 - i))
+					model.emissProbs[i][j] = 1 / (6 + i);
+				else
+					model.emissProbs[i][j] = 2 / (6 + i);
+			}
+			else if (diceWght == 1)
+			{
+				var dice = new Array;
+				dice[0] = 0; dice[1] = 1; dice[2] = 2; dice[3] = 3; dice[4] = 4; dice[5] = 5;
+				for (var k = 0; k < i; k++)
+				{
+					var loc = Math.floor(Math.random()*6);
+					model.emissProbs[i][dice[loc]] = 2 / (6 + i);
+					dice[loc] = dice[dice.length-1];
+					dice.length--;
+				}
+				
+				for (var k = 0; k < dice.length; k++)
+				{
+					model.emissProbs[i][dice[k]] = 1 / (6 + i);
+				}
+//				model.emissProbs[i][j] = 1 / 6;
+			}
+			else
+			{
+				if (j < i)
+					model.emissProbs[i][j] = 2 / (6 + i);
+				else
+					model.emissProbs[i][j] = 1 / (6 + i);
+			}
+		}
+	}
+	
+	return model;
+}
+
+/*
+This is the forward algorithm. Given an output sequence, this algorithm 
+determines the probability that a given model has emitted a sequence of
+observations by building a matrix of probabilities starting with the initial
+observations and incrementally adding an observation at each step. 
+*/
+function fwdAlg(model, observ)
+{
+	var numPeriods = observ.length;
+	
+	/*
+	alpha_{t, i} is the probability that the model has output the initial 
+	t observations, given that the current state is state i. 
+	*/
+	var alpha = new Array(numPeriods);
+	
+	for (var i = 0; i < alpha.length; i++)
+	{
+		alpha[i] = new Array(model.numStates);
+	}
+	
+	/*
+	We know that alpha_{1, j} = initProb_j * emissProb_{j, observ_1}
+	*/
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		alpha[0][i] = model.initProbs[i] * model.emissProbs[i][observ[0]-1];
+	}
+	
+	/*
+	Now for the recursion. 
+	We know that for all N states and all times before T, 
+	alpha_{t+1, j} = b_{j, observ_{t+1}} * (\sum_{i = 1 to N} alpha_{t, i}) * transProb_{i, j}
+	*/
+	
+	for (var t = 1; t < numPeriods; t++)
+//	for (var t = 0; t < numPeriods-1; t++)
+	{
+		for (var j = 0; j < model.numStates; j++)
+		{
+			var temp = 0;
+			for (var i = 0; i < model.numStates; i++)
+			{
+				temp += alpha[t-1][i] * model.transProbs[i][j];
+//				temp += alpha[t][i] * model.transProbs[i][j];
+			}
+			alpha[t][j] = model.emissProbs[j][model.sigma.indexOf(observ[t])] * temp;
+//			alpha[t+1][j] = model.emissProbs[j][model.sigma.indexOf(observ[t+1])] * temp;
+		}
+	}
+		
+	return alpha;
+}
+
+
+function genDie()
+{
+	var numDie = Math.floor(Math.random()*4) + 2;
+	var likely = new Array(6*numDie);
+	
+	//First, we need to generate the die. 
+	for (var i = 0; i < numDie; i++)
+	{
+		var fair = Math.floor(Math.random()*2);
+		if (fair)
+		{
+			for (var j = 0; j < 6; j++)
+			{
+				if (j == 0)
+				{
+					likely[i*6 + j] = (1/6);
+				}
+				else
+				{
+					likely[i*6 + j] = (1/6) + likely[i*6 + j - 1];
+				}
+			}
+		}
+		else
+		{
+			var sum = 0;
+			for (var j = 0; j < 6; j++)
+			{
+				if (j == 0)
+				{
+					likely[i*6 + j] = Math.floor(Math.random()*6)+1;
+				}
+				else
+				{
+					likely[i*6 + j] = Math.floor(Math.random()*6)+1 + likely[i*6 + j-1];
+				}
+			}
+			
+			sum = likely[i*6+(j-1)];
+			
+			for (var j = 0; j < 6; j++)
+			{
+				likely[i*6+j] = likely[i*6+j] / sum;
+			}
+		}
+	}
+
+	return likely;
+}
+
+function genOutput(likely)
+{	
+	var numDie = Math.floor(likely.length / 6);
+	var roll;
+	//Next, we need to roll the die
+	var dieRolled = Math.floor(Math.random()*numDie);
+
+	var temp = Math.random();
+		
+	if (temp >= 0 && temp <= likely[dieRolled*6+0])
+	{
+		roll = 1;
+	}
+	else if (temp > likely[dieRolled*6+0] && temp <= likely[dieRolled*6+1])
+	{
+		roll = 2;
+	}
+	else if (temp > likely[dieRolled*6+1] && temp <= likely[dieRolled*6+2])
+	{
+		roll = 3;
+	}
+	else if (temp > likely[dieRolled*6+2] && temp <= likely[dieRolled*6+3])
+	{
+		roll = 4;
+	}
+	else if (temp > likely[dieRolled*6+3] && temp <= likely[dieRolled*6+4])
+	{
+		roll = 5;
+	}
+	else if (temp > likely[dieRolled*6+4] && temp <= likely[dieRolled*6+5])
+	{
+		roll = 6;		
+	}
+	
+	return roll;
+}
+
+function dispHMM(model)
+{
+	model = newHMM(die.length/6, document.getElementById('stateTrans').value, document.getElementById('emissTrans').value);
+	var text = "<table>";
+	var initMtrx = "<table>";
+	initMtrx += "<tr>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		initMtrx += "<td>" + i + "</td>";
+	}
+	initMtrx += "</tr><tr>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		initMtrx += "<td>" + model.initProbs[i].toExponential(4) + "</td>";
+	}
+	initMtrx += "</tr>";
+	initMtrx += "</table>";
+	
+	var transMtrx = "<table>";
+	transMtrx += "<tr><td></td>";
+	for (var j = 0; j < model.numStates; j++)
+	{
+		transMtrx += "<td>" + j + "</td>";
+	}
+	transMtrx += "</tr>";
+
+	var emissMtrx = "<table>";
+	emissMtrx += "<tr><td></td>";
+	for (var j = 0; j < model.sigma.length; j++)
+	{
+		emissMtrx += "<td>" + model.sigma[j] + "</td>";
+	}
+	emissMtrx += "</tr>";
+    
+	for (var i = 0; i < model.numStates; i++)
+	{
+		transMtrx += "<tr><td>" + i + "</td>";
+		for (var j = 0; j < model.numStates; j++)
+		{
+			transMtrx += "<td>" + model.transProbs[i][j].toExponential(4) + "</td>";
+		}
+		transMtrx += "</tr>";
+
+		emissMtrx += "<tr><td>" + i + "</td>";
+		for (var j = 0; j < model.sigma.length; j++)
+		{
+			emissMtrx += "<td>" + model.emissProbs[i][j].toExponential(4) + "</td>";
+		}
+		emissMtrx += "</tr>"; 
+	}
+
+	transMtrx += "</table>";
+	emissMtrx += "</table>";
+
+	text += "<tr><td>Initial Probabilities</td><td>" + initMtrx + "</td></tr><tr><td>Transition Matrix</td><td>" + transMtrx + "</td></tr><tr><td>Emission Matrix</td><td>" + emissMtrx + "</td></tr></table>";
+	
+	document.getElementById("output").innerHTML = text;
+}
+
+function dispRolls(roll)
+{
+	for (var j = 0; j < roll.length; j++)
+	{
+		document.getElementById("input").innerHTML += roll[j];
+		if (j < roll.length - 1)
+		{
+			document.getElementById("input").innerHTML += ", ";
+		}
+	}
+	document.getElementById("input").innerHTML += "<br>";
+}
+
+function postProcess()
+{
+	model = newHMM(die.length/6, document.getElementById('stateTrans').value, document.getElementById('emissTrans').value);
+	var fwdAns = fwdAlg(model, roll);
+	var totalProb = 0;
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		totalProb += fwdAns[fwdAns.length-1][i];
+	}
+	
+	document.getElementById("output").innerHTML += "The result of the Forward Algorithm is: <br>";
+
+	var text = "<table><tr><td></td>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		text += "<td>" + i + " BAD Die</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < fwdAns.length; i++)
+	{
+		text += "<tr><td>" + eval("i+1") + "</td>";
+		for (var j = 0; j < fwdAns[i].length; j++)
+		{
+			text += "<td>" + fwdAns[i][j].toExponential(4) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	text += "The total probability that this model generated this output is " + totalProb.toExponential(4) + "<br>";
+
+	document.getElementById("output").innerHTML = text;	
+}
+
+function init()
+{
+	document.getElementById("input").innerHTML = ""; 
+	var die = genDie();
+	var numPeriods = Math.floor(Math.random()*20)+5;
+	var roll = new Array();
+	for (var i = 0; i < numPeriods; i++)
+	{
+		roll[i] = genOutput(die);
+	}
+	var ans = new Array();
+	
+	document.getElementById("input").innerHTML += "Assume the casino has " + (die.length/6) + " different die. You are interested in determining the weights of the different die as well as how often the casino changes die. "
+	document.getElementById("input").innerHTML += "To help answer this question, you constructed 9 Hidden Markov Models, each with each state corresponding to the likelihood that the casino used a given dice. <br>";
+	document.getElementById("input").innerHTML += "Each of these models has its own set of transition probabilities between states and its own set of emission probabilities. <br>";
+	document.getElementById("input").innerHTML += "There were " + numPeriods + " rolls that went as follows.<br>";
+	dispRolls(roll);
+	document.getElementById("input").innerHTML += "Which model do you think generated this set of rolls? ";
+	ans[0] = die;
+	ans[1] = numPeriods;
+	ans[2] = roll;
+
+	return ans;
+}
+
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, statistics, stats,
+probability, computer science, data mining, machine learning, javascript, script, programming, hidden, markov, models, forward, algorithm, hidden markov models, forward algorithm" />
+<meta name="description" content="This page implements the Forward Algorithm for Hidden Markov Models. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function newHMM(numDie, stateBhv, diceWght)
+{
+	var model = new Object();
+	model.numStates = numDie;
+	model.sigma = new Array();
+	for (var i = 1; i <= 6; i++)
+	{
+		model.sigma[i-1] = i;
+	}
+	
+	model.initProbs = new Array(numDie);
+	for (var i = 0; i < numDie; i++)
+	{
+		model.initProbs[i] = (1 / (numDie));
+	}
+	
+	model.transProbs = new Array(model.numStates);
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		model.transProbs[i] = new Array(model.numStates);
+		for (var j = 0; j < model.numStates; j++)
+		{	
+			if (stateBhv == 0)
+			{
+				if (i == j)
+				{
+					model.transProbs[i][j] = 0.9;
+				}
+				else
+				{
+					model.transProbs[i][j] = (1/numDie)*0.10;
+				}
+			}
+			else if (stateBhv == 1)
+			{
+				model.transProbs[i][j] = 1 / (numDie);
+			}
+			else
+			{
+				if (i != j)
+				{
+					model.transProbs[i][j] = (1/numDie)*0.9;
+				}
+				else
+				{
+					model.transProbs[i][j] = 0.10;
+				}
+			}
+		}
+	}
+	
+	model.emissProbs = new Array(model.numStates);
+	for (var i = 0; i < model.numStates; i++)
+	{
+		model.emissProbs[i] = new Array(model.sigma.length);
+		for (var j = 0; j < model.sigma.length; j++)
+		{
+			if (diceWght == 0)
+			{
+				if (j < (6 - i))
+					model.emissProbs[i][j] = 1 / (6 + i);
+				else
+					model.emissProbs[i][j] = 2 / (6 + i);
+			}
+			else if (diceWght == 1)
+			{
+				var dice = new Array;
+				dice[0] = 0; dice[1] = 1; dice[2] = 2; dice[3] = 3; dice[4] = 4; dice[5] = 5;
+				for (var k = 0; k < i; k++)
+				{
+					var loc = Math.floor(Math.random()*6);
+					model.emissProbs[i][dice[loc]] = 2 / (6 + i);
+					dice[loc] = dice[dice.length-1];
+					dice.length--;
+				}
+				
+				for (var k = 0; k < dice.length; k++)
+				{
+					model.emissProbs[i][dice[k]] = 1 / (6 + i);
+				}
+//				model.emissProbs[i][j] = 1 / 6;
+			}
+			else
+			{
+				if (j < i)
+					model.emissProbs[i][j] = 2 / (6 + i);
+				else
+					model.emissProbs[i][j] = 1 / (6 + i);
+			}
+		}
+	}
+	
+	return model;
+}
+
+/*
+This is the forward algorithm. Given an output sequence, this algorithm 
+determines the probability that a given model has emitted a sequence of
+observations by building a matrix of probabilities starting with the initial
+observations and incrementally adding an observation at each step. 
+*/
+function fwdAlg(model, observ)
+{
+	var numPeriods = observ.length;
+	
+	/*
+	alpha_{t, i} is the probability that the model has output the initial 
+	t observations, given that the current state is state i. 
+	*/
+	var alpha = new Array(numPeriods);
+	
+	for (var i = 0; i < alpha.length; i++)
+	{
+		alpha[i] = new Array(model.numStates);
+	}
+	
+	/*
+	We know that alpha_{1, j} = initProb_j * emissProb_{j, observ_1}
+	*/
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		alpha[0][i] = model.initProbs[i] * model.emissProbs[i][observ[0]-1];
+	}
+	
+	/*
+	Now for the recursion. 
+	We know that for all N states and all times before T, 
+	alpha_{t+1, j} = b_{j, observ_{t+1}} * (\sum_{i = 1 to N} alpha_{t, i}) * transProb_{i, j}
+	*/
+	
+	for (var t = 1; t < numPeriods; t++)
+//	for (var t = 0; t < numPeriods-1; t++)
+	{
+		for (var j = 0; j < model.numStates; j++)
+		{
+			var temp = 0;
+			for (var i = 0; i < model.numStates; i++)
+			{
+				temp += alpha[t-1][i] * model.transProbs[i][j];
+//				temp += alpha[t][i] * model.transProbs[i][j];
+			}
+			alpha[t][j] = model.emissProbs[j][model.sigma.indexOf(observ[t])] * temp;
+//			alpha[t+1][j] = model.emissProbs[j][model.sigma.indexOf(observ[t+1])] * temp;
+		}
+	}
+		
+	return alpha;
+}
+
+
+function genDie()
+{
+	var numDie = Math.floor(Math.random()*4) + 2;
+	var likely = new Array(6*numDie);
+	
+	//First, we need to generate the die. 
+	for (var i = 0; i < numDie; i++)
+	{
+		var fair = Math.floor(Math.random()*2);
+		if (fair)
+		{
+			for (var j = 0; j < 6; j++)
+			{
+				if (j == 0)
+				{
+					likely[i*6 + j] = (1/6);
+				}
+				else
+				{
+					likely[i*6 + j] = (1/6) + likely[i*6 + j - 1];
+				}
+			}
+		}
+		else
+		{
+			var sum = 0;
+			for (var j = 0; j < 6; j++)
+			{
+				if (j == 0)
+				{
+					likely[i*6 + j] = Math.floor(Math.random()*6)+1;
+				}
+				else
+				{
+					likely[i*6 + j] = Math.floor(Math.random()*6)+1 + likely[i*6 + j-1];
+				}
+			}
+			
+			sum = likely[i*6+(j-1)];
+			
+			for (var j = 0; j < 6; j++)
+			{
+				likely[i*6+j] = likely[i*6+j] / sum;
+			}
+		}
+	}
+
+	return likely;
+}
+
+function genOutput(likely)
+{	
+	var numDie = Math.floor(likely.length / 6);
+	var roll;
+	//Next, we need to roll the die
+	var dieRolled = Math.floor(Math.random()*numDie);
+
+	var temp = Math.random();
+		
+	if (temp >= 0 && temp <= likely[dieRolled*6+0])
+	{
+		roll = 1;
+	}
+	else if (temp > likely[dieRolled*6+0] && temp <= likely[dieRolled*6+1])
+	{
+		roll = 2;
+	}
+	else if (temp > likely[dieRolled*6+1] && temp <= likely[dieRolled*6+2])
+	{
+		roll = 3;
+	}
+	else if (temp > likely[dieRolled*6+2] && temp <= likely[dieRolled*6+3])
+	{
+		roll = 4;
+	}
+	else if (temp > likely[dieRolled*6+3] && temp <= likely[dieRolled*6+4])
+	{
+		roll = 5;
+	}
+	else if (temp > likely[dieRolled*6+4] && temp <= likely[dieRolled*6+5])
+	{
+		roll = 6;		
+	}
+	
+	return roll;
+}
+
+function dispHMM(model)
+{
+	model = newHMM(die.length/6, document.getElementById('stateTrans').value, document.getElementById('emissTrans').value);
+	var text = "<table>";
+	var initMtrx = "<table>";
+	initMtrx += "<tr>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		initMtrx += "<td>" + i + "</td>";
+	}
+	initMtrx += "</tr><tr>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		initMtrx += "<td>" + model.initProbs[i].toExponential(4) + "</td>";
+	}
+	initMtrx += "</tr>";
+	initMtrx += "</table>";
+	
+	var transMtrx = "<table>";
+	transMtrx += "<tr><td></td>";
+	for (var j = 0; j < model.numStates; j++)
+	{
+		transMtrx += "<td>" + j + "</td>";
+	}
+	transMtrx += "</tr>";
+
+	var emissMtrx = "<table>";
+	emissMtrx += "<tr><td></td>";
+	for (var j = 0; j < model.sigma.length; j++)
+	{
+		emissMtrx += "<td>" + model.sigma[j] + "</td>";
+	}
+	emissMtrx += "</tr>";
+    
+	for (var i = 0; i < model.numStates; i++)
+	{
+		transMtrx += "<tr><td>" + i + "</td>";
+		for (var j = 0; j < model.numStates; j++)
+		{
+			transMtrx += "<td>" + model.transProbs[i][j].toExponential(4) + "</td>";
+		}
+		transMtrx += "</tr>";
+
+		emissMtrx += "<tr><td>" + i + "</td>";
+		for (var j = 0; j < model.sigma.length; j++)
+		{
+			emissMtrx += "<td>" + model.emissProbs[i][j].toExponential(4) + "</td>";
+		}
+		emissMtrx += "</tr>"; 
+	}
+
+	transMtrx += "</table>";
+	emissMtrx += "</table>";
+
+	text += "<tr><td>Initial Probabilities</td><td>" + initMtrx + "</td></tr><tr><td>Transition Matrix</td><td>" + transMtrx + "</td></tr><tr><td>Emission Matrix</td><td>" + emissMtrx + "</td></tr></table>";
+	
+	document.getElementById("output").innerHTML = text;
+}
+
+function dispRolls(roll)
+{
+	for (var j = 0; j < roll.length; j++)
+	{
+		document.getElementById("input").innerHTML += roll[j];
+		if (j < roll.length - 1)
+		{
+			document.getElementById("input").innerHTML += ", ";
+		}
+	}
+	document.getElementById("input").innerHTML += "<br>";
+}
+
+function postProcess()
+{
+	model = newHMM(die.length/6, document.getElementById('stateTrans').value, document.getElementById('emissTrans').value);
+	var fwdAns = fwdAlg(model, roll);
+	var totalProb = 0;
+	
+	for (var i = 0; i < model.numStates; i++)
+	{
+		totalProb += fwdAns[fwdAns.length-1][i];
+	}
+	
+	document.getElementById("output").innerHTML += "The result of the Forward Algorithm is: <br>";
+
+	var text = "<table><tr><td></td>";
+	for (var i = 0; i < model.numStates; i++)
+	{
+		text += "<td>" + i + " BAD Die</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < fwdAns.length; i++)
+	{
+		text += "<tr><td>" + eval("i+1") + "</td>";
+		for (var j = 0; j < fwdAns[i].length; j++)
+		{
+			text += "<td>" + fwdAns[i][j].toExponential(4) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	text += "The total probability that this model generated this output is " + totalProb.toExponential(4) + "<br>";
+
+	document.getElementById("output").innerHTML = text;	
+}
+
+function init()
+{
+	document.getElementById("input").innerHTML = ""; 
+	var die = genDie();
+	var numPeriods = Math.floor(Math.random()*20)+5;
+	var roll = new Array();
+	for (var i = 0; i < numPeriods; i++)
+	{
+		roll[i] = genOutput(die);
+	}
+	var ans = new Array();
+	
+	document.getElementById("input").innerHTML += "Assume the casino has " + (die.length/6) + " different die. You are interested in determining the weights of the different die as well as how often the casino changes die. "
+	document.getElementById("input").innerHTML += "To help answer this question, you constructed 9 Hidden Markov Models, each with each state corresponding to the likelihood that the casino used a given dice. <br>";
+	document.getElementById("input").innerHTML += "Each of these models has its own set of transition probabilities between states and its own set of emission probabilities. <br>";
+	document.getElementById("input").innerHTML += "There were " + numPeriods + " rolls that went as follows.<br>";
+	dispRolls(roll);
+	document.getElementById("input").innerHTML += "Which model do you think generated this set of rolls? ";
+	ans[0] = die;
+	ans[1] = numPeriods;
+	ans[2] = roll;
+
+	return ans;
+}
+
+</script>
+<h3><center></center></h3>
+<p><p>Given an output sequence and a Hidden Markov Model, the forward algorithm 
+determines the probability that the given model has emitted the sequence of
+observations by building a matrix of probabilities starting with the initial
+observation and incrementally adding an observation at each step.</p>
+<p>To implement this algorithm, I'll use the example of a dice roller who 
+claims to have fair die. Given a sequence of observations we will consider a 
+few HMMs to see the probability that the sequence we observe was generated by 
+cartain types of loaded dice. </p>
+</p>
+<p id="input" name="input"></p>
+<script type="text/javascript">
+var ans = init();
+var die = ans[0];
+var numPeriods = ans[1];
+var roll = ans[2];
+var model;
+</script>
+<form>
+<select name="stateTrans" id="stateTrans">
+<option value="0">Dealer Repeatedly Uses Same Dice</option>
+<option value="1">Dealer Uniformly Changes Die</option>
+<option value="2">Dealer Rarely Uses Same Dice</option>
+</select>
+
+<select name="emissTrans" id="emissTrans">
+<option value="0">Larger Numbers Are More Likely</option>
+<option value="1">All Numbers Are Randomly Likely</option>
+<option value="2">Smaller Numbers Are More Likely</option>
+</select>
+<input type="button" value="Submit" onclick="postProcess()" name="Create" id="Create"><br>
+<input type="button" value="Display Model" onclick="dispHMM(model)" name="Create" id="Create">
+<input type="button" value="New Problem" onclick="ans = init(); die = ans[0]; numPeriods = ans[1]; roll = ans[2]; document.getElementById('output').innerHTML = ''" name="Create" id="Create">
+</form>
+<p id="output" name="output"></p>

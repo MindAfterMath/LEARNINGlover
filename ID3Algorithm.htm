@@ -1,0 +1,1341 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ID3Algorithm<style>
+span 
+{
+	cursor:pointer;
+	color:blue;
+	text-decoration:underline;
+}
+
+th.rotate 
+{
+  /* Something you can count on */
+  height: 140px;
+  white-space: nowrap;
+}
+
+th.rotate > div 
+{
+  transform: 
+    /* Magic Numbers */
+    translate(25px, 51px)
+    /* 45 is really 360 - 45 */
+    rotate(315deg);
+  width: 30px;
+}
+th.rotate > div > span 
+{
+  border-bottom: 1px solid #ccc;
+  padding: 5px 10px;
+}
+
+.csstransforms & th.rotate {
+  height: 140px;
+  white-space: nowrap;
+}
+</style>
+<script type="text/javascript">
+function getName(poss, name)
+{
+	var index = poss.indexOf(name);
+	if (index < 0)
+	{
+		index = poss.length;
+		poss[index] = name;
+	}
+
+	return index;
+}
+
+function linsear(set, elmnt)
+{
+	var ans = -1;
+
+	for (var i = 0; i < set.length && ans == -1; i++)
+	{
+		if (set[i] == elmnt)
+		{
+			ans = i;
+		}
+	}
+
+	return ans;
+}
+
+function getLocs(poss, data, clmn)
+{
+	var names = new Array();
+	var index;
+	var element;
+
+	for (var i = 0; i < data.length; i++)
+	{
+		element = poss[clmn][data[i][clmn]];
+		index = linsear(names, element);
+		if (index < 0)
+		{
+			names[names.length] = element;
+		}
+	}
+
+	var locs = new Array();
+	for (var i = 0; i < names.length; i++)
+	{
+		element = names[i];
+		locs[i] = linsear(poss[clmn], element);
+	}
+
+	return locs;
+}
+
+function matchArr(data, clmn, val)
+{
+	var subset = new Object();
+	subset.features = data.features;
+	subset.options = data.options;
+	subset.names = data.names;
+	subset.values = new Array();
+
+	var temp;
+	var ans = new Array();
+
+	for (var i = 0; i < data.values.length; i++)
+	{
+		if (data.values[i][clmn] == val)
+		{
+			temp = subset.values.length;
+			subset.values[temp] = new Array();
+			for (var j = 0; j < data.values[i].length; j++)
+			{
+				subset.values[temp][j] = data.values[i][j];
+			}
+	
+			ans[ans.length] = i;
+		}
+	}
+
+	return subset;
+}
+
+function updateData(data)
+{
+	var numRows = data.values.length;
+	var resClmn = data.values[0].length - 1;
+
+	for (var i = 0; i < numRows; i++)
+	{
+		data.values[i][resClmn] = document.getElementById("out" + i).value;
+	}
+
+	return data;
+}
+
+function entropy1(numPoss, data, clmn, text)
+{
+	var numRows = data.length;
+	var ans = 0;
+	var count = new Array();
+	var prob = new Array();
+	text[0] = "";
+	
+	if (data.length == 0)
+	{
+		return 0;
+	}
+	
+	text[0] += "There are " + numRows + " rows in this data.<br>";
+	
+	for (var i = 0; i < numPoss; i++)
+	{
+		count[i] = 0;
+		for (j = 0; j < data.length; j++)
+		{
+			if (data[j][clmn] == i)
+			{
+				count[i]++;
+			}
+		}
+	
+		prob[i] = count[i] / data.length;
+		
+		text[0] += "Outcome " + i + " occurs " + count[i] + " times in this data, giving it a probability of " + prob[i].toFixed(4) + "<br>";
+
+		if (count[i] > 0)
+		{
+			ans += -prob[i] * (Math.log(prob[i]) / Math.log(2));
+		}
+	}
+	
+	text[0] += "The formula for entropy gives entropy = <br>";
+	for (var i = 0; i < numPoss; i++)
+	{
+		if (prob[i] != 0)
+		{
+			text[0] += "-(" + prob[i].toFixed(4) + ") * log<sub>2</sub>(" + prob[i].toFixed(4) + ")";
+			if (i < numPoss - 1)
+			{
+				text[0] += " + ";
+			}
+		}
+	}
+	text[0] += "<br>" + ans.toFixed(4) + "<br>";
+
+	return ans;
+}
+
+function entropy2(numPoss, clmn, text)
+{
+	var ans = 0;
+	var count = new Array();
+	var prob = new Array();
+	text[0] = "";
+
+	if (clmn.length == 0)
+	{
+		return 0;
+	}
+	
+	text[0] += "There are " + clmn.length + " rows in this data.<br>";
+
+	for (var i = 0; i < numPoss; i++)
+	{
+		count[i] = 0;
+		for (var j = 0; j < clmn.length; j++)
+		{
+			if (clmn[j] == i)
+			{
+				count[i]++;
+			}
+		}
+
+		prob[i] = count[i] / clmn.length;
+	
+		text[0] += "Outcome " + i + " occurs " + count[i] + " times in this data, giving it a probability of " + prob[i].toFixed(4) + "<br>";
+	
+		if (count[i] > 0)
+		{
+			ans += -prob[i] * (Math.log(prob[i]) / Math.log(2));
+		}
+	}
+	
+	text[0] += "The formula for entropy gives entropy = <br>";
+	for (var i = 0; i < numPoss; i++)
+	{
+		if (prob[i] != 0)
+		{
+			text[0] += "-(" + prob[i].toFixed(4) + ") * log<sub>2</sub>(" + prob[i].toFixed(4) + ")";
+			if (i < numPoss - 1)
+			{
+				text[0] += " + ";
+			}
+		}
+	}
+	text[0] += "<br>";
+
+	return ans;
+}
+
+function used(history, attrib)
+{
+	for (var i = 0; i < history.length; i++)
+	{
+		if (history[i][0] == attrib)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function buildTree(data, asmpts, ans, id, text)
+{
+//	text[0] = "";
+	text[0] += "<span onclick=showHideDiv('div" + id[0] + "');>Step " + id[0] + ": Overall Entropy</span><br>";
+	text[0] += "<div id='div" + id[0] + "' style='display:none;'>";
+	text[0] += "The data is now <br>";
+	text[0] +=  dispData(data, 0);
+
+	var optEnt = 0;
+	var sel = false;
+	var chosenAttr = 0;
+
+	var numRows = data.values.length;
+	var numFtrs = data.features.length;
+	var outcome = numFtrs - 1;
+
+	var avgEnt = new Array(), subEnt;
+	var subset = new Array();
+
+	for (var i = 0; i < numRows; i++)
+	{
+		subset[i] = data.values[i][outcome];
+	}
+	
+	var entrTxt = [""];
+
+	var entr = entropy2(data.options[outcome].length, subset, entrTxt);
+	
+	text[0] += entrTxt;
+
+	text[0] += "The overall entropy is " + entr.toFixed(4) + "<br>";
+	text[0] += "</div>";
+//	document.getElementById("output").innerHTML += text;
+	id[0]++;
+
+	if (entr == 0 && numRows > 0)
+	{
+		var temp = new Array();
+		temp[0] = asmpts;
+		temp[1] = data.values[0][outcome];
+	
+		ans[ans.length] = temp;
+
+		return;
+	}
+
+	for (var i = 0; i < numFtrs - 1; i++)
+	{		
+		if (used(asmpts, i))
+		{
+			avgEnt[i] = -1;
+			continue;
+		}
+//		text = "";
+		text[0] += "<span onclick=showHideDiv('div" + id[0] + "');>Step " + id[0] + ": " + data.names[i] + " Information Gain</span><br>";
+		text[0] += "<div id='div" + id[0] + "' style='display:none;'>";
+	
+		ftrSize = data.options[i].length;
+		avgEnt[i] = 0;
+		var subEnt = new Array();
+		var sizes = new Array();
+	
+		for (var j = 0; j < ftrSize; j++)
+		{
+			text[0] += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + id[0] + "-" + j + "');>Step " + id[0] + "-" + j + ": " + data.names[i] + " = " + j + "</span><br>";
+			text[0] += "<div id='div" + id[0] + "-" + j + "' style='display:none;'>";
+			if (j == 0)
+			{
+				text[0] += "First, ";
+			}
+			else
+			{
+				text[0] += "Next, ";
+			}
+			text[0] += "we will consider the subset when " + data.names[i] + " is " + j + "<br>";
+			subset = matchArr(data, i, j);
+			sizes[j] = subset.values.length;
+			text[0] += dispData(subset, 0);
+		
+			if (subset.values.length > 0)
+			{
+				entrTxt = [""];
+				subEnt[j] = entropy1(data.options[outcome].length, subset.values, outcome, entrTxt);
+				avgEnt[i] += subEnt[j] * subset.values.length;
+				text[0] += entrTxt;
+			}
+			else
+			{
+				avgEnt[i] = 0;
+			}
+			text[0] += "</div>";
+		}
+		
+		text[0] += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + id[0] + "-" + ftrSize + "');>Step " + id[0] + "-" + ftrSize + ": " + data.names[i] + " Calculations</span><br>";
+		text[0] += "<div id='div" + id[0] + "-" + ftrSize + "' style='display:none;'>";
+		
+		for (var j = 0; j < ftrSize; j++)
+		{
+			if (sizes[j] > 0)
+			{
+				text[0] += "(" + subEnt[j].toFixed(4) + " * " + sizes[j] + ")";
+			}
+			else
+			{
+				text[0] += "(0.0000)";
+			}
+			if (j < ftrSize - 1)
+			{
+				text[0] += " + ";
+			}
+		}
+		text[0] += "<br> = " + avgEnt[i].toFixed(4) + "<br>";
+
+		avgEnt[i] = avgEnt[i] / numRows;
+		
+		text[0] += "We now divide this by the total number of rows, " + numRows + ", to get " + avgEnt[i].toFixed(4) + "<br>";
+		text[0] += "Then, we subtract " + avgEnt[i].toFixed(4) + " from the overall entropy, " + entr.toFixed(4) + ", to get the information gain for this feature. <br>";
+		
+		avgEnt[i] = entr - avgEnt[i];
+	
+		text[0] += data.names[i] + "'s Information Gain is " + avgEnt[i].toFixed(4) + "<br>";
+		text[0] += "</div>";
+		text[0] += "</div>";
+//		document.getElementById("output").innerHTML += text;
+		id[0]++;
+		if (!sel)
+		{
+			sel = true;
+			optEnt = avgEnt[i];
+			chosenAttr = i;
+		}
+		else
+		{
+			if (avgEnt[i] > optEnt)
+			{
+				sel = true;
+				optEnt = avgEnt[i];
+				chosenAttr = i;
+			}
+		}
+	}
+
+	if (sel)
+	{
+		text[0] += "<span onclick=showHideDiv('div" + id[0] + "');>Step " + id[0] + ": Selecting the Pivot Attribute</span><br>";
+		text[0] += "<div id='div" + id[0] + "' style='display:none;'>";
+		for (var i = 0; i < numFtrs - 1; i++)
+		{
+			if (avgEnt[i] != -1)
+			{
+				text[0] += "The Information Gain of " + data.names[i] + " is " + avgEnt[i].toFixed(4) + "<br>";
+			}
+		}
+		text[0] += "The Feature with the greatest Information Gain is " + data.names[chosenAttr] + "<br>";
+		text[0] += "</div>";
+//		document.getElementById("output").innerHTML += text;
+		id[0]++;
+	
+		numPoss = data.options[chosenAttr].length;
+		var len = asmpts.length;
+
+		for (var j = 0; j < numPoss; j++)
+		{
+			var newAsmt = new Array();
+			newAsmt[0] = chosenAttr;
+			newAsmt[1] = j;
+			var sub = matchArr(data, chosenAttr, j);
+			if (sub.values.length == 0)
+			{
+				continue;
+			}
+		
+			var subAsmpts = new Array();
+			for (var i = 0; i < asmpts.length; i++)
+			{
+				subAsmpts[i] = new Array();
+				for (var k = 0; k < asmpts[i].length; k++)
+				{
+					subAsmpts[i][k] = asmpts[i][k];
+				}
+			}
+		
+			subAsmpts[len] = newAsmt;
+			buildTree(sub, subAsmpts, ans, id, text);
+		}
+	}
+
+	return ans;
+}
+
+function createData()
+{
+	var dataSet = new Object();
+	dataSet.features = new Array();
+	dataSet.features.length = Math.floor(Math.random()*10)+5;
+	var outputClm = dataSet.features.length - 1;
+
+	var feats = new Array();
+	feats[0] = "Abstract";
+	feats[1] = "Adaptable";
+	feats[2] = "Aggressive";
+	feats[3] = "Ambition";
+	feats[4] = "Anxiety";
+	feats[5] = "Artistic";
+	feats[6] = "Cautious";
+	feats[7] = "Decisive";
+	feats[8] = "Honesty";
+	feats[9] = "Dutiful";
+	feats[10] = "Fitness";
+	feats[11] = "Intellect";
+	feats[12] = "Independent";
+	feats[13] = "Introverted";
+	feats[14] = "Lively";
+	feats[15] = "Open-minded";
+	feats[16] = "Orderly";
+	feats[17] = "Paranoid";
+	feats[18] = "Perfectionist";
+	feats[19] = "Romantic";
+	feats[20] = "Sensitive";
+	feats[21] = "Stable";
+	feats[22] = "Tension";
+	feats[23] = "Warmth";
+	feats[24] = "Wealthy";
+	var rem = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
+
+	dataSet.options = new Array();
+	dataSet.names = new Array();
+	for (var i = 0; i < dataSet.features.length; i++)
+	{
+		var numOptions = 4;
+		if (i == outputClm)
+		{
+			numOptions = 2;
+		}
+		dataSet.options[i] = new Array();
+	
+		for (var j = 0; j < numOptions; j++)
+		{
+			dataSet.options[i][j] = j;
+		}
+		var loc = Math.floor(Math.random()*rem.length);
+	
+		if (i != outputClm)
+		{
+			dataSet.names[i] = feats[rem[loc]];
+		}
+		else
+		{
+			dataSet.names[i] = "Outcome";
+		}
+		rem[loc] = rem[rem.length-1];
+		rem.length--;
+	}
+
+	var hero = new Array();
+	var viln = new Array();
+
+	for (var i = 0; i < dataSet.options.length - 1; i++)
+	{
+		hero[i] = Math.floor(Math.random() * dataSet.options[i].length);
+		viln[i] = 4 - hero[i];
+	}
+
+	dataSet.values = new Array();
+	var rows = Math.floor(Math.random()*5)+15;
+
+	for (var i = 0; i < rows; i++)
+	{
+		dataSet.values[i] = new Array();
+		for (var j = 0; j < outputClm; j++)
+		{
+			dataSet.values[i][j] = Math.floor(Math.random()*dataSet.options[j].length);
+		}
+	
+		var heroDist = dist(dataSet.values[i], hero);
+		var vilnDist = dist(dataSet.values[i], viln);
+	
+
+		if (heroDist < vilnDist)
+		{
+			dataSet.values[i][outputClm] = 1;
+		}
+		else
+		{
+			dataSet.values[i][outputClm] = 0;
+		}
+	}
+
+	return dataSet;
+}
+
+function dist(vctr1, vctr2)
+{
+	var ans = 0;
+	for (var i = 0; i < vctr1.length; i++)
+	{
+		ans += Math.pow((vctr1[i] - vctr2[i]), 2);
+	}
+
+	ans = Math.sqrt(ans);
+
+	return ans;
+}
+
+function showHideDiv(id)
+{
+	var val = document.getElementById(id).style.display;
+	if (val == "none")
+	{
+//		alert("case1");
+	document.getElementById(id).style.display = "block";
+	}
+	else
+	{
+//		alert("case2");
+	document.getElementById(id).style.display = "none";
+	}
+}
+
+function dispData(data, box)
+{
+	var text = "";
+
+	text = "<table><tr>";
+
+	for (var i = 0; i < data.options.length; i++)
+	{
+		text += "<th class='rotate'><div><b>" + data.names[i] + "</b></div></th>";
+	}
+	text += "</tr>";
+
+	for (var i = 0; i < data.values.length; i++)
+	{
+		text += "<tr>";
+		for (j = 0; j < data.values[i].length - 1; j++)
+		{
+			text += "<td><center>" + data.values[i][j] + "</center></td>";
+		}
+
+		if (box)
+		{
+			text += "<td><center><select id='out" + i + "'><option value=1";
+		
+			var heroVln = data.values[i][data.values[i].length - 1];
+		
+			if (heroVln == 1)
+			{
+				text += " selected";
+			}
+			text += ">Hero</option><option value=0";
+			if (heroVln == 0)
+			{
+				text += " selected";
+			}
+			text += ">Villain</option></select></center></td></tr>";
+		}
+
+		else
+		{
+			text += "<td><center>" + data.values[i][data.values[i].length - 1] + "</center></td></tr>";
+		}
+	}
+	text += "</table>";
+
+	return text;
+}
+
+function createDecTree(data)
+{
+	var rules = new Array();
+	var work = [""];
+	buildTree(data, new Array(), rules, [1], work);
+
+	var text = "<p>";
+
+	for (var i = 0; i < rules.length; i++)
+	{
+		if (i > 0)
+		{
+			text += "else ";
+		}
+		text += "if (";
+		for (var j = 0; j < rules[i][0].length; j++)
+		{
+			text += data.names[rules[i][0][j][0]] + " == " + rules[i][0][j][1];
+			if (j < rules[i][0].length - 1)
+			{
+				text += " and ";
+			}
+		}
+		text += ") then ";
+		if (rules[i][1] == 1)
+		{
+			text += "Hero";
+		}
+		else
+		{
+			text += "Villain";
+
+
+		}
+		text += "<br>";
+	}
+	text += "</p?";
+	document.getElementById("output").innerHTML += work;
+	document.getElementById("output").innerHTML += text;
+}
+
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, statistics, stats,
+probability, computer science, data mining, machine learning, algorithm, javascript, script, programming, id3, decision, tree, math tutor" />
+
+<meta name="description" content="This page contains a scripts to help understand the ID3 Decision Tree Algorithm. It is applied to character traits to help distinguish between a hero vs a villain" />
+
+<title> at LEARNINGlover.com</title>
+<style>
+span 
+{
+	cursor:pointer;
+	color:blue;
+	text-decoration:underline;
+}
+
+th.rotate 
+{
+  /* Something you can count on */
+  height: 140px;
+  white-space: nowrap;
+}
+
+th.rotate > div 
+{
+  transform: 
+    /* Magic Numbers */
+    translate(25px, 51px)
+    /* 45 is really 360 - 45 */
+    rotate(315deg);
+  width: 30px;
+}
+th.rotate > div > span 
+{
+  border-bottom: 1px solid #ccc;
+  padding: 5px 10px;
+}
+
+.csstransforms & th.rotate {
+  height: 140px;
+  white-space: nowrap;
+}
+</style>
+<script type="text/javascript">
+function getName(poss, name)
+{
+	var index = poss.indexOf(name);
+	if (index < 0)
+	{
+		index = poss.length;
+		poss[index] = name;
+	}
+
+	return index;
+}
+
+function linsear(set, elmnt)
+{
+	var ans = -1;
+
+	for (var i = 0; i < set.length && ans == -1; i++)
+	{
+		if (set[i] == elmnt)
+		{
+			ans = i;
+		}
+	}
+
+	return ans;
+}
+
+function getLocs(poss, data, clmn)
+{
+	var names = new Array();
+	var index;
+	var element;
+
+	for (var i = 0; i < data.length; i++)
+	{
+		element = poss[clmn][data[i][clmn]];
+		index = linsear(names, element);
+		if (index < 0)
+		{
+			names[names.length] = element;
+		}
+	}
+
+	var locs = new Array();
+	for (var i = 0; i < names.length; i++)
+	{
+		element = names[i];
+		locs[i] = linsear(poss[clmn], element);
+	}
+
+	return locs;
+}
+
+function matchArr(data, clmn, val)
+{
+	var subset = new Object();
+	subset.features = data.features;
+	subset.options = data.options;
+	subset.names = data.names;
+	subset.values = new Array();
+
+	var temp;
+	var ans = new Array();
+
+	for (var i = 0; i < data.values.length; i++)
+	{
+		if (data.values[i][clmn] == val)
+		{
+			temp = subset.values.length;
+			subset.values[temp] = new Array();
+			for (var j = 0; j < data.values[i].length; j++)
+			{
+				subset.values[temp][j] = data.values[i][j];
+			}
+	
+			ans[ans.length] = i;
+		}
+	}
+
+	return subset;
+}
+
+function updateData(data)
+{
+	var numRows = data.values.length;
+	var resClmn = data.values[0].length - 1;
+
+	for (var i = 0; i < numRows; i++)
+	{
+		data.values[i][resClmn] = document.getElementById("out" + i).value;
+	}
+
+	return data;
+}
+
+function entropy1(numPoss, data, clmn, text)
+{
+	var numRows = data.length;
+	var ans = 0;
+	var count = new Array();
+	var prob = new Array();
+	text[0] = "";
+	
+	if (data.length == 0)
+	{
+		return 0;
+	}
+	
+	text[0] += "There are " + numRows + " rows in this data.<br>";
+	
+	for (var i = 0; i < numPoss; i++)
+	{
+		count[i] = 0;
+		for (j = 0; j < data.length; j++)
+		{
+			if (data[j][clmn] == i)
+			{
+				count[i]++;
+			}
+		}
+	
+		prob[i] = count[i] / data.length;
+		
+		text[0] += "Outcome " + i + " occurs " + count[i] + " times in this data, giving it a probability of " + prob[i].toFixed(4) + "<br>";
+
+		if (count[i] > 0)
+		{
+			ans += -prob[i] * (Math.log(prob[i]) / Math.log(2));
+		}
+	}
+	
+	text[0] += "The formula for entropy gives entropy = <br>";
+	for (var i = 0; i < numPoss; i++)
+	{
+		if (prob[i] != 0)
+		{
+			text[0] += "-(" + prob[i].toFixed(4) + ") * log<sub>2</sub>(" + prob[i].toFixed(4) + ")";
+			if (i < numPoss - 1)
+			{
+				text[0] += " + ";
+			}
+		}
+	}
+	text[0] += "<br>" + ans.toFixed(4) + "<br>";
+
+	return ans;
+}
+
+function entropy2(numPoss, clmn, text)
+{
+	var ans = 0;
+	var count = new Array();
+	var prob = new Array();
+	text[0] = "";
+
+	if (clmn.length == 0)
+	{
+		return 0;
+	}
+	
+	text[0] += "There are " + clmn.length + " rows in this data.<br>";
+
+	for (var i = 0; i < numPoss; i++)
+	{
+		count[i] = 0;
+		for (var j = 0; j < clmn.length; j++)
+		{
+			if (clmn[j] == i)
+			{
+				count[i]++;
+			}
+		}
+
+		prob[i] = count[i] / clmn.length;
+	
+		text[0] += "Outcome " + i + " occurs " + count[i] + " times in this data, giving it a probability of " + prob[i].toFixed(4) + "<br>";
+	
+		if (count[i] > 0)
+		{
+			ans += -prob[i] * (Math.log(prob[i]) / Math.log(2));
+		}
+	}
+	
+	text[0] += "The formula for entropy gives entropy = <br>";
+	for (var i = 0; i < numPoss; i++)
+	{
+		if (prob[i] != 0)
+		{
+			text[0] += "-(" + prob[i].toFixed(4) + ") * log<sub>2</sub>(" + prob[i].toFixed(4) + ")";
+			if (i < numPoss - 1)
+			{
+				text[0] += " + ";
+			}
+		}
+	}
+	text[0] += "<br>";
+
+	return ans;
+}
+
+function used(history, attrib)
+{
+	for (var i = 0; i < history.length; i++)
+	{
+		if (history[i][0] == attrib)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function buildTree(data, asmpts, ans, id, text)
+{
+//	text[0] = "";
+	text[0] += "<span onclick=showHideDiv('div" + id[0] + "');>Step " + id[0] + ": Overall Entropy</span><br>";
+	text[0] += "<div id='div" + id[0] + "' style='display:none;'>";
+	text[0] += "The data is now <br>";
+	text[0] +=  dispData(data, 0);
+
+	var optEnt = 0;
+	var sel = false;
+	var chosenAttr = 0;
+
+	var numRows = data.values.length;
+	var numFtrs = data.features.length;
+	var outcome = numFtrs - 1;
+
+	var avgEnt = new Array(), subEnt;
+	var subset = new Array();
+
+	for (var i = 0; i < numRows; i++)
+	{
+		subset[i] = data.values[i][outcome];
+	}
+	
+	var entrTxt = [""];
+
+	var entr = entropy2(data.options[outcome].length, subset, entrTxt);
+	
+	text[0] += entrTxt;
+
+	text[0] += "The overall entropy is " + entr.toFixed(4) + "<br>";
+	text[0] += "</div>";
+//	document.getElementById("output").innerHTML += text;
+	id[0]++;
+
+	if (entr == 0 && numRows > 0)
+	{
+		var temp = new Array();
+		temp[0] = asmpts;
+		temp[1] = data.values[0][outcome];
+	
+		ans[ans.length] = temp;
+
+		return;
+	}
+
+	for (var i = 0; i < numFtrs - 1; i++)
+	{		
+		if (used(asmpts, i))
+		{
+			avgEnt[i] = -1;
+			continue;
+		}
+//		text = "";
+		text[0] += "<span onclick=showHideDiv('div" + id[0] + "');>Step " + id[0] + ": " + data.names[i] + " Information Gain</span><br>";
+		text[0] += "<div id='div" + id[0] + "' style='display:none;'>";
+	
+		ftrSize = data.options[i].length;
+		avgEnt[i] = 0;
+		var subEnt = new Array();
+		var sizes = new Array();
+	
+		for (var j = 0; j < ftrSize; j++)
+		{
+			text[0] += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + id[0] + "-" + j + "');>Step " + id[0] + "-" + j + ": " + data.names[i] + " = " + j + "</span><br>";
+			text[0] += "<div id='div" + id[0] + "-" + j + "' style='display:none;'>";
+			if (j == 0)
+			{
+				text[0] += "First, ";
+			}
+			else
+			{
+				text[0] += "Next, ";
+			}
+			text[0] += "we will consider the subset when " + data.names[i] + " is " + j + "<br>";
+			subset = matchArr(data, i, j);
+			sizes[j] = subset.values.length;
+			text[0] += dispData(subset, 0);
+		
+			if (subset.values.length > 0)
+			{
+				entrTxt = [""];
+				subEnt[j] = entropy1(data.options[outcome].length, subset.values, outcome, entrTxt);
+				avgEnt[i] += subEnt[j] * subset.values.length;
+				text[0] += entrTxt;
+			}
+			else
+			{
+				avgEnt[i] = 0;
+			}
+			text[0] += "</div>";
+		}
+		
+		text[0] += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + id[0] + "-" + ftrSize + "');>Step " + id[0] + "-" + ftrSize + ": " + data.names[i] + " Calculations</span><br>";
+		text[0] += "<div id='div" + id[0] + "-" + ftrSize + "' style='display:none;'>";
+		
+		for (var j = 0; j < ftrSize; j++)
+		{
+			if (sizes[j] > 0)
+			{
+				text[0] += "(" + subEnt[j].toFixed(4) + " * " + sizes[j] + ")";
+			}
+			else
+			{
+				text[0] += "(0.0000)";
+			}
+			if (j < ftrSize - 1)
+			{
+				text[0] += " + ";
+			}
+		}
+		text[0] += "<br> = " + avgEnt[i].toFixed(4) + "<br>";
+
+		avgEnt[i] = avgEnt[i] / numRows;
+		
+		text[0] += "We now divide this by the total number of rows, " + numRows + ", to get " + avgEnt[i].toFixed(4) + "<br>";
+		text[0] += "Then, we subtract " + avgEnt[i].toFixed(4) + " from the overall entropy, " + entr.toFixed(4) + ", to get the information gain for this feature. <br>";
+		
+		avgEnt[i] = entr - avgEnt[i];
+	
+		text[0] += data.names[i] + "'s Information Gain is " + avgEnt[i].toFixed(4) + "<br>";
+		text[0] += "</div>";
+		text[0] += "</div>";
+//		document.getElementById("output").innerHTML += text;
+		id[0]++;
+		if (!sel)
+		{
+			sel = true;
+			optEnt = avgEnt[i];
+			chosenAttr = i;
+		}
+		else
+		{
+			if (avgEnt[i] > optEnt)
+			{
+				sel = true;
+				optEnt = avgEnt[i];
+				chosenAttr = i;
+			}
+		}
+	}
+
+	if (sel)
+	{
+		text[0] += "<span onclick=showHideDiv('div" + id[0] + "');>Step " + id[0] + ": Selecting the Pivot Attribute</span><br>";
+		text[0] += "<div id='div" + id[0] + "' style='display:none;'>";
+		for (var i = 0; i < numFtrs - 1; i++)
+		{
+			if (avgEnt[i] != -1)
+			{
+				text[0] += "The Information Gain of " + data.names[i] + " is " + avgEnt[i].toFixed(4) + "<br>";
+			}
+		}
+		text[0] += "The Feature with the greatest Information Gain is " + data.names[chosenAttr] + "<br>";
+		text[0] += "</div>";
+//		document.getElementById("output").innerHTML += text;
+		id[0]++;
+	
+		numPoss = data.options[chosenAttr].length;
+		var len = asmpts.length;
+
+		for (var j = 0; j < numPoss; j++)
+		{
+			var newAsmt = new Array();
+			newAsmt[0] = chosenAttr;
+			newAsmt[1] = j;
+			var sub = matchArr(data, chosenAttr, j);
+			if (sub.values.length == 0)
+			{
+				continue;
+			}
+		
+			var subAsmpts = new Array();
+			for (var i = 0; i < asmpts.length; i++)
+			{
+				subAsmpts[i] = new Array();
+				for (var k = 0; k < asmpts[i].length; k++)
+				{
+					subAsmpts[i][k] = asmpts[i][k];
+				}
+			}
+		
+			subAsmpts[len] = newAsmt;
+			buildTree(sub, subAsmpts, ans, id, text);
+		}
+	}
+
+	return ans;
+}
+
+function createData()
+{
+	var dataSet = new Object();
+	dataSet.features = new Array();
+	dataSet.features.length = Math.floor(Math.random()*10)+5;
+	var outputClm = dataSet.features.length - 1;
+
+	var feats = new Array();
+	feats[0] = "Abstract";
+	feats[1] = "Adaptable";
+	feats[2] = "Aggressive";
+	feats[3] = "Ambition";
+	feats[4] = "Anxiety";
+	feats[5] = "Artistic";
+	feats[6] = "Cautious";
+	feats[7] = "Decisive";
+	feats[8] = "Honesty";
+	feats[9] = "Dutiful";
+	feats[10] = "Fitness";
+	feats[11] = "Intellect";
+	feats[12] = "Independent";
+	feats[13] = "Introverted";
+	feats[14] = "Lively";
+	feats[15] = "Open-minded";
+	feats[16] = "Orderly";
+	feats[17] = "Paranoid";
+	feats[18] = "Perfectionist";
+	feats[19] = "Romantic";
+	feats[20] = "Sensitive";
+	feats[21] = "Stable";
+	feats[22] = "Tension";
+	feats[23] = "Warmth";
+	feats[24] = "Wealthy";
+	var rem = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
+
+	dataSet.options = new Array();
+	dataSet.names = new Array();
+	for (var i = 0; i < dataSet.features.length; i++)
+	{
+		var numOptions = 4;
+		if (i == outputClm)
+		{
+			numOptions = 2;
+		}
+		dataSet.options[i] = new Array();
+	
+		for (var j = 0; j < numOptions; j++)
+		{
+			dataSet.options[i][j] = j;
+		}
+		var loc = Math.floor(Math.random()*rem.length);
+	
+		if (i != outputClm)
+		{
+			dataSet.names[i] = feats[rem[loc]];
+		}
+		else
+		{
+			dataSet.names[i] = "Outcome";
+		}
+		rem[loc] = rem[rem.length-1];
+		rem.length--;
+	}
+
+	var hero = new Array();
+	var viln = new Array();
+
+	for (var i = 0; i < dataSet.options.length - 1; i++)
+	{
+		hero[i] = Math.floor(Math.random() * dataSet.options[i].length);
+		viln[i] = 4 - hero[i];
+	}
+
+	dataSet.values = new Array();
+	var rows = Math.floor(Math.random()*5)+15;
+
+	for (var i = 0; i < rows; i++)
+	{
+		dataSet.values[i] = new Array();
+		for (var j = 0; j < outputClm; j++)
+		{
+			dataSet.values[i][j] = Math.floor(Math.random()*dataSet.options[j].length);
+		}
+	
+		var heroDist = dist(dataSet.values[i], hero);
+		var vilnDist = dist(dataSet.values[i], viln);
+	
+
+		if (heroDist < vilnDist)
+		{
+			dataSet.values[i][outputClm] = 1;
+		}
+		else
+		{
+			dataSet.values[i][outputClm] = 0;
+		}
+	}
+
+	return dataSet;
+}
+
+function dist(vctr1, vctr2)
+{
+	var ans = 0;
+	for (var i = 0; i < vctr1.length; i++)
+	{
+		ans += Math.pow((vctr1[i] - vctr2[i]), 2);
+	}
+
+	ans = Math.sqrt(ans);
+
+	return ans;
+}
+
+function showHideDiv(id)
+{
+	var val = document.getElementById(id).style.display;
+	if (val == "none")
+	{
+//		alert("case1");
+	document.getElementById(id).style.display = "block";
+	}
+	else
+	{
+//		alert("case2");
+	document.getElementById(id).style.display = "none";
+	}
+}
+
+function dispData(data, box)
+{
+	var text = "";
+
+	text = "<table><tr>";
+
+	for (var i = 0; i < data.options.length; i++)
+	{
+		text += "<th class='rotate'><div><b>" + data.names[i] + "</b></div></th>";
+	}
+	text += "</tr>";
+
+	for (var i = 0; i < data.values.length; i++)
+	{
+		text += "<tr>";
+		for (j = 0; j < data.values[i].length - 1; j++)
+		{
+			text += "<td><center>" + data.values[i][j] + "</center></td>";
+		}
+
+		if (box)
+		{
+			text += "<td><center><select id='out" + i + "'><option value=1";
+		
+			var heroVln = data.values[i][data.values[i].length - 1];
+		
+			if (heroVln == 1)
+			{
+				text += " selected";
+			}
+			text += ">Hero</option><option value=0";
+			if (heroVln == 0)
+			{
+				text += " selected";
+			}
+			text += ">Villain</option></select></center></td></tr>";
+		}
+
+		else
+		{
+			text += "<td><center>" + data.values[i][data.values[i].length - 1] + "</center></td></tr>";
+		}
+	}
+	text += "</table>";
+
+	return text;
+}
+
+function createDecTree(data)
+{
+	var rules = new Array();
+	var work = [""];
+	buildTree(data, new Array(), rules, [1], work);
+
+	var text = "<p>";
+
+	for (var i = 0; i < rules.length; i++)
+	{
+		if (i > 0)
+		{
+			text += "else ";
+		}
+		text += "if (";
+		for (var j = 0; j < rules[i][0].length; j++)
+		{
+			text += data.names[rules[i][0][j][0]] + " == " + rules[i][0][j][1];
+			if (j < rules[i][0].length - 1)
+			{
+				text += " and ";
+			}
+		}
+		text += ") then ";
+		if (rules[i][1] == 1)
+		{
+			text += "Hero";
+		}
+		else
+		{
+			text += "Villain";
+
+
+		}
+		text += "<br>";
+	}
+	text += "</p?";
+	document.getElementById("output").innerHTML += work;
+	document.getElementById("output").innerHTML += text;
+}
+
+</script>
+<h3><center></center></h3>
+<p>This page gives users an introduction to decision trees using the ID3 Algorithm. First, a number of rows are generated and assigned as either a Hero or Villain based on a set of character traits. Users are asked users to decide if they think someone with these characteristics will be a Hero or a Villain. Then when they press "Build Tree", the algorithm runs and they should be given a set of "rules" in the form of if-then statements that determine the criteria that they're probably using to figure out if a person is a hero or a villain.</p>
+<p id=input></p>
+
+<input type="button" value="New Problem" onclick="dataSet = createData();document.getElementById('input').innerHTML = dispData(dataSet, 1) + '<br>';document.getElementById('output').innerHTML = ''">
+
+
+<input type="button" value="Build Tree" onclick="document.getElementById('output').innerHTML += '';dataSet=updateData(dataSet);createDecTree(dataSet);">
+<div id=output></div>
+<script type="text/javascript">
+var dataSet = createData();
+
+document.getElementById("input").innerHTML += dispData(dataSet, 1) + "<br>";
+//createDecTree(dataSet);
+</script>

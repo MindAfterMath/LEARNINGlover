@@ -1,0 +1,1144 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+WordClouds<style>
+<!--/*--><![CDATA[/* ><!--*/
+
+.mytagcloud
+{
+//	float: left;
+	margin: 5px;
+	font-family: 'Reenie Beanie', arial, serif;
+}
+
+/*--><!]]>*/
+</style><script type="text/javascript">
+<!--//--><![CDATA[// ><!--
+
+//var stopwords = ",the,to,and,we,a,on,i,that,in,of,is,going,he,for,do,you,it,have,this,were,what,if,with,right,but,at,all,not,as,make,think,be,hes,thats,its,our,are,some,was,can,well,them,will,good,his,know,about,sure,got,when,has,get,who,their,dont,last,said,way,back,into,time,us,theres";
+function init()
+{
+	var words = document.getElementById("input").value;
+	words = words.replace(/[^a-zA-Z\s]/g, "");
+	words = words.replace(/[\s]/g, " ");
+	do
+	{
+		words = words.replace("  ", " ");
+	}
+	while (words.indexOf("  ") != -1);
+	words = words.split (" ");
+//	document.getElementById("output").innerHTML += words + "<br>";
+	
+//	var words2 = new Array();
+//	for (var i = 0; i < words.length-1; i++)
+//	{
+//		words2[i] = words[i].toLowerCase() + " " + words[i+1].toLowerCase();
+//	}
+	
+//	var words3 = new Array();
+//	for (var i = 0; i < words.length-2; i++)
+//	{
+//		words3[i] = words[i].toLowerCase() + " " + words[i+1].toLowerCase() + " " + words[i+2].toLowerCase();
+//	}
+	
+//	var words4 = new Array();
+//	for (var i = 0; i < words.length-3; i++)
+//	{
+//		words4[i] = words[i].toLowerCase() + " " + words[i+1].toLowerCase() + " " + words[i+2].toLowerCase() + " " + words[i+3].toLowerCase();
+//	}
+
+	var ans = arrCntVals(words);
+	ans = arsort(ans);
+ 
+	var stopwords = document.getElementById("stopwds").value;
+	stopwords = stopwords.split (",");
+	var wdTbl = "";
+	
+	for (var i = 0; i < ans.words.length; i++)
+	{
+		if (stopwords.indexOf(ans.words[i]) == -1)
+		{
+			wdTbl += "<tr><td id='cell_" + i + "_0' value='" + ans.words[i] + "'>" + ans.words[i] + "";
+			wdTbl += "<td id='cell_" + i + "_1' onClick='process(\"cell_" + i + "_1\")'>true";
+		}
+		else
+		{
+			wdTbl += "<tr><td id='cell_" + i + "_0' value='" + ans.words[i] + "'>" + ans.words[i] + "";
+			wdTbl += "<td id='cell_" + i + "_1' onClick='process(\"cell_" + i + "_1\")'>false";
+		}
+	}
+	
+	document.getElementById("words").innerHTML = wdTbl;
+	
+//	stopwords += ",the,of,and,to,a,in,is,you,are,for,that,or,it,as,be,on,your,";
+//	stopwords += "with,can,have,this,an,by,not,but,at,from,i,s,re,they,more,will,if,some,there,";
+//	stopwords += "what,about,which,when,one,their,all,also,how,many,do,has,most,people,other,time,";
+//	stopwords += "so,was,we,these,may,like,use,into,than,up,out,who,them,make,because,such,through,get,";
+//	stopwords += "even,different,its,no,our,new,film,just,only,see,used,good,water,been,";
+//	stopwords += "need,should,very,any,history,often,way,well,art,know,were,then,my,first,would,";
+//	stopwords += "money,each,over,world,information,map,find,where,much,take,two,want,important,";
+//	stopwords += "those,while,he,look,before,help,between,go,own,however,";
+//	stopwords += "us,his,being,another,same,why,might,going,hes,didnt,did,";
+//	stopwords += "too,had,hi,still,after,her,since,could,him,things,im,ive,";
+//	stopwords += "does,now,during,around,usually,thats,theres,dont,";
+//	stopwords += "said,back,doing,";
+ 
+	ans = filter_stopwords(ans, stopwords);
+//	ans = shuffle_assoc(ans);
+
+//	document.getElementById("output").innerHTML += word_cloud(ans);
+	var temp = word_cloud_wts(ans);
+	ans.words = temp[0];
+	ans.counts = temp[1];
+	
+	drawIt(ans);
+}
+
+function init2()
+{
+	var words = document.getElementById("input").value;
+	words = words.replace(/[^a-zA-Z\s]/g, "");
+	words = words.replace(/[\s]/g, " ");
+	do
+	{
+		words = words.replace("  ", " ");
+	}
+	while (words.indexOf("  ") != -1);
+	words = words.split (" ");
+
+	var ans = arrCntVals(words);
+	ans = arsort(ans);
+ 
+	var stopwords = document.getElementById("stopwds").value;
+	stopwords = stopwords.split (",");
+	var wdTbl = "";
+	
+	for (var i = 0; i < ans.words.length; i++)
+	{
+		if (stopwords.indexOf(ans.words[i]) == -1)
+		{
+			wdTbl += "<tr><td id='cell_" + i + "_0' value='" + ans.words[i] + "'>" + ans.words[i] + "";
+			wdTbl += "<td id='cell_" + i + "_1' onClick='process(\"cell_" + i + "_1\")'>true";
+		}
+		else
+		{
+			wdTbl += "<tr><td id='cell_" + i + "_0' value='" + ans.words[i] + "'>" + ans.words[i] + "";
+			wdTbl += "<td id='cell_" + i + "_1' onClick='process(\"cell_" + i + "_1\")'>false";
+		}
+	}
+	
+	document.getElementById("words").innerHTML = wdTbl;
+	 
+	ans = filter_stopwords(ans, stopwords);
+//	ans = shuffle_assoc(ans);
+
+	var temp = word_cloud_wts(ans);
+	ans.words = temp[0];
+	ans.counts = temp[1];
+	
+	drawItCenter(ans);
+}
+
+
+function arrCntVals(words)
+{
+	var ans = new Object();
+	ans.words = new Array();
+	ans.counts = new Array();
+ 
+	for (var i = 0; i < words.length; i++)
+	{ 
+		if (ans.words.indexOf(words[i].trim().toLowerCase()) == -1)
+		{
+			var pos = ans.words.length;
+			ans.words[pos] = words[i].trim().toLowerCase();
+			ans.counts[pos] = 1;
+		}
+		else
+		{
+			var pos = ans.words.indexOf(words[i].trim().toLowerCase());
+			ans.counts[pos]++;
+		}
+	}
+
+	return ans;
+}
+
+function arsort(arr)
+{
+	for (var i = 0; i < arr.words.length; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			if (arr.counts[i] > arr.counts[j])
+			{
+				var temp = arr.words[i];
+				arr.words[i] = arr.words[j];
+				arr.words[j] = temp;
+
+				temp = arr.counts[i];
+				arr.counts[i] = arr.counts[j];
+				arr.counts[j] = temp;
+			}
+		}
+	}
+ 
+	return arr;
+}
+
+function filter_stopwords(arr, stopwords)
+{
+	var filtered = new Object();
+	filtered.words = new Array();
+	filtered.counts = new Array();
+
+	for (var i = 0; i < arr.words.length; i++)
+	{
+		if (stopwords.indexOf(arr.words[i].toLowerCase()) == -1)
+		{
+			var pos = filtered.words.length;
+			filtered.words[pos] = arr.words[i].toLowerCase();
+			filtered.counts[pos] = arr.counts[i];
+		}
+	}
+ 
+	return filtered;
+}
+
+function word_cloud(text)
+{
+	var cloud = "<div style='width: 600px' class='mytagcloud'>";
+	var fmax = 80;
+	var fmin = 8;
+	var tmin = Math.min.apply(Math, text.counts);
+	var tmax = Math.max.apply(Math, text.counts);
+//	alert("tmax, tmni = " + tmax + ", " + tmin);
+	
+	for (var i = 0; i < text.words.length; i++)
+	{
+		var nrm = text.counts [i] / tmax;
+		var scl = Math.floor  (nrm * fmax);
+		if (scl < 10)
+		{
+			font_size = 10;
+		}
+		else
+		{
+			font_size = scl;
+		}
+
+		var r = Math.floor (Math.random() * 256);
+		var g = Math.floor (Math.random() * 256) ;
+		var b = Math.floor (Math.random() * 256) ;
+
+		var color = '#' + r.toString (16)  +  g.toString (16) + b.toString (16);
+		cloud += "<span style='font-size: " + font_size + "px; color: " + color + ";'>" +  text.words [i] + " ";
+	}
+	cloud += "";
+	return cloud;
+}
+
+function word_cloud_wts(text)
+{
+	var fmax = 80;
+	var fmin = 8;
+	var tmin = Math.min.apply(Math, text.counts);
+	var tmax = Math.max.apply(Math, text.counts);
+
+	var wds = new Array();
+	var wts = new Array();
+
+	for (var i = 0; i < text.words.length; i++)
+	{
+		var nrm = text.counts[i] / tmax;
+		var scl = Math.floor(nrm * fmax) + fmin;
+		if (scl < 11)
+		{
+			continue;
+		}
+
+		wds[wds.length] = text.words[i];
+		wts[wts.length] = scl;
+	}
+
+	return [wds, wts];
+}
+
+function drawIt(arr)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	var draw = new Array();
+	
+//	document.getElementById("output").innerHTML += "words = " + arr.words + "<br>";
+//	document.getElementById("output").innerHTML += "sizes = " + arr.counts + "<br>";
+	var out = "";
+	
+	for (var i = 0; i < arr.words.length; i++)
+	{
+		var imgData = ctx.getImageData(0, 0, c.width, c.height).data;
+		draw[i] = true;
+		var count = 0;
+		ctx.font = arr.counts[i] + "px Arial";
+		var r, g, b;
+		do
+		{
+			r = Math.floor (Math.random() * 256);
+			g = Math.floor (Math.random() * 256);
+			b = Math.floor (Math.random() * 256);
+		}
+		while ((r == 0 && g == 0 && b == 0) || (r == 255 && g == 255 && b == 255));
+
+		ctx.fillStyle = '#' + r.toString (16)  +  g.toString (16) + b.toString (16);
+		var txt = arr.words[i];
+		var xLoc;
+		var yLoc;
+		var feas;
+		var width = ctx.measureText(txt).width;
+		
+		do
+		{
+			count++;
+			if (count > 50)
+			{
+				draw[i] = false;
+				break;
+			}
+
+			feas = true;
+			xLoc = Math.floor(Math.random() * c.width);
+			yLoc = Math.floor(Math.random() * c.height);
+			if (eval(xLoc + width) <= c.width && eval(yLoc + arr.counts[i]/4 + arr.counts[i]) <= c.height)
+			{
+				for (var j = 0; j < width && feas; j++)
+				{
+					for (var k = 0; k < arr.counts[i]; k++)
+					{
+//						i + j*width
+						var x = xLoc + j; 
+						var y = yLoc + k;
+						if ((imgData[4*eval(x + y*c.width)] != 0   || imgData[eval(4*(x + y*c.width) + 1)] !=   0 || imgData[eval(4*(x + y*c.width) + 2)] !=   0) &&
+						    (imgData[4*eval(x + y*c.width)] != 255 || imgData[eval(4*(x + y*c.width) + 1)] != 255 || imgData[eval(4*(x + y*c.width) + 2)] != 255))
+						{
+							feas = false;
+						}
+					}
+				}
+			}
+		}
+		while (eval(xLoc + width) > c.width || eval(yLoc + arr.counts[i] + arr.counts[i]/4) > c.height || !feas);
+		
+//		document.getElementById("output").innerHTML += "draw[" + i + "] = " + draw[i] + "<br>";
+		
+		if (draw[i] && feas)
+		{
+			ctx.fillText(txt, xLoc, eval(yLoc+arr.counts[i]));
+			ctx.rect(xLoc, yLoc + arr.counts[i]/4, width, arr.counts[i]);
+			ctx.strokeStyle = "#000000";
+//			ctx.stroke();
+		}
+	}
+	
+//	document.getElementById("output").innerHTML += out;
+}
+
+function drawItCenter(arr)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	var draw = new Array();
+	
+	for (var i = 0; i < arr.words.length; i++)
+	{
+		var imgData = ctx.getImageData(0, 0, c.width, c.height).data;
+		draw[i] = true;
+		var count = 0;
+		ctx.font = arr.counts[i] + "px Arial";
+		var r, g, b;
+		do
+		{
+			r = Math.floor (Math.random() * 256);
+			g = Math.floor (Math.random() * 256);
+			b = Math.floor (Math.random() * 256);
+		}
+		while ((r == 0 && g == 0 && b == 0) || (r == 255 && g == 255 && b == 255));
+
+		ctx.fillStyle = '#' + r.toString (16)  +  g.toString (16) + b.toString (16);
+		var txt = arr.words[i];
+		var xLoc = -1;
+		var yLoc = -1;
+		var feas = false;
+		var width = Math.floor(ctx.measureText(txt).width);
+					
+		var maxRad = Math.min.apply(Math, [c.width/2, c.height/2]);
+		var xCen = Math.floor(c.width / 2) - width/2;
+		var yCen = Math.floor(c.height / 2) - arr.counts[i]/2;
+		for (var rad = 0; rad < maxRad && !feas; rad ++)
+		{
+			var xMin = xCen - rad;
+			feas = true;
+			xLoc = Math.floor(Math.random() * 2*rad) + xMin;
+				
+			var yMin = Math.ceil(-1*Math.sqrt(rad*rad - (xLoc - xCen)*(xLoc - xCen)) + yCen);
+			var yMax = Math.ceil(   Math.sqrt(rad*rad - (xLoc - xCen)*(xLoc - xCen)) + yCen);
+			var yDiff = Math.floor(Math.random() * 2);
+				
+			if (yDiff)
+			{
+				yLoc = yMin;
+			}
+			else
+			{
+				yLoc = yMax;
+			}
+						
+//			if (eval(xLoc + width) <= c.width && eval(yLoc + arr.counts[i]/4 + arr.counts[i]) <= c.height && eval(xLoc) >= 0 && eval(yLoc + arr.counts[i]) >= 0)
+			if (eval(xLoc + width) <= c.width && eval(yLoc + arr.counts[i]/4 + arr.counts[i]) <= c.height)
+			{
+				for (var j = 0; j < width && feas; j++)
+				{
+					for (var k = 0; k < arr.counts[i] && feas; k++)
+					{
+						var x = xLoc + j; 
+						var y = yLoc + k;
+						var loc = 4*eval(x + y*c.width);
+						if ((imgData[loc] != 0   || imgData[eval(loc + 1)] !=   0 || imgData[eval(loc + 2)] !=   0) &&
+							(imgData[loc] != 255 || imgData[eval(loc + 1)] != 255 || imgData[eval(loc + 2)] != 255))
+						{
+							feas = false;
+						}
+					}
+				}
+			}
+			else if (eval(xLoc + width) > c.width)
+			{
+				feas = false;
+			}
+			else if (eval(yLoc + arr.counts[i]/4 + arr.counts[i]) > c.height)
+			{
+				feas = false;
+			}
+			else if (eval(xLoc + width) < 0)
+			{
+				feas = false;
+			}
+			else if (eval(yLoc + arr.counts[i]/4 + arr.counts[i]) < 0)
+			{
+				feas = false;
+			}
+		}
+		
+		if (feas)
+		{
+			ctx.fillText(txt, xLoc, eval(yLoc+arr.counts[i]));
+			ctx.rect(xLoc, yLoc + arr.counts[i]/4, width, arr.counts[i]);
+			ctx.strokeStyle = "#000000";
+		}
+	}
+}
+
+function shuffle_assoc(arr)
+{
+	var keys = new Array ();
+	var vals = new Array ();
+	var locs = new Array ();
+ 
+	for ( var i = 0; i < arr.words.length; i++)
+	{
+		locs [i] = i;
+	}
+ 
+	for (var i = 0; i < locs.length; i++)
+	{
+		var pos = Math.floor(Math.random  () * locs.length - i);
+		keys[keys.length] = arr.words [loc [pos]];
+		vals [vals.length] = arr.counts [loc [pos]];
+
+		locs [pos] = locs [locs.length - 1 - i];
+	}
+
+	var ans = new Object  ();
+	ans.words = keys;
+	ans.counts = vals;
+ 
+	return ans;
+}
+
+function process(cell)
+{
+	var sel = document.getElementById(cell).innerHTML;
+	var words = document.getElementById("stopwds").value.split(",");
+	
+	if (sel == "true")
+	{
+		sel = "false";
+	}
+	else if (sel == "false")
+	{
+		sel = "true";
+	}
+
+	document.getElementById(cell).innerHTML = sel;
+	var loc = cell.split("_");
+	var cellVal = document.getElementById(loc[0] + "_" + loc[1] + "_0").innerHTML;
+	
+	var loc = words.indexOf(cellVal);
+	if (loc == -1)
+	{
+		words[words.length] = cellVal;
+	}
+	else
+	{
+		words[loc] = words[words.length-1];
+		words.length--;
+	}
+	
+	var out = "";
+	for (var i = 0; i < words.length; i++)
+	{
+		out += words[i] + ",";
+	}
+	
+	out = out.substring(0, out.length-1);
+	
+	document.getElementById("stopwds").value = out;
+}
+
+function disp(words)
+{
+	var out = "";
+	for (var i = 0; i < words.length; i++)
+	{
+		var cellShow = document.getElementById("cell_" + i + "_1").innerHTML;
+		if (cellShow == "true")
+		{
+			out += document.getElementById("cell_" + i + "_0").innerHTML + ",";
+		}
+	}
+
+	return out;
+}
+
+//--><!]]>
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+
+<title> at LEARNINGlover.com</title>
+<style>
+<!--/*--><![CDATA[/* ><!--*/
+
+.mytagcloud
+{
+//	float: left;
+	margin: 5px;
+	font-family: 'Reenie Beanie', arial, serif;
+}
+
+/*--><!]]>*/
+</style><script type="text/javascript">
+<!--//--><![CDATA[// ><!--
+
+//var stopwords = ",the,to,and,we,a,on,i,that,in,of,is,going,he,for,do,you,it,have,this,were,what,if,with,right,but,at,all,not,as,make,think,be,hes,thats,its,our,are,some,was,can,well,them,will,good,his,know,about,sure,got,when,has,get,who,their,dont,last,said,way,back,into,time,us,theres";
+function init()
+{
+	var words = document.getElementById("input").value;
+	words = words.replace(/[^a-zA-Z\s]/g, "");
+	words = words.replace(/[\s]/g, " ");
+	do
+	{
+		words = words.replace("  ", " ");
+	}
+	while (words.indexOf("  ") != -1);
+	words = words.split (" ");
+//	document.getElementById("output").innerHTML += words + "<br>";
+	
+//	var words2 = new Array();
+//	for (var i = 0; i < words.length-1; i++)
+//	{
+//		words2[i] = words[i].toLowerCase() + " " + words[i+1].toLowerCase();
+//	}
+	
+//	var words3 = new Array();
+//	for (var i = 0; i < words.length-2; i++)
+//	{
+//		words3[i] = words[i].toLowerCase() + " " + words[i+1].toLowerCase() + " " + words[i+2].toLowerCase();
+//	}
+	
+//	var words4 = new Array();
+//	for (var i = 0; i < words.length-3; i++)
+//	{
+//		words4[i] = words[i].toLowerCase() + " " + words[i+1].toLowerCase() + " " + words[i+2].toLowerCase() + " " + words[i+3].toLowerCase();
+//	}
+
+	var ans = arrCntVals(words);
+	ans = arsort(ans);
+ 
+	var stopwords = document.getElementById("stopwds").value;
+	stopwords = stopwords.split (",");
+	var wdTbl = "";
+	
+	for (var i = 0; i < ans.words.length; i++)
+	{
+		if (stopwords.indexOf(ans.words[i]) == -1)
+		{
+			wdTbl += "<tr><td id='cell_" + i + "_0' value='" + ans.words[i] + "'>" + ans.words[i] + "";
+			wdTbl += "<td id='cell_" + i + "_1' onClick='process(\"cell_" + i + "_1\")'>true";
+		}
+		else
+		{
+			wdTbl += "<tr><td id='cell_" + i + "_0' value='" + ans.words[i] + "'>" + ans.words[i] + "";
+			wdTbl += "<td id='cell_" + i + "_1' onClick='process(\"cell_" + i + "_1\")'>false";
+		}
+	}
+	
+	document.getElementById("words").innerHTML = wdTbl;
+	
+//	stopwords += ",the,of,and,to,a,in,is,you,are,for,that,or,it,as,be,on,your,";
+//	stopwords += "with,can,have,this,an,by,not,but,at,from,i,s,re,they,more,will,if,some,there,";
+//	stopwords += "what,about,which,when,one,their,all,also,how,many,do,has,most,people,other,time,";
+//	stopwords += "so,was,we,these,may,like,use,into,than,up,out,who,them,make,because,such,through,get,";
+//	stopwords += "even,different,its,no,our,new,film,just,only,see,used,good,water,been,";
+//	stopwords += "need,should,very,any,history,often,way,well,art,know,were,then,my,first,would,";
+//	stopwords += "money,each,over,world,information,map,find,where,much,take,two,want,important,";
+//	stopwords += "those,while,he,look,before,help,between,go,own,however,";
+//	stopwords += "us,his,being,another,same,why,might,going,hes,didnt,did,";
+//	stopwords += "too,had,hi,still,after,her,since,could,him,things,im,ive,";
+//	stopwords += "does,now,during,around,usually,thats,theres,dont,";
+//	stopwords += "said,back,doing,";
+ 
+	ans = filter_stopwords(ans, stopwords);
+//	ans = shuffle_assoc(ans);
+
+//	document.getElementById("output").innerHTML += word_cloud(ans);
+	var temp = word_cloud_wts(ans);
+	ans.words = temp[0];
+	ans.counts = temp[1];
+	
+	drawIt(ans);
+}
+
+function init2()
+{
+	var words = document.getElementById("input").value;
+	words = words.replace(/[^a-zA-Z\s]/g, "");
+	words = words.replace(/[\s]/g, " ");
+	do
+	{
+		words = words.replace("  ", " ");
+	}
+	while (words.indexOf("  ") != -1);
+	words = words.split (" ");
+
+	var ans = arrCntVals(words);
+	ans = arsort(ans);
+ 
+	var stopwords = document.getElementById("stopwds").value;
+	stopwords = stopwords.split (",");
+	var wdTbl = "";
+	
+	for (var i = 0; i < ans.words.length; i++)
+	{
+		if (stopwords.indexOf(ans.words[i]) == -1)
+		{
+			wdTbl += "<tr><td id='cell_" + i + "_0' value='" + ans.words[i] + "'>" + ans.words[i] + "";
+			wdTbl += "<td id='cell_" + i + "_1' onClick='process(\"cell_" + i + "_1\")'>true";
+		}
+		else
+		{
+			wdTbl += "<tr><td id='cell_" + i + "_0' value='" + ans.words[i] + "'>" + ans.words[i] + "";
+			wdTbl += "<td id='cell_" + i + "_1' onClick='process(\"cell_" + i + "_1\")'>false";
+		}
+	}
+	
+	document.getElementById("words").innerHTML = wdTbl;
+	 
+	ans = filter_stopwords(ans, stopwords);
+//	ans = shuffle_assoc(ans);
+
+	var temp = word_cloud_wts(ans);
+	ans.words = temp[0];
+	ans.counts = temp[1];
+	
+	drawItCenter(ans);
+}
+
+
+function arrCntVals(words)
+{
+	var ans = new Object();
+	ans.words = new Array();
+	ans.counts = new Array();
+ 
+	for (var i = 0; i < words.length; i++)
+	{ 
+		if (ans.words.indexOf(words[i].trim().toLowerCase()) == -1)
+		{
+			var pos = ans.words.length;
+			ans.words[pos] = words[i].trim().toLowerCase();
+			ans.counts[pos] = 1;
+		}
+		else
+		{
+			var pos = ans.words.indexOf(words[i].trim().toLowerCase());
+			ans.counts[pos]++;
+		}
+	}
+
+	return ans;
+}
+
+function arsort(arr)
+{
+	for (var i = 0; i < arr.words.length; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			if (arr.counts[i] > arr.counts[j])
+			{
+				var temp = arr.words[i];
+				arr.words[i] = arr.words[j];
+				arr.words[j] = temp;
+
+				temp = arr.counts[i];
+				arr.counts[i] = arr.counts[j];
+				arr.counts[j] = temp;
+			}
+		}
+	}
+ 
+	return arr;
+}
+
+function filter_stopwords(arr, stopwords)
+{
+	var filtered = new Object();
+	filtered.words = new Array();
+	filtered.counts = new Array();
+
+	for (var i = 0; i < arr.words.length; i++)
+	{
+		if (stopwords.indexOf(arr.words[i].toLowerCase()) == -1)
+		{
+			var pos = filtered.words.length;
+			filtered.words[pos] = arr.words[i].toLowerCase();
+			filtered.counts[pos] = arr.counts[i];
+		}
+	}
+ 
+	return filtered;
+}
+
+function word_cloud(text)
+{
+	var cloud = "<div style='width: 600px' class='mytagcloud'>";
+	var fmax = 80;
+	var fmin = 8;
+	var tmin = Math.min.apply(Math, text.counts);
+	var tmax = Math.max.apply(Math, text.counts);
+//	alert("tmax, tmni = " + tmax + ", " + tmin);
+	
+	for (var i = 0; i < text.words.length; i++)
+	{
+		var nrm = text.counts [i] / tmax;
+		var scl = Math.floor  (nrm * fmax);
+		if (scl < 10)
+		{
+			font_size = 10;
+		}
+		else
+		{
+			font_size = scl;
+		}
+
+		var r = Math.floor (Math.random() * 256);
+		var g = Math.floor (Math.random() * 256) ;
+		var b = Math.floor (Math.random() * 256) ;
+
+		var color = '#' + r.toString (16)  +  g.toString (16) + b.toString (16);
+		cloud += "<span style='font-size: " + font_size + "px; color: " + color + ";'>" +  text.words [i] + " ";
+	}
+	cloud += "";
+	return cloud;
+}
+
+function word_cloud_wts(text)
+{
+	var fmax = 80;
+	var fmin = 8;
+	var tmin = Math.min.apply(Math, text.counts);
+	var tmax = Math.max.apply(Math, text.counts);
+
+	var wds = new Array();
+	var wts = new Array();
+
+	for (var i = 0; i < text.words.length; i++)
+	{
+		var nrm = text.counts[i] / tmax;
+		var scl = Math.floor(nrm * fmax) + fmin;
+		if (scl < 11)
+		{
+			continue;
+		}
+
+		wds[wds.length] = text.words[i];
+		wts[wts.length] = scl;
+	}
+
+	return [wds, wts];
+}
+
+function drawIt(arr)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	var draw = new Array();
+	
+//	document.getElementById("output").innerHTML += "words = " + arr.words + "<br>";
+//	document.getElementById("output").innerHTML += "sizes = " + arr.counts + "<br>";
+	var out = "";
+	
+	for (var i = 0; i < arr.words.length; i++)
+	{
+		var imgData = ctx.getImageData(0, 0, c.width, c.height).data;
+		draw[i] = true;
+		var count = 0;
+		ctx.font = arr.counts[i] + "px Arial";
+		var r, g, b;
+		do
+		{
+			r = Math.floor (Math.random() * 256);
+			g = Math.floor (Math.random() * 256);
+			b = Math.floor (Math.random() * 256);
+		}
+		while ((r == 0 && g == 0 && b == 0) || (r == 255 && g == 255 && b == 255));
+
+		ctx.fillStyle = '#' + r.toString (16)  +  g.toString (16) + b.toString (16);
+		var txt = arr.words[i];
+		var xLoc;
+		var yLoc;
+		var feas;
+		var width = ctx.measureText(txt).width;
+		
+		do
+		{
+			count++;
+			if (count > 50)
+			{
+				draw[i] = false;
+				break;
+			}
+
+			feas = true;
+			xLoc = Math.floor(Math.random() * c.width);
+			yLoc = Math.floor(Math.random() * c.height);
+			if (eval(xLoc + width) <= c.width && eval(yLoc + arr.counts[i]/4 + arr.counts[i]) <= c.height)
+			{
+				for (var j = 0; j < width && feas; j++)
+				{
+					for (var k = 0; k < arr.counts[i]; k++)
+					{
+//						i + j*width
+						var x = xLoc + j; 
+						var y = yLoc + k;
+						if ((imgData[4*eval(x + y*c.width)] != 0   || imgData[eval(4*(x + y*c.width) + 1)] !=   0 || imgData[eval(4*(x + y*c.width) + 2)] !=   0) &&
+						    (imgData[4*eval(x + y*c.width)] != 255 || imgData[eval(4*(x + y*c.width) + 1)] != 255 || imgData[eval(4*(x + y*c.width) + 2)] != 255))
+						{
+							feas = false;
+						}
+					}
+				}
+			}
+		}
+		while (eval(xLoc + width) > c.width || eval(yLoc + arr.counts[i] + arr.counts[i]/4) > c.height || !feas);
+		
+//		document.getElementById("output").innerHTML += "draw[" + i + "] = " + draw[i] + "<br>";
+		
+		if (draw[i] && feas)
+		{
+			ctx.fillText(txt, xLoc, eval(yLoc+arr.counts[i]));
+			ctx.rect(xLoc, yLoc + arr.counts[i]/4, width, arr.counts[i]);
+			ctx.strokeStyle = "#000000";
+//			ctx.stroke();
+		}
+	}
+	
+//	document.getElementById("output").innerHTML += out;
+}
+
+function drawItCenter(arr)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	var draw = new Array();
+	
+	for (var i = 0; i < arr.words.length; i++)
+	{
+		var imgData = ctx.getImageData(0, 0, c.width, c.height).data;
+		draw[i] = true;
+		var count = 0;
+		ctx.font = arr.counts[i] + "px Arial";
+		var r, g, b;
+		do
+		{
+			r = Math.floor (Math.random() * 256);
+			g = Math.floor (Math.random() * 256);
+			b = Math.floor (Math.random() * 256);
+		}
+		while ((r == 0 && g == 0 && b == 0) || (r == 255 && g == 255 && b == 255));
+
+		ctx.fillStyle = '#' + r.toString (16)  +  g.toString (16) + b.toString (16);
+		var txt = arr.words[i];
+		var xLoc = -1;
+		var yLoc = -1;
+		var feas = false;
+		var width = Math.floor(ctx.measureText(txt).width);
+					
+		var maxRad = Math.min.apply(Math, [c.width/2, c.height/2]);
+		var xCen = Math.floor(c.width / 2) - width/2;
+		var yCen = Math.floor(c.height / 2) - arr.counts[i]/2;
+		for (var rad = 0; rad < maxRad && !feas; rad ++)
+		{
+			var xMin = xCen - rad;
+			feas = true;
+			xLoc = Math.floor(Math.random() * 2*rad) + xMin;
+				
+			var yMin = Math.ceil(-1*Math.sqrt(rad*rad - (xLoc - xCen)*(xLoc - xCen)) + yCen);
+			var yMax = Math.ceil(   Math.sqrt(rad*rad - (xLoc - xCen)*(xLoc - xCen)) + yCen);
+			var yDiff = Math.floor(Math.random() * 2);
+				
+			if (yDiff)
+			{
+				yLoc = yMin;
+			}
+			else
+			{
+				yLoc = yMax;
+			}
+						
+//			if (eval(xLoc + width) <= c.width && eval(yLoc + arr.counts[i]/4 + arr.counts[i]) <= c.height && eval(xLoc) >= 0 && eval(yLoc + arr.counts[i]) >= 0)
+			if (eval(xLoc + width) <= c.width && eval(yLoc + arr.counts[i]/4 + arr.counts[i]) <= c.height)
+			{
+				for (var j = 0; j < width && feas; j++)
+				{
+					for (var k = 0; k < arr.counts[i] && feas; k++)
+					{
+						var x = xLoc + j; 
+						var y = yLoc + k;
+						var loc = 4*eval(x + y*c.width);
+						if ((imgData[loc] != 0   || imgData[eval(loc + 1)] !=   0 || imgData[eval(loc + 2)] !=   0) &&
+							(imgData[loc] != 255 || imgData[eval(loc + 1)] != 255 || imgData[eval(loc + 2)] != 255))
+						{
+							feas = false;
+						}
+					}
+				}
+			}
+			else if (eval(xLoc + width) > c.width)
+			{
+				feas = false;
+			}
+			else if (eval(yLoc + arr.counts[i]/4 + arr.counts[i]) > c.height)
+			{
+				feas = false;
+			}
+			else if (eval(xLoc + width) < 0)
+			{
+				feas = false;
+			}
+			else if (eval(yLoc + arr.counts[i]/4 + arr.counts[i]) < 0)
+			{
+				feas = false;
+			}
+		}
+		
+		if (feas)
+		{
+			ctx.fillText(txt, xLoc, eval(yLoc+arr.counts[i]));
+			ctx.rect(xLoc, yLoc + arr.counts[i]/4, width, arr.counts[i]);
+			ctx.strokeStyle = "#000000";
+		}
+	}
+}
+
+function shuffle_assoc(arr)
+{
+	var keys = new Array ();
+	var vals = new Array ();
+	var locs = new Array ();
+ 
+	for ( var i = 0; i < arr.words.length; i++)
+	{
+		locs [i] = i;
+	}
+ 
+	for (var i = 0; i < locs.length; i++)
+	{
+		var pos = Math.floor(Math.random  () * locs.length - i);
+		keys[keys.length] = arr.words [loc [pos]];
+		vals [vals.length] = arr.counts [loc [pos]];
+
+		locs [pos] = locs [locs.length - 1 - i];
+	}
+
+	var ans = new Object  ();
+	ans.words = keys;
+	ans.counts = vals;
+ 
+	return ans;
+}
+
+function process(cell)
+{
+	var sel = document.getElementById(cell).innerHTML;
+	var words = document.getElementById("stopwds").value.split(",");
+	
+	if (sel == "true")
+	{
+		sel = "false";
+	}
+	else if (sel == "false")
+	{
+		sel = "true";
+	}
+
+	document.getElementById(cell).innerHTML = sel;
+	var loc = cell.split("_");
+	var cellVal = document.getElementById(loc[0] + "_" + loc[1] + "_0").innerHTML;
+	
+	var loc = words.indexOf(cellVal);
+	if (loc == -1)
+	{
+		words[words.length] = cellVal;
+	}
+	else
+	{
+		words[loc] = words[words.length-1];
+		words.length--;
+	}
+	
+	var out = "";
+	for (var i = 0; i < words.length; i++)
+	{
+		out += words[i] + ",";
+	}
+	
+	out = out.substring(0, out.length-1);
+	
+	document.getElementById("stopwds").value = out;
+}
+
+function disp(words)
+{
+	var out = "";
+	for (var i = 0; i < words.length; i++)
+	{
+		var cellShow = document.getElementById("cell_" + i + "_1").innerHTML;
+		if (cellShow == "true")
+		{
+			out += document.getElementById("cell_" + i + "_0").innerHTML + ",";
+		}
+	}
+
+	return out;
+}
+
+//--><!]]>
+</script>
+<h3><center></center></h3>
+<p></p>
+<table><tr><td><label>Custom Spamwords</label><input name="stopwds" id="stopwds" value=",the,to,and,we,a,on,i,that,in,of,is,going,he,for,do,you,it,have,this,were,what,if,with,right,but,at,all,not,as,make,think,be,hes,thats,its,our,are,some,was,can,well,them,will,good,his,know,about,sure,got,when,has,get,who,their,dont,last,said,way,back,into,time,us,theres" /><input type="button" value="Draw Cloud" onclick="init()" /><input type="button" value="Draw Centered Cloud" onclick="init2()" /></td></tr><tr><td><textarea style="width: 600px; height: 300px;" name="input" id="input">Redskins Park
+President/General Manager Bruce Allen
+Opening statement:
+“We just finished a frustrating season that had a few ups and too many downs. As Coach [Jay] Gruden talked about with you all on Monday, we’re going to take this time to start a full evaluation of everything and look into the way we acquire players, look into the way we coach players, looking at the way the players prepare in the offseason and in-season, and make sure we correct the problems that occurred and make sure they don’t happen again and bring in the right people. You know, I’d like to tell you there’s a secret ingredient in football, but there really isn’t. It’s getting good players with good coaching and good chemistry, a little luck with injuries, and that’s a successful formula. That’s what we’re going to start addressing.”
+On mutually parting ways with Defensive Coordinator Jim Haslett:
+“Jay and Jim had been talking the last few days. This morning, when they were talking, they decided it was the best way for both sides. I appreciate Coach Haslett’s work and what he’s done for the Redskins, but I think it was the right decision.”
+On what changes can be made to produce winning records in the future:
+“Well, first of all, we’re doing some things differently this last year. We have a new coach and there’s been a new attitude in this building and I think Jay has really brought this team together and they’ve worked hard together and they fought hard together throughout the year. With that, there’s going to be growth. That’s exactly what we’re doing right now, we’re analyzing why we took ‘X’ player versus ‘Y’ player, and we’re looking at it. The attitude and the core of the people is good and it’s healthy. We understand 4-12 is not acceptable to our great fans and it’s not acceptable to anyone in this building. I feel awfully responsible for it. We’re going to make sure we hold everyone accountable for everything that happened.”
+On the team’s record in his tenure following his fifth full season:
+“Well, the one thing I do love about the NFL and I love in all of sports – it does have a scoreboard. I don’t have to pick up a newspaper or read the internet to find out how we did. We either win or lose as a team, and it is my responsibility to make sure that we have all the people in place throughout the organization doing their jobs. As I said earlier, holding those people accountable – and that includes myself, and making sure if there’s a way we can do things to help this organization to win, to get back to the basics of this great franchise – that’s what we’re going to do. That’s my job to help figure out that puzzle.”
+On why fans should be confident in those changes:
+“I think there is going to be changes. I know Jay mentioned that he’s going to make some changes and there’s going to be some other changes. But that’s part of the evaluation process right now. We’re looking for the solutions to get the team back on track. It seems like a long time ago when we won the division, and in football I guess it’s sort of like those dog years, it does multiply with each year. But, I’ve seen different people perform, I’ve seen the way people have evaluated talent, I’ve seen the way they’ve worked together, and I know this group with do it again.”
+On finding talent:
+“Well, that’s part of the evaluation process. The good news really is that we have plenty of cap room for this offseason and for the first time since I can remember we have all of our draft choices. Last year’s draft actually produced some pretty good players and that’s another good thing about this year, a lot of our young players got a chance to play. We didn’t count on Brian Orakpo getting injured, but that allowed Trent Murphy a lot of playing time. We didn’t account for DeAngelo Hall being injured, but it got [Bashaud] Breeland on the field and he got to play. We have high hopes for the two offensive linemen. I think those players will grow and get better, and the key is to make sure we take advantage of the Draft. In an NFL with a growing cap, free agency is not going to be your solution. It’s going to come mostly through the Draft. If we did one thing right last year, we were tempted to make some trades to acquire a player or two but we wanted to make sure our Draft was intact for 2015 and all the future years.”
+On what flaws exist within the organization and how they can be fixed:
+“You know, when you look at a season and what we are doing now, we know who beat us last year and we know why we lost some of the games that we did. The key is what we are going to do today and tomorrow about beating those same opponents next year. To go back three years and explain why we blew a coverage on a play, I don’t think that’s the necessary part as much as what we are going to do tomorrow and in the future to make sure it doesn’t occur again.”
+On fixing the organization:
+“It goes back to what I said earlier. It’s good players, good coaching, good chemistry, that is the winning formula. As I said earlier, I was pleased that the team fought together, and winning the Philadelphia game, although it was just one win, it was an important win, it’s a division win. The previous year we didn’t win a division game. Our team was competitive in our division games and the Dallas win and the Philly game, although only two, is a step in the right direction and our players fought in the division games. So I do trust that the players were trying. I do trust that the coaches were preparing them. We do need to make obviously improvements across the board and that’s what today and the next month and the month after that we’ll do.”
+On staff members returning despite the team’s finishes in recent years:
+“I sort of remember that question last year. Our personnel department is a hard-working group that evaluates players. I’d love to talk to everybody and show them all the grades that they put on all the players who were in the NFL. I’m not going to do that. That department is a responsibility that I take very serious and it is my responsibility to make sure that we listen to the right people, listen to their grades, evaluate the talent properly, involve the coaching staff in it and do the right thing. Once again, if you look at this year’s draft, some of the players performed well and the other ones who didn’t get on the field we think have a chance. We are going to analyze everything from the top down and it’s just not on the football side of the building, it’s not just on the personnel side of the building, it’s everything we do. We understand 4-12 is unacceptable. We absolutely do, and if there’s anything we can do to get this team back to where it belongs, we will do it. We’ll do it.”
+On the team’s salary cap room and the possibility of extending some players’ contracts before their deals expire:
+“Yeah, we will talk to those players because there is a core of young players in this league right now – on our team right now – that we feel are part of a bright future. Our cap room is – because they haven’t settled on what the final cap number is – but we will have at least $20 million.”
+On if the rest of the defensive staff remains in place:
+“Coach Gruden is meeting with all of the assistant coaches and he had just been with Jim [Haslett] the last two days specifically and will make those determinations. We will start the defensive coordinator search later today and start exploring some names and bring in some people for interviews but Jay will make those decisions later on.”
+On evaluating Gruden in his first season as Head Coach and Gruden’s relationship with Griffin III:
+“First of all, we talk about a lot of changes and things like that, one of the things I like about Jay is that he came into a very difficult situation. We were 3-13 the year before and, you know, we did have some chemistry issues. I think Jay handled himself very well. As you all got to see, he’s a very open and honest person. He’s that way in the locker room. He’s that way in a team meeting room. He has a very clear vision of what he wants to see out of his players, how he wants them to execute on the football field. And I think the learning process for the players who are coming back, knowing what Jay expects out of them, Jay knowing what to expect out of certain players will bode well for the 2015 season.”
+On if other assistant coaches have been relieved of their duties today:
+“No, he [Gruden] just talked to Jim today.”
+On if he will promote an assistant to Defensive Coordinator:
+“Jay will determine that. We’re going to start the interview process – or requesting permission to talk to people – later today.”
+On the roles of A.J. Smith and Doug Williams, and how credit and blame should be assigned in the personnel department:
+“The blame part, you can blame me. I’m responsible for what happens with this organization. It’s my job, no matter who you are with the Washington Redskins to make sure we have the right people in their roles. Doug Williams works across with pro and college. He has a keen eye for talent and is involved in all pro personnel meetings, as well as all college meetings. A.J. is a consultant. He lives in Del Mar, Calif. He’s somebody I’ve known for a number of years – we worked together 30-some years ago. When he got let go of the Chargers, I said, ‘If you have a few weeks a year and you want to come out, please do. Give us some insight into it.’ And so he’s sat in some meetings, and we’ve utilized his wisdom and experience.”
+On if Robert Griffin III is the starter at quarterback moving forward:
+“Well, the starter will be determined by the coach, but, you know, Robert has suffered a couple significant injuries in the last couple years, and he is growing. He’s 24 years old. At times you saw flashes of brilliance in 2012, and then this year, he’s learning a new system. As I said at the beginning of training camp, learning a new system, you’re going to have to be patient with a young quarterback with Coach Gruden. And I think he got better as the year went on. The fact that he missed seven games due to the injury didn’t help, but his future is up to him and the surrounding cast that we put around him. Too many times the quarterback or receivers [are] blamed for something that might not all be their responsibility, and, once again, that goes back into the different questions we talked about with personnel. We have to surround all of our players with talent in order for them to succeed at their highest levels.”
+On why he believes the organization is in better shape now than when he inherited it:
+“Well, I think we’ve done a lot of things as an organization that have improved, but we’re going to be based on our win-loss record on the football field. It’s hard to stand here and tell you that 4-12 was a good season. I couldn’t even try to do that. It was as frustrating as it can be, and week to week, it eats away at your core when you lose. But we’re going to make sure everyone understands that that’s not acceptable and that everybody is working together in order to get success on the football field and off the football field. I do think our Charitable Foundation does a fantastic job. We’re winning off the field, but we’ve got to start winning on the field.”
+On if he sees an expanded role for A.J. Smith moving forward, and the importance of getting someone with that kind of experience in the building on a full-time basis:
+“Well, we’re looking at every option we can and evaluating everything that we do. A.J. will give us a report – like everybody is going to – on suggestions and ideas and thoughts. We’re 72 hours from the end of our season, and this process is going to go on for a little bit.”
+On if it would be a benefit to have someone like A.J. Smith at Redskins Park full-time:
+“You know, the technology today, if you’re in Hawaii, you can watch the game tape as quickly as I can watch it here at Redskin Park. And, because we have telephones in Hawaii, we can have a conversation immediately after the game. We are going to listen to the people who are in their roles, make sure we have the right people in their roles. Once again, if you go back game-by-game, it’s pretty easy to describe what happened in the game and understand why we lost the game. And now we’re trying to do the bigger picture of it to make sure that when we go into next season, we have the right people in the right places.”
+On acquiring players last offseason:
+“Well, the free agents that we signed, a few of them got hurt. DeAngelo Hall was a free agent we signed, Brian Orakpo was a free agent we signed, and the two linebackers we signed [Akeem Jordan and Darryl Sharpton] got injured. That’s what you’re going to have. It’s unfortunate when it happens, and that’s not an excuse. But because something didn’t work, doesn’t mean it’s not going to work. And we’re going to find the players to add to this football team that we need, and when you say I said there’s no holes, there’s not a day that goes by that a personnel department doesn’t meet about who’s available at that time, and we’re continuing to do that, even today.”
+On signing players with injury histories:
+“In hindsight, yeah, you’d surely would like to not sign someone who’s going to get injured. But, when you bring in a free agent, you give them a physical exam, and you get a medical grade on them and you go forward. I’m not blaming the players for getting hurt. I feel for them. They wanted to play, they wanted to contribute, but when you get injured, you can’t.”
+On saying the team is doing the right things and everyone should believe in the changes that are coming:
+“Well, I don’t know if I said that, and we don’t have anybody in Hawaii. The best I can explain to you, is the evaluation process that we’re doing right now might not have the answers for you and we are evaluating it. I’m absolutely going to take responsibility for the mistakes we have made in the past. I will take responsibility for the 4-12 season.”
+On if the organization owes it to fans to seek input from football people outside the organization:
+“Oh, we owe it to the fans to look into any possible addition to this staff at any role in this organization, and that’s what we’re doing. We’re evaluating everybody’s job, everybody’s role, and if we can add people to the Washington Redskins who are going to help us win, we’re absolutely going to do that.”
+On the decision to play Robert Griffin III against Minnesota and trusting Gruden to make the decision:
+“Jay has the autonomy. Jay made that decision. Jay decides who plays on game day at every position on this football team. He decides who is inactive on this football team on game day, so he has that authority. He’s had it since his job interview, as did everybody that we also interviewed for the job.”
+On if he perceives a culture problem within the organization:
+“No, I see a team that really wants to win and we make too many losing plays in games. Part of the good chemistry that I think Jay has brought to the team is the honesty of what happens in a football game, the honesty of what happens in a Wednesday and Thursday practice about finding that type of a game-ready performance on a Thursday. He’s not the first coach in the history of this NFL to have a losing season in his first year and we are not the first team to have back-to-back losing seasons in the NFL. And it will happen again [in the NFL]. Do I believe he is the right leader? Absolutely. I believe he is the right leader and I believe the players believe that he is the right leader. We just have to make sure we augment the roster with the right players and give him the talent that he needs.”
+On franchising linebacker Brian Orakpo:
+“You know, Jason, I don’t believe you were a fan of the Orakpo deal, I’m giving you credit for that. I had great hopes for Brian this year, as did Brian, and unfortunately he got injured.”
+On Orakpo’s season:
+“He didn’t have a full season to play… I look at players probably different than you do. I listen to their concerns. I listen to what their dreams are for themselves and I root for the players who are Washington Redskins. I root every single one of them to do well. I understand that some players have limitations and some players can’t perform well at different times, but we thought it was the right thing to bring Brian back. He’s a good teammate. He’s been good performer for the Washington Redskins and we thought it was the right decision. I’m not going to go back and second guess what I would have done if I had known he was going to get hurt and have a half a sack at the time he got hurt. Jason Hatcher, we felt could add to our pass rush, which he did. He’s talented because we had other depth issues. He played on some downs that we didn’t go into the season counting for him to play, but he’s been a great addition to this football team, he’s been a good leader on this football team, and I hope he has a great career with the Washington Redskins.”
+On evaluating where the team is beyond its record:
+“I respect the game too much to say we would’ve, could’ve won certain games without winning them. There are going to be changes. I don’t think I’ve hid from that and I don’t think Coach Gruden told you anything different. There are going to be changes in the way we do business.”
+On where the changes will be:
+“I believe I said we’re taking this time to evaluate everything. It’s been 72 hours from the Dallas game and this evaluation is going to continue for some time. We’re going to make whatever changes are necessary to do what can help this franchise win. That is our job. That is our only job is to help this franchise win and we will do what is necessary to do that.”
+On his discussions with Gruden about the quarterback position moving forward:
+“First of all, Coach Gruden and I, we both have open doors and we talk to each other, if I said once or twice a day, that would be an understatement. So we talk all the time about every position on the team. Yeah, Robert’s under contract for us for 2015. I do believe he’s a young man who has shown promise and can play in this league. I think being one year into Coach Gruden’s system is going to help him develop. I think he’s going to know better what to do in the months of January to April before he’s able to come into the building and start to work. I think there’s a complete understanding between the two of them on what needs to improve in his play to help us win.”
+On why he does not speak to media more frequently:
+“First of all, and I’m glad you asked the question, I think I’ve talked about this last year with you all. There’s one voice during the football season and that’s the voice of the head coach. I can’t know everything he has said to you at a press conference. He could say we’re going to run a wing punt formation this game and I’m going to say we’re not. He’s going to say he is. The coach is the spokesman for an NFL team during the season and I would imagine 25-30 teams probably think the absolute same way. I do talk to the fans though. I talk to the fans on a regular basis. I know I talk more than Chris Cooley has call-ins on his show. Through different events whether it’s a town hall or meeting them in the parking lots or communicating with them, our fans do know a lot of my thoughts and I’ve had those conversations with them. I’m available to talk almost all the time. I’m here every day. But, when you want to ask me a question in December, ‘Is the coach’s job secure? Give us this, give us that,’ that’s never been a winning formula for anyone because all it does is fuel the speculation.”
+On possibly finding and hiring a front office member who has trained in another organization:
+“We’re going to look at anything we can do to help us win.”
+On if he could add someone to oversee football operations:
+“I don’t mean to be repetitive, but if we can find a winning formula that’s going to help this team win on the football field, we’ll absolutely do it, and that includes me. If it meant mowing that lawn out there every Tuesday, I would mow the lawn every darn Tuesday. I want the Burgundy and Gold to win. That is my job and my responsibility is to try and figure out how to do that.”
+On if there is “too much on his plate” serving as both President and General Manager:
+“No, it’s not too much on your plate.”
+On his message to fans:
+“We hear them. We hear them. And I get to talk to them about their disappointment. Over the next month or so, we’ll have this going in the right direction.”
+On if the team will return to Richmond for training camp:
+“Coach Gruden, and no different than Coach Shanahan, likes the idea of going away for training camp. The environment that we created in Richmond for the fans and the team is a good environment. I don't think you can blame training camp on what happened the last two regular seasons. So yeah our plan is to be back in Richmond.”
+On if he would like to have seen Griffin III get more reps in early December:
+“We believed in what Coach Gruden was doing and he was looking out for the interests of all 53 players on game day and the players. But he put him in because Colt got injured in the game.”
+On if there was a hesitancy to return to Griffin III:
+“I don't believe there was a hesitancy. We only dressed two quarterbacks, but when Colt got injured in the game, we put him in.”
+On not turning to Griffin III prior to the injury to McCoy:
+“Oh, you're talking about previous games? That's a coach’s prerogative.”
+On if he gave his recommendation on the quarterback position at that point:
+“No, Jay explained what his goals were, as he does each week for the upcoming game and what he thought would give us the best opportunity to win and we said, ‘Do what you think is right.’”
+On if he trusted that decision:
+“If that's what the coach believed then yes.” </textarea></td></tr><tr><td><canvas id="myCanvas" width="600" height="600" style="border:1px solid #000000;"></canvas></td><td>
+<div style="height: 600px; width: 200px; font-size: 12px; overflow: auto;">
+<table name="words" id="words"></table></div>
+</td></tr></table><p name="output" id="output"></p>

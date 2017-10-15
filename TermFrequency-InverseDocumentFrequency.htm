@@ -1,0 +1,1006 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+TermFrequency-InverseDocumentFrequency<script type="text/javascript" src="examples/getquote1.js"></script>
+<script type="text/javascript">
+var maxNo = 207;
+var M = 1000000;
+var clusters = new Array();
+var labels = new Array();
+function init()
+{
+    var numItems = Math.floor(Math.random()*10)+2;
+    var list = new Array();
+    var words;
+    
+    var text = "<ol>";
+    var quotes = new Array();
+    
+    for (var i = 0; i < numItems; i++)
+    {
+        var loc;
+        do
+        {
+            loc = Math.floor(Math.random()*maxNo);
+        }
+        while (list.indexOf(loc) != -1);
+        
+        list[list.length] = loc;
+        
+        quotes[i] = getQuote(loc);
+        text += "<li>" + quotes[i];
+    }
+    
+    text += "</ol>";
+    
+    words = getWds(quotes);
+        
+    var ans = new Array();
+    ans[0] = quotes;
+    ans[1] = words;
+
+    document.getElementById("input").innerHTML = text;
+    document.getElementById("dispSim").hidden = true;
+    document.getElementById("values").hidden = true;
+    document.getElementById("values").options.length = 0;
+    document.getElementById("output").innerHTML = "";
+    
+    return ans;
+}
+
+function common()
+{
+    var cmn = new Array("a", "able", "about", "above", "abroad", "according", "accordingly", "across", "actually", "adj", "after", "afterwards", "again", "against", "ago", "ahead", "aint", "all", "allow", "allows", "almost", "alone", "along", "alongside", "already", "also", "although", "always", "am", "amid", "amidst", "among", "amongst", "an", "and", "another", "any", "anybody", "anyhow", "anyone", "anything", "anyway", "anyways", "anywhere", "apart", "appear", "appreciate", "appropriate", "are", "arent", "around", "as", "as", "aside", "ask", "asking", "associated", "at", "available", "away", "awfully", 
+"back", "backward", "backwards", "be", "became", "because", "become", "becomes", "becoming", "been", "before", "beforehand", "begin", "behind", "being", "believe", "below", "beside", "besides", "best", "better", "between", "beyond", "both", "brief", "but", "by", 
+"came", "can", "cannot", "cant", "cant", "caption", "cause", "causes", "certain", "certainly", "changes", "clearly", "cmon", "co", "co.", "com", "come", "comes", "concerning", "consequently", "consider", "considering", "contain", "containing", "contains", "corresponding", "could", "couldnt", "course", "cs", "currently", 
+"dare", "darent", "definitely", "described", "despite", "did", "didnt", "different", "directly", "do", "does", "doesnt", "doing", "done", "dont", "down", "downwards", "during", 
+"each", "edu", "eg", "eight", "eighty", "either", "else", "elsewhere", "end", "ending", "enough", "entirely", "especially", "et", "etc", "even", "ever", "evermore", "every", "everybody", "everyone", "everything", "everywhere", "ex", "exactly", "example", "except", 
+"fairly", "far", "farther", "few", "fewer", "fifth", "first", "five", "followed", "following", "follows", "for", "forever", "former", "formerly", "forth", "forward", "found", "four", "from", "further", "furthermore", 
+"get", "gets", "getting", "given", "gives", "go", "goes", "going", "gone", "got", "gotten", "greetings", 
+"had", "hadnt", "half", "happens", "hardly", "has", "hasnt", "have", "havent", "having", "he", "hed", "hell", "hello", "help", "hence", "her", "here", "hereafter", "hereby", "herein", "heres", "hereupon", "hers", "herself", "hes", "hi", "him", "himself", "his", "hither", "hopefully", "how", "howbeit", "however", "hundred", 
+"id", "ie", "if", "ignored", "ill", "im", "immediate", "in", "inasmuch", "inc", "inc", "indeed", "indicate", "indicated", "indicates", "inner", "inside", "insofar", "instead", "into", "inward", "is", "isnt", "it", "itd", "itll", "its", "its", "itself", "ive", "i", 
+"just", 
+"k", "keep", "keeps", "kept", "know", "known", "knows", 
+"last", "lately", "later", "latter", "latterly", "least", "less", "lest", "let", "lets", "like", "liked", "likely", "likewise", "little", "look", "looking", "looks", "low", "lower", "ltd", 
+"made", "mainly", "make", "makes", "many", "may", "maybe", "maynt", "me", "mean", "meantime", "meanwhile", "merely", "might", "mightnt", "mine", "minus", "miss", "more", "moreover", "most", "mostly", "mr", "mrs", "much", "must", "mustnt", "my", "myself", 
+"name", "namely", "nd", "near", "nearly", "necessary", "need", "neednt", "needs", "neither", "never", "neverf", "neverless", "nevertheless", "new", "next", "nine", "ninety", "no", "nobody", "non", "none", "nonetheless", "noone", "noone", "nor", "normally", "not", "nothing", "notwithstanding", "novel", "now", "nowhere", 
+"obviously", "of", "off", "often", "oh", "ok", "okay", "old", "on", "once", "one", "ones", "ones", "only", "onto", "opposite", "or", "other", "others", "otherwise", "ought", "oughtnt", "our", "ours", "ourselves", "out", "outside", "over", "overall", "own", 
+"particular", "particularly", "past", "per", "perhaps", "placed", "please", "plus", "possible", "presumably", "probably", "provided", "provides", "que", "quite", "qv", 
+"rather", "rd", "re", "really", "reasonably", "recent", "recently", "regarding", "regardless", "regards", "relatively", "respectively", "right", "round", 
+"said", "same", "saw", "say", "saying", "says", "second", "secondly", "see", "seeing", "seem", "seemed", "seeming", "seems", "seen", "self", "selves", "sensible", "sent", "serious", "seriously", "seven", "several", "shall", "shant", "she", "shed", "shes", "should", "shouldnt", "since", "six", "so", "some", "somebody", "someday", "somehow", "someone", "something", "sometime", "sometimes", "somewhat", "somewhere", "soon", "sorry", "specified", "specify", "specifying", "still", "sub", "such", "sup", "sure", 
+"take", "taken", "taking", "tell", "tends", "th", "than", "thank", "thanks", "thanx", "that", "thatll", "thats", "thats", "thatve", "the", "their", "theirs", "them", "themselves", "then", "thence", "there", "thereafter", "thereby", "thered", "therefore", "therein", "therell", "therere", "theres", "theres", "thereupon", "thereve", "these", "they", "theyd", "theyll", "theyre", "theyve", "thing", "things", "think", "third", "thirty", "this", "thorough", "thoroughly", "those", "though", "three", "through", "throughout", "thru", "thus", "till", "to", "together", "too", "took", "toward", "towards", "tried", "tries", "truly", "try", "trying", "ts", "twice", "two", 
+"un", "under", "underneath", "undoing", "unfortunately", "unless", "unlike", "unlikely", "until", "unto", "up", "upon", "upwards", "us", "use", "used", "useful", "uses", "using", "usually", 
+"v", "value", "various", "versus", "very", "via", "viz", "vs", 
+"want", "wants", "was", "wasnt", "way", "we", "wed", "welcome", "well", "went", "were", "werent", "weve", "what", "whatever", "whatll", "whats", "whatve", "when", "whence", "whenever", "where", "whereafter", "whereas", "whereby", "wherein", "wheres", "whereupon", "wherever", "whether", "which", "whichever", "while", "whilst", "whither", "who", "whod", "whoever", "whole", "wholl", "whom", "whomever", "whos", "whose", "why", "will", "willing", "wish", "with", "within", "without", "wonder", "wont", "would", "wouldnt", 
+"yes", "yet", "you", "youd", "youll", "your", "youre", "yours", "yourself", "yourselves", "youve", 
+"zero");
+
+    return cmn;
+}
+
+function getWds(docs)
+{
+    var words = new Array();
+    var cmn = common();
+
+    for (var i = 0; i < docs.length; i++)
+    {
+        var currWds = docs[i].split(" ");
+        for (var j = 0; j < currWds.length; j++)
+        {
+            currWds[j] = currWds[j].replace(new RegExp("[^a-zA-Z0-9]"), "");
+
+            currWds[j] = currWds[j].toLowerCase();
+            if (currWds[j] != "" && words.indexOf(currWds[j]) == -1 && cmn.indexOf(currWds[j]) == -1)
+            {
+                words[words.length] = currWds[j];
+            }
+        }
+    }
+    
+    return words;
+}
+
+function tfidf(docs, words)
+{
+    var mtrx = new Array();
+    var found = new Array();
+    var sum = new Array();
+    
+    for (var i = 0; i < docs.length; i++)
+    {
+        mtrx[i] = new Array();
+        found[i] = new Array();
+        for (var j = 0; j < words.length; j++)
+        {
+            mtrx[i][j] = 0;
+            found[i][j] = 0;
+            var doc = docs[i].split(" ");
+            for (var k = 0; k < doc.length; k++)
+            {
+                doc[k] = doc[k].replace(new RegExp("[^a-zA-Z0-9]"), "");
+
+                doc[k] = doc[k].toLowerCase();
+                if (doc[k] == words[j])
+                {
+                    mtrx[i][j] ++;
+                    found[i][j] = 1;
+                }
+            }
+        
+            if (mtrx[i][j] != 0)
+                mtrx[i][j] = mtrx[i][j];
+        }
+    }
+    
+    mtrx[docs.length] = new Array();
+    
+    for (var j = 0; j < words.length; j++)
+    {
+        sum[j] = 0;
+        for (var i = 0; i < docs.length; i++)
+        {
+            sum[j] += found[i][j];
+        }
+        mtrx[docs.length][j] = sum[j];
+    }
+    
+    for (var i = 0; i < docs.length; i++)
+    {
+        for (var j = 0; j < words.length; j++)
+        {
+            mtrx[i][j] = mtrx[i][j]*(Math.log(docs.length/(sum[j])));
+        }
+    }
+    
+    return mtrx;
+}
+
+function cosSim(row1, row2)
+{
+    var sum = 0;
+    var norm1 = 0;
+    var norm2 = 0;
+    var sim = 0;
+    
+    for (var i = 0; i < row1.length; i++)
+    {
+        sum += row1[i]*row2[i];
+    }
+    
+    for (var i = 0; i < row1.length; i++)
+    {
+        norm1 += row1[i]*row1[i];
+        norm2 += row2[i]*row2[i];
+
+    }
+    
+    norm1 = Math.sqrt(norm1);
+    norm2 = Math.sqrt(norm2);
+    
+    sim = sum / (norm1 * norm2);
+    
+    return sim;
+}
+
+function maxHash(row)
+{
+    var max = 0;
+    var maxLoc = 0;
+    
+    for (var i = 0; i < row.length; i++)
+    {
+        if (row[i] > max)
+        {
+            max = row[i];
+            maxLoc = i;
+        }
+    }
+    
+    
+    return maxLoc;
+}
+
+function meanHash(row)
+{
+    var mean = 0;
+    var meanLoc = 0;
+    var count = 0;
+    
+    for(var i = 0; i < row.length; i++)
+    {
+        if (row[i] > 0)
+        {
+            mean += i*row[i];
+        }
+    }
+    
+    return Math.round(mean);
+}
+
+function clearRect()
+{
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+
+    ctx.fillStyle = "#c3c3c3";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fill();
+    
+    return;
+}
+
+function EucDist(point1, point2)
+{
+    var i, j, sumSq = 0;
+
+    if (point1.length != point2.length)
+        return M;
+
+    for (i = 0; i < point1.length; i++)
+        sumSq += Math.pow(Math.abs(point1[i] - point2[i]), 2);
+
+    return Math.sqrt(sumSq);
+}
+
+function dispPts(input)
+{
+    var i, c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.fillStyle="#000000";
+
+    for (i = 0; i < input.length; i++)
+    {
+        ctx.beginPath();
+        ctx.arc(input[i][0],c.height-input[i][1],5,0,Math.PI*2,true);
+        ctx.closePath();
+        ctx.fill();
+//        alert("point " + i + ": " + input[i][0] + ", " + input[i][1] + " drawn.");
+    }
+}
+
+function Kruskal(A, minVal)
+{
+    var B = new Array();
+    for (var i = 0; i < A.length; i++)
+    {
+        B[i] = new Array();
+        
+        for (var j = 0; j < A.length; j++)
+        {
+            B[i][j] = A[i][j];
+                 if (A[i][j] == 0)
+                    A[i][j] = M;
+        }
+    }
+
+    
+    //Each node is initially in its own tree (lookup). 
+    var T = new Array();
+    var lookup = new Array();
+    for (var i = 0; i < A.length; i++)
+    {
+        T[i] = [i];
+        lookup[i] = i;
+    }
+    
+
+    var E = new Array();
+    var sum = 0;
+    var last = -1;
+    var m;
+
+    while (last > minVal || last == -1)
+    {
+        //First find the maximum weight edge. 
+        m = -1;
+
+        for (var i = 0; i < A.length; i++)
+        {
+            for (var j = 0; j < i; j++)
+            {
+//                alert(A[i][j] + " vs " + minVal);
+                if (A[i][j] > m && lookup[i] != lookup[j] && A[i][j] < M && A[i][j] > minVal)
+                {
+                    m = A[i][j];
+                    u = i;
+                    v = j;
+                }
+            }
+        }
+        
+        if (m == -1)
+            last = minVal;
+        else
+        {
+            initLen = T[lookup[u]].length;
+            initLook = lookup[u];
+            for (var i = initLen - 1; i >= 0; i--)
+            {
+                T[lookup[v]][T[lookup[v]].length] = T[initLook][i];
+                lookup[T[initLook][i]] = lookup[v];
+            }
+            E[E.length] = u;
+            E[E.length] = v;
+            last = A[u][v];
+            A[u][v] = M;
+            A[v][u] = M;
+            sum += m;
+        }
+    }
+    
+    for (var i = 0; i < T.length; i++)
+    {
+        for (var j = 0; j < T[i].length; j++)
+        {
+            if (T[i][j] != i)
+            {
+                T[T[i][j]] = "";
+            }
+        }
+    }
+
+    E[E.length] = sum;
+
+    for (var i = 0; i < A.length; i++)
+    {
+        for (var j = 0; j < A.length; j++)
+        {
+            A[i][j] = B[i][j];
+        }
+    }
+    
+    return T;
+}
+
+function dispClusters(items, k, clusters, labels)
+{
+    var text = "<table>";
+    var i, j;
+
+    for (i = 0; i < clusters.length; i++)
+    {
+        text += "<tr><td width=150><b>Cluster " + i + ":</b></td>";
+        text += "<td width=150><b>(" + Math.round(clusters[i][0]*100)/100 + ", " +
+        Math.round(clusters[i][1]*100)/100 + ")</b></td>";
+        for (j = 0; j < items.length; j++)
+            if (labels[j] == i)
+                text += "<td width=150>(" + items[j][0] + ", " + items[j][1] + ")</td>";
+        text += "</tr>";
+    }
+
+    text += "</table>";
+    return text;
+}
+
+function postProcess1(docs, words)
+{
+    var mtrx = tfidf(docs, words);
+    var sim = new Array();
+    var inp = new Array();
+    var clusters = new Array();
+    var labels = new Array();
+    var list = new Array();
+    maxNo = 25;
+    
+    var text = "Relevant TF-IDF Matrix: <table>";
+    text += "<tr>";
+    
+    for (var i1 = 0; i1 < words.length; i1++)
+    {
+        if (mtrx[mtrx.length-1][i1] > 1)
+            text += "<td>" + words[i1] + "</td>";
+    }
+    
+    text += "</tr>";
+    
+    for (var i1 = 0; i1 < mtrx.length-1; i1++)
+    {
+        text += "<tr>";
+        for (var i2 = 0; i2 < mtrx[i1].length; i2++)
+        {
+            if (mtrx[mtrx.length-1][i2] > 1)
+                text += "<td>" + Math.round(mtrx[i1][i2]*1000)/1000 + "</td>";
+        }
+        text += "</tr>";
+    }
+    
+    text += "</table><br>";
+    text += "Similarity Matrix for Quotes: <table>";
+    for (var i1 = 0; i1 < mtrx.length-1; i1++)
+    {
+        sim[i1] = new Array();
+        text += "<tr>";
+        for (var i2 = 0; i2 < mtrx.length-1; i2++)
+        {
+            sim[i1][i2] = cosSim(mtrx[i1], mtrx[i2]);
+            text += "<td>" + Math.round(sim[i1][i2]*1000)/1000 + "</td>";
+            if (list.indexOf(Math.round(sim[i1][i2]*1000)/1000) == -1 && Math.round(sim[i1][i2]*1000)/1000 != 0)
+            {
+                list[list.length] = Math.round(sim[i1][i2]*1000)/1000;
+            }
+        }
+        text += "</tr>";
+//        docHash[i1] = maxHash(mtrx[i1]);
+    }
+    
+    list = sort(list);
+    
+    text += "</table>";
+
+    var select = document.getElementById("values");
+    select.options.length = 0;
+    for (var i = 0; i < list.length; i++)
+    {
+        select.options[select.options.length] = new Option(list[i], list[i]);
+    }
+    select.options[select.options.length-1].selected = true;
+    select.hidden = false;
+    document.getElementById("dispSim").hidden = false;
+    
+//    labels = kruskal(mtrx);
+//    text += 'Final Configuration:<br>';
+//    text += dispClusters(mtrx, labels);
+    document.getElementById('output').innerHTML = text;
+    
+    return sim;
+}
+
+function sort(list)
+{
+    for (var i = 0; i < list.length; i++)
+    {
+        for (var j = i; j < list.length; j++)
+        {
+            if (list[i] < list[j])
+            {
+                var temp = list[i];
+                list[i] = list[j];
+                list[j] = temp;
+            }
+        }
+    }
+    
+    return list;
+}
+
+function postProcess2(mtrx, minVal)
+{
+    document.getElementById('output').innerHTML = "";
+    var labels = Kruskal(mtrx, minVal);
+    var text = "Final Configuration:<br>";
+    var count = 1;
+    for (var i = 0; i < labels.length; i++)
+    {
+        if (labels[i].length != 0)
+        {
+            text += "Group " + count + ") ";
+            for (var j = 0; j < labels[i].length; j++)
+            {
+                text += (labels[i][j] + 1);
+                if (j < labels[i].length - 1)
+                {
+                    text += ", ";
+                }
+            }
+            text += "<br>";
+            count++;
+        }
+    }
+    document.getElementById('output').innerHTML += text;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="term, frequency, inverse, document, frequency, cosine, similarity, hierarchal, clustering, kruskal, text, mining" />
+<meta name="description" content="This page lists quotes and uses the TF-IDF technique to group them together by their similarity. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript" src="examples/getquote1.js"></script>
+<script type="text/javascript">
+var maxNo = 207;
+var M = 1000000;
+var clusters = new Array();
+var labels = new Array();
+function init()
+{
+    var numItems = Math.floor(Math.random()*10)+2;
+    var list = new Array();
+    var words;
+    
+    var text = "<ol>";
+    var quotes = new Array();
+    
+    for (var i = 0; i < numItems; i++)
+    {
+        var loc;
+        do
+        {
+            loc = Math.floor(Math.random()*maxNo);
+        }
+        while (list.indexOf(loc) != -1);
+        
+        list[list.length] = loc;
+        
+        quotes[i] = getQuote(loc);
+        text += "<li>" + quotes[i];
+    }
+    
+    text += "</ol>";
+    
+    words = getWds(quotes);
+        
+    var ans = new Array();
+    ans[0] = quotes;
+    ans[1] = words;
+
+    document.getElementById("input").innerHTML = text;
+    document.getElementById("dispSim").hidden = true;
+    document.getElementById("values").hidden = true;
+    document.getElementById("values").options.length = 0;
+    document.getElementById("output").innerHTML = "";
+    
+    return ans;
+}
+
+function common()
+{
+    var cmn = new Array("a", "able", "about", "above", "abroad", "according", "accordingly", "across", "actually", "adj", "after", "afterwards", "again", "against", "ago", "ahead", "aint", "all", "allow", "allows", "almost", "alone", "along", "alongside", "already", "also", "although", "always", "am", "amid", "amidst", "among", "amongst", "an", "and", "another", "any", "anybody", "anyhow", "anyone", "anything", "anyway", "anyways", "anywhere", "apart", "appear", "appreciate", "appropriate", "are", "arent", "around", "as", "as", "aside", "ask", "asking", "associated", "at", "available", "away", "awfully", 
+"back", "backward", "backwards", "be", "became", "because", "become", "becomes", "becoming", "been", "before", "beforehand", "begin", "behind", "being", "believe", "below", "beside", "besides", "best", "better", "between", "beyond", "both", "brief", "but", "by", 
+"came", "can", "cannot", "cant", "cant", "caption", "cause", "causes", "certain", "certainly", "changes", "clearly", "cmon", "co", "co.", "com", "come", "comes", "concerning", "consequently", "consider", "considering", "contain", "containing", "contains", "corresponding", "could", "couldnt", "course", "cs", "currently", 
+"dare", "darent", "definitely", "described", "despite", "did", "didnt", "different", "directly", "do", "does", "doesnt", "doing", "done", "dont", "down", "downwards", "during", 
+"each", "edu", "eg", "eight", "eighty", "either", "else", "elsewhere", "end", "ending", "enough", "entirely", "especially", "et", "etc", "even", "ever", "evermore", "every", "everybody", "everyone", "everything", "everywhere", "ex", "exactly", "example", "except", 
+"fairly", "far", "farther", "few", "fewer", "fifth", "first", "five", "followed", "following", "follows", "for", "forever", "former", "formerly", "forth", "forward", "found", "four", "from", "further", "furthermore", 
+"get", "gets", "getting", "given", "gives", "go", "goes", "going", "gone", "got", "gotten", "greetings", 
+"had", "hadnt", "half", "happens", "hardly", "has", "hasnt", "have", "havent", "having", "he", "hed", "hell", "hello", "help", "hence", "her", "here", "hereafter", "hereby", "herein", "heres", "hereupon", "hers", "herself", "hes", "hi", "him", "himself", "his", "hither", "hopefully", "how", "howbeit", "however", "hundred", 
+"id", "ie", "if", "ignored", "ill", "im", "immediate", "in", "inasmuch", "inc", "inc", "indeed", "indicate", "indicated", "indicates", "inner", "inside", "insofar", "instead", "into", "inward", "is", "isnt", "it", "itd", "itll", "its", "its", "itself", "ive", "i", 
+"just", 
+"k", "keep", "keeps", "kept", "know", "known", "knows", 
+"last", "lately", "later", "latter", "latterly", "least", "less", "lest", "let", "lets", "like", "liked", "likely", "likewise", "little", "look", "looking", "looks", "low", "lower", "ltd", 
+"made", "mainly", "make", "makes", "many", "may", "maybe", "maynt", "me", "mean", "meantime", "meanwhile", "merely", "might", "mightnt", "mine", "minus", "miss", "more", "moreover", "most", "mostly", "mr", "mrs", "much", "must", "mustnt", "my", "myself", 
+"name", "namely", "nd", "near", "nearly", "necessary", "need", "neednt", "needs", "neither", "never", "neverf", "neverless", "nevertheless", "new", "next", "nine", "ninety", "no", "nobody", "non", "none", "nonetheless", "noone", "noone", "nor", "normally", "not", "nothing", "notwithstanding", "novel", "now", "nowhere", 
+"obviously", "of", "off", "often", "oh", "ok", "okay", "old", "on", "once", "one", "ones", "ones", "only", "onto", "opposite", "or", "other", "others", "otherwise", "ought", "oughtnt", "our", "ours", "ourselves", "out", "outside", "over", "overall", "own", 
+"particular", "particularly", "past", "per", "perhaps", "placed", "please", "plus", "possible", "presumably", "probably", "provided", "provides", "que", "quite", "qv", 
+"rather", "rd", "re", "really", "reasonably", "recent", "recently", "regarding", "regardless", "regards", "relatively", "respectively", "right", "round", 
+"said", "same", "saw", "say", "saying", "says", "second", "secondly", "see", "seeing", "seem", "seemed", "seeming", "seems", "seen", "self", "selves", "sensible", "sent", "serious", "seriously", "seven", "several", "shall", "shant", "she", "shed", "shes", "should", "shouldnt", "since", "six", "so", "some", "somebody", "someday", "somehow", "someone", "something", "sometime", "sometimes", "somewhat", "somewhere", "soon", "sorry", "specified", "specify", "specifying", "still", "sub", "such", "sup", "sure", 
+"take", "taken", "taking", "tell", "tends", "th", "than", "thank", "thanks", "thanx", "that", "thatll", "thats", "thats", "thatve", "the", "their", "theirs", "them", "themselves", "then", "thence", "there", "thereafter", "thereby", "thered", "therefore", "therein", "therell", "therere", "theres", "theres", "thereupon", "thereve", "these", "they", "theyd", "theyll", "theyre", "theyve", "thing", "things", "think", "third", "thirty", "this", "thorough", "thoroughly", "those", "though", "three", "through", "throughout", "thru", "thus", "till", "to", "together", "too", "took", "toward", "towards", "tried", "tries", "truly", "try", "trying", "ts", "twice", "two", 
+"un", "under", "underneath", "undoing", "unfortunately", "unless", "unlike", "unlikely", "until", "unto", "up", "upon", "upwards", "us", "use", "used", "useful", "uses", "using", "usually", 
+"v", "value", "various", "versus", "very", "via", "viz", "vs", 
+"want", "wants", "was", "wasnt", "way", "we", "wed", "welcome", "well", "went", "were", "werent", "weve", "what", "whatever", "whatll", "whats", "whatve", "when", "whence", "whenever", "where", "whereafter", "whereas", "whereby", "wherein", "wheres", "whereupon", "wherever", "whether", "which", "whichever", "while", "whilst", "whither", "who", "whod", "whoever", "whole", "wholl", "whom", "whomever", "whos", "whose", "why", "will", "willing", "wish", "with", "within", "without", "wonder", "wont", "would", "wouldnt", 
+"yes", "yet", "you", "youd", "youll", "your", "youre", "yours", "yourself", "yourselves", "youve", 
+"zero");
+
+    return cmn;
+}
+
+function getWds(docs)
+{
+    var words = new Array();
+    var cmn = common();
+
+    for (var i = 0; i < docs.length; i++)
+    {
+        var currWds = docs[i].split(" ");
+        for (var j = 0; j < currWds.length; j++)
+        {
+            currWds[j] = currWds[j].replace(new RegExp("[^a-zA-Z0-9]"), "");
+
+            currWds[j] = currWds[j].toLowerCase();
+            if (currWds[j] != "" && words.indexOf(currWds[j]) == -1 && cmn.indexOf(currWds[j]) == -1)
+            {
+                words[words.length] = currWds[j];
+            }
+        }
+    }
+    
+    return words;
+}
+
+function tfidf(docs, words)
+{
+    var mtrx = new Array();
+    var found = new Array();
+    var sum = new Array();
+    
+    for (var i = 0; i < docs.length; i++)
+    {
+        mtrx[i] = new Array();
+        found[i] = new Array();
+        for (var j = 0; j < words.length; j++)
+        {
+            mtrx[i][j] = 0;
+            found[i][j] = 0;
+            var doc = docs[i].split(" ");
+            for (var k = 0; k < doc.length; k++)
+            {
+                doc[k] = doc[k].replace(new RegExp("[^a-zA-Z0-9]"), "");
+
+                doc[k] = doc[k].toLowerCase();
+                if (doc[k] == words[j])
+                {
+                    mtrx[i][j] ++;
+                    found[i][j] = 1;
+                }
+            }
+        
+            if (mtrx[i][j] != 0)
+                mtrx[i][j] = mtrx[i][j];
+        }
+    }
+    
+    mtrx[docs.length] = new Array();
+    
+    for (var j = 0; j < words.length; j++)
+    {
+        sum[j] = 0;
+        for (var i = 0; i < docs.length; i++)
+        {
+            sum[j] += found[i][j];
+        }
+        mtrx[docs.length][j] = sum[j];
+    }
+    
+    for (var i = 0; i < docs.length; i++)
+    {
+        for (var j = 0; j < words.length; j++)
+        {
+            mtrx[i][j] = mtrx[i][j]*(Math.log(docs.length/(sum[j])));
+        }
+    }
+    
+    return mtrx;
+}
+
+function cosSim(row1, row2)
+{
+    var sum = 0;
+    var norm1 = 0;
+    var norm2 = 0;
+    var sim = 0;
+    
+    for (var i = 0; i < row1.length; i++)
+    {
+        sum += row1[i]*row2[i];
+    }
+    
+    for (var i = 0; i < row1.length; i++)
+    {
+        norm1 += row1[i]*row1[i];
+        norm2 += row2[i]*row2[i];
+
+    }
+    
+    norm1 = Math.sqrt(norm1);
+    norm2 = Math.sqrt(norm2);
+    
+    sim = sum / (norm1 * norm2);
+    
+    return sim;
+}
+
+function maxHash(row)
+{
+    var max = 0;
+    var maxLoc = 0;
+    
+    for (var i = 0; i < row.length; i++)
+    {
+        if (row[i] > max)
+        {
+            max = row[i];
+            maxLoc = i;
+        }
+    }
+    
+    
+    return maxLoc;
+}
+
+function meanHash(row)
+{
+    var mean = 0;
+    var meanLoc = 0;
+    var count = 0;
+    
+    for(var i = 0; i < row.length; i++)
+    {
+        if (row[i] > 0)
+        {
+            mean += i*row[i];
+        }
+    }
+    
+    return Math.round(mean);
+}
+
+function clearRect()
+{
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+
+    ctx.fillStyle = "#c3c3c3";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fill();
+    
+    return;
+}
+
+function EucDist(point1, point2)
+{
+    var i, j, sumSq = 0;
+
+    if (point1.length != point2.length)
+        return M;
+
+    for (i = 0; i < point1.length; i++)
+        sumSq += Math.pow(Math.abs(point1[i] - point2[i]), 2);
+
+    return Math.sqrt(sumSq);
+}
+
+function dispPts(input)
+{
+    var i, c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.fillStyle="#000000";
+
+    for (i = 0; i < input.length; i++)
+    {
+        ctx.beginPath();
+        ctx.arc(input[i][0],c.height-input[i][1],5,0,Math.PI*2,true);
+        ctx.closePath();
+        ctx.fill();
+//        alert("point " + i + ": " + input[i][0] + ", " + input[i][1] + " drawn.");
+    }
+}
+
+function Kruskal(A, minVal)
+{
+    var B = new Array();
+    for (var i = 0; i < A.length; i++)
+    {
+        B[i] = new Array();
+        
+        for (var j = 0; j < A.length; j++)
+        {
+            B[i][j] = A[i][j];
+                 if (A[i][j] == 0)
+                    A[i][j] = M;
+        }
+    }
+
+    
+    //Each node is initially in its own tree (lookup). 
+    var T = new Array();
+    var lookup = new Array();
+    for (var i = 0; i < A.length; i++)
+    {
+        T[i] = [i];
+        lookup[i] = i;
+    }
+    
+
+    var E = new Array();
+    var sum = 0;
+    var last = -1;
+    var m;
+
+    while (last > minVal || last == -1)
+    {
+        //First find the maximum weight edge. 
+        m = -1;
+
+        for (var i = 0; i < A.length; i++)
+        {
+            for (var j = 0; j < i; j++)
+            {
+//                alert(A[i][j] + " vs " + minVal);
+                if (A[i][j] > m && lookup[i] != lookup[j] && A[i][j] < M && A[i][j] > minVal)
+                {
+                    m = A[i][j];
+                    u = i;
+                    v = j;
+                }
+            }
+        }
+        
+        if (m == -1)
+            last = minVal;
+        else
+        {
+            initLen = T[lookup[u]].length;
+            initLook = lookup[u];
+            for (var i = initLen - 1; i >= 0; i--)
+            {
+                T[lookup[v]][T[lookup[v]].length] = T[initLook][i];
+                lookup[T[initLook][i]] = lookup[v];
+            }
+            E[E.length] = u;
+            E[E.length] = v;
+            last = A[u][v];
+            A[u][v] = M;
+            A[v][u] = M;
+            sum += m;
+        }
+    }
+    
+    for (var i = 0; i < T.length; i++)
+    {
+        for (var j = 0; j < T[i].length; j++)
+        {
+            if (T[i][j] != i)
+            {
+                T[T[i][j]] = "";
+            }
+        }
+    }
+
+    E[E.length] = sum;
+
+    for (var i = 0; i < A.length; i++)
+    {
+        for (var j = 0; j < A.length; j++)
+        {
+            A[i][j] = B[i][j];
+        }
+    }
+    
+    return T;
+}
+
+function dispClusters(items, k, clusters, labels)
+{
+    var text = "<table>";
+    var i, j;
+
+    for (i = 0; i < clusters.length; i++)
+    {
+        text += "<tr><td width=150><b>Cluster " + i + ":</b></td>";
+        text += "<td width=150><b>(" + Math.round(clusters[i][0]*100)/100 + ", " +
+        Math.round(clusters[i][1]*100)/100 + ")</b></td>";
+        for (j = 0; j < items.length; j++)
+            if (labels[j] == i)
+                text += "<td width=150>(" + items[j][0] + ", " + items[j][1] + ")</td>";
+        text += "</tr>";
+    }
+
+    text += "</table>";
+    return text;
+}
+
+function postProcess1(docs, words)
+{
+    var mtrx = tfidf(docs, words);
+    var sim = new Array();
+    var inp = new Array();
+    var clusters = new Array();
+    var labels = new Array();
+    var list = new Array();
+    maxNo = 25;
+    
+    var text = "Relevant TF-IDF Matrix: <table>";
+    text += "<tr>";
+    
+    for (var i1 = 0; i1 < words.length; i1++)
+    {
+        if (mtrx[mtrx.length-1][i1] > 1)
+            text += "<td>" + words[i1] + "</td>";
+    }
+    
+    text += "</tr>";
+    
+    for (var i1 = 0; i1 < mtrx.length-1; i1++)
+    {
+        text += "<tr>";
+        for (var i2 = 0; i2 < mtrx[i1].length; i2++)
+        {
+            if (mtrx[mtrx.length-1][i2] > 1)
+                text += "<td>" + Math.round(mtrx[i1][i2]*1000)/1000 + "</td>";
+        }
+        text += "</tr>";
+    }
+    
+    text += "</table><br>";
+    text += "Similarity Matrix for Quotes: <table>";
+    for (var i1 = 0; i1 < mtrx.length-1; i1++)
+    {
+        sim[i1] = new Array();
+        text += "<tr>";
+        for (var i2 = 0; i2 < mtrx.length-1; i2++)
+        {
+            sim[i1][i2] = cosSim(mtrx[i1], mtrx[i2]);
+            text += "<td>" + Math.round(sim[i1][i2]*1000)/1000 + "</td>";
+            if (list.indexOf(Math.round(sim[i1][i2]*1000)/1000) == -1 && Math.round(sim[i1][i2]*1000)/1000 != 0)
+            {
+                list[list.length] = Math.round(sim[i1][i2]*1000)/1000;
+            }
+        }
+        text += "</tr>";
+//        docHash[i1] = maxHash(mtrx[i1]);
+    }
+    
+    list = sort(list);
+    
+    text += "</table>";
+
+    var select = document.getElementById("values");
+    select.options.length = 0;
+    for (var i = 0; i < list.length; i++)
+    {
+        select.options[select.options.length] = new Option(list[i], list[i]);
+    }
+    select.options[select.options.length-1].selected = true;
+    select.hidden = false;
+    document.getElementById("dispSim").hidden = false;
+    
+//    labels = kruskal(mtrx);
+//    text += 'Final Configuration:<br>';
+//    text += dispClusters(mtrx, labels);
+    document.getElementById('output').innerHTML = text;
+    
+    return sim;
+}
+
+function sort(list)
+{
+    for (var i = 0; i < list.length; i++)
+    {
+        for (var j = i; j < list.length; j++)
+        {
+            if (list[i] < list[j])
+            {
+                var temp = list[i];
+                list[i] = list[j];
+                list[j] = temp;
+            }
+        }
+    }
+    
+    return list;
+}
+
+function postProcess2(mtrx, minVal)
+{
+    document.getElementById('output').innerHTML = "";
+    var labels = Kruskal(mtrx, minVal);
+    var text = "Final Configuration:<br>";
+    var count = 1;
+    for (var i = 0; i < labels.length; i++)
+    {
+        if (labels[i].length != 0)
+        {
+            text += "Group " + count + ") ";
+            for (var j = 0; j < labels[i].length; j++)
+            {
+                text += (labels[i][j] + 1);
+                if (j < labels[i].length - 1)
+                {
+                    text += ", ";
+                }
+            }
+            text += "<br>";
+            count++;
+        }
+    }
+    document.getElementById('output').innerHTML += text;
+}
+</script>
+<h3><center></center></h3>
+<p></p>
+<p name="input" id="input"></p>
+<input type=button onclick="prob = init()" value="New Problem">
+<input type="button" value="Calculate TF-IDF" onclick="sim = postProcess1(prob[0], prob[1])">
+<select name="values" id="values" hidden></select>
+<input type="button" value="Display Similarities" onclick="postProcess2(sim, document.getElementById('values').value)" name="dispSim" id="dispSim" hidden>
+<p name="output" id="output">
+</form>
+<script type="text/javascript">
+var prob = init();
+var sim;
+</script>
+<!--<canvas id="myCanvas" width="550" height="400"  style="border:1px solid #c3c3c3;">
+Your browser does not support the canvas element.
+</canvas>-->
+</p>

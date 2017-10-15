@@ -1,0 +1,602 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+nQueensProblem<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+		display: inline;
+}
+</style>
+<script type="text/javascript">
+function init(n)
+{
+	document.getElementById("solved").innerHTML = "";
+	n = parseInt(n);
+	perm = new Array(n);
+	used = new Array(n);
+	numsols = 0;
+	
+	for (var zen = 0; zen < n; zen++)
+	{
+		perm[zen] = -1;
+		used[zen] = false;
+	}
+	
+	solveIt();
+	printNumSols();
+
+}
+	
+function solveIt()
+{
+	solveItRec(0);
+}
+
+function solveItRec(location)
+{
+//	document.getElementById("solved").innerHTML += "inside SolveItRec(" + location + ")<br>";
+	var zen;
+	
+	if (location == perm.length)
+	{
+//		document.getElementById("solved").innerHTML += "calling printSol()<br>";
+		printSol();
+//		document.getElementById("solved").innerHTML += "back from printSol()<br>";
+		numsols++;
+	}
+	
+	for (zen = 0; zen < perm.length; zen++)
+	{
+		if (used[zen] == false)
+		{
+//			document.getElementById("solved").innerHTML += "calling conflict(" + location + ", " + zen + ")<br>";
+			if (!conflict(location, zen))
+			{
+				perm[location] = zen;
+				used[zen] = true;
+//				document.getElementById("solved").innerHTML += "calling solveItRec(" + eval(location+1) + ")<br>";
+				solveItRec(location+1);
+//				document.getElementById("solved").innerHTML += "back from solveItRec(" + eval(location+1) + ")<br>";
+				used[zen] = false;
+			}
+		}
+	}
+	
+//	document.getElementById("solved").innerHTML += "leaving SolveItRec(" + location + ")<br>";
+}
+
+function conflict(location, row)
+{
+//	document.getElementById("solved").innerHTML += "inside conflict(" + location + ", " + row + ")<br>";
+	var zen;
+	
+	for (zen = 0; zen < location; zen++)
+	{
+//		document.getElementById("solved").innerHTML += "Math.abs(" + location + " - " + zen + ") = " + eval(Math.abs(location - zen)) + "<br>";
+//		document.getElementById("solved").innerHTML += "Math.abs(" + perm[zen] + " - " + row + ") = " + eval(Math.abs(perm[zen] - row)) + "<br>";
+		if (Math.abs(location - zen) == Math.abs(perm[zen] - row))
+		{
+//			document.getElementById("solved").innerHTML += "There is conflict<br>";
+			return true;
+		}
+	}
+	
+//	document.getElementById("solved").innerHTML += "<b>There is NO conflict</b><br>";
+	return false;
+}
+
+function printSol()
+{
+	var yin, yang;
+	output = "Here is a solution: <br>";
+	
+	for (yin = 0; yin < perm.length; yin++)
+	{
+		for (yang = 0; yang < perm.length; yang++)
+		{
+			if (perm[yang] == yin)
+			{
+				output += "Q ";
+			}
+			else
+			{
+				output += "_ ";
+			}
+		}
+		output += "<br>";
+	}
+	
+	document.getElementById("solved").innerHTML += output;
+}
+
+function printNumSols()
+{
+	document.getElementById("solved").innerHTML += "There were " + numsols + " solutions.";
+}
+
+function generate()
+{
+	var size = document.getElementById("dim").value;
+	var qloc = new Array(size);
+	var qpos = new Array(size);
+	
+	var prob = "<table border = '1'>";
+	
+	for (var yin = 0; yin < size; yin++)
+	{
+		qloc[yin] = new Array(size);
+		qpos[yin] = new Array(size);
+		prob += "<tr>";
+		for (var yang = 0; yang < size; yang++)
+		{
+			prob += "<td class='c' name='tdc" + yin + "_" + yang + "' ";
+			prob += "id='tdc" + yin + "_" + yang + "' onclick=changecolor('tdc" + yin + "_" + yang + "'," + size + ")>";
+			prob += "<p name='c" + yin + "_" + yang + "' id='c" + yin + "_" + yang + "'></p></td>";
+			
+			qloc[yin][yang] = 0;
+			qposs[yin][yang] = 1;
+		}
+		prob += "</tr>";
+	}
+	document.getElementById("toSolve").innerHTML = prob;
+	
+	for (var yin = 0; yin < size; yin++)
+	{
+		for (var yang = 0; yang < size; yang++)
+		{
+			document.getElementById("tdc"+ yin + "_" + yang).style.background = "#ffffff";
+		}
+	}
+}
+
+function updateQloc(id, size, qloc, qpos)
+{
+	var loc = id.indexOf("_");
+	var row = parseInt(id.substring(3, loc));
+	var clm = parseInt(id.substring(loc+1, id.length));
+	var curr = "tdc" + row + "_" + clm;
+	
+	if (qloc[row][clm] == 0 && qpos[row][clm] == 1)
+	{
+		//There is no queen here and the cell is not covered by any other queen, then we will place a queen here. 
+		qloc[row][clm] = 1;
+	}
+	else if (qloc[row][clm] == 1)
+	{
+		//There is already a queen in this cell. 
+		qloc[row][clm] = 0;
+	}
+	else if (qpos[row][clm] == 0)
+	{
+		//This cell is covered by another queen. 
+		qloc[row][clm] = 0;
+	}
+	
+	return qloc;
+}
+
+function updateQpos(id, size, qloc, qpos)
+{
+	var loc = id.indexOf("_");
+	var row = parseInt(id.substring(3, loc));
+	var clm = parseInt(id.substring(loc+1, id.length));
+	var curr = "tdc" + row + "_" + clm;
+	
+	var temp = new Array(size);
+	
+	for (var yin = 0; yin < size; yin++)
+	{
+		temp[yin] = new Array(size);
+	}
+	
+	for (var yin = 0; yin < size; yin++)
+	{
+		for (var yang = 0; yang < size; yang++)
+		{
+			if (qloc[yin][yang] == 1)
+			{
+				for (var zen = 0; zen < size; zen++)
+				{
+					if (yin + zen < size && yang + zen < size)
+					{
+						temp[yin+zen][yang+zen]++;
+					}
+					if (yin - zen >= 0 && yang - zen >= 0)
+					{
+						temp[yin-zen][yang-zen]++;
+					}
+					if (yin + zen < size && yang - zen >= 0)
+					{
+						temp[yin+zen][yang-zen]++;
+					}
+					if (yin - zen >= 0 && yang + zen < size)
+					{
+						temp[yin-zen][yang+zen]++;
+					}
+				}
+			}
+			if (temp[yin][yang] == 0)
+			{
+				qpos[yin][yang] = 1;
+			}
+			else
+			{
+				qpos[yin][yang] = 0;
+			}
+		}
+	}
+	
+	return qpos;
+}
+
+function changecolor(size, qloc, qpos)
+{
+	for (var yin = 0; yin < size; yin++)
+	{
+		for (var yang = 0; yang < size; yang++)
+		{
+			if (qpos[yin][yang] == 1)
+			{
+				document.getElementById("tdc" + yin + "_" + yang).style.background = "#0000FF";
+			}
+			else if (qloc[yin][yang] == 0)
+			{
+				document.getElementById("tdc" + yin + "_" + yang).style.background = "#FFD700";
+			}
+			else
+			{
+				document.getElementById("tdc" + yin + "_" + yang).style.background = "#FFFFFF";
+			}
+		}
+	}
+}
+
+function setDim()
+{
+	var sel = document.getElementById("dim");
+	for (i = 3; i <= 10; i++)
+		sel.options[sel.options.length] = new Option(i + " by " + i, i);
+	sel.options[2].selected = true;
+}
+
+function clearBoth()
+{
+	document.getElementById("toSolve").innerHTML = "";
+}
+
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+
+<title> at LEARNINGlover.com</title>
+<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+		display: inline;
+}
+</style>
+<script type="text/javascript">
+function init(n)
+{
+	document.getElementById("solved").innerHTML = "";
+	n = parseInt(n);
+	perm = new Array(n);
+	used = new Array(n);
+	numsols = 0;
+	
+	for (var zen = 0; zen < n; zen++)
+	{
+		perm[zen] = -1;
+		used[zen] = false;
+	}
+	
+	solveIt();
+	printNumSols();
+
+}
+	
+function solveIt()
+{
+	solveItRec(0);
+}
+
+function solveItRec(location)
+{
+//	document.getElementById("solved").innerHTML += "inside SolveItRec(" + location + ")<br>";
+	var zen;
+	
+	if (location == perm.length)
+	{
+//		document.getElementById("solved").innerHTML += "calling printSol()<br>";
+		printSol();
+//		document.getElementById("solved").innerHTML += "back from printSol()<br>";
+		numsols++;
+	}
+	
+	for (zen = 0; zen < perm.length; zen++)
+	{
+		if (used[zen] == false)
+		{
+//			document.getElementById("solved").innerHTML += "calling conflict(" + location + ", " + zen + ")<br>";
+			if (!conflict(location, zen))
+			{
+				perm[location] = zen;
+				used[zen] = true;
+//				document.getElementById("solved").innerHTML += "calling solveItRec(" + eval(location+1) + ")<br>";
+				solveItRec(location+1);
+//				document.getElementById("solved").innerHTML += "back from solveItRec(" + eval(location+1) + ")<br>";
+				used[zen] = false;
+			}
+		}
+	}
+	
+//	document.getElementById("solved").innerHTML += "leaving SolveItRec(" + location + ")<br>";
+}
+
+function conflict(location, row)
+{
+//	document.getElementById("solved").innerHTML += "inside conflict(" + location + ", " + row + ")<br>";
+	var zen;
+	
+	for (zen = 0; zen < location; zen++)
+	{
+//		document.getElementById("solved").innerHTML += "Math.abs(" + location + " - " + zen + ") = " + eval(Math.abs(location - zen)) + "<br>";
+//		document.getElementById("solved").innerHTML += "Math.abs(" + perm[zen] + " - " + row + ") = " + eval(Math.abs(perm[zen] - row)) + "<br>";
+		if (Math.abs(location - zen) == Math.abs(perm[zen] - row))
+		{
+//			document.getElementById("solved").innerHTML += "There is conflict<br>";
+			return true;
+		}
+	}
+	
+//	document.getElementById("solved").innerHTML += "<b>There is NO conflict</b><br>";
+	return false;
+}
+
+function printSol()
+{
+	var yin, yang;
+	output = "Here is a solution: <br>";
+	
+	for (yin = 0; yin < perm.length; yin++)
+	{
+		for (yang = 0; yang < perm.length; yang++)
+		{
+			if (perm[yang] == yin)
+			{
+				output += "Q ";
+			}
+			else
+			{
+				output += "_ ";
+			}
+		}
+		output += "<br>";
+	}
+	
+	document.getElementById("solved").innerHTML += output;
+}
+
+function printNumSols()
+{
+	document.getElementById("solved").innerHTML += "There were " + numsols + " solutions.";
+}
+
+function generate()
+{
+	var size = document.getElementById("dim").value;
+	var qloc = new Array(size);
+	var qpos = new Array(size);
+	
+	var prob = "<table border = '1'>";
+	
+	for (var yin = 0; yin < size; yin++)
+	{
+		qloc[yin] = new Array(size);
+		qpos[yin] = new Array(size);
+		prob += "<tr>";
+		for (var yang = 0; yang < size; yang++)
+		{
+			prob += "<td class='c' name='tdc" + yin + "_" + yang + "' ";
+			prob += "id='tdc" + yin + "_" + yang + "' onclick=changecolor('tdc" + yin + "_" + yang + "'," + size + ")>";
+			prob += "<p name='c" + yin + "_" + yang + "' id='c" + yin + "_" + yang + "'></p></td>";
+			
+			qloc[yin][yang] = 0;
+			qposs[yin][yang] = 1;
+		}
+		prob += "</tr>";
+	}
+	document.getElementById("toSolve").innerHTML = prob;
+	
+	for (var yin = 0; yin < size; yin++)
+	{
+		for (var yang = 0; yang < size; yang++)
+		{
+			document.getElementById("tdc"+ yin + "_" + yang).style.background = "#ffffff";
+		}
+	}
+}
+
+function updateQloc(id, size, qloc, qpos)
+{
+	var loc = id.indexOf("_");
+	var row = parseInt(id.substring(3, loc));
+	var clm = parseInt(id.substring(loc+1, id.length));
+	var curr = "tdc" + row + "_" + clm;
+	
+	if (qloc[row][clm] == 0 && qpos[row][clm] == 1)
+	{
+		//There is no queen here and the cell is not covered by any other queen, then we will place a queen here. 
+		qloc[row][clm] = 1;
+	}
+	else if (qloc[row][clm] == 1)
+	{
+		//There is already a queen in this cell. 
+		qloc[row][clm] = 0;
+	}
+	else if (qpos[row][clm] == 0)
+	{
+		//This cell is covered by another queen. 
+		qloc[row][clm] = 0;
+	}
+	
+	return qloc;
+}
+
+function updateQpos(id, size, qloc, qpos)
+{
+	var loc = id.indexOf("_");
+	var row = parseInt(id.substring(3, loc));
+	var clm = parseInt(id.substring(loc+1, id.length));
+	var curr = "tdc" + row + "_" + clm;
+	
+	var temp = new Array(size);
+	
+	for (var yin = 0; yin < size; yin++)
+	{
+		temp[yin] = new Array(size);
+	}
+	
+	for (var yin = 0; yin < size; yin++)
+	{
+		for (var yang = 0; yang < size; yang++)
+		{
+			if (qloc[yin][yang] == 1)
+			{
+				for (var zen = 0; zen < size; zen++)
+				{
+					if (yin + zen < size && yang + zen < size)
+					{
+						temp[yin+zen][yang+zen]++;
+					}
+					if (yin - zen >= 0 && yang - zen >= 0)
+					{
+						temp[yin-zen][yang-zen]++;
+					}
+					if (yin + zen < size && yang - zen >= 0)
+					{
+						temp[yin+zen][yang-zen]++;
+					}
+					if (yin - zen >= 0 && yang + zen < size)
+					{
+						temp[yin-zen][yang+zen]++;
+					}
+				}
+			}
+			if (temp[yin][yang] == 0)
+			{
+				qpos[yin][yang] = 1;
+			}
+			else
+			{
+				qpos[yin][yang] = 0;
+			}
+		}
+	}
+	
+	return qpos;
+}
+
+function changecolor(size, qloc, qpos)
+{
+	for (var yin = 0; yin < size; yin++)
+	{
+		for (var yang = 0; yang < size; yang++)
+		{
+			if (qpos[yin][yang] == 1)
+			{
+				document.getElementById("tdc" + yin + "_" + yang).style.background = "#0000FF";
+			}
+			else if (qloc[yin][yang] == 0)
+			{
+				document.getElementById("tdc" + yin + "_" + yang).style.background = "#FFD700";
+			}
+			else
+			{
+				document.getElementById("tdc" + yin + "_" + yang).style.background = "#FFFFFF";
+			}
+		}
+	}
+}
+
+function setDim()
+{
+	var sel = document.getElementById("dim");
+	for (i = 3; i <= 10; i++)
+		sel.options[sel.options.length] = new Option(i + " by " + i, i);
+	sel.options[2].selected = true;
+}
+
+function clearBoth()
+{
+	document.getElementById("toSolve").innerHTML = "";
+}
+
+</script>
+<h3><center></center></h3>
+<p></p>
+<script type="text/javascript">
+	var perm;
+	var used;
+	var numsols;
+	var qloc;
+	var qposs;
+</script>
+<center>
+<form name="puzzle" id="puzzle">
+<select name="dim" id="dim"></select><br>
+<input type="button" onclick="clearBoth();ans = generate();" value="New Puzzle"><br>
+<input type="button" onclick="clearcells()" value="Clear Cells"><br>
+<input type="button" onclick="disp(ans)" value="Solution">
+<table>
+<tr><td>
+<p id="toSolve"></p>
+<center><input type="button" onclick="checkProg()" value="Check Progress"></center>
+</td></tr><tr><td>
+<p id="solved"></p>
+</td></tr></table>
+</form>
+</center>
+<script type="text/javascript">
+setDim();
+var size = document.getElementById("dim").value;
+var ans = generate();
+</script>

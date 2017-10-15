@@ -1,0 +1,394 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+SlopeFormula<script type="text/javascript">
+function init()
+{
+	document.getElementById("output").innerHTML = "";
+	for (var i = 0; i < 5; i++)
+	{
+		document.getElementById("opt" + i + "txt").innerHTML = "";
+	}
+	
+	point0 = new Array();
+	point1 = new Array();
+	
+	point0[0] = Math.floor(Math.random()*20) - 10;
+	point0[1] = Math.floor(Math.random()*20) - 10;
+
+	do 
+	{
+		point1[0] = Math.floor(Math.random()*20) - 10;
+		point1[1] = Math.floor(Math.random()*20) - 10;
+	}
+	while (point1[0] == point0[0]);
+	
+	var text = "What is the slope of the line passing through (" + point0[0] + ", " + point0[1] + ") and (" + point1[0] + ", " + point1[1] + ")? <br>";
+	
+	document.getElementById("problem").innerHTML = text;
+	
+	slp = slope(point0, point1);
+	var common = gcd(slp[0], slp[1]);
+	slp[0] = slp[0] / common;
+	slp[1] = slp[1] / common;
+	
+	var loc = Math.floor(Math.random() * 5);
+	
+	document.getElementById("opt" + loc + "txt").innerHTML = "<table><tr><td><input type='radio' name='ans' id='ans' value='opt" + loc + "'></td><td><table><tr><td>" + slp[0] + "</td></tr><tr><td><hr></td></tr><tr><td>" + slp[1] + "</td></tr></table></td></tr></table>";
+	
+	var other = new Array();
+	var poss = new Array();
+	
+	for (var yin = 0; yin <= 3; yin ++)
+	{
+		for (var yang = 0; yang <= 3; yang ++)
+		{
+			if (yin != 0 || yang != 0)
+			{
+				poss[poss.length] = yin + "|" + yang;
+				poss[poss.length] = -1*yin + "|" + -1*yang;
+				poss[poss.length] = -1*yin + "|" + yang;
+				poss[poss.length] = yin + "|" + -1*yang;
+			}
+		}
+	}
+	
+//	document.getElementById("problem").innerHTML += "poss = " + poss + "<br>";
+
+	var done = new Array();
+	
+	done[0] = slp[0] + "-" + slp[1];
+	for (var i = 0; i < 5; i++)
+	{
+		if (i != loc)
+		{
+			var elt;
+			do
+			{
+				elt = Math.floor(Math.random()*poss.length);
+				
+				other[0] = slp[0] + parseFloat(poss[elt].split("|")[0]);
+				other[1] = slp[1] + parseFloat(poss[elt].split("|")[1]);
+			}
+			while (other[1] == 0 && done.indexOf(other[0] + "-" + other[1]) == -1);
+			
+			poss[elt] = poss[poss.length-1];
+			poss.length--;
+			var common = gcd(other[0], other[1]);
+			other[0] = other[0] / common;
+			other[1] = other[1] / common;
+			
+			done[done.length] = other[0] + "-" + other[1];
+
+			document.getElementById("opt" + i + "txt").innerHTML += "<table><tr><td><input type='radio' name='ans' id='ans' value='opt" + i + "'></td><td><table><tr><td>" + other[0] + "</td></tr><tr><td><hr></td></tr><tr><td>" + other[1] + "</td></tr></table></td></tr></table>";
+		}
+	}	
+}
+
+function gcd(num1, num2)
+{
+ 	if (num2 == 0)
+	{
+		return num1;
+	}
+	else
+ 	{
+		return gcd(num2, num1 % num2);
+	}
+}
+
+function equals(num1, num2)
+{	
+	if (num1[1] != 0 && num2[1] != 0)
+	{
+		var elt1 = num1[0] / num1[1];
+		var elt2 = num2[0] / num2[1];
+		
+		return (elt1 == elt2);
+	}
+	
+	return false;
+}
+
+function dispFmla()
+{
+	var text = "Suppose you are given two points (x<sub>1</sub>, y<sub>1</sub>) and (x<sub>2</sub>, y<sub>2</sub>), then the slope between these two points is given by the following formula: ";
+	var slp = "<table><tr><td><center>y<sub>2</sub> - y<sub>1</sub></center></td></tr><tr><td><hr></td></tr><tr><td><center>x<sub>2</sub> - x<sub>1</sub></center></td></tr></table>";
+	
+	document.getElementById("output").innerHTML = slp;
+}
+
+function slope(point1, point2)
+{
+	var slp = new Array();
+	slp[0] = (point1[1] - point2[1]);
+	slp[1] = (point1[0] - point2[0]);
+	
+	if (slp[0] < 0 && slp[1] < 0)
+	{
+		slp[0] *= -1;
+		slp[1] *= -1;
+	}
+
+	return slp;
+}
+
+function indexOf(arr, elt)
+{
+	var loc = -1;
+	
+	for (var i = 0; i < arr.length && loc == -1; i++)
+	{
+		if (arr[i][0] == elt[0] && arr[i][1] == elt[1])
+		{
+			loc = i;
+		}
+	}
+	
+	return loc;
+}
+
+function checkAns()
+{
+	var opts = document.getElementsByName("ans");
+	var ans = "";
+	
+	for (var i = 0; i < opts.length; i++)
+	{
+		if (opts[i].checked == true)
+		{
+			ans = opts[i].value;
+		}
+	}
+	
+	if (ans == "")
+	{
+		alert("You need to select an answer");
+		return;
+	}
+	
+	var txt = document.getElementById(ans + "txt").innerHTML;
+	
+	ans = new Array();
+	
+	ans[0] = txt.substring(txt.indexOf("</td><td><table><tbody><tr><td>") + 31, txt.indexOf("</td></tr><tr><td><hr>"));
+	ans[1] = txt.substring(txt.indexOf("<hr></td></tr><tr><td>") + 22, txt.indexOf("</td></tr></tbody>"));
+	
+	if (parseFloat(ans[0]) != parseFloat(slp[0]) || parseFloat(ans[1]) != parseFloat(slp[1]))
+	{
+		alert("Sorry, you have selected the incorrect answer");
+	}
+	else
+	{
+		alert("You have chosen correctly");
+	}
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, algebra, javascript, script, points, slope, xy plane" />
+
+<meta name="description" content="This page contains a script with a quiz for students to see how well they understand the slope formula. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function init()
+{
+	document.getElementById("output").innerHTML = "";
+	for (var i = 0; i < 5; i++)
+	{
+		document.getElementById("opt" + i + "txt").innerHTML = "";
+	}
+	
+	point0 = new Array();
+	point1 = new Array();
+	
+	point0[0] = Math.floor(Math.random()*20) - 10;
+	point0[1] = Math.floor(Math.random()*20) - 10;
+
+	do 
+	{
+		point1[0] = Math.floor(Math.random()*20) - 10;
+		point1[1] = Math.floor(Math.random()*20) - 10;
+	}
+	while (point1[0] == point0[0]);
+	
+	var text = "What is the slope of the line passing through (" + point0[0] + ", " + point0[1] + ") and (" + point1[0] + ", " + point1[1] + ")? <br>";
+	
+	document.getElementById("problem").innerHTML = text;
+	
+	slp = slope(point0, point1);
+	var common = gcd(slp[0], slp[1]);
+	slp[0] = slp[0] / common;
+	slp[1] = slp[1] / common;
+	
+	var loc = Math.floor(Math.random() * 5);
+	
+	document.getElementById("opt" + loc + "txt").innerHTML = "<table><tr><td><input type='radio' name='ans' id='ans' value='opt" + loc + "'></td><td><table><tr><td>" + slp[0] + "</td></tr><tr><td><hr></td></tr><tr><td>" + slp[1] + "</td></tr></table></td></tr></table>";
+	
+	var other = new Array();
+	var poss = new Array();
+	
+	for (var yin = 0; yin <= 3; yin ++)
+	{
+		for (var yang = 0; yang <= 3; yang ++)
+		{
+			if (yin != 0 || yang != 0)
+			{
+				poss[poss.length] = yin + "|" + yang;
+				poss[poss.length] = -1*yin + "|" + -1*yang;
+				poss[poss.length] = -1*yin + "|" + yang;
+				poss[poss.length] = yin + "|" + -1*yang;
+			}
+		}
+	}
+	
+//	document.getElementById("problem").innerHTML += "poss = " + poss + "<br>";
+
+	var done = new Array();
+	
+	done[0] = slp[0] + "-" + slp[1];
+	for (var i = 0; i < 5; i++)
+	{
+		if (i != loc)
+		{
+			var elt;
+			do
+			{
+				elt = Math.floor(Math.random()*poss.length);
+				
+				other[0] = slp[0] + parseFloat(poss[elt].split("|")[0]);
+				other[1] = slp[1] + parseFloat(poss[elt].split("|")[1]);
+			}
+			while (other[1] == 0 && done.indexOf(other[0] + "-" + other[1]) == -1);
+			
+			poss[elt] = poss[poss.length-1];
+			poss.length--;
+			var common = gcd(other[0], other[1]);
+			other[0] = other[0] / common;
+			other[1] = other[1] / common;
+			
+			done[done.length] = other[0] + "-" + other[1];
+
+			document.getElementById("opt" + i + "txt").innerHTML += "<table><tr><td><input type='radio' name='ans' id='ans' value='opt" + i + "'></td><td><table><tr><td>" + other[0] + "</td></tr><tr><td><hr></td></tr><tr><td>" + other[1] + "</td></tr></table></td></tr></table>";
+		}
+	}	
+}
+
+function gcd(num1, num2)
+{
+ 	if (num2 == 0)
+	{
+		return num1;
+	}
+	else
+ 	{
+		return gcd(num2, num1 % num2);
+	}
+}
+
+function equals(num1, num2)
+{	
+	if (num1[1] != 0 && num2[1] != 0)
+	{
+		var elt1 = num1[0] / num1[1];
+		var elt2 = num2[0] / num2[1];
+		
+		return (elt1 == elt2);
+	}
+	
+	return false;
+}
+
+function dispFmla()
+{
+	var text = "Suppose you are given two points (x<sub>1</sub>, y<sub>1</sub>) and (x<sub>2</sub>, y<sub>2</sub>), then the slope between these two points is given by the following formula: ";
+	var slp = "<table><tr><td><center>y<sub>2</sub> - y<sub>1</sub></center></td></tr><tr><td><hr></td></tr><tr><td><center>x<sub>2</sub> - x<sub>1</sub></center></td></tr></table>";
+	
+	document.getElementById("output").innerHTML = slp;
+}
+
+function slope(point1, point2)
+{
+	var slp = new Array();
+	slp[0] = (point1[1] - point2[1]);
+	slp[1] = (point1[0] - point2[0]);
+	
+	if (slp[0] < 0 && slp[1] < 0)
+	{
+		slp[0] *= -1;
+		slp[1] *= -1;
+	}
+
+	return slp;
+}
+
+function indexOf(arr, elt)
+{
+	var loc = -1;
+	
+	for (var i = 0; i < arr.length && loc == -1; i++)
+	{
+		if (arr[i][0] == elt[0] && arr[i][1] == elt[1])
+		{
+			loc = i;
+		}
+	}
+	
+	return loc;
+}
+
+function checkAns()
+{
+	var opts = document.getElementsByName("ans");
+	var ans = "";
+	
+	for (var i = 0; i < opts.length; i++)
+	{
+		if (opts[i].checked == true)
+		{
+			ans = opts[i].value;
+		}
+	}
+	
+	if (ans == "")
+	{
+		alert("You need to select an answer");
+		return;
+	}
+	
+	var txt = document.getElementById(ans + "txt").innerHTML;
+	
+	ans = new Array();
+	
+	ans[0] = txt.substring(txt.indexOf("</td><td><table><tbody><tr><td>") + 31, txt.indexOf("</td></tr><tr><td><hr>"));
+	ans[1] = txt.substring(txt.indexOf("<hr></td></tr><tr><td>") + 22, txt.indexOf("</td></tr></tbody>"));
+	
+	if (parseFloat(ans[0]) != parseFloat(slp[0]) || parseFloat(ans[1]) != parseFloat(slp[1]))
+	{
+		alert("Sorry, you have selected the incorrect answer");
+	}
+	else
+	{
+		alert("You have chosen correctly");
+	}
+}
+</script>
+<h3><center></center></h3>
+<p>This page will generate some practice problems for students who wish to practice the slope formula. Users are to select the option with the correct answer and press submit to see if your selection is correct. Then you can press the new problem button to generate a new problem.</p>
+<center>
+<div id="problem"></div>
+<table><tr>
+<td><div id="opt0txt"></div></td>
+<td><div id="opt1txt"></div></td>
+<td><div id="opt2txt"></div></td>
+<td><div id="opt3txt"></div></td>
+<td><div id="opt4txt"></div></td>
+</tr></table>
+<p id="output"></p>
+<input type="button" onclick="checkAns()" value="Submit"><br>
+<input type="button" onclick="dispFmla()" value="Display Formula"><br>
+<input type="button" onclick="init()" value="New Problem"><br>
+</center>
+<script type="text/javascript">
+var point0, point1, mid;
+init();
+</script>

@@ -1,0 +1,477 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+RSAAlgorithm<script type="text/javascript">
+function bobInit()
+{
+	var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241];
+	for (var i = 0; i < primes.length; i++)
+	{
+		document.getElementById("prime1").options[i] = new Option(primes[i], primes[i]);
+		document.getElementById("prime2").options[i] = new Option(primes[i], primes[i]);
+	}
+
+	var loc1 = Math.floor(Math.random() * primes.length);
+	var loc2;
+	do
+	{
+		loc2 = Math.floor(Math.random() * primes.length);
+	}
+	while (loc2 == loc1);
+
+	document.getElementById("prime1").options[loc1].selected = true;
+	document.getElementById("prime2").options[loc2].selected = true;
+
+	document.getElementById("bobOut1").innerHTML = "";
+	document.getElementById("aliceOut").innerHTML = "";
+	document.getElementById("bobOut2").innerHTML = "";
+
+}
+
+function runBob1()
+{
+	var num1 = document.getElementById("prime1").value;
+	var num2 = document.getElementById("prime2").value;
+
+	var text1 = "";
+
+	var n = num1 * num2;
+	
+	text1 += "n = " + num1 + " * " + num2 + " = " + n + "<br>";
+	
+	var phi = (num1 - 1) * (num2 - 1);
+	
+	text1 += "<img src='http://www.learninglover.com/chars/phi.gif'>(" + n + ") = (" + num1 + " - 1) * (" + num2 + " - 1) = " + phi + "<br>";
+
+	var e = -1;
+	for (e = 2; e < n && gcd(e, phi) != 1; e++)
+	{
+
+	}
+
+	var d = -1;
+	for (d = 1; (e * d) % phi != 1; d++)
+	{
+
+	}
+
+//	text2 += "Private key is(" + d + ", " + n + ")<br>";
+
+	text1 += "A number relatively prime to " + phi + " is <br>e = " + e + "<br>";
+	text1 += "So the Public key (for encryption) is ";
+	text1 += "Bob posts the public key on his web page for others to communicate with him. <br>";
+
+	text1 += "<br><table>";
+	text1 += "<tr><td colspan=2><strong>Public Key (posted on Bob's web page)</strong></td></tr>";
+	text1 += "<tr><td>e</td><td>n</td></tr>";
+	text1 += "<tr><td><input size=5 id='pubKey1' readonly value='" + e + "'></td>";
+	text1 += "<td><input size=5 id='pubKey2' readonly value='" + n + "'></td></tr>";
+	text1 += "</table><br>";
+
+	text1 += "Bob also has a private key that he keeps private and will use to decode messages. <br>";
+
+
+	text1 += "<br><table>";
+	text1 += "<tr><td colspan=2><strong>Private Key (Bob keeps this to himself)</strong></td></tr>";
+	text1 += "<tr><td>d</td><td>n</td></tr>";
+	text1 += "<tr><td><input size=5 id='priKey1' readonly value='" + d + "'></td>";
+	text1 += "<td><input size=5 id='priKey2' readonly value='" + n + "'></td></tr>";
+	text1 += "</table><br>";
+
+//	document.getElementById("pubKey1").value = e;
+//	document.getElementById("pubKey2").value = n;
+
+//	document.getElementById("priKey1").value = d;
+//	document.getElementById("priKey2").value = n;
+
+	document.getElementById("bobOut1").innerHTML = text1;
+	document.getElementById("aliceOut").innerHTML = "";
+	document.getElementById("bobOut2").innerHTML = "";
+
+}
+
+function aliceInit()
+{
+	document.getElementById("step2").hidden = false;
+	var words = ["Abundant", "Accomplished", "Achieving", "Active", "Admirable", "Adorable", "Adventurous", "Admired", "Affluent", "Agreeable", "Alert", "Aligned", "Alive", "Amazing", "Appealing", "Appreciate", "Artistic", "Astounding", "Astute", "Attentive", "Attractive", "Auspicious", "Authentic", "Awake", "Aware", "Beaming", "Beautiful", "Best", "Blessed", "Bliss", "Bold", "Bright", "Brilliant", "Brisk", "Buoyant", "Calm", "Capable", "Centered", "Certain", "Charming", "Cheerful", "Clear", "Clever", "Competent", "Complete", "Confident", "Connected", "Conscious", "Considerate", "Convenient", "Courageous", "Creative", "Daring", "Dazzling", "Delicious", "Delightful", "Desirable", "Determined", "Diligent", "Discerning", "Discover", "Dynamic", "Eager", "Easy", "Efficient", "Effortless", "Elegant", "Eloquent", "Energetic", "Endless", "Enhancing", "Engaging", "Enormous", "Enterprising", "Enthusiastic", "Enticing", "Excellent", "Exceptional", "Exciting", "Experienced", "Exquisite", "Fabulous", "Fair", "Far-Sighted", "Fascinating", "Fine", "Flattering", "Flourishing", "Fortunate", "Free", "Friendly", "Fulfilled", "Fun", "Generous", "Genuine", "Gifted", "Glorious", "Glowing", "Good", "Good-Looking", "Gorgeous", "Graceful", "Gracious", "Grand", "Great", "Handsome", "Happy", "Hardy", "Harmonious", "Healed", "Healthy", "Helpful", "Honest", "Humorous", "Ideal", "Imaginative", "Impressive", "Industrious", "Ingenious", "Innovative", "Inspired", "Intelligent", "Interested", "Interesting", "Intuitive", "Inventive", "Invincible", "Inviting", "Irresistible", "Joyous", "Judicious", "Keen", "Kind", "Knowing", "Limitless", "Lively", "Loving", "Lucky", "Luminous", "Magical", "Magnificent", "Marvelous", "Masterful", "Mighty", "Miraculous", "Motivated", "Natural", "Neat", "Nice", "Nurturing", "Noble", "Optimistic", "Outstanding", "Passionate", "Peaceful", "Perfect", "Persevering", "Persistent", "Playful", "Pleasing", "Plentiful", "Positive", "Powerful", "Precious", "Prepared", "Productive", "Profound", "Prompt", "Prosperous", "Proud", "Qualified", "Quick", "Radiant", "Reasonable", "Refined", "Refreshing", "Relaxing", "Reliable", "Remarkable", "Resolute", "Resourceful", "Respected", "Rewarding", "Robust", "Safe", "Satisfied", "Secure", "Seductive", "Self-Reliant", "Sensational", "Sensible", "Sensitive", "Serene", "Sharing", "Skillful", "Smart", "Smashing", "Smooth", "Sparkling", "Spiritual", "Splendid", "Strong", "Stunning", "Successful", "Superb", "Swift", "Talented", "Tenacious", "Terrific", "Thankful", "Thrilling", "Thriving", "Timely", "Trusting", "Truthful", "Ultimate", "Unique", "Valiant", "Valuable", "Versatile", "Vibrant", "Victorious", "Vigorous", "Vivacious", "Vivid", "Warm", "Wealthy", "Well", "Whole", "Wise", "Wonderful", "Worthy", "Young", "Youthful", "Zeal", "Zest"];
+
+	for (var i = 0; i < words.length; i++)
+	{
+		document.getElementById("msg").options[i] = new Option(words[i], words[i]);
+	}
+
+	var loc = Math.floor(Math.random() * words.length);
+
+	document.getElementById("msg").options[loc].selected = true;
+}
+
+function runAlice()
+{
+	document.getElementById("bobOut2").innerHTML = "";
+	document.getElementById("step3").hidden = false;
+	var word = document.getElementById("msg").value;
+	var e = document.getElementById("pubKey1").value;
+	var n = document.getElementById("pubKey2").value;
+
+	document.getElementById("msg2").value = word;
+
+	var text2 = "Alice would like to communicate with Bob.<br> She visits his web page and gets the public key<br> (" + e + ", " + n + ")<br>";
+	text2 += "Suppose Alice wants to send the message, <br>'" + word + "'<br>";
+	var m = new Array();
+	for (var i = 0; i < word.length; i++)
+	{
+		m[i] = word.charCodeAt(i);
+	}
+
+//	text2 += "This can be represented with the following ASCII array: <br>" + m + "<br>";
+	text2 += "She can use Bob's public key to encrypt the message: <br>";
+	text2 += "The formula to encrypt is c = m<sup>" + e + "</sup> mod " + n + "<br>";
+	var c2 = [];
+
+	for (var i = 0; i < m.length; i++)
+	{
+//		text2 += m[i] + "<sup>" + e + "</sup> mod " + n + " = ";
+		c2[i] = m[i] % n;
+		for (var j = 1; j < e; j++)
+		{
+			c2[i] = (c2[i] * m[i]) % n;
+		}
+//		text2 += c2[i] + "<br>";
+	}
+
+	text2 += "This last array is what is sent to Bob.";
+
+	text2 += "<br><br><table>"
+	for (var i = 0; i < m.length; i++)
+	{
+		text2 += "<tr>";
+		text2 += "<td>" + word[i] + "</td>";
+		text2 += "<td>-</td>";
+		text2 += "<td>" + m[i] + "<sup>" + e + "</sup> mod " + n + " = </td>";
+		text2 += "<td><input id='enc" + i + "' value='" + c2[i] + "' size=5 readonly></td>";
+		text2 += "</tr>";
+	}
+	text2 += "</table><br><br>";
+	document.getElementById("aliceOut").innerHTML = text2;
+	document.getElementById("bobOut2").innerHTML = "";
+
+}
+
+function runBob2()
+{
+	var d = document.getElementById("priKey1").value;
+	var n = document.getElementById("priKey2").value;
+	var wrdLen = document.getElementById("msg2").value.length;
+
+	var encr = new Array();
+	var z2 = new Array();
+	var z = new Array()
+	var text3 = "";
+
+	text3 += "Bob receives the message<br>";
+
+	for (var i = 0; i < wrdLen; i++)
+	{
+		encr[i] = document.getElementById("enc" + i).value;
+		text3 += encr[i] + ", ";
+	}
+
+	text3 += "<br>The formula to decrypt is m = c<sup>" + d + "</sup> mod " + n + "<br>";
+
+	for (var i = 0; i < wrdLen; i++)
+	{
+		z2[i] = encr[i] % n;
+		for (j = 1; j < d; j++)
+		{
+			z2[i] = (z2[i] * encr[i]) % n;
+			z[i] = String.fromCharCode(z2[i]);
+		}
+	}
+
+	text3 += "<table>"
+	for (var i = 0; i < wrdLen; i++)
+	{
+		text3 += "<tr>";
+		text3 += "<td>" + encr[i] + "<sup>" + d + "</sup> mod " + n + " = </td>";
+		text3 += "<td>" + z2[i] + "</td>";
+		text3 += "<td>" + String.fromCharCode(z2[i]) + "</td>";
+		text3 += "</tr>";
+	}
+	text3 += "</table>";
+
+	text3 += "<br><br>So Bob decrypts the message as : " + z + "<br>";
+	document.getElementById("bobOut2").innerHTML = text3;
+}
+		
+function gcd(a, b)
+{
+	var ans = 1, min = a, j;
+	if (b < a)
+		min = b;
+	
+	for(j = 1; j <= min; j++)
+	{
+		if(a % j == 0 && b % j == 0)
+			ans = j;
+	}
+	
+	return ans;
+}
+
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="applied, pure, mathematics, rsa, algorithm, prime, number, public, key, cryptography, encrypt, decrypt, message, javascript, math tutor, script, examples, compsci" />
+<meta name="description" content="This page gives examples of the RSA Encryption Algorithm." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function bobInit()
+{
+	var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241];
+	for (var i = 0; i < primes.length; i++)
+	{
+		document.getElementById("prime1").options[i] = new Option(primes[i], primes[i]);
+		document.getElementById("prime2").options[i] = new Option(primes[i], primes[i]);
+	}
+
+	var loc1 = Math.floor(Math.random() * primes.length);
+	var loc2;
+	do
+	{
+		loc2 = Math.floor(Math.random() * primes.length);
+	}
+	while (loc2 == loc1);
+
+	document.getElementById("prime1").options[loc1].selected = true;
+	document.getElementById("prime2").options[loc2].selected = true;
+
+	document.getElementById("bobOut1").innerHTML = "";
+	document.getElementById("aliceOut").innerHTML = "";
+	document.getElementById("bobOut2").innerHTML = "";
+
+}
+
+function runBob1()
+{
+	var num1 = document.getElementById("prime1").value;
+	var num2 = document.getElementById("prime2").value;
+
+	var text1 = "";
+
+	var n = num1 * num2;
+	
+	text1 += "n = " + num1 + " * " + num2 + " = " + n + "<br>";
+	
+	var phi = (num1 - 1) * (num2 - 1);
+	
+	text1 += "<img src='http://www.learninglover.com/chars/phi.gif'>(" + n + ") = (" + num1 + " - 1) * (" + num2 + " - 1) = " + phi + "<br>";
+
+	var e = -1;
+	for (e = 2; e < n && gcd(e, phi) != 1; e++)
+	{
+
+	}
+
+	var d = -1;
+	for (d = 1; (e * d) % phi != 1; d++)
+	{
+
+	}
+
+//	text2 += "Private key is(" + d + ", " + n + ")<br>";
+
+	text1 += "A number relatively prime to " + phi + " is <br>e = " + e + "<br>";
+	text1 += "So the Public key (for encryption) is ";
+	text1 += "Bob posts the public key on his web page for others to communicate with him. <br>";
+
+	text1 += "<br><table>";
+	text1 += "<tr><td colspan=2><strong>Public Key (posted on Bob's web page)</strong></td></tr>";
+	text1 += "<tr><td>e</td><td>n</td></tr>";
+	text1 += "<tr><td><input size=5 id='pubKey1' readonly value='" + e + "'></td>";
+	text1 += "<td><input size=5 id='pubKey2' readonly value='" + n + "'></td></tr>";
+	text1 += "</table><br>";
+
+	text1 += "Bob also has a private key that he keeps private and will use to decode messages. <br>";
+
+
+	text1 += "<br><table>";
+	text1 += "<tr><td colspan=2><strong>Private Key (Bob keeps this to himself)</strong></td></tr>";
+	text1 += "<tr><td>d</td><td>n</td></tr>";
+	text1 += "<tr><td><input size=5 id='priKey1' readonly value='" + d + "'></td>";
+	text1 += "<td><input size=5 id='priKey2' readonly value='" + n + "'></td></tr>";
+	text1 += "</table><br>";
+
+//	document.getElementById("pubKey1").value = e;
+//	document.getElementById("pubKey2").value = n;
+
+//	document.getElementById("priKey1").value = d;
+//	document.getElementById("priKey2").value = n;
+
+	document.getElementById("bobOut1").innerHTML = text1;
+	document.getElementById("aliceOut").innerHTML = "";
+	document.getElementById("bobOut2").innerHTML = "";
+
+}
+
+function aliceInit()
+{
+	document.getElementById("step2").hidden = false;
+	var words = ["Abundant", "Accomplished", "Achieving", "Active", "Admirable", "Adorable", "Adventurous", "Admired", "Affluent", "Agreeable", "Alert", "Aligned", "Alive", "Amazing", "Appealing", "Appreciate", "Artistic", "Astounding", "Astute", "Attentive", "Attractive", "Auspicious", "Authentic", "Awake", "Aware", "Beaming", "Beautiful", "Best", "Blessed", "Bliss", "Bold", "Bright", "Brilliant", "Brisk", "Buoyant", "Calm", "Capable", "Centered", "Certain", "Charming", "Cheerful", "Clear", "Clever", "Competent", "Complete", "Confident", "Connected", "Conscious", "Considerate", "Convenient", "Courageous", "Creative", "Daring", "Dazzling", "Delicious", "Delightful", "Desirable", "Determined", "Diligent", "Discerning", "Discover", "Dynamic", "Eager", "Easy", "Efficient", "Effortless", "Elegant", "Eloquent", "Energetic", "Endless", "Enhancing", "Engaging", "Enormous", "Enterprising", "Enthusiastic", "Enticing", "Excellent", "Exceptional", "Exciting", "Experienced", "Exquisite", "Fabulous", "Fair", "Far-Sighted", "Fascinating", "Fine", "Flattering", "Flourishing", "Fortunate", "Free", "Friendly", "Fulfilled", "Fun", "Generous", "Genuine", "Gifted", "Glorious", "Glowing", "Good", "Good-Looking", "Gorgeous", "Graceful", "Gracious", "Grand", "Great", "Handsome", "Happy", "Hardy", "Harmonious", "Healed", "Healthy", "Helpful", "Honest", "Humorous", "Ideal", "Imaginative", "Impressive", "Industrious", "Ingenious", "Innovative", "Inspired", "Intelligent", "Interested", "Interesting", "Intuitive", "Inventive", "Invincible", "Inviting", "Irresistible", "Joyous", "Judicious", "Keen", "Kind", "Knowing", "Limitless", "Lively", "Loving", "Lucky", "Luminous", "Magical", "Magnificent", "Marvelous", "Masterful", "Mighty", "Miraculous", "Motivated", "Natural", "Neat", "Nice", "Nurturing", "Noble", "Optimistic", "Outstanding", "Passionate", "Peaceful", "Perfect", "Persevering", "Persistent", "Playful", "Pleasing", "Plentiful", "Positive", "Powerful", "Precious", "Prepared", "Productive", "Profound", "Prompt", "Prosperous", "Proud", "Qualified", "Quick", "Radiant", "Reasonable", "Refined", "Refreshing", "Relaxing", "Reliable", "Remarkable", "Resolute", "Resourceful", "Respected", "Rewarding", "Robust", "Safe", "Satisfied", "Secure", "Seductive", "Self-Reliant", "Sensational", "Sensible", "Sensitive", "Serene", "Sharing", "Skillful", "Smart", "Smashing", "Smooth", "Sparkling", "Spiritual", "Splendid", "Strong", "Stunning", "Successful", "Superb", "Swift", "Talented", "Tenacious", "Terrific", "Thankful", "Thrilling", "Thriving", "Timely", "Trusting", "Truthful", "Ultimate", "Unique", "Valiant", "Valuable", "Versatile", "Vibrant", "Victorious", "Vigorous", "Vivacious", "Vivid", "Warm", "Wealthy", "Well", "Whole", "Wise", "Wonderful", "Worthy", "Young", "Youthful", "Zeal", "Zest"];
+
+	for (var i = 0; i < words.length; i++)
+	{
+		document.getElementById("msg").options[i] = new Option(words[i], words[i]);
+	}
+
+	var loc = Math.floor(Math.random() * words.length);
+
+	document.getElementById("msg").options[loc].selected = true;
+}
+
+function runAlice()
+{
+	document.getElementById("bobOut2").innerHTML = "";
+	document.getElementById("step3").hidden = false;
+	var word = document.getElementById("msg").value;
+	var e = document.getElementById("pubKey1").value;
+	var n = document.getElementById("pubKey2").value;
+
+	document.getElementById("msg2").value = word;
+
+	var text2 = "Alice would like to communicate with Bob.<br> She visits his web page and gets the public key<br> (" + e + ", " + n + ")<br>";
+	text2 += "Suppose Alice wants to send the message, <br>'" + word + "'<br>";
+	var m = new Array();
+	for (var i = 0; i < word.length; i++)
+	{
+		m[i] = word.charCodeAt(i);
+	}
+
+//	text2 += "This can be represented with the following ASCII array: <br>" + m + "<br>";
+	text2 += "She can use Bob's public key to encrypt the message: <br>";
+	text2 += "The formula to encrypt is c = m<sup>" + e + "</sup> mod " + n + "<br>";
+	var c2 = [];
+
+	for (var i = 0; i < m.length; i++)
+	{
+//		text2 += m[i] + "<sup>" + e + "</sup> mod " + n + " = ";
+		c2[i] = m[i] % n;
+		for (var j = 1; j < e; j++)
+		{
+			c2[i] = (c2[i] * m[i]) % n;
+		}
+//		text2 += c2[i] + "<br>";
+	}
+
+	text2 += "This last array is what is sent to Bob.";
+
+	text2 += "<br><br><table>"
+	for (var i = 0; i < m.length; i++)
+	{
+		text2 += "<tr>";
+		text2 += "<td>" + word[i] + "</td>";
+		text2 += "<td>-</td>";
+		text2 += "<td>" + m[i] + "<sup>" + e + "</sup> mod " + n + " = </td>";
+		text2 += "<td><input id='enc" + i + "' value='" + c2[i] + "' size=5 readonly></td>";
+		text2 += "</tr>";
+	}
+	text2 += "</table><br><br>";
+	document.getElementById("aliceOut").innerHTML = text2;
+	document.getElementById("bobOut2").innerHTML = "";
+
+}
+
+function runBob2()
+{
+	var d = document.getElementById("priKey1").value;
+	var n = document.getElementById("priKey2").value;
+	var wrdLen = document.getElementById("msg2").value.length;
+
+	var encr = new Array();
+	var z2 = new Array();
+	var z = new Array()
+	var text3 = "";
+
+	text3 += "Bob receives the message<br>";
+
+	for (var i = 0; i < wrdLen; i++)
+	{
+		encr[i] = document.getElementById("enc" + i).value;
+		text3 += encr[i] + ", ";
+	}
+
+	text3 += "<br>The formula to decrypt is m = c<sup>" + d + "</sup> mod " + n + "<br>";
+
+	for (var i = 0; i < wrdLen; i++)
+	{
+		z2[i] = encr[i] % n;
+		for (j = 1; j < d; j++)
+		{
+			z2[i] = (z2[i] * encr[i]) % n;
+			z[i] = String.fromCharCode(z2[i]);
+		}
+	}
+
+	text3 += "<table>"
+	for (var i = 0; i < wrdLen; i++)
+	{
+		text3 += "<tr>";
+		text3 += "<td>" + encr[i] + "<sup>" + d + "</sup> mod " + n + " = </td>";
+		text3 += "<td>" + z2[i] + "</td>";
+		text3 += "<td>" + String.fromCharCode(z2[i]) + "</td>";
+		text3 += "</tr>";
+	}
+	text3 += "</table>";
+
+	text3 += "<br><br>So Bob decrypts the message as : " + z + "<br>";
+	document.getElementById("bobOut2").innerHTML = text3;
+}
+		
+function gcd(a, b)
+{
+	var ans = 1, min = a, j;
+	if (b < a)
+		min = b;
+	
+	for(j = 1; j <= min; j++)
+	{
+		if(a % j == 0 && b % j == 0)
+			ans = j;
+	}
+	
+	return ans;
+}
+
+</script>
+<h3><center></center></h3>
+<p>This page gives examples of the RSA Encryption Algorithm. It has brought new light to the field of number theory and in particular prime factorization of numbers,  which to date had been a difficult problem to solve,  which allows this algorithm to stand as one of the most widely used algorithms in password protection systems.  </p>
+<table style="width:100%">
+<tr><td><strong>Bob</strong></td><td><strong>Alice</strong></td></tr>
+<tr>
+<td style="width:50%">
+To allow others to communicate with him secretly, Bob wants to run the RSA Algorithm. <br>
+From these, he will compute a public key (to share with others) and a private key (for himself).<br>
+Prime 1: <select name="prime1" id="prime1"></select><br>
+Prime 2: <select name="prime2" id="prime2"></select><br>
+<input type="button" value="Step 1" onclick="runBob1(); aliceInit()">
+<p name="bobOut1"  id="bobOut1"></p>
+</td>
+<td style="width:50%"></td>
+</tr>
+<tr name="step2" id="step2" hidden>
+<td></td>
+<td>
+Message: <select name="msg" id="msg"></select><br>
+<input type="button" value="Step 2" onclick="runAlice();">
+<p name="aliceOut"  id="aliceOut"></p>
+<hidden name="msg2" id="msg2">
+</td>
+</tr>
+<tr name="step3" id="step3" hidden>
+<td>
+<input type="button" value="Step 3" onclick="runBob2()">
+<p name="bobOut2"  id="bobOut2"></p>
+</td>
+</tr>
+</table>
+<script type="text/javascript">
+bobInit()
+</script>

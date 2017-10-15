@@ -1,0 +1,767 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+NaiveBayesianClassification<script type="text/javascript">
+function genLinEq(deg)
+{
+	var poly = new Object();
+	poly.deg = deg;
+	poly.coeffs = new Array();
+	
+	for (var zen = 0; zen < deg; zen++)
+	{
+		var sign = Math.floor(Math.random()*2);
+		if (sign)
+		{
+			poly.coeffs[zen] = Math.random();
+		}
+		else
+		{
+			poly.coeffs[zen] = -1*Math.random();
+		}
+	}
+	
+	return poly;
+}
+
+function evalPoly(poly, point)
+{
+	var ans = 0;
+	
+	ans += poly.coeffs[0]*point.outlook + poly.coeffs[1]*point.temp + poly.coeffs[2]*point.humid + poly.coeffs[3]*point.wind;
+	
+	return ans;
+}
+
+function genData(numInst)
+{
+	var cndts = new Array();
+	var poly = genLinEq(4);
+
+	for (var zen = 0; zen < numInst; zen++)
+	{
+		cndts[zen] = new Object();
+		cndts[zen].types = new Array();
+		
+		cndts[zen].outlook = Math.floor(Math.random()*3);
+		cndts[zen].types[0] = ['Rain', 'Overcast', 'Sunny'];
+		cndts[zen].temp = Math.floor(Math.random()*3);
+		cndts[zen].types[1] = ['Cold', 'Mild', 'Hot'];
+		cndts[zen].humid = Math.floor(Math.random()*3);
+		cndts[zen].types[2] = ['Low', 'Normal', 'High'];
+		cndts[zen].wind = Math.floor(Math.random()*2);
+		cndts[zen].types[3] = ['Weak', 'Strong'];
+		cndts[zen].play = evalPoly(poly, cndts[zen])
+		cndts[zen].types[4] = ['No', 'Yes'];
+		
+		if (!newInst(cndts))
+		{
+			zen--;
+		}
+	}
+	
+	var mean = getMean(cndts);
+	
+	for (var zen = 0; zen < numInst; zen++)
+	{
+		if (cndts[zen].play > mean)
+		{
+			cndts[zen].play = 1;
+		}
+		else
+		{
+			cndts[zen].play = 0;
+		}
+	}
+	
+	return cndts;
+}
+
+function newInst(cndts)
+{
+	var ans = true;
+	var curr = cndts[cndts.length-1];
+	
+	for (var i = 0; i < cndts.length-1 && ans; i++)
+	{
+		if (curr.outlook == cndts[i].outlook &&
+			curr.temp == cndts[i].temp &&
+			curr.humid == cndts[i].humid &&
+			curr.wind == cndts[i].wind)
+		{
+			ans = false;
+		}
+	}
+		
+	return ans;
+}
+
+function getMean(inst)
+{
+	var mean = 0;
+	
+	for (var i = 0; i < inst.length; i++)
+	{
+		mean += inst[i].play;
+	}
+	
+	mean /= inst.length;
+	
+	return mean;
+}
+
+function dispData(cndts)
+{
+	var text = "<table>";
+	
+	text += "<tr><td><b>Outlook</b></td><td><b>Temperature</b></td><td><b>Humidity</b></td><td><b>Wind</b></td><td><b>Play Tennis</b></td></tr>";
+	
+	for (var zen = 0; zen < cndts.length; zen++)
+	{
+		text += "<tr><td>" + cndts[zen].types[0][cndts[zen].outlook] + "</td><td>" 
+		                   + cndts[zen].types[1][cndts[zen].temp] + "</td><td>" 
+						   + cndts[zen].types[2][cndts[zen].humid] + "</td><td>" 
+						   + cndts[zen].types[3][cndts[zen].wind] + "</td><td>" 
+						   + cndts[zen].types[4][cndts[zen].play] + "</td></tr>";
+	}
+	
+	text += "</table>";
+	
+	return text;
+}
+
+function playProb(inst)
+{
+	document.getElementById("output").innerHTML += "P(Play = Yes) = " + eval(numYes(inst) / inst.length).toFixed(3) + "<br>";
+	return numYes(inst) / inst.length;
+}
+
+function nonPlayProb(inst)
+{
+	document.getElementById("output").innerHTML += "P(Play = No) = " + eval(numNo(inst) / inst.length).toFixed(3) + "<br>";
+	return numNo(inst) / inst.length;
+}
+
+function init()
+{
+	data = genData(14);
+	document.getElementById("output").innerHTML = "<b>Training Data</b>";
+	document.getElementById("output").innerHTML += dispData(data);
+	
+	return data;
+}
+
+//cal_N calculates the probability that we play or don't play in the given instance.
+// The way we calculate both these probabilities is by multiplying the probabilities of 
+// the features of the given instance, and then multiplying this by the overall 
+// probability of playing (or not playing) a game. 
+function naiveBayes(inst, prob)
+{
+	var nbProb = new Array();
+	nbProb[0] = 1;
+	nbProb[1] = 1;
+	var text = "<br>Each cell in the following table is given by the formula P(C) * P(F<sub>i</sub> | C), where C is the outcome class and F<sub>i</sub> is the feature in question, multiplied by the previous column. <br><br><table><tr><td></td><td>Outlook</td><td>Temperature</td><td>Humidity</td><td>Wind</td></tr><tr><td>P(Play = No)</td>";
+	
+	for (var i = 0; i < 4; i++)
+	{
+		nbProb[0] *= inst.prob[i][0];
+		text += "<td>" + eval(nbProb[0]).toFixed(3) + "</td>";
+	}
+	text += "</tr><tr><td>P(Play = Yes)</td>";
+//	nbProb[0] *= playProb(inst);
+
+	for (var i = 0; i < 4; i++)
+	{
+		nbProb[1] *= inst.prob[i][1];
+		text += "<td>" + eval(nbProb[1]).toFixed(3) + "</td>";
+	}
+	text += "</tr></table>";
+
+//	nbProb[1] *= nonPlayProb(inst);
+	
+	var sum = nbProb[0] + nbProb[1];
+	
+	text += "<br>We now normalize the probabilities by dividing each by their sum<br>";
+	text += "P(Play = No) = " + nbProb[0].toFixed(3) + " / (" + nbProb[0].toFixed(3) + " + " + nbProb[1].toFixed(3) + ")<br>";
+	text += "P(Play = Yes) = " + nbProb[1].toFixed(3) + " / (" + nbProb[0].toFixed(3) + " + " + nbProb[1].toFixed(3) + ")<br>";
+	
+	nbProb[0] = nbProb[0] / sum;
+	nbProb[1] = nbProb[1] / sum;
+	
+	document.getElementById("output").innerHTML += text;
+	
+	return nbProb;
+}
+
+function numYes(inst)
+{
+	var ans = 0;
+	
+	for (var i = 0; i < inst.length; i++)
+	{
+		if (inst[i].play)
+		{
+			ans++;
+		}
+	}
+	
+	return ans;
+}
+
+function numNo(inst)
+{
+	var ans = 0;
+	
+	for (var i = 0; i < inst.length; i++)
+	{
+		if (!inst[i].play)
+		{
+			ans++;
+		}
+	}
+	
+	return ans;
+}
+
+//condProb takes as input a new instance and considers each feature of this instance, and 
+//counts the number of times this feature has appeared on a yes row and how many times it
+//has appeared on a no row. Then to calculate the probabilities, we divide these counts by
+//the number of times that our training data has the responses of yes and no respectively.  
+function condProbs(inst, newInst)
+{
+	inst.prob = new Array(4);
+	var count = new Array(4);
+
+	for (var i = 0; i < inst.prob.length; i++)
+	{
+		inst.prob[i] = new Array(2);
+		count[i] = new Array(2);
+		for (var j = 0; j < count[i].length; j++)
+		{
+			count[i][j] = 0;
+		}
+	}
+	
+	for (var j = 0; j < inst.length; j++)
+	{
+		if (inst[j].outlook == newInst[0] && inst[j].play)
+		{
+			count[0][1]++;
+		}
+		if (inst[j].temp == newInst[1] && inst[j].play)
+		{
+			count[1][1]++;
+		}
+		if (inst[j].humid == newInst[2] && inst[j].play)
+		{
+			count[2][1]++;
+		}
+		if (inst[j].wind == newInst[3] && inst[j].play)
+		{
+			count[3][1]++;
+		}
+		
+		if (inst[j].outlook == newInst[0] && !inst[j].play)
+		{
+			count[0][0]++;
+		}
+		if (inst[j].temp == newInst[1] && !inst[j].play)
+		{
+			count[1][0]++;
+		}
+		if (inst[j].humid == newInst[2] && !inst[j].play)
+		{
+			count[2][0]++;
+		}
+		if (inst[j].wind == newInst[3] && !inst[j].play)
+		{
+			count[3][0]++;
+		}
+	}
+	
+	var yeses = numYes(inst);
+	var noses = numNo(inst);
+	
+//	document.getElementById("output").innerHTML += "numYes = " + yeses + "<br>numNo = " + noses + "<br>";
+//	document.getElementById("output").innerHTML += "count[0] = " + count[0] + "<br>";
+//	document.getElementById("output").innerHTML += "count[1] = " + count[1] + "<br>";
+//	document.getElementById("output").innerHTML += "count[2] = " + count[2] + "<br>";
+//	document.getElementById("output").innerHTML += "count[3] = " + count[3] + "<br>";
+	
+	for (var j = 0; j < inst.prob.length; j++)
+	{
+		for (var i = 0; i < 2; i++)
+		{
+			inst.prob[j][i] = count[j][i] / yeses;
+		}
+	}
+	
+	return inst;
+}
+
+function process(data)
+{
+	var newInst = new Array();
+	var prev = document.getElementById("output").innerHTML;
+	prev = prev.substring(0, prev.indexOf("</table>") + 8);
+	document.getElementById("output").innerHTML = "";
+	
+	newInst[0] = document.getElementById("outlook").value;
+	newInst[1] = document.getElementById("temp").value;
+	newInst[2] = document.getElementById("humid").value;
+	newInst[3] = document.getElementById("wind").value;
+	
+	inst = condProbs(data, newInst);
+
+	var text = "<br><b>Calculations: </b><table>";
+	for (var j = 0; j < inst.prob[0].length; j++)
+	{
+		for (var i = 0; i < inst.prob.length; i++)	
+		{
+			switch (i)
+			{
+			case 0:
+				text += "<tr><td>P(Outlook = " + inst[i].types[0][newInst[0]] + " | Play = " + inst[i].types[4][j] + ") = </td>";
+				break;
+			case 1:
+				text += "<tr><td>P(Temperature = " + inst[i].types[1][newInst[1]] + " | Play = " + inst[i].types[4][j] + ") = </td>";
+				break;
+			case 2:
+				text += "<tr><td>P(Humidity = " + inst[i].types[2][newInst[2]] + " | Play = " + inst[i].types[4][j] + ") = </td>";
+				break;
+			case 3:
+				text += "<tr><td>P(Wind = " + inst[i].types[3][newInst[3]] + " | Play = " + inst[i].types[4][j] + ") = </td>";
+				break;
+			}
+			text += "<td>" + inst.prob[i][j].toFixed(3) + "</td><tr>";
+		}
+	}
+	text += "</table>";
+	
+	var sol = naiveBayes(data, inst.prob);
+	var work = document.getElementById("output").innerHTML;
+
+	text += "<br>" + work;
+	
+	text += "<br><b>Conclusions: </b><br>";
+	if (!isNaN(sol[0]) && !isNaN(sol[1]))
+	{
+		text += "The probability that we play tennis is " + sol[1].toFixed(3) + "<br>";
+		text += "The probability that we will not play tennis is " + sol[0].toFixed(3) + "<br>";
+	
+		if (sol[0] > sol[1])
+		{
+			text += "So we will not play tennis<br>";
+		}
+		else
+		{
+			text += "So we will play tennis<br>";
+		}
+	}
+	else
+	{
+		text += "Your input options indicate that two of the features have zero conditional probability. Please select different input options<br>";
+	}
+	
+	document.getElementById("output").innerHTML = prev + text;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, math tutor, statistics, stats,
+probability, computer science, data mining, machine learning, classification, Bayes, naive, algorithms, javascript, script, programming" />
+
+<meta name="description" content="This site contains a script to help understand navie Bayes clasification" />
+
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function genLinEq(deg)
+{
+	var poly = new Object();
+	poly.deg = deg;
+	poly.coeffs = new Array();
+	
+	for (var zen = 0; zen < deg; zen++)
+	{
+		var sign = Math.floor(Math.random()*2);
+		if (sign)
+		{
+			poly.coeffs[zen] = Math.random();
+		}
+		else
+		{
+			poly.coeffs[zen] = -1*Math.random();
+		}
+	}
+	
+	return poly;
+}
+
+function evalPoly(poly, point)
+{
+	var ans = 0;
+	
+	ans += poly.coeffs[0]*point.outlook + poly.coeffs[1]*point.temp + poly.coeffs[2]*point.humid + poly.coeffs[3]*point.wind;
+	
+	return ans;
+}
+
+function genData(numInst)
+{
+	var cndts = new Array();
+	var poly = genLinEq(4);
+
+	for (var zen = 0; zen < numInst; zen++)
+	{
+		cndts[zen] = new Object();
+		cndts[zen].types = new Array();
+		
+		cndts[zen].outlook = Math.floor(Math.random()*3);
+		cndts[zen].types[0] = ['Rain', 'Overcast', 'Sunny'];
+		cndts[zen].temp = Math.floor(Math.random()*3);
+		cndts[zen].types[1] = ['Cold', 'Mild', 'Hot'];
+		cndts[zen].humid = Math.floor(Math.random()*3);
+		cndts[zen].types[2] = ['Low', 'Normal', 'High'];
+		cndts[zen].wind = Math.floor(Math.random()*2);
+		cndts[zen].types[3] = ['Weak', 'Strong'];
+		cndts[zen].play = evalPoly(poly, cndts[zen])
+		cndts[zen].types[4] = ['No', 'Yes'];
+		
+		if (!newInst(cndts))
+		{
+			zen--;
+		}
+	}
+	
+	var mean = getMean(cndts);
+	
+	for (var zen = 0; zen < numInst; zen++)
+	{
+		if (cndts[zen].play > mean)
+		{
+			cndts[zen].play = 1;
+		}
+		else
+		{
+			cndts[zen].play = 0;
+		}
+	}
+	
+	return cndts;
+}
+
+function newInst(cndts)
+{
+	var ans = true;
+	var curr = cndts[cndts.length-1];
+	
+	for (var i = 0; i < cndts.length-1 && ans; i++)
+	{
+		if (curr.outlook == cndts[i].outlook &&
+			curr.temp == cndts[i].temp &&
+			curr.humid == cndts[i].humid &&
+			curr.wind == cndts[i].wind)
+		{
+			ans = false;
+		}
+	}
+		
+	return ans;
+}
+
+function getMean(inst)
+{
+	var mean = 0;
+	
+	for (var i = 0; i < inst.length; i++)
+	{
+		mean += inst[i].play;
+	}
+	
+	mean /= inst.length;
+	
+	return mean;
+}
+
+function dispData(cndts)
+{
+	var text = "<table>";
+	
+	text += "<tr><td><b>Outlook</b></td><td><b>Temperature</b></td><td><b>Humidity</b></td><td><b>Wind</b></td><td><b>Play Tennis</b></td></tr>";
+	
+	for (var zen = 0; zen < cndts.length; zen++)
+	{
+		text += "<tr><td>" + cndts[zen].types[0][cndts[zen].outlook] + "</td><td>" 
+		                   + cndts[zen].types[1][cndts[zen].temp] + "</td><td>" 
+						   + cndts[zen].types[2][cndts[zen].humid] + "</td><td>" 
+						   + cndts[zen].types[3][cndts[zen].wind] + "</td><td>" 
+						   + cndts[zen].types[4][cndts[zen].play] + "</td></tr>";
+	}
+	
+	text += "</table>";
+	
+	return text;
+}
+
+function playProb(inst)
+{
+	document.getElementById("output").innerHTML += "P(Play = Yes) = " + eval(numYes(inst) / inst.length).toFixed(3) + "<br>";
+	return numYes(inst) / inst.length;
+}
+
+function nonPlayProb(inst)
+{
+	document.getElementById("output").innerHTML += "P(Play = No) = " + eval(numNo(inst) / inst.length).toFixed(3) + "<br>";
+	return numNo(inst) / inst.length;
+}
+
+function init()
+{
+	data = genData(14);
+	document.getElementById("output").innerHTML = "<b>Training Data</b>";
+	document.getElementById("output").innerHTML += dispData(data);
+	
+	return data;
+}
+
+//cal_N calculates the probability that we play or don't play in the given instance.
+// The way we calculate both these probabilities is by multiplying the probabilities of 
+// the features of the given instance, and then multiplying this by the overall 
+// probability of playing (or not playing) a game. 
+function naiveBayes(inst, prob)
+{
+	var nbProb = new Array();
+	nbProb[0] = 1;
+	nbProb[1] = 1;
+	var text = "<br>Each cell in the following table is given by the formula P(C) * P(F<sub>i</sub> | C), where C is the outcome class and F<sub>i</sub> is the feature in question, multiplied by the previous column. <br><br><table><tr><td></td><td>Outlook</td><td>Temperature</td><td>Humidity</td><td>Wind</td></tr><tr><td>P(Play = No)</td>";
+	
+	for (var i = 0; i < 4; i++)
+	{
+		nbProb[0] *= inst.prob[i][0];
+		text += "<td>" + eval(nbProb[0]).toFixed(3) + "</td>";
+	}
+	text += "</tr><tr><td>P(Play = Yes)</td>";
+//	nbProb[0] *= playProb(inst);
+
+	for (var i = 0; i < 4; i++)
+	{
+		nbProb[1] *= inst.prob[i][1];
+		text += "<td>" + eval(nbProb[1]).toFixed(3) + "</td>";
+	}
+	text += "</tr></table>";
+
+//	nbProb[1] *= nonPlayProb(inst);
+	
+	var sum = nbProb[0] + nbProb[1];
+	
+	text += "<br>We now normalize the probabilities by dividing each by their sum<br>";
+	text += "P(Play = No) = " + nbProb[0].toFixed(3) + " / (" + nbProb[0].toFixed(3) + " + " + nbProb[1].toFixed(3) + ")<br>";
+	text += "P(Play = Yes) = " + nbProb[1].toFixed(3) + " / (" + nbProb[0].toFixed(3) + " + " + nbProb[1].toFixed(3) + ")<br>";
+	
+	nbProb[0] = nbProb[0] / sum;
+	nbProb[1] = nbProb[1] / sum;
+	
+	document.getElementById("output").innerHTML += text;
+	
+	return nbProb;
+}
+
+function numYes(inst)
+{
+	var ans = 0;
+	
+	for (var i = 0; i < inst.length; i++)
+	{
+		if (inst[i].play)
+		{
+			ans++;
+		}
+	}
+	
+	return ans;
+}
+
+function numNo(inst)
+{
+	var ans = 0;
+	
+	for (var i = 0; i < inst.length; i++)
+	{
+		if (!inst[i].play)
+		{
+			ans++;
+		}
+	}
+	
+	return ans;
+}
+
+//condProb takes as input a new instance and considers each feature of this instance, and 
+//counts the number of times this feature has appeared on a yes row and how many times it
+//has appeared on a no row. Then to calculate the probabilities, we divide these counts by
+//the number of times that our training data has the responses of yes and no respectively.  
+function condProbs(inst, newInst)
+{
+	inst.prob = new Array(4);
+	var count = new Array(4);
+
+	for (var i = 0; i < inst.prob.length; i++)
+	{
+		inst.prob[i] = new Array(2);
+		count[i] = new Array(2);
+		for (var j = 0; j < count[i].length; j++)
+		{
+			count[i][j] = 0;
+		}
+	}
+	
+	for (var j = 0; j < inst.length; j++)
+	{
+		if (inst[j].outlook == newInst[0] && inst[j].play)
+		{
+			count[0][1]++;
+		}
+		if (inst[j].temp == newInst[1] && inst[j].play)
+		{
+			count[1][1]++;
+		}
+		if (inst[j].humid == newInst[2] && inst[j].play)
+		{
+			count[2][1]++;
+		}
+		if (inst[j].wind == newInst[3] && inst[j].play)
+		{
+			count[3][1]++;
+		}
+		
+		if (inst[j].outlook == newInst[0] && !inst[j].play)
+		{
+			count[0][0]++;
+		}
+		if (inst[j].temp == newInst[1] && !inst[j].play)
+		{
+			count[1][0]++;
+		}
+		if (inst[j].humid == newInst[2] && !inst[j].play)
+		{
+			count[2][0]++;
+		}
+		if (inst[j].wind == newInst[3] && !inst[j].play)
+		{
+			count[3][0]++;
+		}
+	}
+	
+	var yeses = numYes(inst);
+	var noses = numNo(inst);
+	
+//	document.getElementById("output").innerHTML += "numYes = " + yeses + "<br>numNo = " + noses + "<br>";
+//	document.getElementById("output").innerHTML += "count[0] = " + count[0] + "<br>";
+//	document.getElementById("output").innerHTML += "count[1] = " + count[1] + "<br>";
+//	document.getElementById("output").innerHTML += "count[2] = " + count[2] + "<br>";
+//	document.getElementById("output").innerHTML += "count[3] = " + count[3] + "<br>";
+	
+	for (var j = 0; j < inst.prob.length; j++)
+	{
+		for (var i = 0; i < 2; i++)
+		{
+			inst.prob[j][i] = count[j][i] / yeses;
+		}
+	}
+	
+	return inst;
+}
+
+function process(data)
+{
+	var newInst = new Array();
+	var prev = document.getElementById("output").innerHTML;
+	prev = prev.substring(0, prev.indexOf("</table>") + 8);
+	document.getElementById("output").innerHTML = "";
+	
+	newInst[0] = document.getElementById("outlook").value;
+	newInst[1] = document.getElementById("temp").value;
+	newInst[2] = document.getElementById("humid").value;
+	newInst[3] = document.getElementById("wind").value;
+	
+	inst = condProbs(data, newInst);
+
+	var text = "<br><b>Calculations: </b><table>";
+	for (var j = 0; j < inst.prob[0].length; j++)
+	{
+		for (var i = 0; i < inst.prob.length; i++)	
+		{
+			switch (i)
+			{
+			case 0:
+				text += "<tr><td>P(Outlook = " + inst[i].types[0][newInst[0]] + " | Play = " + inst[i].types[4][j] + ") = </td>";
+				break;
+			case 1:
+				text += "<tr><td>P(Temperature = " + inst[i].types[1][newInst[1]] + " | Play = " + inst[i].types[4][j] + ") = </td>";
+				break;
+			case 2:
+				text += "<tr><td>P(Humidity = " + inst[i].types[2][newInst[2]] + " | Play = " + inst[i].types[4][j] + ") = </td>";
+				break;
+			case 3:
+				text += "<tr><td>P(Wind = " + inst[i].types[3][newInst[3]] + " | Play = " + inst[i].types[4][j] + ") = </td>";
+				break;
+			}
+			text += "<td>" + inst.prob[i][j].toFixed(3) + "</td><tr>";
+		}
+	}
+	text += "</table>";
+	
+	var sol = naiveBayes(data, inst.prob);
+	var work = document.getElementById("output").innerHTML;
+
+	text += "<br>" + work;
+	
+	text += "<br><b>Conclusions: </b><br>";
+	if (!isNaN(sol[0]) && !isNaN(sol[1]))
+	{
+		text += "The probability that we play tennis is " + sol[1].toFixed(3) + "<br>";
+		text += "The probability that we will not play tennis is " + sol[0].toFixed(3) + "<br>";
+	
+		if (sol[0] > sol[1])
+		{
+			text += "So we will not play tennis<br>";
+		}
+		else
+		{
+			text += "So we will play tennis<br>";
+		}
+	}
+	else
+	{
+		text += "Your input options indicate that two of the features have zero conditional probability. Please select different input options<br>";
+	}
+	
+	document.getElementById("output").innerHTML = prev + text;
+}
+</script>
+<h3><center></center></h3>
+<p>Consider this scenario. You and your friend Alex like to play tennis every Saturday morning. However, today you're running late. Alex has a history of playing or not playing tennis based on the weather conditions at the time. You look back at the recent history of the weather conditions on previous days to form a model and try to predict whether or not Alex will play tennis today. The table given table is the training data, and you will input the weather conditions for today. Then we will use Naive Bayesian Classification to predict whether or not a game will be played today. </p>
+<p name="output" id="output"></p>
+<select name="outlook" id="outlook">
+  <option value=2>Sunny</option>
+  <option value=1>Overcast</option>
+  <option value=0>Rain</option>
+</select>
+<select name="temp" id="temp">
+  <option value=2>Hot</option>
+  <option value=1>Mild</option>
+  <option value=0>Cold</option>
+</select>
+<select name="humid" id="humid">
+  <option value=2>High</option>
+  <option value=1>Normal</option>
+  <option value=0>Low</option>
+</select>
+<select name="wind" id="wind">
+  <option value=1>Strong</option>
+  <option value=0>Weak</option>
+</select>
+<input type="submit" onclick="process(data)" value="Run Bayes">
+<input type="submit" onclick="data = init()" value="New Problem"><br>
+<script type="text/javascript">
+var data = init();
+</script>

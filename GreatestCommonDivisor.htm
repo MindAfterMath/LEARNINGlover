@@ -1,0 +1,44 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+GreatestCommonDivisor<script id="sc1" type="text/javascript">
+function gcd(u, v, show) 
+{
+ 	if (v == 0)
+	{
+		return u; 
+	}
+	else 
+	{
+		if (show)
+		{
+			text += "Now calling GCD(" + v + ", " + (u % v) + ")<br>";
+		}
+		return gcd(v, u % v, show); 	
+	} 
+} 
+</script> <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="add, algorithm, computer science, divides, Euclidean Algorithm, fractions, GCD, Greatest Common Divisor, JavaScript, largest, lowest terms, math, mathematics, multiply, numbers, reduce, script, subtract" /> 
+<meta name="description" content="This page contains a script I've written to help understand Euclid's Greatest Common Divisor Algorithm." />
+<title> at LEARNINGlover.com</title>
+<script id="sc1" type="text/javascript">
+function gcd(u, v, show) 
+{
+ 	if (v == 0)
+	{
+		return u; 
+	}
+	else 
+	{
+		if (show)
+		{
+			text += "Now calling GCD(" + v + ", " + (u % v) + ")<br>";
+		}
+		return gcd(v, u % v, show); 	
+	} 
+} 
+</script> 
+<h3><center></center></h3>
+<p>This program implements Euclid's Algorithm to reduce a given fraction to lowest terms. This is done by finding the greatest common divisor (GCD) of the numerator and denominator. The GCD of two integers is the largest integer which divides them both.&nbsp;A fraction is reduced to lowest terms by repeatedly dividing both the numerator and the denominator by their GCD. Euclid's Algorithm finds the GCD to two integers, say u and v by finding the GCD of u - v and v (if u &gt; v). </p>
+<script id="sc2" type="text/javascript"> text=""; u = Math.floor(Math.random()*1000); v = Math.floor(Math.random()*1000); document.write("u = " + u + "<br>"); document.write("V = " + v + "<br>"); </script> <form name="data" id="data"> <input type=button onclick="javascript:location.reload(true)" value="New Problem"><br> <input name="show" id="show" type="checkbox"> Show work? <input type="button" onclick="document.getElementById('output').innerHTML = '';text='';ans = gcd(u, v, document.getElementById('show').checked);document.getElementById('output').innerHTML += text + 'The GCD of u and v is ' + ans" value="Go"> <p name="output" id="output"></p> </FORM> 

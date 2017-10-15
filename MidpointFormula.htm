@@ -1,0 +1,371 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+MidpointFormula<script type="text/javascript">
+function init()
+{
+	document.getElementById("output").innerHTML = "";
+	for (var i = 0; i < 5; i++)
+	{
+		document.getElementById("opt" + i + "txt").innerHTML = "<input type='radio' name='ans' id='ans' value='opt" + i + "'>";
+	}
+	
+	point0 = new Array();
+	point1 = new Array();
+	
+	point0[0] = Math.floor(Math.random()*20) - 10;
+	point0[1] = Math.floor(Math.random()*20) - 10;
+
+	do 
+	{
+		point1[0] = Math.floor(Math.random()*20) - 10;
+		point1[1] = Math.floor(Math.random()*20) - 10;
+	}
+	while (point1[1] == point0[1] && point1[0] == point0[0]);
+	
+	var text = "What is the midpoint between (" + point0[0] + ", " + point0[1] + ") and (" + point1[0] + ", " + point1[1] + ")? <br>";
+	
+	document.getElementById("problem").innerHTML = text;
+	
+	mid = midpoint(point0, point1);
+	
+	var loc = Math.floor(Math.random() * 5);
+	
+	document.getElementById("opt" + loc + "txt").innerHTML += "(" + mid[0].toFixed(2) + ", " + mid[1].toFixed(2) + ")";
+	
+	var other = new Array();
+	var poss = new Array();
+	
+	for (var yin = 0; yin <= 1; yin += 0.5)
+	{
+		for (var yang = 0; yang <= 1; yang += 0.5)
+		{
+			if ((yin != 0 || yang != 0))
+			{
+				poss[poss.length] = yin + "|" + yang;
+			}
+		}
+	}
+	
+	for (var yin = 0; yin <= 1 ; yin += 0.5)
+	{
+		for (var yang = 0; yang >= -1; yang -= 0.5)
+		{
+			if (yin != 0 || yang != 0)
+			{
+				poss[poss.length] = yin + "|" + yang;
+			}
+		}
+	}
+	
+	for (var yin = 0; yin >= -1; yin -= 0.5)
+	{
+		for (var yang = 0; yang <= 1; yang += 0.5)
+		{
+			if (yin != 0 || yang != 0)
+			{
+				poss[poss.length] = yin + "|" + yang;
+			}
+		}
+	}
+	
+	for (var yin = 0; yin >= -1; yin -= 0.5)
+	{
+		for (var yang = 0; yang >= -1; yang -= 0.5)
+		{
+			if (yin != 0 || yang != 0)
+			{
+				poss[poss.length] = yin + "|" + yang;
+			}
+		}
+	}
+	
+//	document.getElementById("problem").innerHTML += "poss = " + poss + "<br>";
+	
+	for (var i = 0; i < 5; i++)
+	{
+		if (i != loc)
+		{
+			var elt = Math.floor(Math.random()*poss.length);
+			
+			other[0] = mid[0] + parseFloat(poss[elt].split("|")[0]);
+			other[1] = mid[1] + parseFloat(poss[elt].split("|")[1]);
+			
+			poss[elt] = poss[poss.length-1];
+			poss.length--;
+			
+			document.getElementById("opt" + i + "txt").innerHTML += "(" + other[0].toFixed(2) + ", " + other[1].toFixed(2) + ")";
+		}
+	}
+}
+
+function midpoint(point1, point2)
+{
+	var mid = new Array();
+	mid[0] = (point1[0] + point2[0]) / 2;
+	mid[1] = (point1[1] + point2[1]) / 2
+
+	return mid;
+}
+
+function dispFmla()
+{
+	var text = "Suppose you are given two points (x<sub>1</sub>, y<sub>1</sub>) and (x<sub>2</sub>, y<sub>2</sub>), then the midpoint between these two points is given by the following formula: ";
+	var xCoord = "<table><tr><td><center>x<sub>1</sub> + x<sub>2</sub></center></td></tr><tr><td><hr></td></tr><tr><td><center>2</center></td></tr></table>";
+	var yCoord = "<table><tr><td><center>y<sub>1</sub> + y<sub>2</sub></center></td></tr><tr><td><hr></td></tr><tr><td><center>2</center></td></tr></table>";
+
+	text += "<table><tr><td>" + xCoord + "</td><td>, </td><td>" + yCoord + "</td></tr></table>";
+	
+	document.getElementById("output").innerHTML = text;
+}
+
+function distance(point1, point2)
+{
+	return Math.sqrt(Math.pow((point2[0] - point1[0]), 2) + Math.pow((point2[1] - point1[1]), 2));
+}
+
+function indexOf(arr, elt)
+{
+	var loc = -1;
+	
+	for (var i = 0; i < arr.length && loc == -1; i++)
+	{
+		if (arr[i][0] == elt[0] && arr[i][1] == elt[1])
+		{
+			loc = i;
+		}
+	}
+	
+	return loc;
+}
+
+function checkAns()
+{
+	var opts = document.getElementsByName("ans");
+	var ans = "";
+	
+	for (var i = 0; i < opts.length; i++)
+	{
+		if (opts[i].checked == true)
+		{
+			ans = opts[i].value;
+		}
+	}
+	
+	if (ans == "")
+	{
+		alert("You need to select an answer");
+		return;
+	}
+	
+	var txt = document.getElementById(ans + "txt").innerHTML;
+	ans = txt.substring(54, txt.length-1).split(", ");
+	
+//	alert(ans + " vs " + mid);
+	
+	if (parseFloat(ans[0]) != parseFloat(mid[0]) || parseFloat(ans[1]) != parseFloat(mid[1]))
+	{
+		alert("Sorry, you have selected the incorrect answer");
+	}
+	else
+	{
+		alert("You have chosen correctly");
+	}
+}
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, algebra, javascript, script, points, midpoint, xy plane" />
+<meta name="description" content="This page contains a script with a quiz for students to see how well they understand the midpoint formula. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function init()
+{
+	document.getElementById("output").innerHTML = "";
+	for (var i = 0; i < 5; i++)
+	{
+		document.getElementById("opt" + i + "txt").innerHTML = "<input type='radio' name='ans' id='ans' value='opt" + i + "'>";
+	}
+	
+	point0 = new Array();
+	point1 = new Array();
+	
+	point0[0] = Math.floor(Math.random()*20) - 10;
+	point0[1] = Math.floor(Math.random()*20) - 10;
+
+	do 
+	{
+		point1[0] = Math.floor(Math.random()*20) - 10;
+		point1[1] = Math.floor(Math.random()*20) - 10;
+	}
+	while (point1[1] == point0[1] && point1[0] == point0[0]);
+	
+	var text = "What is the midpoint between (" + point0[0] + ", " + point0[1] + ") and (" + point1[0] + ", " + point1[1] + ")? <br>";
+	
+	document.getElementById("problem").innerHTML = text;
+	
+	mid = midpoint(point0, point1);
+	
+	var loc = Math.floor(Math.random() * 5);
+	
+	document.getElementById("opt" + loc + "txt").innerHTML += "(" + mid[0].toFixed(2) + ", " + mid[1].toFixed(2) + ")";
+	
+	var other = new Array();
+	var poss = new Array();
+	
+	for (var yin = 0; yin <= 1; yin += 0.5)
+	{
+		for (var yang = 0; yang <= 1; yang += 0.5)
+		{
+			if ((yin != 0 || yang != 0))
+			{
+				poss[poss.length] = yin + "|" + yang;
+			}
+		}
+	}
+	
+	for (var yin = 0; yin <= 1 ; yin += 0.5)
+	{
+		for (var yang = 0; yang >= -1; yang -= 0.5)
+		{
+			if (yin != 0 || yang != 0)
+			{
+				poss[poss.length] = yin + "|" + yang;
+			}
+		}
+	}
+	
+	for (var yin = 0; yin >= -1; yin -= 0.5)
+	{
+		for (var yang = 0; yang <= 1; yang += 0.5)
+		{
+			if (yin != 0 || yang != 0)
+			{
+				poss[poss.length] = yin + "|" + yang;
+			}
+		}
+	}
+	
+	for (var yin = 0; yin >= -1; yin -= 0.5)
+	{
+		for (var yang = 0; yang >= -1; yang -= 0.5)
+		{
+			if (yin != 0 || yang != 0)
+			{
+				poss[poss.length] = yin + "|" + yang;
+			}
+		}
+	}
+	
+//	document.getElementById("problem").innerHTML += "poss = " + poss + "<br>";
+	
+	for (var i = 0; i < 5; i++)
+	{
+		if (i != loc)
+		{
+			var elt = Math.floor(Math.random()*poss.length);
+			
+			other[0] = mid[0] + parseFloat(poss[elt].split("|")[0]);
+			other[1] = mid[1] + parseFloat(poss[elt].split("|")[1]);
+			
+			poss[elt] = poss[poss.length-1];
+			poss.length--;
+			
+			document.getElementById("opt" + i + "txt").innerHTML += "(" + other[0].toFixed(2) + ", " + other[1].toFixed(2) + ")";
+		}
+	}
+}
+
+function midpoint(point1, point2)
+{
+	var mid = new Array();
+	mid[0] = (point1[0] + point2[0]) / 2;
+	mid[1] = (point1[1] + point2[1]) / 2
+
+	return mid;
+}
+
+function dispFmla()
+{
+	var text = "Suppose you are given two points (x<sub>1</sub>, y<sub>1</sub>) and (x<sub>2</sub>, y<sub>2</sub>), then the midpoint between these two points is given by the following formula: ";
+	var xCoord = "<table><tr><td><center>x<sub>1</sub> + x<sub>2</sub></center></td></tr><tr><td><hr></td></tr><tr><td><center>2</center></td></tr></table>";
+	var yCoord = "<table><tr><td><center>y<sub>1</sub> + y<sub>2</sub></center></td></tr><tr><td><hr></td></tr><tr><td><center>2</center></td></tr></table>";
+
+	text += "<table><tr><td>" + xCoord + "</td><td>, </td><td>" + yCoord + "</td></tr></table>";
+	
+	document.getElementById("output").innerHTML = text;
+}
+
+function distance(point1, point2)
+{
+	return Math.sqrt(Math.pow((point2[0] - point1[0]), 2) + Math.pow((point2[1] - point1[1]), 2));
+}
+
+function indexOf(arr, elt)
+{
+	var loc = -1;
+	
+	for (var i = 0; i < arr.length && loc == -1; i++)
+	{
+		if (arr[i][0] == elt[0] && arr[i][1] == elt[1])
+		{
+			loc = i;
+		}
+	}
+	
+	return loc;
+}
+
+function checkAns()
+{
+	var opts = document.getElementsByName("ans");
+	var ans = "";
+	
+	for (var i = 0; i < opts.length; i++)
+	{
+		if (opts[i].checked == true)
+		{
+			ans = opts[i].value;
+		}
+	}
+	
+	if (ans == "")
+	{
+		alert("You need to select an answer");
+		return;
+	}
+	
+	var txt = document.getElementById(ans + "txt").innerHTML;
+	ans = txt.substring(54, txt.length-1).split(", ");
+	
+//	alert(ans + " vs " + mid);
+	
+	if (parseFloat(ans[0]) != parseFloat(mid[0]) || parseFloat(ans[1]) != parseFloat(mid[1]))
+	{
+		alert("Sorry, you have selected the incorrect answer");
+	}
+	else
+	{
+		alert("You have chosen correctly");
+	}
+}
+</script>
+
+<h3><center></center></h3>
+<p>This page will generate some practice problems for students who wish to practice the midpoint formula. Users are to select the option with the correct answer and press submit to see if your selection is correct. Then you can press the new problem button to generate a new problem. </p>
+<center>
+<div id="problem"></div>
+<div id="opt0txt"></div>
+<div id="opt1txt"></div>
+<div id="opt2txt"></div>
+<div id="opt3txt"></div>
+<div id="opt4txt"></div>
+<p id="output"></p>
+<input type="button" onclick="checkAns()" value="Submit"><br>
+<input type="button" onclick="dispFmla()" value="Display Formula"><br>
+<input type="button" onclick="init()" value="New Problem"><br>
+</center>
+<script type="text/javascript">
+var point0, point1, mid;
+init();
+</script>

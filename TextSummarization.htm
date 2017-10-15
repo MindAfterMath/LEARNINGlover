@@ -1,0 +1,54 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+TextSummarization<script id="sc1" type="text/javascript">
+function summarize(text)
+{
+ 	var paras = text.split('\n');
+  	sent = [];
+  	count = 0;
+  	for (i = 0; i < paras.length; i++)
+ 	{
+ 		if (paras[i].length > 1)
+ 			sent[i] = paras[i].split('. ');
+ 	}
+  	outdata.innerHTML = "<b>First Sentence Summary</b><br><br>";
+  	for (i = 0; i < paras.length; i++)
+ 	{
+ 		if (paras[i].length > 1)
+ 		{
+ 			outdata.innerHTML += sent[i][0];
+ 			outdata.innerHTML += ". <br><br>";
+ 		}
+ 	}
+ }
+ </script> <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="algorighm, first, first sentence, summarize, summary, text, script" /> 
+<meta name="description" content="This page contains a script I've written to help understand a naive way of summarizing texts." />
+<title> at LEARNINGlover.com</title>
+<script id="sc1" type="text/javascript">
+function summarize(text)
+{
+ 	var paras = text.split('\n');
+  	sent = [];
+  	count = 0;
+  	for (i = 0; i < paras.length; i++)
+ 	{
+ 		if (paras[i].length > 1)
+ 			sent[i] = paras[i].split('. ');
+ 	}
+  	outdata.innerHTML = "<b>First Sentence Summary</b><br><br>";
+  	for (i = 0; i < paras.length; i++)
+ 	{
+ 		if (paras[i].length > 1)
+ 		{
+ 			outdata.innerHTML += sent[i][0];
+ 			outdata.innerHTML += ". <br><br>";
+ 		}
+ 	}
+ }
+ </script> 
+<h3><center></center></h3>
+<p>This is a naive way of summarizing large blocks of text. It is based on the elementary school idea that the main idea of a text can be found in the first paragraph. So given a long text, it will output the first sentence of each paragraph as the summary. </p>
+<form name="data" id="data"> <textarea name="indata" id="indata" rows=20 cols=50></textarea> <input type="button" onclick="summarize(document.getElementById('indata').value)" value="Summarize"> </form> <p name="outdata" id="outdata"></p> 

@@ -1,0 +1,2832 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+JavaScriptCodeSamples<script type="text/javascript">
+function getCode()
+{
+	var input = document.getElementById("pgrm").value;
+	var outut = "";
+	var output2 = "";
+	
+	if (input == "1")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "document.getElementById(\"output\").innerHTML += \"Hello, World!<br>\";\n";
+		output += "document.getElementById(\"output\").innerHTML += 'Hello, World!<br>';\n";
+		output += "document.getElementById(\"output\").innerHTML += \"Hello,\" + \"World!<br>\";\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "<h2>Hello, World!</h2>";
+		output2 += "<p>There are a number of ways to output text in JavaScript, but the recommended way to do it is using the innerHTML method of a paragraph block. ";
+		output2 += "The innerHTML property of an HTML object (like the paragraph tag we use above) contains all the HTML code inside that particular block. ";
+		output2 += "We can access this HTML code in javascript by calling the 'document.getElementById' method, and passing the id of the paragraph we wish to change. (i.e. document.getElementById(\"output\")). ";
+		output2 += "In the code above we begin the body section of HTML with a paragraph tag that we gave the id of \"output\". ";
+		output2 += "<pre>&lt;p id=\"output\"&gt;&lt;/p&gt;</pre>";
+		output2 += "We could have just easily named this paragraph \"foo\" or \"bar\" or any other valid javascript name and have the same desired effect. I do encourage you however to use descriptive names to make your code easier to understand. ";
+		output2 += "In the above code, you will see that we make calls to document.getElementById(\"output\").innerHTML. ";
+		output2 += "We can display text by changing the HTML code assigned to this object using the '=' or '+=' operators. ";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML += 'Hello, World!&lt;br&gt;'</pre>";
+		output2 += "Click the Run Code button to see how this program executes</p>";	
+		output2 += "<p>Notice that the Javascript modifying the paragrapm the the tag \"output\" comes after we've already created this paragrapm. We must always place the code modifying an object after we've created that object because otherwise JavaScript will not know where the object is</p>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "2")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "<title>Comments in JavaScript</title>";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Comments in JavaScript\n";
+		output += "//This is a single line comment, everything after the // is ignored by the computer. \n";
+		output += "document.getElementById(\"output\").innerHTML += \"This line will be printed. <br>\";\n";
+		output += "//document.getElementById(\"output\").innerHTML += \"This line will NOT be printed. \";\n";
+		output += "/*This \n";
+		output += "is \n";
+		output += "a \n";
+		output += "multiple \n";
+		output += "line \n";
+		output += "comment. \n";
+		output += "document.getElementById(\"output\").innerHTML += \"This line will NOT be printed. \";*/\n";
+		output += "//In a multiple ilne comment, everything between /* and */ is ignored by the computer\n";
+		output += "document.getElementById(\"output\").innerHTML += \"Hello, World!\";\n";
+		output += "</" + "script>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "<h2>Comments in JavaScript</h2>";
+		output2 += "<p>There are two ways to write comments in JavaScript.";
+		output2 += "<ol>";
+		output2 += "&nbsp;&nbsp;<li><b>Single Line Comments:</b> Some comments start with a // sybmol. Everything after the // sign is ignored. The // can either go on at the beginning of a line or a comment can go after a JavaScript statement";
+		output2 += "<pre>//This is a single line comment</pre>";
+		output2 += "&nbsp;&nbsp;<li><b>Multiple Line Comments:</b> Other comments can go between /* and */ statements. In a these comments, everything between /* and */ is ignored by the computer";
+		output2 += "<pre>/*This <br>";
+		output2 += "is <br>";
+		output2 += "a <br>";
+		output2 += "multiple <br>";
+		output2 += "line <br>";
+		output2 += "comment. */</pre>";
+		output2 += "</ol>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "3")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "<title>Variables in Javascript</title>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Variables in Javascript\n";
+		output += "//Variables store data in memory.\n";
+		output += "//In order to do this you need to give the variable a name so you can retrieve the information later. \n";
+		output += "//These names must start with either a capital letter (A-Z), a lowercase letter(a-z)\n";
+		output += "//, an underscore (_), or a dollar sign ($)\n";
+		output += "//and can only contain letters, numbers and the underscore symbol or the dollar sign. \n";
+		output += "//Variable names are case sensitive. \n";
+		output += "//Variables can be declared using the 'var' keyword. \n";
+		output += "//Declaring variables is not required, but suggested avoid confusing code well as to understand scope of variables\n";
+		output += "var nothing;\n";
+		output += "document.getElementById(\"output\").innerHTML += \"nothing = \" + nothing + \"<br>\";\n";
+		output += "var Num = 8;\n";
+		output += "document.getElementById(\"output\").innerHTML += \"Num = \" + Num + \"<br>\";\n";
+		output += "var number_zero = 0;\n";
+		output += "document.getElementById(\"output\").innerHTML += \"number_zero = \" + number_zero + \"<br>\";\n";
+		output += "var frac_num = 2.7;\n";
+		output += "document.getElementById(\"output\").innerHTML += \"frac_num = \" + frac_num + \"<br>\";\n";
+		output += "var logical = false;\n";
+		output += "document.getElementById(\"output\").innerHTML += \"logical = \" + logical + \"<br>\";\n";
+		output += "//Notice that Num and num are different variables. \n\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "<h2>Variables in JavaScript</h2>";
+		output2 += "<p>Variables store data in memory. In order to do this, you need to give the variable a name so that you can";
+		output2 += "retrieve the information later. These names must: </p>";
+		output2 += "<ol>";
+		output2 += "&nbsp;&nbsp;<li>Start witH either a capital letter (A-Z), a lower case letter (a-z), an underscore (_) or a dollar sign ($). ";
+		output2 += "&nbsp;&nbsp;<li>Can only contain letters, numbers and the underscore symbol or the dollar sign. ";
+		output2 += "&nbsp;&nbsp;<li>Variable names are case sensitive.";
+		output2 += "</ol>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "4a")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Data Types in JavaScript\n\n";
+		output += "//JavaScript has 5 basic data types: \n";
+		output += "// - Numbers\n";
+		output += "// - Strings\n";
+		output += "// - Booleans\n";
+		output += "// - Arrays\n";
+		output += "// - Objects\n\n";
+		output += "//Numbers can be integer or decimal (called float)\n";
+		output += "//Integers are used for standard operations on \n";
+		output += "//(positive and negative) whole numbers\n";
+		output += "int_num1 = 8\n";
+		output += "document.getElementById(\"output\").innerHTML += \"int_num1 = \" + int_num1 + '<br>';\n\n";
+		output += "int_num2 = -27\n";
+		output += "document.getElementById(\"output\").innerHTML += \"int_num2 = \" + int_num2 + '<br>';\n\n";
+		
+		output += "//Floats are used for floating point numbers, or rational \n";
+		output += "//numbers that are not whole numbers. \n";
+		output += "float_num = 3.14159\n";
+		output += "document.getElementById(\"output\").innerHTML += \"float_num = \" + float_num + '<br>';\n";
+
+		output += "//You can also declare numbers as fractions and they become floats\n";
+		output += "float_num2 = 22/7\n";
+		output += "document.getElementById(\"output\").innerHTML += \"float_num2 = \" + float_num2 + '<br>';\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		
+		output2 = "<h2>Data Types in JavaScript</h2>";
+		output2 += "<ol>JavaScript has 5 basic data types: \n";
+		output2 += "&nbsp;&nbsp;<li>Numbers\n";
+		output2 += "&nbsp;&nbsp;<li>Strings\n";
+		output2 += "&nbsp;&nbsp;<li>Booleans\n";
+		output2 += "&nbsp;&nbsp;<li>Arrays\n";
+		output2 += "&nbsp;&nbsp;<li>Objects\n";
+		output2 += "</ol>\n";
+		output2 += "<p>Numbers can be integer or decimal (called float). <br>\n";
+		output2 += "Integers are used for standard operations on \n";
+		output2 += "(positive and negative) whole numbers<br>\n";
+		output2 += "<pre>int_num1 = 8</pre>\n";
+		output2 += "<pre>int_num1 = -27</pre>\n";
+		
+		output2 += "Floats are used for floating point numbers, or rational \n";
+		output2 += "numbers that are not whole numbers. \n";
+		output2 += "<pre>float_num = 3.14159</pre>\n";
+		output2 += "<pre>float_num2 = 22/7</pre>\n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";	
+	}
+	else if (input == "4b")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Data Types in JavaScript\n\n";
+		output += "//JavaScript has 5 basic data types: \n";
+		output += "// - Numbers\n";
+		output += "// - Strings\n";
+		output += "// - Booleans\n";
+		output += "// - Arrays\n";
+		output += "// - Objects\n\n";
+		output += "//Strings are characters between a pair of (single or double) quotes\n";
+		output += "str1 = \"This is a string\"\n";
+		output += "document.getElementById(\"output\").innerHTML += \"str1 = \" + str1 + '<br>';\n";
+		output += "str2 = 'This is also a string'\n";
+		output += "document.getElementById(\"output\").innerHTML += \"str2 = \" + str2 + '<br>';\n\n";
+		output += "//There are several operations you can do on strings\n";
+		output += "//You can access the characters inside a string by bracket notation: \n";
+		output += "str3 = 'This is a third string'\n";
+		output += "document.getElementById(\"output\").innerHTML += \"str3[0] = \" + str3[0] + '<br>';\n";
+		output += "//You can also use formatting to display numbers correctly:\n";
+		output += "var cmpl = 292/473\n"
+		output += "var player = 'Cam Newton'\n";
+		output += "var year = '2013'\n";
+		output += "document.getElementById(\"output\").innerHTML +=  player + 's accuracy in ' + year + ' was ' + cmpl.toFixed(2) + '<br>';\n\n";
+		output += "//The + operator concatenates two strings:\n";
+		output += "first = 'Bruce'\n";
+		output += "last = 'Leroy'\n";
+		output += "full_name = first + ' ' + last\n";
+		output += "document.getElementById(\"output\").innerHTML += \"full_name = \" + full_name + '<br>';\n\n";
+		output += "//The length property tells the number of characters the string\n";
+		output += "var movie =\"The Last Dragon\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"The number of characters in \" + movie + \" is \" + movie.length + \"<br>\"\n";
+
+		output += "//The indexOf property tells the first location that a character appears in a string (noting that the first character is at position 0). If a character not found, this method returns -1.\n";
+		output += "var poem = \"Still I Rise\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"The character 'e' first appears at position \" + poem.indexOf('e') + \" in \" + poem + \"<br>\"\n";
+		output += "document.getElementById(\"output\").innerHTML += \"The character 'C' first appears at position \" + poem.indexOf('r') + \" in \" + poem + \"<br>\"\n";
+
+		output += "//The substring method takes wo numbers input and returns the string of characters that begin at the first number and end at the second.\n";
+		output += "var poem2 = \"I Know Why The Caged Bird Sings\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"The substring beginning at position 0 and ending at position 10 is '\" + poem2.substring(0, 10) + \"' in '\" + poem2 + \"'<br>\"\n";
+
+		output += "//The parseInt function will convert a string that looks like a whole number into a whole number that can then be operated on using math operations instead of string operations.\n";
+		output += "var num1 = \"27\";\n";
+		output += "var num2 = \"3\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"As strings, \" +      num1 + \" + \" +      num2 + \" is \" + (     num1 +      num2) + \", but as numbers,      num1 +      num2 is \" + eval(  parseInt(     num1) + parseInt(       num2)) + \"<br>\";\n";
+
+		output += "//The parseFloat function will convert a string that a looks like a rational number into a number that can then be operated on using math operations instead of string operations.\n";
+		output += "var numFloat1 = \"27.33\";\n";
+		output += "var numFloat2 = \"3.23\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"As strings, \" + numFloat1 + \" + \" + numFloat2 + \" is \" + (numFloat1 + numFloat2) + \", but as numbers, numFloat1 + numFloat2 is \" + eval(parseFloat(numFloat1) + parseFloat(numFloat2)) + \"<br>\";\n";
+		
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "<h2>Data Types in JavaScript</h2>";
+		output2 += "JavaScript has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Booleans<br>";
+		output2 += " - Arrays<br>";
+		output2 += " - Objects<br><br>";
+		output2 += "Strings are characters between a pair of (single or double) quotes<br>";
+		output2 += "<pre>str1 = \"This is a string\"\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"str1 = \" + str1 + '&lt;br&gt;';\n";
+		output2 += "str2 = 'This is also a string'\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"str2 = \" + str2 + '&lt;br&gt;';\n\n</pre>";
+		output2 += "There are several operations you can do on strings<br>";
+		output2 += "You can access the characters inside a string by bracket notation: <br>";
+		output2 += "<pre>str3 = 'This is a third string'\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"str3[0] = \" + str3[0] + '&lt;br&gt;';</pre>\n";
+		output2 += "You can also use formatting to display numbers correctly:\n";
+		output2 += "<pre>var cmpl = 292/473\n"
+		output2 += "var player = 'Cam Newton'\n";
+		output2 += "var year = '2013'\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  player + 's accuracy in ' + year + ' was ' + cmpl.toFixed(2) + '&lt;br&gt;';</pre>\n\n";
+		output2 += "The + operator concatenates two strings:\n";
+		output2 += "<pre>first = 'Bruce'\n";
+		output2 += "last = 'Leroy'\n";
+		output2 += "full_name = first + ' ' + last\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"full_name = \" + full_name + '&lt;br&gt;';</pre>\n\n";
+		output2 += "The length property tells the number of characters the string\n";
+		output2 += "<pre>var movie =\"The Last Dragon\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"The number of characters in \" + movie + \" is \" + movie.length + \"&lt;br&gt;\";</pre>\n";
+
+		output2 += "The indexOf property tells the first location that a character appears in a string (noting that the first character is at position 0). If a character not found, this method returns -1.\n";
+		output2 += "<pre>var poem = \"Still I Rise\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"The character 'e' first appears at position \" + poem.indexOf('e') + \" in \" + poem + \"&lt;br&gt;\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"The character 'C' first appears at position \" + poem.indexOf('r') + \" in \" + poem + \"&lt;br&gt;\";</pre>\n";
+
+		output2 += "The substring method takes two numbers input and returns the string of characters that begin at the first number and end at the second.\n";
+		output2 += "<pre>var poem2 = \"I Know Why The Caged Bird Sings\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"The substring beginning at position 0 and ending at position 10 is '\" + poem2.substring(0, 10) + \"' in '\" + poem2 + \"'&lt;br&gt;\";</pre>\n";
+
+		output2 += "The parseInt function will convert a string that looks like a whole number into a whole number that can then be operated on using math operations instead of string operations.\n";
+		output2 += "<pre>var num1 = \"27\";\n";
+		output2 += "var num2 = \"3\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"As strings, \" +      num1 + \" + \" +      num2 + \" is \" + (     num1 +      num2) + \", but as numbers,      num1 +      num2 is \" + eval(  parseInt(     num1) + parseInt(       num2)) + \"&lt;br&gt;\";</pre>\n";
+
+		output2 += "//The parseFloat function will convert a string that a looks like a rational number into a number that can then be operated on using math operations instead of string operations.\n";
+		output2 += "<pre>var numFloat1 = \"27.33\";\n";
+		output2 += "var numFloat2 = \"3.23\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"As strings, \" + numFloat1 + \" + \" + numFloat2 + \" is \" + (numFloat1 + numFloat2) + \", but as numbers, numFloat1 + numFloat2 is \" + eval(parseFloat(numFloat1) + parseFloat(numFloat2)) + \"&lt;br&gt;\";</pre>\n";
+		
+		output2 += "</" + "script>\n";
+		output2 += "</body>\n";
+		output2 += "</html>\n";
+	}
+		else if (input == "4c")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//The boolean data type evaluates a given expression to true or false. \n";
+		output += "// - If the expression is a conditional, then the expression will be evaluated to a true or false result.\n";
+		output += "// - If the expression is not a conditional, then the Boolean type returns false if the expression is any of the following (called falsy): the empty string (\"\"), null, undefined, NaN, +0, -0 and false\n";
+		output += "// - If the expression is not a conditional, then the Boolean type returns true if it is not any of the values listed above (called truthy). \n";
+		output += "\n";
+		output += "//The following code will display the value of true, based on the expression. \n";
+		output += "var bool1 = Boolean(1 > 0);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool1 = \" + bool1 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false, based on the expression. \n";
+		output += "var bool2 = Boolean(1 < 0);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool2 = \" + bool2 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of true, because the expression is not a conditional and the number 8 is not a falsy. \n";
+		output += "var bool3 = Boolean(8);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool3 = \" + bool3 + \"<br>\";\n";
+		output += "\n";
+		output += "//Similarly, the following code will display the value of true, because the expression is not a conditional and the number 0.5 is not a falsy. \n";
+		output += "var bool4 = Boolean(0.5);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool5 = \" + bool4 + \"<br>\";\n";
+		output += "\n";
+		output += "//Similarly, the following code will display the value of true, because the expression is not a conditional and -3 is not a falsy. \n";
+		output += "var bool5 = Boolean(-3)\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool5 = \" + bool5 + \"<br>\";\n";
+		output += "\n";
+		output += "//Similarly, the following code will display the value of true, because the expression is not a conditional and \"This is a string\" is not a falsy. \n";
+		output += "var bool6 = Boolean(\"This is a string\")\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool6 = \" + bool6 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false because 0 is a falsy.\n";
+		output += "var bool7 = Boolean(0);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool7 = \" + bool7 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false because -0 is a falsy.\n";
+		output += "var bool8 = Boolean(-0);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool8 = \" + bool8 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false because the empty string is a falsy.\n";
+		output += "var bool9 = Boolean(\"\");\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool9 = \" + bool9 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false because null is a falsy.\n";
+		output += "var bool10 = Boolean(null);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool10 = \" + bool10 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false because false is a falsy.\n";
+		output += "var bool11 = Boolean(false);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool11 = \" + bool11 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of true because 10/0 returns Infinity which is not a falsy.\n";
+		output += "var bool12 = Boolean(10/0);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool12 = \" + bool12 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of true because 10/0 returns NAN which is a falsy.\n";
+		output += "var bool13 = Boolean(10/\"this is a string\");\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool13 = \" + bool13 + \"<br>\";\n";
+		output += "\n";
+		output += "</" + "script>;\n";
+		output += "</body>\n";
+		output += "</html>\n";
+
+		output2 = "The boolean data type evaluates a given expression to true or false. <br>";
+		output2 += " - If the expression is a conditional, then the expression will be evaluated to a true or false result.<br>";
+		output2 += " - If the expression is not a conditional, then the Boolean type returns false if the expression is any of the following (called falsy): the empty string (\"\"), null, undefined, NaN, +0, -0 and false<br>";
+		output2 += " - If the expression is not a conditional, then the Boolean type returns true if it is not any of the values listed above (called truthy). <br>";
+		output2 += "<br>";
+		output2 += "The following code will display the value of true, based on the expression. <br>";
+		output2 += "<pre>var bool1 = Boolean(1 > 0);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool1 = \" + bool1 + \"<br>\";</pre><br>";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false, based on the expression. <br>";
+		output2 += "<pre>var bool2 = Boolean(1 < 0);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool2 = \" + bool2 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of true, because the expression is not a conditional and the number 8 is not a falsy. \n";
+		output2 += "<pre>var bool3 = Boolean(8);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool3 = \" + bool3 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "Similarly, the following code will display the value of true, because the expression is not a conditional and the number 0.5 is not a falsy. \n";
+		output2 += "<pre>var bool4 = Boolean(0.5);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool5 = \" + bool4 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "Similarly, the following code will display the value of true, because the expression is not a conditional and -3 is not a falsy. \n";
+		output2 += "<pre>var bool5 = Boolean(-3)\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool5 = \" + bool5 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "Similarly, the following code will display the value of true, because the expression is not a conditional and \"This is a string\" is not a falsy. \n";
+		output2 += "<pre>var bool6 = Boolean(\"This is a string\")\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool6 = \" + bool6 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false because 0 is a falsy.\n";
+		output2 += "<pre>var bool7 = Boolean(0);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool7 = \" + bool7 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false because -0 is a falsy.\n";
+		output2 += "<pre>var bool8 = Boolean(-0);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool8 = \" + bool8 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false because the empty string is a falsy.\n";
+		output2 += "<pre>var bool9 = Boolean(\"\");\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool9 = \" + bool9 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false because null is a falsy.\n";
+		output2 += "<pre>var bool10 = Boolean(null);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool10 = \" + bool10 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false because false is a falsy.\n";
+		output2 += "<pre>var bool11 = Boolean(false);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool11 = \" + bool11 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of true because 10/0 returns Infinity which is not a falsy.\n";
+		output2 += "<pre>var bool12 = Boolean(10/0);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool12 = \" + bool12 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of true because 10/0 returns NAN which is a falsy.\n";
+		output2 += "<pre>var bool13 = Boolean(10/\"this is a string\");\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool13 = \" + bool13 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "</" + "script>;\n";
+		output2 += "</body>\n";
+		output2 += "</html>\n";
+	}
+	else if (input == "4d")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Data Types in JavaScript\n\n";
+		output += "//JavaScript has 5 basic data types: \n";
+		output += "// - Numbers\n";
+		output += "// - Strings\n";
+		output += "// - Booleans\n";
+		output += "// - Arrays\n";
+		output += "// - Objects\n\n";
+		output += "//Arrays are used to store a finite sequence of variables under the same variable name. \n";
+		output += "//One way they can be declared is by listing the items separated by a comma between square brackets\n";
+		output += "first_primes = [2, 3, 5]\n";
+		output += "document.getElementById(\"output\").innerHTML +=  first_primes  + '<br>';\n";
+		output += "fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output += "document.getElementById(\"output\").innerHTML += \"fav_movies = \" + fav_movies + '<br>';\n";
+		output += "//The items in a list can be of different types\n";
+		output += "fav_things = [\"Music\", [\"Raindrops on roses\", \"Whiskers on Kittens\"]]\n";
+		output += "//You can access the elements of a list, individually with the first \n";
+		output += "//value having location 0. \n";
+		output += "document.getElementById(\"output\").innerHTML += \"first_primes[2] = \" + first_primes[2] + '<br>';\n";
+		output += "//Arrays can also be declared without knowing the elements \n";
+		output += "var tracks = new Array()\n";
+		output += "tracks[0] = \"Ribbon in the Sky\";\n";
+		output += "tracks[1] = \"As\";\n";
+		output += "tracks[2] = \"Isn't She Lovely\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"tracks =\" + tracks + '<br>';\n";
+		output += "//You can change the elements of a list\n";
+		output += "fav_movies[0] = 'The Wood'\n";
+		output += "document.getElementById(\"output\").innerHTML += \"Now, fav_movies = \" + fav_movies + '<br>';\n";
+		output += "//To add an element to an array, you just assign the value to the location of the current length of the array.\n";
+		output += "fav_movies[fav_movies.length] = 'Harry Potter'\n";
+		output += "document.getElementById(\"output\").innerHTML += \"After append, fav_movies = \" + fav_movies + '<br>';\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 += "<h2>Data Types in JavaScript</h2>";
+		output2 += "JavaScript has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Booleans<br>";
+		output2 += " - Arrays<br>";
+		output2 += " - Objects<br><br>";
+		output2 += "Arrays are used to store a finite sequence of variables under the same variable name. <br>";
+		output2 += "One way they can be declared is by listing the items separated by a comma between square brackets<br>";
+		output2 += "<pre>first_primes = [2, 3, 5]\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  first_primes  + '<br>';\n";
+		output2 += "fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"fav_movies = \" + fav_movies + '<br>';</pre>\n";
+		output2 += "<pre>The items in a list can be of different types\n";
+		output2 += "fav_things = [\"Music\", [\"Raindrops on roses\", \"Whiskers on Kittens\"]];</pre>\n";
+		output2 += "You can access the elements of a list, individually with the first value having location 0. \n";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML += \"first_primes[2] = \" + first_primes[2] + '<br>';</pre>\n";
+		output2 += "Arrays can also be declared without knowing the elements \n";
+		output2 += "<pre>var tracks = new Array()\n";
+		output2 += "tracks[0] = \"Ribbon in the Sky\";\n";
+		output2 += "tracks[1] = \"As\";\n";
+		output2 += "tracks[2] = \"Isn't She Lovely\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"tracks =\" + tracks + '<br>';</pre>\n";
+		output2 += "You can change the elements of a list\n";
+		output2 += "<pre>fav_movies[0] = 'The Wood'\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"Now, fav_movies = \" + fav_movies + '<br>';</pre>\n";
+		output2 += "To add an element to an array, you just assign the value to the location of the current length of the array.\n";
+		output2 += "<pre>fav_movies[fav_movies.length] = 'Harry Potter'\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"After append, fav_movies = \" + fav_movies + '<br>';</pre>\n";
+	}
+	else if (input == "4e")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Data Types in JavaScript\n\n";
+		output += "//JavaScript has 5 basic data types: \n";
+		output += "// - Numbers\n";
+		output += "// - Strings\n";
+		output += "// - Booleans\n";
+		output += "// - Arrays\n";
+		output += "// - Objects\n\n";
+		output += "//In JavaScript, objects are similar to arrays in that they allow programmers to store many things that all relate to the same subject under a single variable name. \n";
+		output += "//There are some major differences between arrays and the more general concept of an object. \n";
+		output += "// - first, objects allow the programmer to decide how the elements are indexed. Remember that in arrays, elements are indexed numerically beginning at 0. \n";
+		output += "// - second, in addition to members, objects can also have methods which are functions defined on the object and it's members. \n";
+		output += "//There are several ways to define objects:\n";
+		output += "// - inside curly brackets, where the item will be a key, a colon and then a value\n";
+		output += "gameLog = {'Wall' : '28 points', 'Beal' : '16 points', 'Gortat' : '9 points'}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  \"Game Points: <br>Wall : \" + gameLog['Wall'] + '<br>Beal : ' + gameLog['Beal'] + '<br>Gortat :' + gameLog['Gortat'] + '<br>';\n";
+		output += "// - using dot notation, property is indicated by the variable name, then a dot, then the property name. It is assigned values using the equals symbol. \n";
+		output += "// - We can also define methods inside an object by declaring the property as a function. To access the properties of the Object, use the this keyword to refer to the object itself. The methods can then be later called by using the property name followed by parenthesis. We will talk more about functions later. \n";
+		output += "book = new Object()\n";
+		output += "book.title = \"Native Son\";\n";
+		output += "book.author = \"Richard Wright\";\n";
+		output += "book.country = \"United States\";\n";
+		output += "book.language = \"English\";\n";
+		output += "book.pubDate = \"March 1, 1940\";\n";
+		output += "book.disp = function (){return this.title + \", by \" + this.author + \", written in \" + this.country + \" in the \" + this.language + \" language on \" + this.pubDate};\n";
+
+		output += "document.getElementById(\"output\").innerHTML += \"Title: \" + book.title + '<br>' + \"Author: \" + book.author + '<br>' + \"Country: \" + book.country + '<br>' + \"Language: \" + book.language + '<br>' + \"Publication Date: \" + book.pubDate + '<br>';\n";
+		output += "document.getElementById(\"output\").innerHTML += book.disp() + '<br>';\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Data Types in JavaScript<br><br>";
+		output2 += "JavaScript has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Booleans<br>";
+		output2 += " - Arrays<br>";
+		output2 += " - Objects<br><br>";
+		output2 += "In JavaScript, objects are similar to arrays in that they allow programmers to store many things that all relate to the same subject under a single variable name. \n";
+		output2 += "There are some major differences between arrays and the more general concept of an object. \n";
+		output2 += " - first, objects allow the programmer to decide how the elements are indexed. Remember that in arrays, elements are indexed numerically beginning at 0. \n";
+		output2 += " - second, in addition to members, objects can also have methods which are functions defined on the object and it's members. \n";
+		output2 += "There are several ways to define objects:\n";
+		output2 += " - inside curly brackets, where the item will be a key, a colon and then a value\n";
+		output2 += "<pre>gameLog = {'Wall' : '28 points', 'Beal' : '16 points', 'Gortat' : '9 points'}\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  gameLog['Wall'] + '<br>' + gameLog['Beal'] + '<br>' + gameLog['Gortat'] + '<br>';</pre>\n";
+		output2 += " - using dot notation, property is indicated by the variable name, then a dot, then the property name. It is assigned values using the equals symbol. \n";
+		output2 += " - We can also define methods inside an object by declaring the property as a function. To access the properties of the Object, use the this keyword to refer to the object itself. The methods can then be later called by using the property name followed by parenthesis. We will talk more about functions later. \n";
+		output2 += "<pre>book = new Object()\n";
+		output2 += "book.title = \"Native Son\";\n";
+		output2 += "book.author = \"Richard Wright\";\n";
+		output2 += "book.country = \"United States\";\n";
+		output2 += "book.language = \"English\";\n";
+		output2 += "book.pubDate = \"March 1, 1940\";\n";
+		output2 += "book.disp = function (){return this.title + \", by \" + this.author + \", written in \" + this.country + \" in the \" + this.language + \" language on \" + this.pubDate};</pre>\n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "5a")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Basic Operations in JavaScript: \n";
+		output += "// - Arithmetic\n";
+		output += "//The basic operations in JavaScript are: \n";
+		output += "// addition (+), \n";
+		output += "// subtraction (-), \n";
+		output += "// multiplication (*), \n";
+		output += "// division (/), \n";
+		output += "// modulus (%), \n";
+		output += "// and exponent (**).\n";
+		output += "//Given two numbers, the addition operation returns their sum\n";
+		output += "num1 = 3.14\n";
+		output += "num2 = 2.71\n";
+		output += "num3 = num1 + num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' + ' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "//Given two numbers, the subtraction operation returns their difference\n";
+		output += "num1 = 16\n";
+		output += "num2 = 25\n";
+		output += "num3 = num1 - num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' - ' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "//Given two numbers, the multiplication operation returns their product\n";
+		output += "num1 = 4\n";
+		output += "num2 = 11\n";
+		output += "num3 = num1 * num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' * ' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "//Given two numbers, the division operation returns \n";
+		output += "//the floor of the quotient of num1 divided by num2\n";
+		output += "num1 = 5\n";
+		output += "num2 = 2\n";
+		output += "num3 = Math.floor(num1 / num2)\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'Math.floor(' + num1 + ' / ' + num2 + ') = ' + num3 + '<br>';\n\n";
+		output += "//Given two numbers, (float(num1)/num2) returns the result of \n";
+		output += "//num1 divided by num2\n";
+		output += "num1 = 5\n";
+		output += "num2 = 2\n";
+		output += "num3 = num1 / num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=   num1 + ' / ' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "//Given two integer numbers, the modulus operation returns their \n";
+		output += "//remainder when num1 is divided by num2\n";
+		output += "num1 = 16\n";
+		output += "num2 = 3\n";
+		output += "num3 = num1 % num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=   num1 + ' % ' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "//JavaScript also has an exponent operator given by ^\n";
+		output += "num1 = 4\n";
+		output += "num2 = 2\n";
+		output += "num3 = num1 ^ num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=   num1 + '^' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Basic Operations in JavaScript: <br>";
+		output2 += " - Arithmetic<br>";
+		output2 += "The basic operations in JavaScript are: <br>";
+		output2 += " addition (+), <br>";
+		output2 += " subtraction (-), <br>";
+		output2 += " multiplication (*), <br>";
+		output2 += " division (/), <br>";
+		output2 += " modulus (%), <br>";
+		output2 += " and exponent (**).<br>";
+		output2 += "Given two numbers, the addition operation returns their sum<br>";
+		output2 += "<pre>num1 = 3.14\n";
+		output2 += "num2 = 2.71\n";
+		output2 += "num3 = num1 + num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + ' + ' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "Given two numbers, the subtraction operation returns their difference<br>";
+		output2 += "<pre>num1 = 16\n";
+		output2 += "num2 = 25\n";
+		output2 += "num3 = num1 - num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + ' - ' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "Given two numbers, the multiplication operation returns their product<br>";
+		output2 += "<pre>num1 = 4\n";
+		output2 += "num2 = 11\n";
+		output2 += "num3 = num1 * num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + ' * ' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "Given two numbers, the division operation returns <br>";
+		output2 += "the floor of the quotient of num1 divided by num2<br>";
+		output2 += "<pre>num1 = 5\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = Math.floor(num1 / num2)\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + ' / ' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "Given two numbers, (Math.floor(num1/num2) returns the result of <br>";
+		output2 += "num1 divided by num2<br>";
+		output2 += "<pre>num1 = 5\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = float(num1) / num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'Math.flor(' + num1 + ' + ' + num2 + ') = ' + num3 + '<br>';</pre>";
+		output2 += "Given two integer numbers, the modulus operation returns their <br>";
+		output2 += "remainder when num1 is divided by num2<br>";
+		output2 += "<pre>num1 = 16\n";
+		output2 += "num2 = 3\n";
+		output2 += "num3 = num1 % num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + ' % ' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "JavaScript also has an exponent operator given by **<br>";
+		output2 += "<pre>num1 = 4\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = num1 ^ num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + '^' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "5b")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Basic Operations in JavaScript: \n";
+		output += "// - Comparison\n";
+		output += "//There are six basic comparison operations in JavaScript: \n";
+		output += "//These are :\n";
+		output += "// - greater than (>), \n";
+		output += "// - less than (<), \n";
+		output += "// - equals (==) \n";
+		output += "// - not equals (!=) \n";
+		output += "// - greater than or equal to (>=) \n";
+		output += "// - less than or equal to (<=) \n";
+		output += "//The less than operator compares two objects and returns true if \n";
+		output += "//the value in the left term is smaller than the value in the right \n";
+		output += "//(however 'smaller' is defined for those objects). \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_lt = num1 < num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_lt + '<br>';\n\n";
+		output += "//The greater than operator compares two objects and returns true if \n";
+		output += "//the value in the left term is larger than the value in the right \n";
+		output += "//(however 'larger' is defined for those objects). \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_gt = num1 > num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_gt + '<br>';\n\n";
+		output += "//The equals operator compares two objects and returns true if \n";
+		output += "//the value in the left term is equal to value in the right \n";
+		output += "//(however 'equal' is defined for those objects. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_eq = num1 == num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_eq + '<br>';\n\n";
+		output += "//The not equals operator compares two objects and returns true if \n";
+		output += "//the value in the left term is not equal to value in the right \n";
+		output += "//(however 'equal' is defined for those objects. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_neq = num1 != num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_neq + '<br>';\n\n";
+		output += "//In addition, we can join together multiple logical operators \n";
+		output += "//using and, or and not terminology.  \n";
+		output += "//The and operator compares two logical objects and returns true if \n";
+		output += "//both these logical objects are true. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "num3 = 0\n";
+		output += "op_and = num3 < num1 && num1 < num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num3 + ' < ' + num1 + ' and ' + num1 + ' < ' + num2 + ' = ' + op_and + '<br>';\n\n";
+		output += "//The or operator compares two logical objects and returns true if \n";
+		output += "//one of these logical objects is true. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "num3 = 30\n";
+		output += "op_or = num3 < num1 || num1 < num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num3 + ' < ' + num1 + ' or ' + num1 + ' < ' + num2 + ' = ' + op_or + '<br>';\n\n";
+		output += "//The not operator returns the logical negation of a logical operator. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_not = !(10 < 20)\n";
+		output += "document.getElementById(\"output\").innerHTML +=  '!(' + num1 + ' < ' + num2 + ')' + '<br>';\n\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Basic Operations in JavaScript: <br><br>";
+		output2 += " - Comparison<br>";
+		output2 += "There are six basic comparison operations in JavaScript: <br>";
+		output2 += "These are :<br>";
+		output2 += " - greater than (>), <br>";
+		output2 += " - less than (<), <br>";
+		output2 += " - equals (==) <br>";
+		output2 += " - not equals (!=) <br>";
+		output2 += " - greater than or equal to (>=) <br>";
+		output2 += " - less than or equal to (<=) <br>";
+		output2 += "The less than operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is smaller than the value in the right <br>";
+		output2 += "(however 'smaller' is defined for those objects). <br>";
+
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_lt = num1 < num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_lt + '<br>';\n\n";
+		output2 += "The greater than operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is larger than the value in the right <br>";
+		output2 += "(however 'larger' is defined for those objects). <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_gt = num1 > num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_gt + '<br>';\n\n";
+		output2 += "The equals operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is equal to value in the right <br>";
+		output2 += "(however 'equal' is defined for those objects. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_eq = num1 == num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_eq + '<br>';\n\n";
+		output2 += "The not equals operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is not equal to value in the right <br>";
+		output2 += "(however 'equal' is defined for those objects. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_neq = num1 != num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_neq + '<br>';\n\n";
+		output2 += "In addition, we can join together multiple logical operators <br>";
+		output2 += "using and, or and not terminology.  <br>";
+		output2 += "The and operator compares two logical objects and returns true if <br>";
+		output2 += "both these logical objects are true. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "num3 = 0\n";
+		output2 += "op_and = num3 < num1 && num1 < num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num3 + ' < ' + num1 + ' && ' + num1 + ' < ' + num2 + ' = ' + op_and + '<br>';\n\n";
+		output2 += "The or operator compares two logical objects and returns true if <br>";
+		output2 += "one of these logical objects is true. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "num3 = 30\n";
+		output2 += "op_or = num3 < num1 || num1 < num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num3 + ' < ' + num1 + ' || ' + num1 + ' < ' + num2 + ' = ' + op_or + '<br>';\n\n";
+		output2 += "The not operator returns the logical negation of a logical operator. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_not = !(10 < 20)\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  '!(' + num1 + ' < ' + num2 + ')' + '<br>';\n\n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "5c")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Basic Operations in JavaScript: \n";
+		output += "// - Assignment\n";
+		output += "//There are basic assignment operations in JavaScript are: \n";
+		output += "// - = , \n";
+		output += "// - += , \n";
+		output += "// - -= , \n";
+		output += "// - *= , \n";
+		output += "// - /= , \n";
+		output += "// - %= , \n";
+		output += "// - **= , \n";
+		output += "//The '='	assigns the value on the right hand side to \n";
+		output += "//the variable on the left hand side. \n";
+		output += "num1 = 10\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '+=' is used as a += b and assigns the value of a + b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 += 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '-=' is used as a -= b and assigns the value of a - b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 -= 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '*=' is used as a *= b and assigns the value of a * b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 *= 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '/=' is used as a /= b and assigns the value of a / b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 /= 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '%=' is used as a %= b and assigns the value of a % b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 %= 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '^=' is used as a ^= b and assigns the value of a ^ b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 ^= 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Basic Operations in JavaScript: <br><br>";
+		output2 += " - Assignment<br>";
+		output2 += "There are basic assignment operations in JavaScript are: <br>";
+		output2 += " - = , <br>";
+		output2 += " - += , <br>";
+		output2 += " - -= , <br>";
+		output2 += " - *= , <br>";
+		output2 += " - /= , <br>";
+		output2 += " - %= , <br>";
+		output2 += " - **= , <br>";
+		output2 += "The '=' assigns the value on the right hand side to <br>";
+		output2 += "the variable on the left hand side. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '+=' is used as a += b and assigns the value of a + b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 += 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '-=' is used as a -= b and assigns the value of a - b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 -= 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '*=' is used as a *= b and assigns the value of a * b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 *= 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '/=' is used as a /= b and assigns the value of a / b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 /= 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '%=' is used as a %= b and assigns the value of a % b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 %= 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '**=' is used as a ^= b and assigns the value of a ^ b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 ^= 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "6")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Conditionals in JavaScript: \n";
+		output += "//There two basic conditional statements in JavaScript are: \n";
+		output += "// - if statements \n";
+		output += "// - if else statements \n";
+		output += "//An if statement works as if conditional followed by a block of code. \n";
+		output += "//If there are multiple lines in this block of code, \n";
+		output += "//In an if statement, if the condition is true, then the block of code that \n";
+		output += "//follows is executed, otherwise it is ignored.  \n";
+		output += "num1 = 10\n";
+		output += "if (num1 != 10) \n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside first If, num1 is NOT ten' + '<br>';\n";
+		output += "\tnum1 = 20\n";
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//Consider the next example, where all that is changed is the space in \n";
+		output += "//front of the line 'num1 = 20' is removed\n";
+		output += "num1 = 10\n";
+		output += "if (num1 != 10) \n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside second If, num1 is NOT ten' + '<br>';\n";
+		output += "num1 = 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'Outside second If, num1 = ' + num1 + '<br>';\n\n";
+		output += "//In an if ... else statement, if the condition after the if statement is \n";
+		output += "//true, then the first block of code is executed. \n";
+		output += "//If this condition is false, then the  alternative set of actions located \n";
+		output += "//after the else statement is executed. \n";
+		output += "num1 = 10\n";
+		output += "if (num1 != 10) \n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside 3rd If, num1 is NOT ten' + '<br>';\n";
+		output += "\tnum1 = 20\n";
+		output += "}\n";
+		output += "else\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside 3rd Else, num1 is ten' + '<br>';\n";
+		output += "\tnum1 = 30\n";
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Conditionals in JavaScript: <br><br>";
+		output2 += "There two basic conditional statements in JavaScript are: <br>";
+		output2 += " - if statements <br>";
+		output2 += " - if else statements <br>";
+		output2 += "An if statement works as if conditional followed by a block of code. <br>";
+		output2 += "If there are multiple lines in this block of code, they need to have <br>";
+		output2 += "the same number of spaces in front of the first non-whitespace character. <br>";
+		output2 += "In an if statement, if the condition is true, then the block of code that <br>";
+		output2 += "follows is executed, otherwise it is ignored.  <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if (num1 != 10) \n";
+		output2 += "{\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside first If, num1 is NOT ten' + '<br>';\n";
+		output2 += "\tnum1 = 20\n";
+		output2 += "}\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1);</pre>";
+		output2 += "Consider the next example, where all that is changed is the space in <br>";
+		output2 += "front of the line 'num1 = 20' is removed<br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if (num1 != 10) \n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside second If, num1 is NOT ten' + '<br>';\n";
+		output2 += "num1 = 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'Outside second If, num1 = ' + num1);</pre>";
+		output2 += "In an if ... else statement, if the condition after the if statement is <br>";
+		output2 += "true, then the first block of code is executed. <br>";
+		output2 += "If this condition is false, then the  alternative set of actions located <br>";
+		output2 += "after the else statement is executed. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if (num1 != 10) \n";
+		output2 += "{\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside 3rd If, num1 is NOT ten' + '<br>';\n";
+		output2 += "\tnum1 = 20\n";
+		output2 += "}\n";
+		output2 += "else \n";
+		output2 += "{\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside 3rd Else, num1 is ten' + '<br>';\n";
+		output2 += "\tnum1 = 30\n";
+		output2 += "}\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1);</pre>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "7a")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Loops in JavaScript: \n";
+		output += "//The two types of loops we'll consider in JavaScript are: \n";
+		output += "// - for loops\n";
+		output += "//The purpose of a for loop is to iterate once for each item in a sequence. \n";
+		output += "//This sequqnce can be a string, a list, or a tuple. \n";
+		output += "//Like with 'if' statements, if there are multiple lines in this block of \n";
+		output += "//code, they need to have the same number of spaces in front of the first \n";
+		output += "//non-whitespace character. \n";
+		output += "school = 'Morehouse'\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 1' + '<br>';\n";
+		output += "for (var i = 0; i < school.length; i++) \n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  school[i] + '<br>';\n\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 1' + '<br>';\n";
+		output += "list1 = ['facebook', 'linkedin', 'meetup', 'twitter', 'google']\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 2' + '<br>';\n";
+		output += "for (var i = 0; i < list1.length; i++) \n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop2:' + company + ' does social media' + '<br>';\n";
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 2' + '<br>';\n\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 3' + '<br>';\n";
+		output += "for (var i = 0; i < list1.length; i++) \n"
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop3: ' + list1[i] + ' does social media' + '<br>';\n\n";
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 3' + '<br>';\n";
+		output += "//A for loop can be interrupted by a break statement. This will stop the \n";
+		output += "//current execution of the loop and continue at the next block of \n";
+		output += "//program code. \n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 4' + '<br>';\n";
+		output += "for (var i = 0; i < list1.length; i++) \n"
+		output += "{\n";
+		output += "\tif (list1[i] == 'linkedin')\n"
+		output += "\t{\n";
+		output += "\t\tbreak\n"
+		output += "\t}\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop4: ' + list1[i] + ' does social media' + '<br>';\n\n"
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 4' + '<br>';\n";
+		output += "//A for loop can also be interrupted by a continue statement. This will \n";
+		output += "//stop the current iteration and begin execution at the \n";
+		output += "//beginning of the next iteration. \n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 5' + '<br>';\n";
+		output += "for (var i = 0; i < list1.length; i++) \n"
+		output += "{\n";
+		output += "\tif (list1[i] == 'linkedin')\n"
+		output += "\t{\n";
+		output += "\t\tcontinue\n"
+		output += "\t}\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop5: ' + list1[i] + ' does social media' + '<br>';\n\n"
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 5' + '<br>';\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+
+		output2 = "Loops in JavaScript: <br><br>";
+		output2 += "The two types of loops we'll consider in JavaScript are: <br>";
+		output2 += " - for loops<br>";
+		output2 += " - while loops<br>";
+		output2 += "The purpose of a for loop is to iterate once for each item in a sequence. <br>";
+		output2 += "This sequqnce can be a string, a list, or a tuple. <br>";
+		output2 += "Like with 'if' statements, if there are multiple lines in this block of <br>";
+		output2 += "code, they need to have the same number of spaces in front of the first <br>";
+		output2 += "non-whitespace character. <br>";
+		output2 += "<pre>school = 'Morehouse'\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 1' + '<br>';\n";
+		output2 += "for letter in school: \n";
+		output2 += " document.getElementById(\"output\").innerHTML +=  letter + '<br>';\n\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 1' + '<br>';\n";
+		output2 += "list1 = ['facebook', 'linkedin', 'meetup', 'twitter', 'google']\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 2' + '<br>';\n";
+		output2 += "for company in list1 : \n";
+		output2 += " document.getElementById(\"output\").innerHTML +=  'loop2:' + company + ' does social media' + '<br>';\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 2' + '<br>';\n\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 3' + '<br>';\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " document.getElementById(\"output\").innerHTML +=  'loop3: ' + list1[i] + ' does social media' + '<br>';\n\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 3');</pre>";
+		output2 += "A for loop can be interrupted by a break statement. This will stop the <br>";
+		output2 += "current execution of the loop and continue at the next block of <br>";
+		output2 += "program code. <br>";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML +=  'about to begin for loop 4' + '<br>';\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " if list1[i] == 'linkedin':\n"
+		output2 += "  break\n"
+		output2 += " document.getElementById(\"output\").innerHTML +=  'loop4: ' + list1[i] + ' does social media' + '<br>';\n\n"
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 4' + '<br>';</pre>";
+		output2 += "A for loop can also be interrupted by a continue statement. This will <br>";
+		output2 += "stop the current iteration and begin execution at the <br>";
+		output2 += "beginning of the next iteration. <br>";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML +=  'about to begin for loop 5' + '<br>')\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " if list1[i] == 'linkedin':\n"
+		output2 += "  continue\n"
+		output2 += " document.getElementById(\"output\").innerHTML +=  'loop5: ' + list1[i] + ' does social media' + '<br>';\n\n"
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 5' + '<br>';</pre>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "7b")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Loops in JavaScript: \n";
+		output += "//The two types of loops we'll consider in JavaScript are: \n";
+		output += "// - while loops\n";
+		output += "//A while loop is similar to an if statement, in that it checks that a \n";
+		output += "//condition is true and executes a block of code if this condition is true.\n";
+		output += "//Unlike an if statement, however, a while loop will continue to execute this \n";
+		output += "//block of code as long as the condition remains true. \n";
+		output += "//Similar to 'if' statements and 'for' loops, if there are multiple lines in \n";
+		output += "//this block of code, they need to have the same number of spaces in front of \n";
+		output += "//the first non-whitespace character. \n";
+		output += "count = 0\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin while loop 1' + '<br>';\n";
+		output += "while (count < 10) \n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  count + '<br>';\n";
+		output += "\tcount += 1\n";
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 1' + '<br>';\n\n";
+		output += "//A while loop can be interrupted by a break statement. This will stop the current \n";
+		output += "//execution of the loop and continue at the next block of program code. \n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin while loop 2' + '<br>';\n";
+		output += "count = 0\n";
+		output += "while (count < 10) \n"
+		output += "{\n";
+		output += "\tcount += 1\n"
+		output += "\tif (count % 2 == 0)\n"
+		output += "\t{\n";
+		output += "\t\tbreak\n"
+		output += "\t}\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop2: ' + count + '<br>';\n"
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 2' + '<br>';\n";
+		output += "//A while loop can also be interrupted by a continue statement. This will stop the\n";
+		output += "//current iteration and begin execution at the beginning of the next iteration. \n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin while loop 3' + '<br>';\n";
+		output += "count = 0\n";
+		output += "while (count < 10) \n"
+		output += "{\n";
+		output += "\tcount += 1\n"
+		output += "\tif (count % 2 == 0)\n"
+		output += "\t{\n";
+		output += "\t\tcontinue\n"
+		output += "\t}\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop3: ' + count + '<br>';\n"
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 3' + '<br>';\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Loops in JavaScript: <br><br>";
+		output2 += "The two types of loops we'll consider in JavaScript are: <br>";
+		output2 += " - while loops<br>";
+		output2 += "A while loop is similar to an if statement, in that it checks that a <br>";
+		output2 += "condition is true and executes a block of code if this condition is true.<br>";
+		output2 += "Unlike an if statement, however, a while loop will continue to execute this <br>";
+		output2 += "block of code as long as the condition remains true. <br>";
+		output2 += "Similar to 'if' statements and 'for' loops, if there are multiple lines in <br>";
+		output2 += "this block of code, they need to have the same number of spaces in front of <br>";
+		output2 += "the first non-whitespace character. <br>";
+		output2 += "<pre>count = 0\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'about to begin while loop 1' + '<br>';\n";
+		output2 += "while count < 10: \n";
+		output2 += " document.getElementById(\"output\").innerHTML +=  count + '<br>';\n";
+		output2 += " count += 1\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 1' + '<br>';</pre>";
+		output2 += "A while loop can be interrupted by a break statement. This will stop the current <br>";
+		output2 += "execution of the loop and continue at the next block of program code. <br>";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML +=  'about to begin while loop 2' + '<br>';\n";
+		output2 += "count = 0\n";
+		output2 += "while (count < 10) \n";
+		output2 += "{\n";
+		output2 += "\tcount += 1\n";
+		output2 += "\tif count % 2 == 0:\n";
+		output2 += "\t\tbreak\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'loop2: ' + count + '<br>';\n";
+		output2 += "}\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 2' + '<br>';</pre>";
+		output2 += "A while loop can also be interrupted by a continue statement. This will stop the<br>";
+		output2 += "current iteration and begin execution at the beginning of the next iteration. <br>";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML +=  'about to begin while loop 3' + '<br>';\n";
+		output2 += "count = 0\n";
+		output2 += "while (count < 10) \n";
+		output2 += "{\n";
+		output2 += "\tcount += 1\n";
+		output2 += "\tif (count % 2 == 0)\n";
+		output2 += "\t{\n";
+		output2 += "\t\tcontinue\n";
+		output2 += "\t}\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'loop3: ' + count + '<br>';\n";
+		output2 += "}\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 3' + '<br>';</pre>";	
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "8")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Functions in JavaScript: \n";
+		output += "//A function is a block of code that can be called repeatedly. \n";
+		output += "//In JavaScript, functions are defined by the word 'def', followed by the function name, \n";
+		output += "//then the parameters in parenthesis and a colon\n";
+		output += "//Like loops and if statements, blocks of function code need to be equally indented. \n";
+		output += "function printByline(author)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'written by ' + author + '. ' + '<br>';\n\n";
+		output += "}\n";
+		output += "//A function can be like above and not return a value, or like below and return a value. \n";
+		output += "function squareNunmber(num)\n";
+		output += "{\n";
+		output += "\treturn num*num;\n\n";
+		output += "}\n";
+		
+		output += "name = 'AfterMath'\n"
+		output += "printByline(name);\n\n";
+		output += "num = 12;\n'";
+		output += "document.getElementById(\"output\").innerHTML += num + \" squared is \" + squareNumber(num) + \"<br>\";";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Functions in JavaScript: <br><br>";
+		output2 += "A function is a block of code that can be called repeatedly. <br>";
+		output2 += "In JavaScript, functions are defined by the word 'def', followed by the function name, <br>";
+		output2 += "then the parameters in parenthesis and a colon<br>";
+		output2 += "Like loops and if statements, blocks of function code need to be equally indented. <br>";
+		output2 += "<pre>function printByline(author));\n";
+		output2 += "{\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'written by ' + author + '. ' + '<br>';\n\n";
+		output2 += "}\n";
+		output2 += "A function can be like above and not return a value, or like below and return a value. \n";
+		output2 += "<pre>function squareNunmber(num)\n";
+		output2 += "{\n";
+		output2 += "\treturn num*num;\n\n";
+		output2 += "}\n";
+		output2 += "name = 'AfterMath'\n"
+		output2 += "printByline(name);";
+		output2 += "num = 12;\n'";
+		output2 += "document.getElementById(\"output\").innerHTML += num + \" squared is \" + squareNumber(num) + \"<br>\";</pre>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "9a")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "function writeLeft()\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"Loutput\").innerHTML =  'We have text on the Left<br>';\n\n";
+		output += "\tdocument.getElementById(\"Routput\").innerHTML =  '_________________________';\n\n";
+		output += "}\n";
+		output += "function writeRight()\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"Routput\").innerHTML =  'We have text on the Right<br>';\n\n";
+		output += "\tdocument.getElementById(\"Loutput\").innerHTML =  '_________________________';\n\n";
+		output += "}\n";
+		output += "</" + "script>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<table><tr><td><p id=\"Loutput\"></p></td><td><p id=\"Routput\"></p></td></tr></table>\n";
+		output += "<input type=\"button\" value=\"Write Left\" onClick=\"writeLeft()\"><br>\n";
+		output += "<input type=\"button\" value=\"Write Right\" onClick=\"writeRight()\"><br>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+	}
+	else if (input == "9b")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "function addTwo(num1, num2)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  num1 + ' + ' + num2 + ' = ' + eval(parseInt(num1) + parseInt(num2)) + '<br>';\n\n";
+		output += "}\n\n";
+		output += "function subTwo(num1, num2)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  num1 + ' - ' + num2 + ' = ' + eval(parseInt(num1) - parseInt(num2)) + '<br>';\n\n";
+		output += "}\n\n";
+		output += "function multTwo(num1, num2)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  num1 + ' * ' + num2 + ' = ' + eval(parseInt(num1) * parseInt(num2)) + '<br>';\n\n";
+		output += "}\n\n";
+		output += "function divTwo(num1, num2)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  num1 + ' / ' + num2 + ' = ' + eval(parseInt(num1) / parseInt(num2)) + '<br>';\n\n";
+		output += "}\n\n";
+		output += "function modTwo(num1, num2)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  num1 + ' % ' + num2 + ' = ' + eval(parseInt(num1) % parseInt(num2)) + '<br>';\n\n";
+		output += "}\n\n";
+		output += "function process()\n";
+		output += "{\n";
+		output += "\tvar num1 = document.getElementById(\"number1\").value;";
+		output += "\tvar num2 = document.getElementById(\"number2\").value;";
+		output += "\tvar op = document.getElementById(\"operation\").value;";
+		output += "\tif (op == 1)\n";
+		output += "\t{\n";
+		output += "\t\taddTwo(num1, num2);\n";
+		output += "\t}\n";
+		output += "\telse if (op == 2)\n";
+		output += "\t{\n";
+		output += "\t\tsubTwo(num1, num2);\n";
+		output += "\t}\n";
+		output += "\telse if (op == 3)\n";
+		output += "\t{\n";
+		output += "\t\tmultTwo(num1, num2);\n";
+		output += "\t}\n";
+		output += "\telse if (op == 4)\n";
+		output += "\t{\n";
+		output += "\t\tdivTwo(num1, num2);\n";
+		output += "\t}\n";
+		output += "\telse if (op == 5)\n";
+		output += "\t{\n";
+		output += "\t\tmodTwo(num1, num2);\n";
+		output += "\t}\n";
+		output += "}\n";
+		output += "</" + "script>\n";
+		output += "<title>Using Forms in JavaScript</title>";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<form>\n";
+		output += "<label>Enter Number 1: </label><input id=\"number1\"><br>\n";
+		output += "<label>Enter Number 2: </label><input id=\"number2\"><br>\n";
+		output += "<select id=\"operation\">\n";
+		output += "  <option value=1>Add</option>\n";
+		output += "  <option value=2>Subtract</option>\n";
+		output += "  <option value=3>Multiply</option>\n";
+		output += "  <option value=4>Divide</option>\n";
+		output += "  <option value=5>Mod</option>\n";
+		output += "</select>\n";
+		output += "<input type=\"button\" value=\"Calculate\" onClick=\"process()\">\n";
+		output += "</form>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Functions in JavaScript: <br><br>";
+		output2 += "In HTML much of the interaction with users is through forms. \n";
+		output2 += "This allows web page designers to take responses in the form of input boxes,\n";
+		output2 += "select boxes, buttons, text areas, and a number of other form elements. \n";
+		output2 += "This page takes advantage of the onClick method of the buttons. \n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "9c")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "function process()\n";
+		output += "{\n";
+		output += "\tvar nClr = document.getElementById(\"newClr\").value;\n";
+		output += "\tdocument.bgColor=nClr;\n";
+		output += "}\n";
+		output += "</" + "script>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "Try it now: \n";
+		output += "\n";
+		output += "<select id=\"newClr\" onChange=\"process()\">\n";
+		output += "  <option value=\"choose\">set background color</option>\n";
+		output += "  <option value=\"#FF0000\">Red</option>\n";
+		output += "  <option value=\"#0000FF\">Blue</option>\n";
+		output += "  <option value=\"#FFFF00\">Yellow</option>\n";
+		output += "  <option value=\"#008000\">Green</option>\n";
+		output += "  <option value=\"#FFA500\">Orange</option>\n";
+		output += "  <option value=\"#800080\">Purple</option>\n";
+		output += "  <option value=\"#A52A2A\">Brown</option>\n";
+		output += "  <option value=\"#000000\">Black</option>\n";
+		output += "  <option value=\"#FFFFFF\">White</option>\n";
+		output += "  <option value=\"#00FFFF\">Aqua</option>\n";
+		output += "  <option value=\"#006400\">Dark Green</option>\n";
+		output += "  <option value=\"#8B0000\">Dark Red</option>\n";
+		output += "  <option value=\"#FA8072\">Salmon</option>\n";
+		output += "  <option value=\"#D2B48C\">Tan</option>\n";
+		output += "  <option value=\"#C0C0C0\">Silver</option>\n";
+		output += "  <option value=\"#DA70D6\">Orchid</option>\n";
+		output += "  <option value=\"#FF4500\">OrangeRed</option>\n";
+		output += "  <option value=\"#C71585\">MediumVioletRed</option>\n";
+		output += "  <option value=\"#483D8B\">DarkStlateBlue</option>\n";
+		output += "</select>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Functions in JavaScript: <br><br>";
+		output2 += "In HTML much of the interaction with users is through forms. \n";
+		output2 += "This allows web page designers to take responses in the form of input boxes,\n";
+		output2 += "select boxes, buttons, text areas, and a number of other form elements. \n";
+		output2 += "This page takes advantage of the onChange method of the select boxes. \n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+
+	}
+	document.getElementById("code").value = output;
+	document.getElementById("wlkthrgh").innerHTML = output2;
+	document.getElementById("submitBtn").hidden = false;
+	return output;
+}
+var pgrmCode;
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, statistics, stats,
+probability, computer science, programming, code, javascript, examples" />
+
+<meta name="description" content="This is a set of JavaScript programs to help users begin programming in JavaScript. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function getCode()
+{
+	var input = document.getElementById("pgrm").value;
+	var outut = "";
+	var output2 = "";
+	
+	if (input == "1")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "document.getElementById(\"output\").innerHTML += \"Hello, World!<br>\";\n";
+		output += "document.getElementById(\"output\").innerHTML += 'Hello, World!<br>';\n";
+		output += "document.getElementById(\"output\").innerHTML += \"Hello,\" + \"World!<br>\";\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "<h2>Hello, World!</h2>";
+		output2 += "<p>There are a number of ways to output text in JavaScript, but the recommended way to do it is using the innerHTML method of a paragraph block. ";
+		output2 += "The innerHTML property of an HTML object (like the paragraph tag we use above) contains all the HTML code inside that particular block. ";
+		output2 += "We can access this HTML code in javascript by calling the 'document.getElementById' method, and passing the id of the paragraph we wish to change. (i.e. document.getElementById(\"output\")). ";
+		output2 += "In the code above we begin the body section of HTML with a paragraph tag that we gave the id of \"output\". ";
+		output2 += "<pre>&lt;p id=\"output\"&gt;&lt;/p&gt;</pre>";
+		output2 += "We could have just easily named this paragraph \"foo\" or \"bar\" or any other valid javascript name and have the same desired effect. I do encourage you however to use descriptive names to make your code easier to understand. ";
+		output2 += "In the above code, you will see that we make calls to document.getElementById(\"output\").innerHTML. ";
+		output2 += "We can display text by changing the HTML code assigned to this object using the '=' or '+=' operators. ";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML += 'Hello, World!&lt;br&gt;'</pre>";
+		output2 += "Click the Run Code button to see how this program executes</p>";	
+		output2 += "<p>Notice that the Javascript modifying the paragrapm the the tag \"output\" comes after we've already created this paragrapm. We must always place the code modifying an object after we've created that object because otherwise JavaScript will not know where the object is</p>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "2")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "<title>Comments in JavaScript</title>";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Comments in JavaScript\n";
+		output += "//This is a single line comment, everything after the // is ignored by the computer. \n";
+		output += "document.getElementById(\"output\").innerHTML += \"This line will be printed. <br>\";\n";
+		output += "//document.getElementById(\"output\").innerHTML += \"This line will NOT be printed. \";\n";
+		output += "/*This \n";
+		output += "is \n";
+		output += "a \n";
+		output += "multiple \n";
+		output += "line \n";
+		output += "comment. \n";
+		output += "document.getElementById(\"output\").innerHTML += \"This line will NOT be printed. \";*/\n";
+		output += "//In a multiple ilne comment, everything between /* and */ is ignored by the computer\n";
+		output += "document.getElementById(\"output\").innerHTML += \"Hello, World!\";\n";
+		output += "</" + "script>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "<h2>Comments in JavaScript</h2>";
+		output2 += "<p>There are two ways to write comments in JavaScript.";
+		output2 += "<ol>";
+		output2 += "&nbsp;&nbsp;<li><b>Single Line Comments:</b> Some comments start with a // sybmol. Everything after the // sign is ignored. The // can either go on at the beginning of a line or a comment can go after a JavaScript statement";
+		output2 += "<pre>//This is a single line comment</pre>";
+		output2 += "&nbsp;&nbsp;<li><b>Multiple Line Comments:</b> Other comments can go between /* and */ statements. In a these comments, everything between /* and */ is ignored by the computer";
+		output2 += "<pre>/*This <br>";
+		output2 += "is <br>";
+		output2 += "a <br>";
+		output2 += "multiple <br>";
+		output2 += "line <br>";
+		output2 += "comment. */</pre>";
+		output2 += "</ol>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "3")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "<title>Variables in Javascript</title>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Variables in Javascript\n";
+		output += "//Variables store data in memory.\n";
+		output += "//In order to do this you need to give the variable a name so you can retrieve the information later. \n";
+		output += "//These names must start with either a capital letter (A-Z), a lowercase letter(a-z)\n";
+		output += "//, an underscore (_), or a dollar sign ($)\n";
+		output += "//and can only contain letters, numbers and the underscore symbol or the dollar sign. \n";
+		output += "//Variable names are case sensitive. \n";
+		output += "//Variables can be declared using the 'var' keyword. \n";
+		output += "//Declaring variables is not required, but suggested avoid confusing code well as to understand scope of variables\n";
+		output += "var nothing;\n";
+		output += "document.getElementById(\"output\").innerHTML += \"nothing = \" + nothing + \"<br>\";\n";
+		output += "var Num = 8;\n";
+		output += "document.getElementById(\"output\").innerHTML += \"Num = \" + Num + \"<br>\";\n";
+		output += "var number_zero = 0;\n";
+		output += "document.getElementById(\"output\").innerHTML += \"number_zero = \" + number_zero + \"<br>\";\n";
+		output += "var frac_num = 2.7;\n";
+		output += "document.getElementById(\"output\").innerHTML += \"frac_num = \" + frac_num + \"<br>\";\n";
+		output += "var logical = false;\n";
+		output += "document.getElementById(\"output\").innerHTML += \"logical = \" + logical + \"<br>\";\n";
+		output += "//Notice that Num and num are different variables. \n\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "<h2>Variables in JavaScript</h2>";
+		output2 += "<p>Variables store data in memory. In order to do this, you need to give the variable a name so that you can";
+		output2 += "retrieve the information later. These names must: </p>";
+		output2 += "<ol>";
+		output2 += "&nbsp;&nbsp;<li>Start witH either a capital letter (A-Z), a lower case letter (a-z), an underscore (_) or a dollar sign ($). ";
+		output2 += "&nbsp;&nbsp;<li>Can only contain letters, numbers and the underscore symbol or the dollar sign. ";
+		output2 += "&nbsp;&nbsp;<li>Variable names are case sensitive.";
+		output2 += "</ol>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "4a")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Data Types in JavaScript\n\n";
+		output += "//JavaScript has 5 basic data types: \n";
+		output += "// - Numbers\n";
+		output += "// - Strings\n";
+		output += "// - Booleans\n";
+		output += "// - Arrays\n";
+		output += "// - Objects\n\n";
+		output += "//Numbers can be integer or decimal (called float)\n";
+		output += "//Integers are used for standard operations on \n";
+		output += "//(positive and negative) whole numbers\n";
+		output += "int_num1 = 8\n";
+		output += "document.getElementById(\"output\").innerHTML += \"int_num1 = \" + int_num1 + '<br>';\n\n";
+		output += "int_num2 = -27\n";
+		output += "document.getElementById(\"output\").innerHTML += \"int_num2 = \" + int_num2 + '<br>';\n\n";
+		
+		output += "//Floats are used for floating point numbers, or rational \n";
+		output += "//numbers that are not whole numbers. \n";
+		output += "float_num = 3.14159\n";
+		output += "document.getElementById(\"output\").innerHTML += \"float_num = \" + float_num + '<br>';\n";
+
+		output += "//You can also declare numbers as fractions and they become floats\n";
+		output += "float_num2 = 22/7\n";
+		output += "document.getElementById(\"output\").innerHTML += \"float_num2 = \" + float_num2 + '<br>';\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		
+		output2 = "<h2>Data Types in JavaScript</h2>";
+		output2 += "<ol>JavaScript has 5 basic data types: \n";
+		output2 += "&nbsp;&nbsp;<li>Numbers\n";
+		output2 += "&nbsp;&nbsp;<li>Strings\n";
+		output2 += "&nbsp;&nbsp;<li>Booleans\n";
+		output2 += "&nbsp;&nbsp;<li>Arrays\n";
+		output2 += "&nbsp;&nbsp;<li>Objects\n";
+		output2 += "</ol>\n";
+		output2 += "<p>Numbers can be integer or decimal (called float). <br>\n";
+		output2 += "Integers are used for standard operations on \n";
+		output2 += "(positive and negative) whole numbers<br>\n";
+		output2 += "<pre>int_num1 = 8</pre>\n";
+		output2 += "<pre>int_num1 = -27</pre>\n";
+		
+		output2 += "Floats are used for floating point numbers, or rational \n";
+		output2 += "numbers that are not whole numbers. \n";
+		output2 += "<pre>float_num = 3.14159</pre>\n";
+		output2 += "<pre>float_num2 = 22/7</pre>\n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";	
+	}
+	else if (input == "4b")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Data Types in JavaScript\n\n";
+		output += "//JavaScript has 5 basic data types: \n";
+		output += "// - Numbers\n";
+		output += "// - Strings\n";
+		output += "// - Booleans\n";
+		output += "// - Arrays\n";
+		output += "// - Objects\n\n";
+		output += "//Strings are characters between a pair of (single or double) quotes\n";
+		output += "str1 = \"This is a string\"\n";
+		output += "document.getElementById(\"output\").innerHTML += \"str1 = \" + str1 + '<br>';\n";
+		output += "str2 = 'This is also a string'\n";
+		output += "document.getElementById(\"output\").innerHTML += \"str2 = \" + str2 + '<br>';\n\n";
+		output += "//There are several operations you can do on strings\n";
+		output += "//You can access the characters inside a string by bracket notation: \n";
+		output += "str3 = 'This is a third string'\n";
+		output += "document.getElementById(\"output\").innerHTML += \"str3[0] = \" + str3[0] + '<br>';\n";
+		output += "//You can also use formatting to display numbers correctly:\n";
+		output += "var cmpl = 292/473\n"
+		output += "var player = 'Cam Newton'\n";
+		output += "var year = '2013'\n";
+		output += "document.getElementById(\"output\").innerHTML +=  player + 's accuracy in ' + year + ' was ' + cmpl.toFixed(2) + '<br>';\n\n";
+		output += "//The + operator concatenates two strings:\n";
+		output += "first = 'Bruce'\n";
+		output += "last = 'Leroy'\n";
+		output += "full_name = first + ' ' + last\n";
+		output += "document.getElementById(\"output\").innerHTML += \"full_name = \" + full_name + '<br>';\n\n";
+		output += "//The length property tells the number of characters the string\n";
+		output += "var movie =\"The Last Dragon\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"The number of characters in \" + movie + \" is \" + movie.length + \"<br>\"\n";
+
+		output += "//The indexOf property tells the first location that a character appears in a string (noting that the first character is at position 0). If a character not found, this method returns -1.\n";
+		output += "var poem = \"Still I Rise\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"The character 'e' first appears at position \" + poem.indexOf('e') + \" in \" + poem + \"<br>\"\n";
+		output += "document.getElementById(\"output\").innerHTML += \"The character 'C' first appears at position \" + poem.indexOf('r') + \" in \" + poem + \"<br>\"\n";
+
+		output += "//The substring method takes wo numbers input and returns the string of characters that begin at the first number and end at the second.\n";
+		output += "var poem2 = \"I Know Why The Caged Bird Sings\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"The substring beginning at position 0 and ending at position 10 is '\" + poem2.substring(0, 10) + \"' in '\" + poem2 + \"'<br>\"\n";
+
+		output += "//The parseInt function will convert a string that looks like a whole number into a whole number that can then be operated on using math operations instead of string operations.\n";
+		output += "var num1 = \"27\";\n";
+		output += "var num2 = \"3\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"As strings, \" +      num1 + \" + \" +      num2 + \" is \" + (     num1 +      num2) + \", but as numbers,      num1 +      num2 is \" + eval(  parseInt(     num1) + parseInt(       num2)) + \"<br>\";\n";
+
+		output += "//The parseFloat function will convert a string that a looks like a rational number into a number that can then be operated on using math operations instead of string operations.\n";
+		output += "var numFloat1 = \"27.33\";\n";
+		output += "var numFloat2 = \"3.23\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"As strings, \" + numFloat1 + \" + \" + numFloat2 + \" is \" + (numFloat1 + numFloat2) + \", but as numbers, numFloat1 + numFloat2 is \" + eval(parseFloat(numFloat1) + parseFloat(numFloat2)) + \"<br>\";\n";
+		
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "<h2>Data Types in JavaScript</h2>";
+		output2 += "JavaScript has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Booleans<br>";
+		output2 += " - Arrays<br>";
+		output2 += " - Objects<br><br>";
+		output2 += "Strings are characters between a pair of (single or double) quotes<br>";
+		output2 += "<pre>str1 = \"This is a string\"\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"str1 = \" + str1 + '&lt;br&gt;';\n";
+		output2 += "str2 = 'This is also a string'\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"str2 = \" + str2 + '&lt;br&gt;';\n\n</pre>";
+		output2 += "There are several operations you can do on strings<br>";
+		output2 += "You can access the characters inside a string by bracket notation: <br>";
+		output2 += "<pre>str3 = 'This is a third string'\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"str3[0] = \" + str3[0] + '&lt;br&gt;';</pre>\n";
+		output2 += "You can also use formatting to display numbers correctly:\n";
+		output2 += "<pre>var cmpl = 292/473\n"
+		output2 += "var player = 'Cam Newton'\n";
+		output2 += "var year = '2013'\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  player + 's accuracy in ' + year + ' was ' + cmpl.toFixed(2) + '&lt;br&gt;';</pre>\n\n";
+		output2 += "The + operator concatenates two strings:\n";
+		output2 += "<pre>first = 'Bruce'\n";
+		output2 += "last = 'Leroy'\n";
+		output2 += "full_name = first + ' ' + last\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"full_name = \" + full_name + '&lt;br&gt;';</pre>\n\n";
+		output2 += "The length property tells the number of characters the string\n";
+		output2 += "<pre>var movie =\"The Last Dragon\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"The number of characters in \" + movie + \" is \" + movie.length + \"&lt;br&gt;\";</pre>\n";
+
+		output2 += "The indexOf property tells the first location that a character appears in a string (noting that the first character is at position 0). If a character not found, this method returns -1.\n";
+		output2 += "<pre>var poem = \"Still I Rise\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"The character 'e' first appears at position \" + poem.indexOf('e') + \" in \" + poem + \"&lt;br&gt;\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"The character 'C' first appears at position \" + poem.indexOf('r') + \" in \" + poem + \"&lt;br&gt;\";</pre>\n";
+
+		output2 += "The substring method takes two numbers input and returns the string of characters that begin at the first number and end at the second.\n";
+		output2 += "<pre>var poem2 = \"I Know Why The Caged Bird Sings\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"The substring beginning at position 0 and ending at position 10 is '\" + poem2.substring(0, 10) + \"' in '\" + poem2 + \"'&lt;br&gt;\";</pre>\n";
+
+		output2 += "The parseInt function will convert a string that looks like a whole number into a whole number that can then be operated on using math operations instead of string operations.\n";
+		output2 += "<pre>var num1 = \"27\";\n";
+		output2 += "var num2 = \"3\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"As strings, \" +      num1 + \" + \" +      num2 + \" is \" + (     num1 +      num2) + \", but as numbers,      num1 +      num2 is \" + eval(  parseInt(     num1) + parseInt(       num2)) + \"&lt;br&gt;\";</pre>\n";
+
+		output2 += "//The parseFloat function will convert a string that a looks like a rational number into a number that can then be operated on using math operations instead of string operations.\n";
+		output2 += "<pre>var numFloat1 = \"27.33\";\n";
+		output2 += "var numFloat2 = \"3.23\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"As strings, \" + numFloat1 + \" + \" + numFloat2 + \" is \" + (numFloat1 + numFloat2) + \", but as numbers, numFloat1 + numFloat2 is \" + eval(parseFloat(numFloat1) + parseFloat(numFloat2)) + \"&lt;br&gt;\";</pre>\n";
+		
+		output2 += "</" + "script>\n";
+		output2 += "</body>\n";
+		output2 += "</html>\n";
+	}
+		else if (input == "4c")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//The boolean data type evaluates a given expression to true or false. \n";
+		output += "// - If the expression is a conditional, then the expression will be evaluated to a true or false result.\n";
+		output += "// - If the expression is not a conditional, then the Boolean type returns false if the expression is any of the following (called falsy): the empty string (\"\"), null, undefined, NaN, +0, -0 and false\n";
+		output += "// - If the expression is not a conditional, then the Boolean type returns true if it is not any of the values listed above (called truthy). \n";
+		output += "\n";
+		output += "//The following code will display the value of true, based on the expression. \n";
+		output += "var bool1 = Boolean(1 > 0);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool1 = \" + bool1 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false, based on the expression. \n";
+		output += "var bool2 = Boolean(1 < 0);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool2 = \" + bool2 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of true, because the expression is not a conditional and the number 8 is not a falsy. \n";
+		output += "var bool3 = Boolean(8);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool3 = \" + bool3 + \"<br>\";\n";
+		output += "\n";
+		output += "//Similarly, the following code will display the value of true, because the expression is not a conditional and the number 0.5 is not a falsy. \n";
+		output += "var bool4 = Boolean(0.5);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool5 = \" + bool4 + \"<br>\";\n";
+		output += "\n";
+		output += "//Similarly, the following code will display the value of true, because the expression is not a conditional and -3 is not a falsy. \n";
+		output += "var bool5 = Boolean(-3)\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool5 = \" + bool5 + \"<br>\";\n";
+		output += "\n";
+		output += "//Similarly, the following code will display the value of true, because the expression is not a conditional and \"This is a string\" is not a falsy. \n";
+		output += "var bool6 = Boolean(\"This is a string\")\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool6 = \" + bool6 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false because 0 is a falsy.\n";
+		output += "var bool7 = Boolean(0);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool7 = \" + bool7 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false because -0 is a falsy.\n";
+		output += "var bool8 = Boolean(-0);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool8 = \" + bool8 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false because the empty string is a falsy.\n";
+		output += "var bool9 = Boolean(\"\");\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool9 = \" + bool9 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false because null is a falsy.\n";
+		output += "var bool10 = Boolean(null);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool10 = \" + bool10 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of false because false is a falsy.\n";
+		output += "var bool11 = Boolean(false);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool11 = \" + bool11 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of true because 10/0 returns Infinity which is not a falsy.\n";
+		output += "var bool12 = Boolean(10/0);\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool12 = \" + bool12 + \"<br>\";\n";
+		output += "\n";
+		output += "//The following code will display the value of true because 10/0 returns NAN which is a falsy.\n";
+		output += "var bool13 = Boolean(10/\"this is a string\");\n";
+		output += "document.getElementById(\"output\").innerHTML += \"bool13 = \" + bool13 + \"<br>\";\n";
+		output += "\n";
+		output += "</" + "script>;\n";
+		output += "</body>\n";
+		output += "</html>\n";
+
+		output2 = "The boolean data type evaluates a given expression to true or false. <br>";
+		output2 += " - If the expression is a conditional, then the expression will be evaluated to a true or false result.<br>";
+		output2 += " - If the expression is not a conditional, then the Boolean type returns false if the expression is any of the following (called falsy): the empty string (\"\"), null, undefined, NaN, +0, -0 and false<br>";
+		output2 += " - If the expression is not a conditional, then the Boolean type returns true if it is not any of the values listed above (called truthy). <br>";
+		output2 += "<br>";
+		output2 += "The following code will display the value of true, based on the expression. <br>";
+		output2 += "<pre>var bool1 = Boolean(1 > 0);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool1 = \" + bool1 + \"<br>\";</pre><br>";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false, based on the expression. <br>";
+		output2 += "<pre>var bool2 = Boolean(1 < 0);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool2 = \" + bool2 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of true, because the expression is not a conditional and the number 8 is not a falsy. \n";
+		output2 += "<pre>var bool3 = Boolean(8);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool3 = \" + bool3 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "Similarly, the following code will display the value of true, because the expression is not a conditional and the number 0.5 is not a falsy. \n";
+		output2 += "<pre>var bool4 = Boolean(0.5);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool5 = \" + bool4 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "Similarly, the following code will display the value of true, because the expression is not a conditional and -3 is not a falsy. \n";
+		output2 += "<pre>var bool5 = Boolean(-3)\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool5 = \" + bool5 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "Similarly, the following code will display the value of true, because the expression is not a conditional and \"This is a string\" is not a falsy. \n";
+		output2 += "<pre>var bool6 = Boolean(\"This is a string\")\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool6 = \" + bool6 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false because 0 is a falsy.\n";
+		output2 += "<pre>var bool7 = Boolean(0);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool7 = \" + bool7 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false because -0 is a falsy.\n";
+		output2 += "<pre>var bool8 = Boolean(-0);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool8 = \" + bool8 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false because the empty string is a falsy.\n";
+		output2 += "<pre>var bool9 = Boolean(\"\");\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool9 = \" + bool9 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false because null is a falsy.\n";
+		output2 += "<pre>var bool10 = Boolean(null);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool10 = \" + bool10 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of false because false is a falsy.\n";
+		output2 += "<pre>var bool11 = Boolean(false);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool11 = \" + bool11 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of true because 10/0 returns Infinity which is not a falsy.\n";
+		output2 += "<pre>var bool12 = Boolean(10/0);\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool12 = \" + bool12 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "The following code will display the value of true because 10/0 returns NAN which is a falsy.\n";
+		output2 += "<pre>var bool13 = Boolean(10/\"this is a string\");\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"bool13 = \" + bool13 + \"<br>\";</pre>\n";
+		output2 += "<br>";
+		output2 += "</" + "script>;\n";
+		output2 += "</body>\n";
+		output2 += "</html>\n";
+	}
+	else if (input == "4d")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Data Types in JavaScript\n\n";
+		output += "//JavaScript has 5 basic data types: \n";
+		output += "// - Numbers\n";
+		output += "// - Strings\n";
+		output += "// - Booleans\n";
+		output += "// - Arrays\n";
+		output += "// - Objects\n\n";
+		output += "//Arrays are used to store a finite sequence of variables under the same variable name. \n";
+		output += "//One way they can be declared is by listing the items separated by a comma between square brackets\n";
+		output += "first_primes = [2, 3, 5]\n";
+		output += "document.getElementById(\"output\").innerHTML +=  first_primes  + '<br>';\n";
+		output += "fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output += "document.getElementById(\"output\").innerHTML += \"fav_movies = \" + fav_movies + '<br>';\n";
+		output += "//The items in a list can be of different types\n";
+		output += "fav_things = [\"Music\", [\"Raindrops on roses\", \"Whiskers on Kittens\"]]\n";
+		output += "//You can access the elements of a list, individually with the first \n";
+		output += "//value having location 0. \n";
+		output += "document.getElementById(\"output\").innerHTML += \"first_primes[2] = \" + first_primes[2] + '<br>';\n";
+		output += "//Arrays can also be declared without knowing the elements \n";
+		output += "var tracks = new Array()\n";
+		output += "tracks[0] = \"Ribbon in the Sky\";\n";
+		output += "tracks[1] = \"As\";\n";
+		output += "tracks[2] = \"Isn't She Lovely\";\n";
+		output += "document.getElementById(\"output\").innerHTML += \"tracks =\" + tracks + '<br>';\n";
+		output += "//You can change the elements of a list\n";
+		output += "fav_movies[0] = 'The Wood'\n";
+		output += "document.getElementById(\"output\").innerHTML += \"Now, fav_movies = \" + fav_movies + '<br>';\n";
+		output += "//To add an element to an array, you just assign the value to the location of the current length of the array.\n";
+		output += "fav_movies[fav_movies.length] = 'Harry Potter'\n";
+		output += "document.getElementById(\"output\").innerHTML += \"After append, fav_movies = \" + fav_movies + '<br>';\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 += "<h2>Data Types in JavaScript</h2>";
+		output2 += "JavaScript has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Booleans<br>";
+		output2 += " - Arrays<br>";
+		output2 += " - Objects<br><br>";
+		output2 += "Arrays are used to store a finite sequence of variables under the same variable name. <br>";
+		output2 += "One way they can be declared is by listing the items separated by a comma between square brackets<br>";
+		output2 += "<pre>first_primes = [2, 3, 5]\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  first_primes  + '<br>';\n";
+		output2 += "fav_movies = ['Shawshank Redemption', 'Friday', 'Godfather 2']\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"fav_movies = \" + fav_movies + '<br>';</pre>\n";
+		output2 += "<pre>The items in a list can be of different types\n";
+		output2 += "fav_things = [\"Music\", [\"Raindrops on roses\", \"Whiskers on Kittens\"]];</pre>\n";
+		output2 += "You can access the elements of a list, individually with the first value having location 0. \n";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML += \"first_primes[2] = \" + first_primes[2] + '<br>';</pre>\n";
+		output2 += "Arrays can also be declared without knowing the elements \n";
+		output2 += "<pre>var tracks = new Array()\n";
+		output2 += "tracks[0] = \"Ribbon in the Sky\";\n";
+		output2 += "tracks[1] = \"As\";\n";
+		output2 += "tracks[2] = \"Isn't She Lovely\";\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"tracks =\" + tracks + '<br>';</pre>\n";
+		output2 += "You can change the elements of a list\n";
+		output2 += "<pre>fav_movies[0] = 'The Wood'\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"Now, fav_movies = \" + fav_movies + '<br>';</pre>\n";
+		output2 += "To add an element to an array, you just assign the value to the location of the current length of the array.\n";
+		output2 += "<pre>fav_movies[fav_movies.length] = 'Harry Potter'\n";
+		output2 += "document.getElementById(\"output\").innerHTML += \"After append, fav_movies = \" + fav_movies + '<br>';</pre>\n";
+	}
+	else if (input == "4e")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Data Types in JavaScript\n\n";
+		output += "//JavaScript has 5 basic data types: \n";
+		output += "// - Numbers\n";
+		output += "// - Strings\n";
+		output += "// - Booleans\n";
+		output += "// - Arrays\n";
+		output += "// - Objects\n\n";
+		output += "//In JavaScript, objects are similar to arrays in that they allow programmers to store many things that all relate to the same subject under a single variable name. \n";
+		output += "//There are some major differences between arrays and the more general concept of an object. \n";
+		output += "// - first, objects allow the programmer to decide how the elements are indexed. Remember that in arrays, elements are indexed numerically beginning at 0. \n";
+		output += "// - second, in addition to members, objects can also have methods which are functions defined on the object and it's members. \n";
+		output += "//There are several ways to define objects:\n";
+		output += "// - inside curly brackets, where the item will be a key, a colon and then a value\n";
+		output += "gameLog = {'Wall' : '28 points', 'Beal' : '16 points', 'Gortat' : '9 points'}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  \"Game Points: <br>Wall : \" + gameLog['Wall'] + '<br>Beal : ' + gameLog['Beal'] + '<br>Gortat :' + gameLog['Gortat'] + '<br>';\n";
+		output += "// - using dot notation, property is indicated by the variable name, then a dot, then the property name. It is assigned values using the equals symbol. \n";
+		output += "// - We can also define methods inside an object by declaring the property as a function. To access the properties of the Object, use the this keyword to refer to the object itself. The methods can then be later called by using the property name followed by parenthesis. We will talk more about functions later. \n";
+		output += "book = new Object()\n";
+		output += "book.title = \"Native Son\";\n";
+		output += "book.author = \"Richard Wright\";\n";
+		output += "book.country = \"United States\";\n";
+		output += "book.language = \"English\";\n";
+		output += "book.pubDate = \"March 1, 1940\";\n";
+		output += "book.disp = function (){return this.title + \", by \" + this.author + \", written in \" + this.country + \" in the \" + this.language + \" language on \" + this.pubDate};\n";
+
+		output += "document.getElementById(\"output\").innerHTML += \"Title: \" + book.title + '<br>' + \"Author: \" + book.author + '<br>' + \"Country: \" + book.country + '<br>' + \"Language: \" + book.language + '<br>' + \"Publication Date: \" + book.pubDate + '<br>';\n";
+		output += "document.getElementById(\"output\").innerHTML += book.disp() + '<br>';\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Data Types in JavaScript<br><br>";
+		output2 += "JavaScript has 5 basic data types: <br>";
+		output2 += " - Numbers<br>";
+		output2 += " - Strings<br>";
+		output2 += " - Booleans<br>";
+		output2 += " - Arrays<br>";
+		output2 += " - Objects<br><br>";
+		output2 += "In JavaScript, objects are similar to arrays in that they allow programmers to store many things that all relate to the same subject under a single variable name. \n";
+		output2 += "There are some major differences between arrays and the more general concept of an object. \n";
+		output2 += " - first, objects allow the programmer to decide how the elements are indexed. Remember that in arrays, elements are indexed numerically beginning at 0. \n";
+		output2 += " - second, in addition to members, objects can also have methods which are functions defined on the object and it's members. \n";
+		output2 += "There are several ways to define objects:\n";
+		output2 += " - inside curly brackets, where the item will be a key, a colon and then a value\n";
+		output2 += "<pre>gameLog = {'Wall' : '28 points', 'Beal' : '16 points', 'Gortat' : '9 points'}\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  gameLog['Wall'] + '<br>' + gameLog['Beal'] + '<br>' + gameLog['Gortat'] + '<br>';</pre>\n";
+		output2 += " - using dot notation, property is indicated by the variable name, then a dot, then the property name. It is assigned values using the equals symbol. \n";
+		output2 += " - We can also define methods inside an object by declaring the property as a function. To access the properties of the Object, use the this keyword to refer to the object itself. The methods can then be later called by using the property name followed by parenthesis. We will talk more about functions later. \n";
+		output2 += "<pre>book = new Object()\n";
+		output2 += "book.title = \"Native Son\";\n";
+		output2 += "book.author = \"Richard Wright\";\n";
+		output2 += "book.country = \"United States\";\n";
+		output2 += "book.language = \"English\";\n";
+		output2 += "book.pubDate = \"March 1, 1940\";\n";
+		output2 += "book.disp = function (){return this.title + \", by \" + this.author + \", written in \" + this.country + \" in the \" + this.language + \" language on \" + this.pubDate};</pre>\n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "5a")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Basic Operations in JavaScript: \n";
+		output += "// - Arithmetic\n";
+		output += "//The basic operations in JavaScript are: \n";
+		output += "// addition (+), \n";
+		output += "// subtraction (-), \n";
+		output += "// multiplication (*), \n";
+		output += "// division (/), \n";
+		output += "// modulus (%), \n";
+		output += "// and exponent (**).\n";
+		output += "//Given two numbers, the addition operation returns their sum\n";
+		output += "num1 = 3.14\n";
+		output += "num2 = 2.71\n";
+		output += "num3 = num1 + num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' + ' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "//Given two numbers, the subtraction operation returns their difference\n";
+		output += "num1 = 16\n";
+		output += "num2 = 25\n";
+		output += "num3 = num1 - num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' - ' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "//Given two numbers, the multiplication operation returns their product\n";
+		output += "num1 = 4\n";
+		output += "num2 = 11\n";
+		output += "num3 = num1 * num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' * ' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "//Given two numbers, the division operation returns \n";
+		output += "//the floor of the quotient of num1 divided by num2\n";
+		output += "num1 = 5\n";
+		output += "num2 = 2\n";
+		output += "num3 = Math.floor(num1 / num2)\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'Math.floor(' + num1 + ' / ' + num2 + ') = ' + num3 + '<br>';\n\n";
+		output += "//Given two numbers, (float(num1)/num2) returns the result of \n";
+		output += "//num1 divided by num2\n";
+		output += "num1 = 5\n";
+		output += "num2 = 2\n";
+		output += "num3 = num1 / num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=   num1 + ' / ' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "//Given two integer numbers, the modulus operation returns their \n";
+		output += "//remainder when num1 is divided by num2\n";
+		output += "num1 = 16\n";
+		output += "num2 = 3\n";
+		output += "num3 = num1 % num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=   num1 + ' % ' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "//JavaScript also has an exponent operator given by ^\n";
+		output += "num1 = 4\n";
+		output += "num2 = 2\n";
+		output += "num3 = num1 ^ num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=   num1 + '^' + num2 + ' = ' + num3 + '<br>';\n\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Basic Operations in JavaScript: <br>";
+		output2 += " - Arithmetic<br>";
+		output2 += "The basic operations in JavaScript are: <br>";
+		output2 += " addition (+), <br>";
+		output2 += " subtraction (-), <br>";
+		output2 += " multiplication (*), <br>";
+		output2 += " division (/), <br>";
+		output2 += " modulus (%), <br>";
+		output2 += " and exponent (**).<br>";
+		output2 += "Given two numbers, the addition operation returns their sum<br>";
+		output2 += "<pre>num1 = 3.14\n";
+		output2 += "num2 = 2.71\n";
+		output2 += "num3 = num1 + num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + ' + ' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "Given two numbers, the subtraction operation returns their difference<br>";
+		output2 += "<pre>num1 = 16\n";
+		output2 += "num2 = 25\n";
+		output2 += "num3 = num1 - num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + ' - ' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "Given two numbers, the multiplication operation returns their product<br>";
+		output2 += "<pre>num1 = 4\n";
+		output2 += "num2 = 11\n";
+		output2 += "num3 = num1 * num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + ' * ' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "Given two numbers, the division operation returns <br>";
+		output2 += "the floor of the quotient of num1 divided by num2<br>";
+		output2 += "<pre>num1 = 5\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = Math.floor(num1 / num2)\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + ' / ' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "Given two numbers, (Math.floor(num1/num2) returns the result of <br>";
+		output2 += "num1 divided by num2<br>";
+		output2 += "<pre>num1 = 5\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = float(num1) / num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'Math.flor(' + num1 + ' + ' + num2 + ') = ' + num3 + '<br>';</pre>";
+		output2 += "Given two integer numbers, the modulus operation returns their <br>";
+		output2 += "remainder when num1 is divided by num2<br>";
+		output2 += "<pre>num1 = 16\n";
+		output2 += "num2 = 3\n";
+		output2 += "num3 = num1 % num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + ' % ' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "JavaScript also has an exponent operator given by **<br>";
+		output2 += "<pre>num1 = 4\n";
+		output2 += "num2 = 2\n";
+		output2 += "num3 = num1 ^ num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=   num1 + '^' + num2 + ' = ' + num3 + '<br>';</pre>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "5b")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Basic Operations in JavaScript: \n";
+		output += "// - Comparison\n";
+		output += "//There are six basic comparison operations in JavaScript: \n";
+		output += "//These are :\n";
+		output += "// - greater than (>), \n";
+		output += "// - less than (<), \n";
+		output += "// - equals (==) \n";
+		output += "// - not equals (!=) \n";
+		output += "// - greater than or equal to (>=) \n";
+		output += "// - less than or equal to (<=) \n";
+		output += "//The less than operator compares two objects and returns true if \n";
+		output += "//the value in the left term is smaller than the value in the right \n";
+		output += "//(however 'smaller' is defined for those objects). \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_lt = num1 < num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_lt + '<br>';\n\n";
+		output += "//The greater than operator compares two objects and returns true if \n";
+		output += "//the value in the left term is larger than the value in the right \n";
+		output += "//(however 'larger' is defined for those objects). \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_gt = num1 > num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_gt + '<br>';\n\n";
+		output += "//The equals operator compares two objects and returns true if \n";
+		output += "//the value in the left term is equal to value in the right \n";
+		output += "//(however 'equal' is defined for those objects. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_eq = num1 == num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_eq + '<br>';\n\n";
+		output += "//The not equals operator compares two objects and returns true if \n";
+		output += "//the value in the left term is not equal to value in the right \n";
+		output += "//(however 'equal' is defined for those objects. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_neq = num1 != num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_neq + '<br>';\n\n";
+		output += "//In addition, we can join together multiple logical operators \n";
+		output += "//using and, or and not terminology.  \n";
+		output += "//The and operator compares two logical objects and returns true if \n";
+		output += "//both these logical objects are true. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "num3 = 0\n";
+		output += "op_and = num3 < num1 && num1 < num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num3 + ' < ' + num1 + ' and ' + num1 + ' < ' + num2 + ' = ' + op_and + '<br>';\n\n";
+		output += "//The or operator compares two logical objects and returns true if \n";
+		output += "//one of these logical objects is true. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "num3 = 30\n";
+		output += "op_or = num3 < num1 || num1 < num2\n";
+		output += "document.getElementById(\"output\").innerHTML +=  num3 + ' < ' + num1 + ' or ' + num1 + ' < ' + num2 + ' = ' + op_or + '<br>';\n\n";
+		output += "//The not operator returns the logical negation of a logical operator. \n";
+		output += "num1 = 10\n";
+		output += "num2 = 20\n";
+		output += "op_not = !(10 < 20)\n";
+		output += "document.getElementById(\"output\").innerHTML +=  '!(' + num1 + ' < ' + num2 + ')' + '<br>';\n\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Basic Operations in JavaScript: <br><br>";
+		output2 += " - Comparison<br>";
+		output2 += "There are six basic comparison operations in JavaScript: <br>";
+		output2 += "These are :<br>";
+		output2 += " - greater than (>), <br>";
+		output2 += " - less than (<), <br>";
+		output2 += " - equals (==) <br>";
+		output2 += " - not equals (!=) <br>";
+		output2 += " - greater than or equal to (>=) <br>";
+		output2 += " - less than or equal to (<=) <br>";
+		output2 += "The less than operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is smaller than the value in the right <br>";
+		output2 += "(however 'smaller' is defined for those objects). <br>";
+
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_lt = num1 < num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_lt + '<br>';\n\n";
+		output2 += "The greater than operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is larger than the value in the right <br>";
+		output2 += "(however 'larger' is defined for those objects). <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_gt = num1 > num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_gt + '<br>';\n\n";
+		output2 += "The equals operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is equal to value in the right <br>";
+		output2 += "(however 'equal' is defined for those objects. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_eq = num1 == num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_eq + '<br>';\n\n";
+		output2 += "The not equals operator compares two objects and returns true if <br>";
+		output2 += "the value in the left term is not equal to value in the right <br>";
+		output2 += "(however 'equal' is defined for those objects. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_neq = num1 != num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num1 + ' < ' + num2 + ' = ' + op_neq + '<br>';\n\n";
+		output2 += "In addition, we can join together multiple logical operators <br>";
+		output2 += "using and, or and not terminology.  <br>";
+		output2 += "The and operator compares two logical objects and returns true if <br>";
+		output2 += "both these logical objects are true. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "num3 = 0\n";
+		output2 += "op_and = num3 < num1 && num1 < num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num3 + ' < ' + num1 + ' && ' + num1 + ' < ' + num2 + ' = ' + op_and + '<br>';\n\n";
+		output2 += "The or operator compares two logical objects and returns true if <br>";
+		output2 += "one of these logical objects is true. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "num3 = 30\n";
+		output2 += "op_or = num3 < num1 || num1 < num2\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  num3 + ' < ' + num1 + ' || ' + num1 + ' < ' + num2 + ' = ' + op_or + '<br>';\n\n";
+		output2 += "The not operator returns the logical negation of a logical operator. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num2 = 20\n";
+		output2 += "op_not = !(10 < 20)\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  '!(' + num1 + ' < ' + num2 + ')' + '<br>';\n\n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "5c")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Basic Operations in JavaScript: \n";
+		output += "// - Assignment\n";
+		output += "//There are basic assignment operations in JavaScript are: \n";
+		output += "// - = , \n";
+		output += "// - += , \n";
+		output += "// - -= , \n";
+		output += "// - *= , \n";
+		output += "// - /= , \n";
+		output += "// - %= , \n";
+		output += "// - **= , \n";
+		output += "//The '='	assigns the value on the right hand side to \n";
+		output += "//the variable on the left hand side. \n";
+		output += "num1 = 10\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '+=' is used as a += b and assigns the value of a + b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 += 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '-=' is used as a -= b and assigns the value of a - b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 -= 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '*=' is used as a *= b and assigns the value of a * b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 *= 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '/=' is used as a /= b and assigns the value of a / b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 /= 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '%=' is used as a %= b and assigns the value of a % b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 %= 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//The '^=' is used as a ^= b and assigns the value of a ^ b to a. \n";
+		output += "num1 = 10\n";
+		output += "num1 ^= 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Basic Operations in JavaScript: <br><br>";
+		output2 += " - Assignment<br>";
+		output2 += "There are basic assignment operations in JavaScript are: <br>";
+		output2 += " - = , <br>";
+		output2 += " - += , <br>";
+		output2 += " - -= , <br>";
+		output2 += " - *= , <br>";
+		output2 += " - /= , <br>";
+		output2 += " - %= , <br>";
+		output2 += " - **= , <br>";
+		output2 += "The '=' assigns the value on the right hand side to <br>";
+		output2 += "the variable on the left hand side. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '+=' is used as a += b and assigns the value of a + b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 += 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '-=' is used as a -= b and assigns the value of a - b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 -= 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '*=' is used as a *= b and assigns the value of a * b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 *= 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '/=' is used as a /= b and assigns the value of a / b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 /= 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '%=' is used as a %= b and assigns the value of a % b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 %= 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "The '**=' is used as a ^= b and assigns the value of a ^ b to a. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "num1 ^= 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "6")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Conditionals in JavaScript: \n";
+		output += "//There two basic conditional statements in JavaScript are: \n";
+		output += "// - if statements \n";
+		output += "// - if else statements \n";
+		output += "//An if statement works as if conditional followed by a block of code. \n";
+		output += "//If there are multiple lines in this block of code, \n";
+		output += "//In an if statement, if the condition is true, then the block of code that \n";
+		output += "//follows is executed, otherwise it is ignored.  \n";
+		output += "num1 = 10\n";
+		output += "if (num1 != 10) \n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside first If, num1 is NOT ten' + '<br>';\n";
+		output += "\tnum1 = 20\n";
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "//Consider the next example, where all that is changed is the space in \n";
+		output += "//front of the line 'num1 = 20' is removed\n";
+		output += "num1 = 10\n";
+		output += "if (num1 != 10) \n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside second If, num1 is NOT ten' + '<br>';\n";
+		output += "num1 = 20\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'Outside second If, num1 = ' + num1 + '<br>';\n\n";
+		output += "//In an if ... else statement, if the condition after the if statement is \n";
+		output += "//true, then the first block of code is executed. \n";
+		output += "//If this condition is false, then the  alternative set of actions located \n";
+		output += "//after the else statement is executed. \n";
+		output += "num1 = 10\n";
+		output += "if (num1 != 10) \n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside 3rd If, num1 is NOT ten' + '<br>';\n";
+		output += "\tnum1 = 20\n";
+		output += "}\n";
+		output += "else\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside 3rd Else, num1 is ten' + '<br>';\n";
+		output += "\tnum1 = 30\n";
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1 + '<br>';\n\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Conditionals in JavaScript: <br><br>";
+		output2 += "There two basic conditional statements in JavaScript are: <br>";
+		output2 += " - if statements <br>";
+		output2 += " - if else statements <br>";
+		output2 += "An if statement works as if conditional followed by a block of code. <br>";
+		output2 += "If there are multiple lines in this block of code, they need to have <br>";
+		output2 += "the same number of spaces in front of the first non-whitespace character. <br>";
+		output2 += "In an if statement, if the condition is true, then the block of code that <br>";
+		output2 += "follows is executed, otherwise it is ignored.  <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if (num1 != 10) \n";
+		output2 += "{\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside first If, num1 is NOT ten' + '<br>';\n";
+		output2 += "\tnum1 = 20\n";
+		output2 += "}\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1);</pre>";
+		output2 += "Consider the next example, where all that is changed is the space in <br>";
+		output2 += "front of the line 'num1 = 20' is removed<br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if (num1 != 10) \n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside second If, num1 is NOT ten' + '<br>';\n";
+		output2 += "num1 = 20\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'Outside second If, num1 = ' + num1);</pre>";
+		output2 += "In an if ... else statement, if the condition after the if statement is <br>";
+		output2 += "true, then the first block of code is executed. <br>";
+		output2 += "If this condition is false, then the  alternative set of actions located <br>";
+		output2 += "after the else statement is executed. <br>";
+		output2 += "<pre>num1 = 10\n";
+		output2 += "if (num1 != 10) \n";
+		output2 += "{\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside 3rd If, num1 is NOT ten' + '<br>';\n";
+		output2 += "\tnum1 = 20\n";
+		output2 += "}\n";
+		output2 += "else \n";
+		output2 += "{\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'Inside 3rd Else, num1 is ten' + '<br>';\n";
+		output2 += "\tnum1 = 30\n";
+		output2 += "}\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'num1 = ' + num1);</pre>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "7a")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Loops in JavaScript: \n";
+		output += "//The two types of loops we'll consider in JavaScript are: \n";
+		output += "// - for loops\n";
+		output += "//The purpose of a for loop is to iterate once for each item in a sequence. \n";
+		output += "//This sequqnce can be a string, a list, or a tuple. \n";
+		output += "//Like with 'if' statements, if there are multiple lines in this block of \n";
+		output += "//code, they need to have the same number of spaces in front of the first \n";
+		output += "//non-whitespace character. \n";
+		output += "school = 'Morehouse'\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 1' + '<br>';\n";
+		output += "for (var i = 0; i < school.length; i++) \n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  school[i] + '<br>';\n\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 1' + '<br>';\n";
+		output += "list1 = ['facebook', 'linkedin', 'meetup', 'twitter', 'google']\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 2' + '<br>';\n";
+		output += "for (var i = 0; i < list1.length; i++) \n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop2:' + company + ' does social media' + '<br>';\n";
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 2' + '<br>';\n\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 3' + '<br>';\n";
+		output += "for (var i = 0; i < list1.length; i++) \n"
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop3: ' + list1[i] + ' does social media' + '<br>';\n\n";
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 3' + '<br>';\n";
+		output += "//A for loop can be interrupted by a break statement. This will stop the \n";
+		output += "//current execution of the loop and continue at the next block of \n";
+		output += "//program code. \n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 4' + '<br>';\n";
+		output += "for (var i = 0; i < list1.length; i++) \n"
+		output += "{\n";
+		output += "\tif (list1[i] == 'linkedin')\n"
+		output += "\t{\n";
+		output += "\t\tbreak\n"
+		output += "\t}\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop4: ' + list1[i] + ' does social media' + '<br>';\n\n"
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 4' + '<br>';\n";
+		output += "//A for loop can also be interrupted by a continue statement. This will \n";
+		output += "//stop the current iteration and begin execution at the \n";
+		output += "//beginning of the next iteration. \n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 5' + '<br>';\n";
+		output += "for (var i = 0; i < list1.length; i++) \n"
+		output += "{\n";
+		output += "\tif (list1[i] == 'linkedin')\n"
+		output += "\t{\n";
+		output += "\t\tcontinue\n"
+		output += "\t}\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop5: ' + list1[i] + ' does social media' + '<br>';\n\n"
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 5' + '<br>';\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+
+		output2 = "Loops in JavaScript: <br><br>";
+		output2 += "The two types of loops we'll consider in JavaScript are: <br>";
+		output2 += " - for loops<br>";
+		output2 += " - while loops<br>";
+		output2 += "The purpose of a for loop is to iterate once for each item in a sequence. <br>";
+		output2 += "This sequqnce can be a string, a list, or a tuple. <br>";
+		output2 += "Like with 'if' statements, if there are multiple lines in this block of <br>";
+		output2 += "code, they need to have the same number of spaces in front of the first <br>";
+		output2 += "non-whitespace character. <br>";
+		output2 += "<pre>school = 'Morehouse'\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 1' + '<br>';\n";
+		output2 += "for letter in school: \n";
+		output2 += " document.getElementById(\"output\").innerHTML +=  letter + '<br>';\n\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 1' + '<br>';\n";
+		output2 += "list1 = ['facebook', 'linkedin', 'meetup', 'twitter', 'google']\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 2' + '<br>';\n";
+		output2 += "for company in list1 : \n";
+		output2 += " document.getElementById(\"output\").innerHTML +=  'loop2:' + company + ' does social media' + '<br>';\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 2' + '<br>';\n\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'about to begin for loop 3' + '<br>';\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " document.getElementById(\"output\").innerHTML +=  'loop3: ' + list1[i] + ' does social media' + '<br>';\n\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 3');</pre>";
+		output2 += "A for loop can be interrupted by a break statement. This will stop the <br>";
+		output2 += "current execution of the loop and continue at the next block of <br>";
+		output2 += "program code. <br>";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML +=  'about to begin for loop 4' + '<br>';\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " if list1[i] == 'linkedin':\n"
+		output2 += "  break\n"
+		output2 += " document.getElementById(\"output\").innerHTML +=  'loop4: ' + list1[i] + ' does social media' + '<br>';\n\n"
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 4' + '<br>';</pre>";
+		output2 += "A for loop can also be interrupted by a continue statement. This will <br>";
+		output2 += "stop the current iteration and begin execution at the <br>";
+		output2 += "beginning of the next iteration. <br>";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML +=  'about to begin for loop 5' + '<br>')\n";
+		output2 += "for i in range(len(list1)): \n"
+		output2 += " if list1[i] == 'linkedin':\n"
+		output2 += "  continue\n"
+		output2 += " document.getElementById(\"output\").innerHTML +=  'loop5: ' + list1[i] + ' does social media' + '<br>';\n\n"
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished for loop 5' + '<br>';</pre>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "7b")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Loops in JavaScript: \n";
+		output += "//The two types of loops we'll consider in JavaScript are: \n";
+		output += "// - while loops\n";
+		output += "//A while loop is similar to an if statement, in that it checks that a \n";
+		output += "//condition is true and executes a block of code if this condition is true.\n";
+		output += "//Unlike an if statement, however, a while loop will continue to execute this \n";
+		output += "//block of code as long as the condition remains true. \n";
+		output += "//Similar to 'if' statements and 'for' loops, if there are multiple lines in \n";
+		output += "//this block of code, they need to have the same number of spaces in front of \n";
+		output += "//the first non-whitespace character. \n";
+		output += "count = 0\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin while loop 1' + '<br>';\n";
+		output += "while (count < 10) \n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  count + '<br>';\n";
+		output += "\tcount += 1\n";
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 1' + '<br>';\n\n";
+		output += "//A while loop can be interrupted by a break statement. This will stop the current \n";
+		output += "//execution of the loop and continue at the next block of program code. \n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin while loop 2' + '<br>';\n";
+		output += "count = 0\n";
+		output += "while (count < 10) \n"
+		output += "{\n";
+		output += "\tcount += 1\n"
+		output += "\tif (count % 2 == 0)\n"
+		output += "\t{\n";
+		output += "\t\tbreak\n"
+		output += "\t}\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop2: ' + count + '<br>';\n"
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 2' + '<br>';\n";
+		output += "//A while loop can also be interrupted by a continue statement. This will stop the\n";
+		output += "//current iteration and begin execution at the beginning of the next iteration. \n";
+		output += "document.getElementById(\"output\").innerHTML +=  'about to begin while loop 3' + '<br>';\n";
+		output += "count = 0\n";
+		output += "while (count < 10) \n"
+		output += "{\n";
+		output += "\tcount += 1\n"
+		output += "\tif (count % 2 == 0)\n"
+		output += "\t{\n";
+		output += "\t\tcontinue\n"
+		output += "\t}\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'loop3: ' + count + '<br>';\n"
+		output += "}\n";
+		output += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 3' + '<br>';\n";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Loops in JavaScript: <br><br>";
+		output2 += "The two types of loops we'll consider in JavaScript are: <br>";
+		output2 += " - while loops<br>";
+		output2 += "A while loop is similar to an if statement, in that it checks that a <br>";
+		output2 += "condition is true and executes a block of code if this condition is true.<br>";
+		output2 += "Unlike an if statement, however, a while loop will continue to execute this <br>";
+		output2 += "block of code as long as the condition remains true. <br>";
+		output2 += "Similar to 'if' statements and 'for' loops, if there are multiple lines in <br>";
+		output2 += "this block of code, they need to have the same number of spaces in front of <br>";
+		output2 += "the first non-whitespace character. <br>";
+		output2 += "<pre>count = 0\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'about to begin while loop 1' + '<br>';\n";
+		output2 += "while count < 10: \n";
+		output2 += " document.getElementById(\"output\").innerHTML +=  count + '<br>';\n";
+		output2 += " count += 1\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 1' + '<br>';</pre>";
+		output2 += "A while loop can be interrupted by a break statement. This will stop the current <br>";
+		output2 += "execution of the loop and continue at the next block of program code. <br>";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML +=  'about to begin while loop 2' + '<br>';\n";
+		output2 += "count = 0\n";
+		output2 += "while (count < 10) \n";
+		output2 += "{\n";
+		output2 += "\tcount += 1\n";
+		output2 += "\tif count % 2 == 0:\n";
+		output2 += "\t\tbreak\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'loop2: ' + count + '<br>';\n";
+		output2 += "}\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 2' + '<br>';</pre>";
+		output2 += "A while loop can also be interrupted by a continue statement. This will stop the<br>";
+		output2 += "current iteration and begin execution at the beginning of the next iteration. <br>";
+		output2 += "<pre>document.getElementById(\"output\").innerHTML +=  'about to begin while loop 3' + '<br>';\n";
+		output2 += "count = 0\n";
+		output2 += "while (count < 10) \n";
+		output2 += "{\n";
+		output2 += "\tcount += 1\n";
+		output2 += "\tif (count % 2 == 0)\n";
+		output2 += "\t{\n";
+		output2 += "\t\tcontinue\n";
+		output2 += "\t}\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'loop3: ' + count + '<br>';\n";
+		output2 += "}\n";
+		output2 += "document.getElementById(\"output\").innerHTML +=  'we have finished while loop 3' + '<br>';</pre>";	
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "8")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "//Functions in JavaScript: \n";
+		output += "//A function is a block of code that can be called repeatedly. \n";
+		output += "//In JavaScript, functions are defined by the word 'def', followed by the function name, \n";
+		output += "//then the parameters in parenthesis and a colon\n";
+		output += "//Like loops and if statements, blocks of function code need to be equally indented. \n";
+		output += "function printByline(author)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  'written by ' + author + '. ' + '<br>';\n\n";
+		output += "}\n";
+		output += "//A function can be like above and not return a value, or like below and return a value. \n";
+		output += "function squareNunmber(num)\n";
+		output += "{\n";
+		output += "\treturn num*num;\n\n";
+		output += "}\n";
+		
+		output += "name = 'AfterMath'\n"
+		output += "printByline(name);\n\n";
+		output += "num = 12;\n'";
+		output += "document.getElementById(\"output\").innerHTML += num + \" squared is \" + squareNumber(num) + \"<br>\";";
+		output += "</" + "script>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Functions in JavaScript: <br><br>";
+		output2 += "A function is a block of code that can be called repeatedly. <br>";
+		output2 += "In JavaScript, functions are defined by the word 'def', followed by the function name, <br>";
+		output2 += "then the parameters in parenthesis and a colon<br>";
+		output2 += "Like loops and if statements, blocks of function code need to be equally indented. <br>";
+		output2 += "<pre>function printByline(author));\n";
+		output2 += "{\n";
+		output2 += "\tdocument.getElementById(\"output\").innerHTML +=  'written by ' + author + '. ' + '<br>';\n\n";
+		output2 += "}\n";
+		output2 += "A function can be like above and not return a value, or like below and return a value. \n";
+		output2 += "<pre>function squareNunmber(num)\n";
+		output2 += "{\n";
+		output2 += "\treturn num*num;\n\n";
+		output2 += "}\n";
+		output2 += "name = 'AfterMath'\n"
+		output2 += "printByline(name);";
+		output2 += "num = 12;\n'";
+		output2 += "document.getElementById(\"output\").innerHTML += num + \" squared is \" + squareNumber(num) + \"<br>\";</pre>";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "9a")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "function writeLeft()\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"Loutput\").innerHTML =  'We have text on the Left<br>';\n\n";
+		output += "\tdocument.getElementById(\"Routput\").innerHTML =  '_________________________';\n\n";
+		output += "}\n";
+		output += "function writeRight()\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"Routput\").innerHTML =  'We have text on the Right<br>';\n\n";
+		output += "\tdocument.getElementById(\"Loutput\").innerHTML =  '_________________________';\n\n";
+		output += "}\n";
+		output += "</" + "script>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<table><tr><td><p id=\"Loutput\"></p></td><td><p id=\"Routput\"></p></td></tr></table>\n";
+		output += "<input type=\"button\" value=\"Write Left\" onClick=\"writeLeft()\"><br>\n";
+		output += "<input type=\"button\" value=\"Write Right\" onClick=\"writeRight()\"><br>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+	}
+	else if (input == "9b")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "function addTwo(num1, num2)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  num1 + ' + ' + num2 + ' = ' + eval(parseInt(num1) + parseInt(num2)) + '<br>';\n\n";
+		output += "}\n\n";
+		output += "function subTwo(num1, num2)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  num1 + ' - ' + num2 + ' = ' + eval(parseInt(num1) - parseInt(num2)) + '<br>';\n\n";
+		output += "}\n\n";
+		output += "function multTwo(num1, num2)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  num1 + ' * ' + num2 + ' = ' + eval(parseInt(num1) * parseInt(num2)) + '<br>';\n\n";
+		output += "}\n\n";
+		output += "function divTwo(num1, num2)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  num1 + ' / ' + num2 + ' = ' + eval(parseInt(num1) / parseInt(num2)) + '<br>';\n\n";
+		output += "}\n\n";
+		output += "function modTwo(num1, num2)\n";
+		output += "{\n";
+		output += "\tdocument.getElementById(\"output\").innerHTML +=  num1 + ' % ' + num2 + ' = ' + eval(parseInt(num1) % parseInt(num2)) + '<br>';\n\n";
+		output += "}\n\n";
+		output += "function process()\n";
+		output += "{\n";
+		output += "\tvar num1 = document.getElementById(\"number1\").value;";
+		output += "\tvar num2 = document.getElementById(\"number2\").value;";
+		output += "\tvar op = document.getElementById(\"operation\").value;";
+		output += "\tif (op == 1)\n";
+		output += "\t{\n";
+		output += "\t\taddTwo(num1, num2);\n";
+		output += "\t}\n";
+		output += "\telse if (op == 2)\n";
+		output += "\t{\n";
+		output += "\t\tsubTwo(num1, num2);\n";
+		output += "\t}\n";
+		output += "\telse if (op == 3)\n";
+		output += "\t{\n";
+		output += "\t\tmultTwo(num1, num2);\n";
+		output += "\t}\n";
+		output += "\telse if (op == 4)\n";
+		output += "\t{\n";
+		output += "\t\tdivTwo(num1, num2);\n";
+		output += "\t}\n";
+		output += "\telse if (op == 5)\n";
+		output += "\t{\n";
+		output += "\t\tmodTwo(num1, num2);\n";
+		output += "\t}\n";
+		output += "}\n";
+		output += "</" + "script>\n";
+		output += "<title>Using Forms in JavaScript</title>";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "<p name=\"output\" id=\"output\"></p>\n";
+		output += "<form>\n";
+		output += "<label>Enter Number 1: </label><input id=\"number1\"><br>\n";
+		output += "<label>Enter Number 2: </label><input id=\"number2\"><br>\n";
+		output += "<select id=\"operation\">\n";
+		output += "  <option value=1>Add</option>\n";
+		output += "  <option value=2>Subtract</option>\n";
+		output += "  <option value=3>Multiply</option>\n";
+		output += "  <option value=4>Divide</option>\n";
+		output += "  <option value=5>Mod</option>\n";
+		output += "</select>\n";
+		output += "<input type=\"button\" value=\"Calculate\" onClick=\"process()\">\n";
+		output += "</form>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Functions in JavaScript: <br><br>";
+		output2 += "In HTML much of the interaction with users is through forms. \n";
+		output2 += "This allows web page designers to take responses in the form of input boxes,\n";
+		output2 += "select boxes, buttons, text areas, and a number of other form elements. \n";
+		output2 += "This page takes advantage of the onClick method of the buttons. \n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+	}
+	else if (input == "9c")
+	{
+		output = "<html>\n";
+		output += "<head>\n";
+		output += "<script type=\"text/javascript\">\n";
+		output += "function process()\n";
+		output += "{\n";
+		output += "\tvar nClr = document.getElementById(\"newClr\").value;\n";
+		output += "\tdocument.bgColor=nClr;\n";
+		output += "}\n";
+		output += "</" + "script>\n";
+		output += "</head>\n";
+		output += "<body>\n";
+		output += "Try it now: \n";
+		output += "\n";
+		output += "<select id=\"newClr\" onChange=\"process()\">\n";
+		output += "  <option value=\"choose\">set background color</option>\n";
+		output += "  <option value=\"#FF0000\">Red</option>\n";
+		output += "  <option value=\"#0000FF\">Blue</option>\n";
+		output += "  <option value=\"#FFFF00\">Yellow</option>\n";
+		output += "  <option value=\"#008000\">Green</option>\n";
+		output += "  <option value=\"#FFA500\">Orange</option>\n";
+		output += "  <option value=\"#800080\">Purple</option>\n";
+		output += "  <option value=\"#A52A2A\">Brown</option>\n";
+		output += "  <option value=\"#000000\">Black</option>\n";
+		output += "  <option value=\"#FFFFFF\">White</option>\n";
+		output += "  <option value=\"#00FFFF\">Aqua</option>\n";
+		output += "  <option value=\"#006400\">Dark Green</option>\n";
+		output += "  <option value=\"#8B0000\">Dark Red</option>\n";
+		output += "  <option value=\"#FA8072\">Salmon</option>\n";
+		output += "  <option value=\"#D2B48C\">Tan</option>\n";
+		output += "  <option value=\"#C0C0C0\">Silver</option>\n";
+		output += "  <option value=\"#DA70D6\">Orchid</option>\n";
+		output += "  <option value=\"#FF4500\">OrangeRed</option>\n";
+		output += "  <option value=\"#C71585\">MediumVioletRed</option>\n";
+		output += "  <option value=\"#483D8B\">DarkStlateBlue</option>\n";
+		output += "</select>\n";
+		output += "</body>\n";
+		output += "</html>\n";
+		
+		output2 = "Functions in JavaScript: <br><br>";
+		output2 += "In HTML much of the interaction with users is through forms. \n";
+		output2 += "This allows web page designers to take responses in the form of input boxes,\n";
+		output2 += "select boxes, buttons, text areas, and a number of other form elements. \n";
+		output2 += "This page takes advantage of the onChange method of the select boxes. \n";
+		output2 += "<p>I encourage you to save the programs on your computer, modify the JavaScript code and open the new program up in a browser to see if it performs as you wish</p>";
+
+	}
+	document.getElementById("code").value = output;
+	document.getElementById("wlkthrgh").innerHTML = output2;
+	document.getElementById("submitBtn").hidden = false;
+	return output;
+}
+var pgrmCode;
+</script>
+<h3><center></center></h3>
+<p>Here I have provided a few examples of basic JavaScript programming to help users get started.</p>
+<select name="pgrm" id="pgrm">
+ <option value="1">Hello, World</option>
+ <option value="2">Comments</option>
+ <option value="3">Variables</option>
+ <option value="4a">Data Types - Numbers</option>
+ <option value="4b">Data Types - Strings</option>
+ <option value="4c">Data Types - Booleans</option>
+ <option value="4d">Data Types - Arrays</option>
+ <option value="4e">Data Types - Objects</option>
+ <option value="5a">Basic Operations - Arithmetic</option>
+ <option value="5b">Basic Operations - Comparison</option>
+ <option value="5c">Basic Operations - Assignment</option>
+ <option value="6">Conditionals</option>
+ <option value="7a">Loops - For Loop</option>
+ <option value="7b">Loops - While Loop</option>
+ <option value="8">Functions</option>
+ <option value="9a">Forms - Modify Text</option>
+ <option value="9b">Forms - Calculator</option>
+ <option value="9c">Forms - Change Colors</option>
+</select>
+<input type="button" value="View Code" onclick="pgrmCode=getCode();"><br>
+<TEXTAREA readonly style="WIDTH: 550px; HEIGHT: 300px" id="code" name="code" cols=65 rows=6 ></TEXTAREA><br>
+<div id="codeOutput" name="codeOutput"></div>
+<input type="button" id='submitBtn' name='submitBtn' value="Run Code (in New Tab)" onclick="var myWindow = window.open('', 'MsgWindow'); myWindow.document.write(pgrmCode);" hidden><br>
+<p name="wlkthrgh" id="wlkthrgh"></p>

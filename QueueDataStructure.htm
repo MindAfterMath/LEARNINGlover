@@ -1,0 +1,463 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+QueueDataStructure<script type="text/javascript">
+function generate(n)
+{
+	var A = new Object();
+	A = null
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*100);
+		A = enqueue2(A, next);
+	}
+
+	return A;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = false;
+
+	for (temp = set; temp != null && !ans; temp = temp.next)
+		if (set.value == elmnt)
+			ans = true;
+
+	return ans;
+}
+
+function dequeue(curr)
+{
+	var temp;
+
+	if (curr != null)
+	{	
+		document.getElementById("last").value = curr.value;
+		temp = curr.next;
+		if (temp != null)
+		{
+			temp.front = curr.next;
+			temp.rear = curr.rear;
+		}
+		curr = temp;
+		display(curr, "list");
+	}
+
+	return curr;
+}		
+
+function enqueue1(curr)
+{
+	var newItem = new Object();
+	var value = document.getElementById("next").value;
+
+	newItem.value = value;
+	newItem.next = null;
+	if (curr == null)
+	{
+		newItem.rear = newItem;
+		newItem.front = newItem;
+		curr = newItem;
+	}
+	else
+	{
+		newItem.rear = newItem;
+		newItem.front = curr.front;
+		curr.rear.next = newItem;
+		curr.rear = newItem;
+	}
+
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+
+	display(curr, "list");
+	return curr;
+}
+
+function enqueue2(curr, next)
+{
+	var newItem = new Object();
+	var value = next;
+
+	newItem.value = value;
+	newItem.next = null;
+	if (curr == null)
+	{
+		newItem.rear = newItem;
+		newItem.front = newItem;
+		curr = newItem;
+	}
+	else
+	{
+		newItem.rear = newItem;
+		newItem.front = curr.front;
+		curr.rear.next = newItem;
+		curr.rear = newItem
+	}
+
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+
+	return curr;
+}
+
+function getLength(curr)
+{
+	var temp = curr;
+	for (var i = 0; temp != null; i++, temp = temp.next)
+	{}
+
+	return i;
+}
+
+function init(curr, k1)
+{
+	var curr = generate(k1);
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+	display(curr, "list");
+	return curr;
+}
+
+function display(curr, loc)
+{
+	var text = "";
+	var temp = new Object();
+	var val = 0;
+
+	if (curr == null)
+	{
+		text = "There are no items in this Queue<br>";
+	}
+	else
+	{
+		temp = curr;
+		while (temp != null)
+		{
+			if (temp.next != null)
+				text = "<td>" + temp.value + "</td>" + text;
+			else if (temp.next == null)
+				text = "<td>" + temp.value + "</td>" + text;
+			temp = temp.next;
+			val++;
+		}
+	}
+
+	text = "<table border=1><tr>" + text + "</tr></table>";
+
+	document.getElementById(loc).innerHTML = text;
+}
+
+function size(curr)
+{
+	var temp = curr;
+	var count = 0;
+
+	while (temp != null)
+	{
+		temp = temp.next;
+		count++;
+	}
+
+	return count;
+}
+
+function maxValue(curr)
+{
+	var temp = curr;
+	var max = -1000;
+
+	while (temp != null)
+	{
+		if (temp.value > max)
+			max = temp.value;
+		temp = temp.next;
+	}
+
+	return max;
+}
+
+function minValue(curr)
+{
+	var temp = curr;
+	var min = 1000;
+
+	while (temp != null)
+	{
+		if (temp.value < min)
+			min = temp.value;
+		temp = temp.next;
+	}
+
+	return min;
+}
+
+function operate(curr)
+{
+ 	if (document.getElementById("alg").value == 1)
+	{
+		document.getElementById("output").innerHTML = "";
+ 		curr = enqueue1(curr);
+	}
+ 	else if (document.getElementById("alg").value == 2)
+	{
+		document.getElementById("output").innerHTML = "";
+ 		curr = dequeue(curr);
+	}
+	else if (document.getElementById("alg").value == 3)
+		document.getElementById("output").innerHTML = "The size of this stack is currently " + size(curr) + "<br>";
+	else if (document.getElementById("alg").value == 4)
+		document.getElementById("output").innerHTML = "The maximum value of this stack is currently " + maxValue(curr) + "<br>";
+	else if (document.getElementById("alg").value == 5)
+		document.getElementById("output").innerHTML = "The minimum value of this stack is currently " + minValue(curr) + "<br>";
+
+  	return curr;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="bayes, bayes theorem, causation, cause, conditional, conditional probability, event, exclusive, intersect, JavaScript, learning, machine learning, math, mathematics, mutually exclusive, probability, script, set, set theory, theory, union" /> 
+<meta name="description" content="This page contains a script I've written to help understand the Queue Data Structure." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function generate(n)
+{
+	var A = new Object();
+	A = null
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*100);
+		A = enqueue2(A, next);
+	}
+
+	return A;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = false;
+
+	for (temp = set; temp != null && !ans; temp = temp.next)
+		if (set.value == elmnt)
+			ans = true;
+
+	return ans;
+}
+
+function dequeue(curr)
+{
+	var temp;
+
+	if (curr != null)
+	{	
+		document.getElementById("last").value = curr.value;
+		temp = curr.next;
+		if (temp != null)
+		{
+			temp.front = curr.next;
+			temp.rear = curr.rear;
+		}
+		curr = temp;
+		display(curr, "list");
+	}
+
+	return curr;
+}		
+
+function enqueue1(curr)
+{
+	var newItem = new Object();
+	var value = document.getElementById("next").value;
+
+	newItem.value = value;
+	newItem.next = null;
+	if (curr == null)
+	{
+		newItem.rear = newItem;
+		newItem.front = newItem;
+		curr = newItem;
+	}
+	else
+	{
+		newItem.rear = newItem;
+		newItem.front = curr.front;
+		curr.rear.next = newItem;
+		curr.rear = newItem;
+	}
+
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+
+	display(curr, "list");
+	return curr;
+}
+
+function enqueue2(curr, next)
+{
+	var newItem = new Object();
+	var value = next;
+
+	newItem.value = value;
+	newItem.next = null;
+	if (curr == null)
+	{
+		newItem.rear = newItem;
+		newItem.front = newItem;
+		curr = newItem;
+	}
+	else
+	{
+		newItem.rear = newItem;
+		newItem.front = curr.front;
+		curr.rear.next = newItem;
+		curr.rear = newItem
+	}
+
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+
+	return curr;
+}
+
+function getLength(curr)
+{
+	var temp = curr;
+	for (var i = 0; temp != null; i++, temp = temp.next)
+	{}
+
+	return i;
+}
+
+function init(curr, k1)
+{
+	var curr = generate(k1);
+	document.getElementById("next").value = Math.floor((Math.random())*100);
+	display(curr, "list");
+	return curr;
+}
+
+function display(curr, loc)
+{
+	var text = "";
+	var temp = new Object();
+	var val = 0;
+
+	if (curr == null)
+	{
+		text = "There are no items in this Queue<br>";
+	}
+	else
+	{
+		temp = curr;
+		while (temp != null)
+		{
+			if (temp.next != null)
+				text = "<td>" + temp.value + "</td>" + text;
+			else if (temp.next == null)
+				text = "<td>" + temp.value + "</td>" + text;
+			temp = temp.next;
+			val++;
+		}
+	}
+
+	text = "<table border=1><tr>" + text + "</tr></table>";
+
+	document.getElementById(loc).innerHTML = text;
+}
+
+function size(curr)
+{
+	var temp = curr;
+	var count = 0;
+
+	while (temp != null)
+	{
+		temp = temp.next;
+		count++;
+	}
+
+	return count;
+}
+
+function maxValue(curr)
+{
+	var temp = curr;
+	var max = -1000;
+
+	while (temp != null)
+	{
+		if (temp.value > max)
+			max = temp.value;
+		temp = temp.next;
+	}
+
+	return max;
+}
+
+function minValue(curr)
+{
+	var temp = curr;
+	var min = 1000;
+
+	while (temp != null)
+	{
+		if (temp.value < min)
+			min = temp.value;
+		temp = temp.next;
+	}
+
+	return min;
+}
+
+function operate(curr)
+{
+ 	if (document.getElementById("alg").value == 1)
+	{
+		document.getElementById("output").innerHTML = "";
+ 		curr = enqueue1(curr);
+	}
+ 	else if (document.getElementById("alg").value == 2)
+	{
+		document.getElementById("output").innerHTML = "";
+ 		curr = dequeue(curr);
+	}
+	else if (document.getElementById("alg").value == 3)
+		document.getElementById("output").innerHTML = "The size of this stack is currently " + size(curr) + "<br>";
+	else if (document.getElementById("alg").value == 4)
+		document.getElementById("output").innerHTML = "The maximum value of this stack is currently " + maxValue(curr) + "<br>";
+	else if (document.getElementById("alg").value == 5)
+		document.getElementById("output").innerHTML = "The minimum value of this stack is currently " + minValue(curr) + "<br>";
+
+  	return curr;
+}
+</script>
+<h3><center></center></h3>
+<p>This page shows examples of the Queue Data Structure. <br>
+<br>
+Queues operate under a property of First in First Out (FIFO), which is similar to waiting in a line. <br>
+<br>
+The two main operations in a queue are to Enqueue (or insert an element) and Dequeue (or remove an element). Just like waiting in line, when an element is enqueued it is inserted at the back of the queue. And also like waiting in line, when an element is removed from a queue, it is removed from the front of the line. </p>
+<form name=data id=data> 
+<input type=button onclick="k1 = Math.floor(Math.random()*25);set1 = init(set1, k1);" value="New Problem"><br> 
+<table><tr><td>
+<select name="alg" id="alg">
+ <option value=1 selected>Enqueue</OPTION>
+
+ <option value=2>Dequeue</OPTION>
+ <option value=3>Size</OPTION>
+ <option value=4>Maximum Value</OPTION>
+ <option value=5>Minimum Value</OPTION>
+
+</SELECT><br>
+<input size=3 name=last id=last> Last Removed Value<br>
+<input size=3 name=next id=next> Next Value to Insert<br>
+<br> 
+<input type="button" value="Operate" onclick="set1 = operate(set1);">  </FORM>
+</td></tr>
+<tr><td><p name="list" id="list">
+</p></tr></td>
+<tr><td><p name="output" id="output">
+</p></tr></td></table>
+
+<script type="text/javascript">
+var k1 = Math.floor(Math.random()*25);
+var set1 = init(set1, k1);
+</script>

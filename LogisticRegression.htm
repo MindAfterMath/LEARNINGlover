@@ -1,0 +1,371 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+LogisticRegression<script type='text/javascript'>
+function init()
+{
+	var dataSet = new Array();	
+	var numInst = document.getElementById("numberInst").value;
+
+	for (var zen = 0; zen < numInst; zen++)
+	{
+		dataSet[zen] = new Object();
+		dataSet[zen].eval = Math.random();
+		dataSet[zen].label = Math.round(Math.random()*dataSet[zen].eval + dataSet[zen].eval);
+		dataSet[zen].eval = Math.floor(100 * dataSet[zen].eval);
+	}
+
+	var text = new Array();
+	text[0] = "<table>";
+	text[1] = "<table>";
+
+	for (var i = 0; i < dataSet.length; i++)
+	{
+		text[dataSet[i].label] += "<tr><td>" + dataSet[i].eval + "</td><td>" + dataSet[i].label + "</td></tr>";
+	}
+	
+	text[0] += "</table>";
+	text[1] += "</table>";
+	
+	document.getElementById("output").innerHTML += "<table><tr><td>" + text[0] + "</td><td>" + text[1] + "</td></tr></table>";
+
+	dispPts(dataSet);
+	return dataSet;
+}
+
+function dispPts(dataset)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	var yIncr = c.height / 4;
+//	var xIncr = c.height / 
+	var max = -1;
+	var min = c.width;
+
+	for (i = 0; i < dataset.length; i++)
+	{
+		if (dataset[i].eval > max)
+		{
+			max = dataset[i].eval;
+		}
+		if (dataset[i].eval < min)
+		{
+			min = dataset[i].eval;
+		}
+	}
+
+	xIncr = c.width / (max - min);
+	ctx.clearRect(0, 0, 500, 600);
+	ctx.fillStyle="#000000";
+	var offset = 0;
+	if (min < 0)
+	{
+		offset = -1*min * xIncr;
+	}
+	else if (max > c.width)
+	{
+		offset = c.width - max * xIncr;
+	}
+
+	for (i = 0; i < dataset.length; i++)
+	{
+		ctx.beginPath();
+		ctx.arc(dataset[i].eval * xIncr + offset, c.height - yIncr - 2*dataset[i].label*yIncr, 5, 0, Math.PI*2, true);
+		ctx.closePath();
+		ctx.fill();
+	}
+}
+
+
+function indexOf(data, pt)
+{
+	var loc = -1;
+	for (var i = 0; i < data.length && loc == -1; i++)
+	{
+		var found = true;
+		for (var j = 0; j < pt.length && found; j++)
+		{
+			if (data[i].point[j] != pt[j])
+			{
+				found = false;
+			}
+		}
+	}
+	
+	return loc;
+}
+
+function sigmoid(z) 
+{
+	return 1.0 / (1.0 + Math.exp(-z));
+}
+
+function train(instances) 
+{
+	for (var n = 0; n < iter; n++) 
+	{
+		var lik = 0.0;
+
+		for (var i = 0; i < instances.length; i++)
+		{
+			var predicted = classify(instances[i].point);
+			var label = instances[i].label;
+			for (var j = 0; j < weights.length; j++) 
+			{
+				weights[j] = weights[j] + rate * (label - predicted) * label;
+			}
+			
+			lik += label * Math.log(classify(instances[i].point)) + (1- label) * Math.log(1 - classify(instances[i].point));
+		}
+
+		document.getElementById("output").innerHTML += "iteration: " + n + " " + weights + " mle: " + lik + "<br>";
+	}
+}
+
+function classify(point) 
+{
+	var logit = 0.0;
+	for (var i = 0; i < weights.length; i++)  
+	{
+		logit += weights[i] * point[i];
+	}
+
+	return sigmoid(logit);
+}
+
+function evalPoly(coeffs, deg, point)
+{
+	var ans = 0;
+
+	for (var zen = 0; zen < point.length; zen++)
+	{
+		ans += coeffs[zen]*point[zen];
+	}
+
+	return ans;
+}
+    
+function getMean(inst)
+{
+	var mean = 0;
+
+	for (var i = 0; i < inst.length; i++)
+	{
+		mean += inst[i].eval;
+	}
+        
+	mean /= inst.length;
+
+	return mean;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+
+<title> at LEARNINGlover.com</title>
+<script type='text/javascript'>
+function init()
+{
+	var dataSet = new Array();	
+	var numInst = document.getElementById("numberInst").value;
+
+	for (var zen = 0; zen < numInst; zen++)
+	{
+		dataSet[zen] = new Object();
+		dataSet[zen].eval = Math.random();
+		dataSet[zen].label = Math.round(Math.random()*dataSet[zen].eval + dataSet[zen].eval);
+		dataSet[zen].eval = Math.floor(100 * dataSet[zen].eval);
+	}
+
+	var text = new Array();
+	text[0] = "<table>";
+	text[1] = "<table>";
+
+	for (var i = 0; i < dataSet.length; i++)
+	{
+		text[dataSet[i].label] += "<tr><td>" + dataSet[i].eval + "</td><td>" + dataSet[i].label + "</td></tr>";
+	}
+	
+	text[0] += "</table>";
+	text[1] += "</table>";
+	
+	document.getElementById("output").innerHTML += "<table><tr><td>" + text[0] + "</td><td>" + text[1] + "</td></tr></table>";
+
+	dispPts(dataSet);
+	return dataSet;
+}
+
+function dispPts(dataset)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	var yIncr = c.height / 4;
+//	var xIncr = c.height / 
+	var max = -1;
+	var min = c.width;
+
+	for (i = 0; i < dataset.length; i++)
+	{
+		if (dataset[i].eval > max)
+		{
+			max = dataset[i].eval;
+		}
+		if (dataset[i].eval < min)
+		{
+			min = dataset[i].eval;
+		}
+	}
+
+	xIncr = c.width / (max - min);
+	ctx.clearRect(0, 0, 500, 600);
+	ctx.fillStyle="#000000";
+	var offset = 0;
+	if (min < 0)
+	{
+		offset = -1*min * xIncr;
+	}
+	else if (max > c.width)
+	{
+		offset = c.width - max * xIncr;
+	}
+
+	for (i = 0; i < dataset.length; i++)
+	{
+		ctx.beginPath();
+		ctx.arc(dataset[i].eval * xIncr + offset, c.height - yIncr - 2*dataset[i].label*yIncr, 5, 0, Math.PI*2, true);
+		ctx.closePath();
+		ctx.fill();
+	}
+}
+
+
+function indexOf(data, pt)
+{
+	var loc = -1;
+	for (var i = 0; i < data.length && loc == -1; i++)
+	{
+		var found = true;
+		for (var j = 0; j < pt.length && found; j++)
+		{
+			if (data[i].point[j] != pt[j])
+			{
+				found = false;
+			}
+		}
+	}
+	
+	return loc;
+}
+
+function sigmoid(z) 
+{
+	return 1.0 / (1.0 + Math.exp(-z));
+}
+
+function train(instances) 
+{
+	for (var n = 0; n < iter; n++) 
+	{
+		var lik = 0.0;
+
+		for (var i = 0; i < instances.length; i++)
+		{
+			var predicted = classify(instances[i].point);
+			var label = instances[i].label;
+			for (var j = 0; j < weights.length; j++) 
+			{
+				weights[j] = weights[j] + rate * (label - predicted) * label;
+			}
+			
+			lik += label * Math.log(classify(instances[i].point)) + (1- label) * Math.log(1 - classify(instances[i].point));
+		}
+
+		document.getElementById("output").innerHTML += "iteration: " + n + " " + weights + " mle: " + lik + "<br>";
+	}
+}
+
+function classify(point) 
+{
+	var logit = 0.0;
+	for (var i = 0; i < weights.length; i++)  
+	{
+		logit += weights[i] * point[i];
+	}
+
+	return sigmoid(logit);
+}
+
+function evalPoly(coeffs, deg, point)
+{
+	var ans = 0;
+
+	for (var zen = 0; zen < point.length; zen++)
+	{
+		ans += coeffs[zen]*point[zen];
+	}
+
+	return ans;
+}
+    
+function getMean(inst)
+{
+	var mean = 0;
+
+	for (var i = 0; i < inst.length; i++)
+	{
+		mean += inst[i].eval;
+	}
+        
+	mean /= inst.length;
+
+	return mean;
+}
+</script>
+<h3><center></center></h3>
+<p></p>
+<h3><center>Logistic Regression</center></h3>
+<p></p>
+<center>
+<input type="button" value="New Problem" id=button1 name=button1 onclick="b = init()">
+Max Number of Iterations:
+<select name="iterations" id="iterations">
+<option value="500">500</option>
+<option value="1000">1000</option>
+<option value="2000">2000</option>
+<option value="5000">5000</option>
+</select>
+Number of Points:
+<select name="numberInst" id="numberInst">
+<option value="25">25</option>
+<option value="50">50</option>
+<option value="100">100</option>
+<option value="200">200</option>
+</select><br>
+<canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas><br>
+<p name="output" id="output"></p>
+</center>
+<script type="text/javascript">
+var rate = 0.0001;
+var weights = new Array();
+var iter = 3000;
+init();
+/*    
+TreeMap111<String, Integer> instances = genData(100);
+LogReg logistic = new LogReg(4);
+
+logistic.train(instances);
+//        int[] x = {2, 1, 1, 0, 1};
+
+for (int j = 0; j < 10; j++)
+{
+	String newData = "";
+	for (int i = 0; i < 4; i++)
+	{
+		newData += (int) Math.floor(Math.random() * 3) + "";
+	}
+	System.out.println(newData + "\tprob(1|x) = " + logistic.classify(newData));
+}
+*/
+</script>

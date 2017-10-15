@@ -1,0 +1,232 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+MagicSquare<script type="text/javascript">
+function generate()
+{
+	var size = parseInt(document.getElementById("sqSize").value);
+	var square = new Array(size);
+	for (var i = 0; i < square.length; i++)
+	{
+		square[i] = new Array(size);
+		for (var j = 0; j < square[i].length; j++)
+		{
+			square[i][j] = 0;
+		}
+	}
+	
+	if (size % 2 == 1)
+	{
+		var row = size - 1;
+		var clmn = Math.floor(size / 2);
+		square[row][clmn] = 1;
+		
+		for (var i = 2; i <= size*size; i++)
+		{
+			if (square[(row + 1) % size][(clmn + 1) % size] == 0)
+			{
+				row = (row + 1) % size;
+				clmn = (clmn + 1) % size;
+			}
+			else
+			{
+				row = (row - 1 + size) % size;
+			}
+			square[row][clmn] = i;
+		}
+	}
+	else if (size % 4 == 0)
+	{
+		for (int j = 0; j < size; j++) 
+		{
+			for (int i = 0; i < size; i++) 
+			{
+				if (((i+1)/2)%2 == ((j+1)/2)%2) 
+				{
+					square[i][j] = size*size-size*i-j;
+				} 
+				else 
+				{
+					square[i][j] = size*i+j+1;
+				}
+			}
+		}	
+	}
+	else
+	{
+		var p = n/2;
+		var k = (n-2)/4;
+		Matrix A = magic(p);
+		for (var j = 0; j < p; j++) {
+		for (var i = 0; i < p; i++) {
+var aij = A.get(i,j);
+M[i][j] = aij;
+M[i][j+p] = aij + 2*p*p;
+M[i+p][j] = aij + 3*p*p;
+M[i+p][j+p] = aij + p*p;
+}
+}
+for (var i = 0; i < p; i++) {
+for (var j = 0; j < k; j++) {
+var t = M[i][j]; M[i][j] = M[i+p][j]; M[i+p][j] = t;
+}
+for (var j = n-k+1; j < n; j++) {
+var t = M[i][j]; M[i][j] = M[i+p][j]; M[i+p][j] = t;
+}
+}
+var t = M[k][0]; M[k][0] = M[k+p][0]; M[k+p][0] = t;
+t = M[k][k]; M[k][k] = M[k+p][k]; M[k+p][k] = t;
+}
+	}
+	
+	var text = "";
+	
+	for (var i = 0; i < size; i++)
+	{
+		for (var j = 0; j < size; j++)
+		{
+			if (square[i][j] < 10)
+			{
+				text += " ";
+			}
+			if (square[i][j] < 100)
+			{
+				text += " ";
+			}
+			text += square[i][j] + " ";
+		}
+		text += "<br>";
+	}
+	
+	text += "square = " + square + "<br>";
+	
+	document.getElementById("output").innerHTML += text;
+}
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function generate()
+{
+	var size = parseInt(document.getElementById("sqSize").value);
+	var square = new Array(size);
+	for (var i = 0; i < square.length; i++)
+	{
+		square[i] = new Array(size);
+		for (var j = 0; j < square[i].length; j++)
+		{
+			square[i][j] = 0;
+		}
+	}
+	
+	if (size % 2 == 1)
+	{
+		var row = size - 1;
+		var clmn = Math.floor(size / 2);
+		square[row][clmn] = 1;
+		
+		for (var i = 2; i <= size*size; i++)
+		{
+			if (square[(row + 1) % size][(clmn + 1) % size] == 0)
+			{
+				row = (row + 1) % size;
+				clmn = (clmn + 1) % size;
+			}
+			else
+			{
+				row = (row - 1 + size) % size;
+			}
+			square[row][clmn] = i;
+		}
+	}
+	else if (size % 4 == 0)
+	{
+		for (int j = 0; j < size; j++) 
+		{
+			for (int i = 0; i < size; i++) 
+			{
+				if (((i+1)/2)%2 == ((j+1)/2)%2) 
+				{
+					square[i][j] = size*size-size*i-j;
+				} 
+				else 
+				{
+					square[i][j] = size*i+j+1;
+				}
+			}
+		}	
+	}
+	else
+	{
+		var p = n/2;
+		var k = (n-2)/4;
+		Matrix A = magic(p);
+		for (var j = 0; j < p; j++) {
+		for (var i = 0; i < p; i++) {
+var aij = A.get(i,j);
+M[i][j] = aij;
+M[i][j+p] = aij + 2*p*p;
+M[i+p][j] = aij + 3*p*p;
+M[i+p][j+p] = aij + p*p;
+}
+}
+for (var i = 0; i < p; i++) {
+for (var j = 0; j < k; j++) {
+var t = M[i][j]; M[i][j] = M[i+p][j]; M[i+p][j] = t;
+}
+for (var j = n-k+1; j < n; j++) {
+var t = M[i][j]; M[i][j] = M[i+p][j]; M[i+p][j] = t;
+}
+}
+var t = M[k][0]; M[k][0] = M[k+p][0]; M[k+p][0] = t;
+t = M[k][k]; M[k][k] = M[k+p][k]; M[k+p][k] = t;
+}
+	}
+	
+	var text = "";
+	
+	for (var i = 0; i < size; i++)
+	{
+		for (var j = 0; j < size; j++)
+		{
+			if (square[i][j] < 10)
+			{
+				text += " ";
+			}
+			if (square[i][j] < 100)
+			{
+				text += " ";
+			}
+			text += square[i][j] + " ";
+		}
+		text += "<br>";
+	}
+	
+	text += "square = " + square + "<br>";
+	
+	document.getElementById("output").innerHTML += text;
+}
+</script>
+
+<h3><center></center></h3>
+<p></p>
+<center>Magic Square Generator</center>
+</h3>
+<p>What order magic square would you like to generate? </p>
+
+<select name="sqSize" id="sqSize">
+<option value="3">3</option>
+<option value="5">5</option>
+<option value="7">7</option>
+<option value="9">9</option>
+<option value="11">11</option>
+</select>
+<input type="button" value="Submit" onclick="generate();">
+<!--<canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas>-->
+<p name="output" id="output"></p>
+<script type="text/javascript">
+generate();
+</script>

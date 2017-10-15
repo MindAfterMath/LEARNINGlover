@@ -1,0 +1,381 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+MergeSortAlgorithm<script type="text/javascript">
+function mergeSort(A, start,  end, nest)
+{
+	if (end > start)
+	{ 
+		var mid = Math.floor((end + start) / 2); 
+		mergeSort(A, start, mid);
+		mergeSort(A, mid + 1, end);
+		merge(A, start, mid, end);
+		htory[htory.length] = new Array();
+		for (var i = 0; i < A.length; i++)
+		{
+			htory[htory.length -1][i] = A[i];
+		}
+	}
+}
+
+function merge(A, start, mid, end)
+{
+    var i, j, k;
+    var n1 = mid - start + 1;
+    var n2 = end - mid;
+ 
+    var L = new Array();
+    var R = new Array();
+ 
+    for(i = 0; i < n1; i++)
+    {
+        L[i] = A[start + i];
+    }
+
+    for(j = 0; j < n2; j++)
+    {
+        R[j] = A[mid + 1 + j];
+    }
+ 
+    i = 0;
+    j = 0;
+    k = start;
+
+    while (i < n1 && j < n2)
+    {
+        if (L[i] <= R[j])
+        {
+            A[k] = L[i];
+            i++;
+        }
+        else
+        {
+            A[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+ 
+    while (i < n1)
+    {
+        A[k] = L[i];
+        i++;
+        k++;
+    }
+ 
+    /* Copy the remaining elements of R[], if there are any */
+    while (j < n2)
+    {
+        A[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+function disp(set)
+{
+	var text2 = "<table><tr><td width=50>";
+	text2 += "set = </td><td>(";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text2 += set[i] + ", ";
+		else
+			text2 += set[i];
+	}
+	text2 += ")</td></tr></table>";
+
+	return text2;
+}
+
+function getMax(list)
+{
+	var maxLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (maxLoc == -1 || list[i] > list[maxLoc])
+		{
+			maxLoc = i;
+		}
+	}
+	
+	return list[maxLoc];
+}
+	
+function plotGraph(list)
+{
+	document.getElementById("output").innerHTML = "";
+	for (var k = 0; k < list.length; k++)
+	{
+		var mycanvas = document.createElement("canvas");
+		mycanvas.id = "canvas" + k;
+		mycanvas.height = '200';
+		mycanvas.width = '500';
+		mycanvas.style="border:1px solid #d3d3d3;"
+
+		document.getElementById("output").appendChild(mycanvas);
+		var c = document.getElementById("canvas" + k);
+		var ctx = c.getContext("2d");
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, c.width, c.height);
+		ctx.fill();
+
+		var barWidth = Math.floor(c.width / (list[k].length + 2));
+		var unitHght = Math.floor(c.height / (getMax(list[k]) + 2));
+		var clr = new Array();
+		for (var j = 0; j < 6; j++)
+		{
+			clr[j] = Math.floor(Math.random()*16);
+			if (clr[j] == 10)
+			{
+				clr[j] = "A"
+			}
+			else if (clr[j] == 11)
+			{
+				clr[j] = "B"
+			}
+			else if (clr[j] == 12)
+			{
+				clr[j] = "C"
+			}
+			else if (clr[j] == 13)
+			{
+				clr[j] = "D"
+			}
+			else if (clr[j] == 14)
+			{
+				clr[j] = "E"
+			}
+			else if (clr[j] == 15)
+			{
+				clr[j] = "F"
+			}
+		}
+
+		for (var i = 0; i < list[k].length; i++)
+		{
+			ctx.fillStyle = "#" + clr[0] + clr[1] + clr[2] + clr[3] + clr[4] + clr[5];
+			ctx.fillRect(i*barWidth + barWidth/2 + i, c.height - unitHght * list[k][i] - unitHght, barWidth, unitHght * list[k][i]);
+			ctx.fillText(list[k][i], i*barWidth + barWidth + i - 2, c.height - 10);
+			ctx.fill();
+		}
+	}
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="algorithm, merge sort, mergesort, programming, sort, divide, conquer, divide and conquer, merge" />  
+<meta name="description" content="This page contains a script I've written to help understand the MergeSort Algorithm." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function mergeSort(A, start,  end, nest)
+{
+	if (end > start)
+	{ 
+		var mid = Math.floor((end + start) / 2); 
+		mergeSort(A, start, mid);
+		mergeSort(A, mid + 1, end);
+		merge(A, start, mid, end);
+		htory[htory.length] = new Array();
+		for (var i = 0; i < A.length; i++)
+		{
+			htory[htory.length -1][i] = A[i];
+		}
+	}
+}
+
+function merge(A, start, mid, end)
+{
+    var i, j, k;
+    var n1 = mid - start + 1;
+    var n2 = end - mid;
+ 
+    var L = new Array();
+    var R = new Array();
+ 
+    for(i = 0; i < n1; i++)
+    {
+        L[i] = A[start + i];
+    }
+
+    for(j = 0; j < n2; j++)
+    {
+        R[j] = A[mid + 1 + j];
+    }
+ 
+    i = 0;
+    j = 0;
+    k = start;
+
+    while (i < n1 && j < n2)
+    {
+        if (L[i] <= R[j])
+        {
+            A[k] = L[i];
+            i++;
+        }
+        else
+        {
+            A[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+ 
+    while (i < n1)
+    {
+        A[k] = L[i];
+        i++;
+        k++;
+    }
+ 
+    /* Copy the remaining elements of R[], if there are any */
+    while (j < n2)
+    {
+        A[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+function disp(set)
+{
+	var text2 = "<table><tr><td width=50>";
+	text2 += "set = </td><td>(";
+	for (var i = 0; i < set.length; i++)
+	{
+		if (i < set.length - 1)
+			text2 += set[i] + ", ";
+		else
+			text2 += set[i];
+	}
+	text2 += ")</td></tr></table>";
+
+	return text2;
+}
+
+function getMax(list)
+{
+	var maxLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (maxLoc == -1 || list[i] > list[maxLoc])
+		{
+			maxLoc = i;
+		}
+	}
+	
+	return list[maxLoc];
+}
+	
+function plotGraph(list)
+{
+	document.getElementById("output").innerHTML = "";
+	for (var k = 0; k < list.length; k++)
+	{
+		var mycanvas = document.createElement("canvas");
+		mycanvas.id = "canvas" + k;
+		mycanvas.height = '200';
+		mycanvas.width = '500';
+		mycanvas.style="border:1px solid #d3d3d3;"
+
+		document.getElementById("output").appendChild(mycanvas);
+		var c = document.getElementById("canvas" + k);
+		var ctx = c.getContext("2d");
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, c.width, c.height);
+		ctx.fill();
+
+		var barWidth = Math.floor(c.width / (list[k].length + 2));
+		var unitHght = Math.floor(c.height / (getMax(list[k]) + 2));
+		var clr = new Array();
+		for (var j = 0; j < 6; j++)
+		{
+			clr[j] = Math.floor(Math.random()*16);
+			if (clr[j] == 10)
+			{
+				clr[j] = "A"
+			}
+			else if (clr[j] == 11)
+			{
+				clr[j] = "B"
+			}
+			else if (clr[j] == 12)
+			{
+				clr[j] = "C"
+			}
+			else if (clr[j] == 13)
+			{
+				clr[j] = "D"
+			}
+			else if (clr[j] == 14)
+			{
+				clr[j] = "E"
+			}
+			else if (clr[j] == 15)
+			{
+				clr[j] = "F"
+			}
+		}
+
+		for (var i = 0; i < list[k].length; i++)
+		{
+			ctx.fillStyle = "#" + clr[0] + clr[1] + clr[2] + clr[3] + clr[4] + clr[5];
+			ctx.fillRect(i*barWidth + barWidth/2 + i, c.height - unitHght * list[k][i] - unitHght, barWidth, unitHght * list[k][i]);
+			ctx.fillText(list[k][i], i*barWidth + barWidth + i - 2, c.height - 10);
+			ctx.fill();
+		}
+	}
+}
+</script>
+<h3><center></center></h3>
+<p>This is the Merge Sort Algorithm. <br>
+<br>
+MergeSort is based on a simple "Divide and Conquer" approach. The principle behind it is simple: We want to sort an entire list, but if this entire list is sorted, then each half of this list must also be sorted. It is an easier problem to sort a smaller list than a larger list, so we sort each of the smaller lists. Once these two lists are sorted, we run a merge algorithm which combines the two smaller lists into one larger list. These smaller lists are then sorted using the same principle until our smaller lists are of size 1 or 2, in which case we can simply swap the two items or return the item itself. <br>
+<br>
+The pseudocode for this algorithm is as follows:<br>
+MergeSort(A, start, end)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ((end - start + 1) = 1)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return A<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end if<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mid <- (end - start) / 2<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left <- {A[start], A[start+1], ... A[mid]}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;right <- {A[mid+1], A[mid+2], ... A[end]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left <- MergeSort(left, 0, mid)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;right <- MergeSort(right, 0, end-mid)<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return Merge(left, right)<br>
+end MergeSort<br></p>
+<form name=data id=data>
+ <input type=button onclick="javascript:location.reload(true)" value="New Problem"><br>
+ <TEXTAREA style="WIDTH: 350px; HEIGHT: 150px" id=list cols=41 rows=6 name=list></TEXTAREA><br>
+ <input type="checkbox" name="show" id="show">Show Work?
+ <input type="button" value="Sort" onclick="mergeSort(A, 0, A.length-1, 0); plotGraph(htory)">  
+</FORM> 
+<script type="text/javascript"> 
+A = []; 
+size = Math.floor(Math.random()*10)+1; 
+for (i = 0; i < 5*size; i++)
+	A[i] = Math.floor(Math.random()*201);
+text = ""; 
+left = []; 
+right = []; 
+n = []; 
+mid = []; 
+result = []; 
+var htory = new Array();
+for (i = 0; i < A.length; i++) 
+{
+ 	if (i < A.length - 1)
+ 		text += A[i] + ", ";
+ 	else
+ 		text += A[i]; 
+}
+ 
+document.getElementById("list").value = text; 
+text = ""; 
+</SCRIPT>
+<p name="output" id="output">
+</p>

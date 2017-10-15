@@ -1,0 +1,94 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+SieveofEratosthenes<script id="sc1" type="text/javascript"> 
+function sieve(N, show) 
+{
+ 	var i, j;
+ 	var a = [];
+	text = "";
+
+	for (a[0] = 0, a[1] = 0, i = 2; i <= N; i++)
+	{
+		a[i] = 1;
+	}
+
+	for (i = 2; i <= N/2; i++)
+	{
+		for (j = 2; j <= N/i; j++)
+		{
+			if (a[i*j])
+			{
+				if (show)
+				{
+					text += (i*j) + " = " + i + " * " + j + "<br>";
+				}
+				a[i*j] = 0;
+			}
+		}
+	}
+
+  	text += "The Primes less than " + N+ " are ";
+
+	for (i = 0; i <= N; i++)
+	{
+		if (a[i])
+		{
+			text += i + " ";
+		}
+	}
+
+	text += "<br>";
+
+	document.getElementById('output').innerHTML = text; 
+}
+</script> <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="algorithm, canceling, Cryptography, divisors, examples, JavaScript, less, math, number, numbers, Prime, script, Sieve of Eratosthenes, theory" /> 
+<meta name="description" content="This page contains a script I've written to help understand the Sieve of Eratosthenes." />
+<title> at LEARNINGlover.com</title>
+<script id="sc1" type="text/javascript"> 
+function sieve(N, show) 
+{
+ 	var i, j;
+ 	var a = [];
+	text = "";
+
+	for (a[0] = 0, a[1] = 0, i = 2; i <= N; i++)
+	{
+		a[i] = 1;
+	}
+
+	for (i = 2; i <= N/2; i++)
+	{
+		for (j = 2; j <= N/i; j++)
+		{
+			if (a[i*j])
+			{
+				if (show)
+				{
+					text += (i*j) + " = " + i + " * " + j + "<br>";
+				}
+				a[i*j] = 0;
+			}
+		}
+	}
+
+  	text += "The Primes less than " + N+ " are ";
+
+	for (i = 0; i <= N; i++)
+	{
+		if (a[i])
+		{
+			text += i + " ";
+		}
+	}
+
+	text += "<br>";
+
+	document.getElementById('output').innerHTML = text; 
+}
+</script> 
+<h3><center></center></h3>
+<p>This program implements the Sieve of Eratosthenes, which prints out all prime numbers less than a given number. </p>
+<form name="data" id="data"> <input type=button onclick="javascript:location.reload(true)" value="New Problem"><br> <script id="sc2" type="text/javascript"> u = Math.floor(Math.random()*1000); document.write("Find All Primes Less than " + u + "<br>"); </script> <input type=checkbox name=show id=show>Show Work?<br> <input type="button" onclick="sieve(u, document.getElementById('show').checked)" value="Go" id=button1 name=button1> <p name="output" id="output"></p> </FORM> 

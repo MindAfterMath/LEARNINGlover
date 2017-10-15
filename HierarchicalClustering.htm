@@ -1,0 +1,571 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+HierarchicalClustering<script type="text/javascript">
+var M = 1000000;
+var text = "";
+
+function clearRect()
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#c3c3c3";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	return;
+}
+
+function EucDist(point1, point2)
+{
+	var i, j, sumSq = 0;
+
+	if (point1.length != point2.length)
+		return M;
+
+	for (i = 0; i < point1.length; i++)
+		sumSq += Math.pow(Math.abs(point1[i] - point2[i]), 2);
+
+	return Math.sqrt(sumSq);
+}
+
+function generate()
+{
+	document.getElementById("points").value = "";
+	var numPts = document.getElementById('nopts').value;
+	var i;
+
+	for (i = 0; i < numPts; i++)
+	{
+		inp[i] = new Array();
+		inp[i][0] = Math.floor(Math.random()*document.getElementById("myCanvas").width + 1);
+		inp[i][1] = Math.floor(Math.random()*document.getElementById("myCanvas").height + 1);
+		document.getElementById("points").value += "(" + inp[i][0] + ", " + inp[i][1] + "), ";
+	}
+	
+	dispPts(inp);
+	return inp;
+}
+
+function dispPts(input)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.clearRect(0, 0, c.width, c.height);
+	ctx.fillStyle="#000000";
+
+	for (i = 0; i < input.length; i++)
+	{
+		ctx.beginPath();
+		ctx.arc(input[i][0],c.height-input[i][1],5,0,Math.PI*2,true);
+		ctx.closePath();
+		ctx.fill();
+//		alert("point " + i + ": " + input[i][0] + ", " + input[i][1] + " drawn.");
+	}
+}
+
+function dispClusters(items, clusters, labels)
+{
+	var text = "<table>";
+
+	for (var i = 0; i < clusters.length; i++)
+	{
+		if (clusters[i].length > 0)
+		{
+			text += "<tr><td width=200><b>Cluster " + i + ":</b></td>";
+			text += "<td width=200>";
+			for (j = 0; j < clusters[i].length; j++)
+			{
+			text += "(" + items[clusters[i][j]][0].toFixed(3) + ", " + items[clusters[i][j]][1].toFixed(3) + ")<br>";
+			}
+			text += "<td>";
+			text += "</tr>";
+		}
+	}
+
+	text += "</table>";
+	return text;
+}
+
+function hierClust(items, maxVal, clusters, labels)
+{	
+	//Each node is initially in its own tree (lookup). 
+	var text = "";
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect(0, 0, c.height, c.width);
+	dispPts(items);
+	
+//	text += "Similarity Matrix is <table>";
+	var A = new Array();
+	for (var i1 = 0; i1 < items.length; i1++)
+	{
+//		text += "<tr>";
+		A[i1] = new Array();
+		for (var i2 = 0; i2 < items.length; i2++)
+		{
+			A[i1][i2] = EucDist(items[i1], items[i2]);
+//			text += "<td>" + A[i1][i2].toFixed(3) + "</td>";
+		}
+//		text += "</tr>";
+	}
+//	text += "</table>";
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		clusters[i] = new Array();
+		clusters[i][0] = i;
+		labels[i] = i;
+//		text += "Element " + i + " is initially in cluster " + i + "<br>";
+	}
+
+	var E = new Array();
+	var sum = 0;
+	var last = -1;
+	var m;
+
+	while (last < maxVal || last == -1)
+	{
+		//First find the maximum weight edge. 
+		m = Number.MAX_VALUE;
+
+		for (var i = 0; i < A.length; i++)
+		{
+			for (var j = 0; j < i; j++)
+			{
+				if (A[i][j] < m && labels[i] != labels[j] && A[i][j] > Number.MIN_VALUE && A[i][j] < maxVal)
+				{
+					m = A[i][j];
+					u = i;
+					v = j;
+				}
+			}
+		}
+	
+		if (m == Number.MAX_VALUE)
+		{
+			last = maxVal;
+		}
+		else
+		{
+//			text += "The minimum edge is " + u + ", " + v + " with a value of " + m.toFixed(3) + "<br>";
+//			text += "The node " + u + " belongs to the cluster " + labels[u] + "<br>";
+//			text += "clusters[" + labels[u] + "] = " + clusters[labels[u]] + "<br>";
+			initLen = clusters[labels[u]].length;
+			initLook = labels[u];
+			for (var i = initLen - 1; i >= 0; i--)
+			{
+				clusters[labels[v]][clusters[labels[v]].length] = clusters[initLook][i];
+				labels[clusters[initLook][i]] = labels[v];
+			}
+			E[E.length] = u;
+			E[E.length] = v;
+			last = A[u][v];
+			A[u][v] = Number.MAX_VALUE;
+			A[v][u] = Number.MAX_VALUE;
+			sum += m;
+		}
+	}
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			if (clusters[i][j] != i)
+			{
+				clusters[clusters[i][j]] = "";
+			}
+		}
+	}
+
+	text += dispClusters(items, clusters, labels);
+	
+//	text += "<table>";
+//	for (var i = 0; i < clusters.length; i++)
+//	{
+//		text += "<tr>";
+//		for (var j = 0; j < clusters[i].length; j++)
+//		{
+//			text += "<td>" + clusters[i][j] + "</td>";
+//		}
+//		text += "</tr>";
+//	}
+//	text += "</table>";
+		
+	document.getElementById("output").innerHTML += text;
+
+	E[E.length] = sum;
+	
+	var maxDist = new Array();
+	var centers = new Array();
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		centers[i] = new Array();
+		centers[i][0] = 0;
+		centers[i][1] = 0;
+		
+		for (var j1 = 0; j1 < clusters[i].length; j1++)
+		{
+			centers[i][0] += items[clusters[i][j1]][0];
+			centers[i][1] += items[clusters[i][j1]][1];
+		}
+		centers[i][0] = centers[i][0] / clusters[i].length;
+		centers[i][1] = centers[i][1] / clusters[i].length;
+	}
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		maxDist[i] = Number.MIN_VALUE;
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			if (EucDist(centers[i], items[clusters[i][j]]) > maxDist[i])
+			{
+				maxDist[i] = EucDist(centers[i], items[clusters[i][j]]);
+			}
+		}
+	}
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		ctx.strokeStyle="#0000FF";
+		ctx.beginPath();
+		ctx.moveTo(centers[i][0], c.height - centers[i][1]);
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			ctx.lineTo(items[clusters[i][j]][0], c.height-items[clusters[i][j]][1]);
+			ctx.lineTo(centers[i][0], c.height - centers[i][1]);
+		}
+		ctx.closePath();
+		ctx.stroke();
+
+		ctx.fillStyle="#FF0000";
+		ctx.beginPath();
+		ctx.arc(centers[i][0],c.height-centers[i][1],2,0,Math.PI*2,true);
+		ctx.closePath();
+		ctx.fill();
+
+		ctx.strokeStyle="#00FF00";
+		ctx.beginPath();
+		ctx.arc(centers[i][0],c.height-centers[i][1],maxDist[i],0,Math.PI*2,true);
+		ctx.closePath();
+		ctx.stroke();
+	}
+}
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="algorithm, clustering, distance, java script, JavaScript, hierarchal clustering, learning, machine, machine learning, programming, script, supervised, supervised learning, unsupervised, unsupervised learning" /> 
+
+<meta name="description" content="This page contains a script I've written to help understand Hierarchal Clustering." />
+
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+var M = 1000000;
+var text = "";
+
+function clearRect()
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#c3c3c3";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	return;
+}
+
+function EucDist(point1, point2)
+{
+	var i, j, sumSq = 0;
+
+	if (point1.length != point2.length)
+		return M;
+
+	for (i = 0; i < point1.length; i++)
+		sumSq += Math.pow(Math.abs(point1[i] - point2[i]), 2);
+
+	return Math.sqrt(sumSq);
+}
+
+function generate()
+{
+	document.getElementById("points").value = "";
+	var numPts = document.getElementById('nopts').value;
+	var i;
+
+	for (i = 0; i < numPts; i++)
+	{
+		inp[i] = new Array();
+		inp[i][0] = Math.floor(Math.random()*document.getElementById("myCanvas").width + 1);
+		inp[i][1] = Math.floor(Math.random()*document.getElementById("myCanvas").height + 1);
+		document.getElementById("points").value += "(" + inp[i][0] + ", " + inp[i][1] + "), ";
+	}
+	
+	dispPts(inp);
+	return inp;
+}
+
+function dispPts(input)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.clearRect(0, 0, c.width, c.height);
+	ctx.fillStyle="#000000";
+
+	for (i = 0; i < input.length; i++)
+	{
+		ctx.beginPath();
+		ctx.arc(input[i][0],c.height-input[i][1],5,0,Math.PI*2,true);
+		ctx.closePath();
+		ctx.fill();
+//		alert("point " + i + ": " + input[i][0] + ", " + input[i][1] + " drawn.");
+	}
+}
+
+function dispClusters(items, clusters, labels)
+{
+	var text = "<table>";
+
+	for (var i = 0; i < clusters.length; i++)
+	{
+		if (clusters[i].length > 0)
+		{
+			text += "<tr><td width=200><b>Cluster " + i + ":</b></td>";
+			text += "<td width=200>";
+			for (j = 0; j < clusters[i].length; j++)
+			{
+			text += "(" + items[clusters[i][j]][0].toFixed(3) + ", " + items[clusters[i][j]][1].toFixed(3) + ")<br>";
+			}
+			text += "<td>";
+			text += "</tr>";
+		}
+	}
+
+	text += "</table>";
+	return text;
+}
+
+function hierClust(items, maxVal, clusters, labels)
+{	
+	//Each node is initially in its own tree (lookup). 
+	var text = "";
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect(0, 0, c.height, c.width);
+	dispPts(items);
+	
+//	text += "Similarity Matrix is <table>";
+	var A = new Array();
+	for (var i1 = 0; i1 < items.length; i1++)
+	{
+//		text += "<tr>";
+		A[i1] = new Array();
+		for (var i2 = 0; i2 < items.length; i2++)
+		{
+			A[i1][i2] = EucDist(items[i1], items[i2]);
+//			text += "<td>" + A[i1][i2].toFixed(3) + "</td>";
+		}
+//		text += "</tr>";
+	}
+//	text += "</table>";
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		clusters[i] = new Array();
+		clusters[i][0] = i;
+		labels[i] = i;
+//		text += "Element " + i + " is initially in cluster " + i + "<br>";
+	}
+
+	var E = new Array();
+	var sum = 0;
+	var last = -1;
+	var m;
+
+	while (last < maxVal || last == -1)
+	{
+		//First find the maximum weight edge. 
+		m = Number.MAX_VALUE;
+
+		for (var i = 0; i < A.length; i++)
+		{
+			for (var j = 0; j < i; j++)
+			{
+				if (A[i][j] < m && labels[i] != labels[j] && A[i][j] > Number.MIN_VALUE && A[i][j] < maxVal)
+				{
+					m = A[i][j];
+					u = i;
+					v = j;
+				}
+			}
+		}
+	
+		if (m == Number.MAX_VALUE)
+		{
+			last = maxVal;
+		}
+		else
+		{
+//			text += "The minimum edge is " + u + ", " + v + " with a value of " + m.toFixed(3) + "<br>";
+//			text += "The node " + u + " belongs to the cluster " + labels[u] + "<br>";
+//			text += "clusters[" + labels[u] + "] = " + clusters[labels[u]] + "<br>";
+			initLen = clusters[labels[u]].length;
+			initLook = labels[u];
+			for (var i = initLen - 1; i >= 0; i--)
+			{
+				clusters[labels[v]][clusters[labels[v]].length] = clusters[initLook][i];
+				labels[clusters[initLook][i]] = labels[v];
+			}
+			E[E.length] = u;
+			E[E.length] = v;
+			last = A[u][v];
+			A[u][v] = Number.MAX_VALUE;
+			A[v][u] = Number.MAX_VALUE;
+			sum += m;
+		}
+	}
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			if (clusters[i][j] != i)
+			{
+				clusters[clusters[i][j]] = "";
+			}
+		}
+	}
+
+	text += dispClusters(items, clusters, labels);
+	
+//	text += "<table>";
+//	for (var i = 0; i < clusters.length; i++)
+//	{
+//		text += "<tr>";
+//		for (var j = 0; j < clusters[i].length; j++)
+//		{
+//			text += "<td>" + clusters[i][j] + "</td>";
+//		}
+//		text += "</tr>";
+//	}
+//	text += "</table>";
+		
+	document.getElementById("output").innerHTML += text;
+
+	E[E.length] = sum;
+	
+	var maxDist = new Array();
+	var centers = new Array();
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		centers[i] = new Array();
+		centers[i][0] = 0;
+		centers[i][1] = 0;
+		
+		for (var j1 = 0; j1 < clusters[i].length; j1++)
+		{
+			centers[i][0] += items[clusters[i][j1]][0];
+			centers[i][1] += items[clusters[i][j1]][1];
+		}
+		centers[i][0] = centers[i][0] / clusters[i].length;
+		centers[i][1] = centers[i][1] / clusters[i].length;
+	}
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		maxDist[i] = Number.MIN_VALUE;
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			if (EucDist(centers[i], items[clusters[i][j]]) > maxDist[i])
+			{
+				maxDist[i] = EucDist(centers[i], items[clusters[i][j]]);
+			}
+		}
+	}
+	
+	for (var i = 0; i < clusters.length; i++)
+	{
+		ctx.strokeStyle="#0000FF";
+		ctx.beginPath();
+		ctx.moveTo(centers[i][0], c.height - centers[i][1]);
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			ctx.lineTo(items[clusters[i][j]][0], c.height-items[clusters[i][j]][1]);
+			ctx.lineTo(centers[i][0], c.height - centers[i][1]);
+		}
+		ctx.closePath();
+		ctx.stroke();
+
+		ctx.fillStyle="#FF0000";
+		ctx.beginPath();
+		ctx.arc(centers[i][0],c.height-centers[i][1],2,0,Math.PI*2,true);
+		ctx.closePath();
+		ctx.fill();
+
+		ctx.strokeStyle="#00FF00";
+		ctx.beginPath();
+		ctx.arc(centers[i][0],c.height-centers[i][1],maxDist[i],0,Math.PI*2,true);
+		ctx.closePath();
+		ctx.stroke();
+	}
+}
+</script>
+
+<h3><center></center></h3>
+<p><p>Hierarchical Clustering algorithms give a nice introduction to unsupervised machine learning. The algorithm seeks to group similar items together into a set of clusters. It repeatedly checks the minimum distance of an element outside of any cluster to its nearest cluster and if this distance is less than some max value, the element is added to the cluster. </p></p>
+<form name=input id=input>
+Number of Points:
+<select name=nopts id=nopts>
+  <option value="25">25</option>
+  <option value="50">50</option>
+  <option value="100">100</option>
+  <option value="200">200</option>
+</select><br>
+Maximum Distance:
+<select name=mindst id=mindst>
+  <option value="10">10</option>
+  <option value="20">20</option>
+  <option value="30">30</option>
+  <option value="40">40</option>
+  <option value="50">50</option>
+  <option value="60">60</option>
+  <option value="70" selected>70</option>
+  <option value="80">80</option>
+  <option value="90">90</option>
+  <option value="100">100</option>
+  <option value="110">110</option>
+  <option value="120">120</option>
+  <option value="130">130</option>
+  <option value="140">140</option>
+  <option value="150">150</option>
+  <option value="160">160</option>
+  <option value="170">170</option>
+  <option value="180">180</option>
+  <option value="190">190</option>
+  <option value="200">200</option>
+  <option value="210">210</option>
+  <option value="220">220</option>
+  <option value="230">230</option>
+  <option value="240">240</option>
+  <option value="250">250</option>
+</select><br>
+<br>
+<textarea name="points" id="points" readonly rows=5></textarea><br>
+<input type=Button value="Generate Points" onclick="clearRect();inp=generate();">
+<input type=Button value="Run Hierarchal Clustering" onclick="text='';clearRect();hierClust(inp, document.getElementById('mindst').value, clusters, labels);text += 'Final Configuration:<br>';text += dispClusters(inp, clusters, labels);document.getElementById('output').innerHTML = text;">
+</form> 
+<canvas id="myCanvas" width="550" height="400"  style="border:1px solid #c3c3c3;">
+Your browser does not support the canvas element.
+</canvas>
+<p name='output' id='output'></p>
+<script type="text/javascript">
+var inp = new Array();
+var clusters = new Array();
+var labels = new Array();
+</script>

@@ -1,0 +1,986 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+SimpleLinearRegression<script type="text/javascript">
+function mean(data, coord)
+{
+	var size = data.length;
+	var sum = 0;
+	
+	for (var i = 0; i < data.length; i++)
+	{
+		sum += parseFloat(data[i][coord]);
+	}
+	
+	return (sum / size);
+}
+
+function multLinReg(data, show)
+{
+	var text = "";
+	var Sxx = 0;
+	var Sxy = 0;
+	var sumXX = 0;
+	var sumXY = 0;
+	var sumYY = 0;
+	var sumX = 0;
+	var sumY = 0;
+	var sol = new Array();
+	
+	for (var zen = 0; zen < data.length; zen++)
+	{
+		sumXX += data[zen][0]*data[zen][0];
+		sumXY += data[zen][0]*data[zen][1];
+		sumYY += data[zen][1]*data[zen][1];
+		sumX += data[zen][0];
+		sumY += data[zen][1];
+	}
+	
+	Sxx = sumXX - ((sumX)*(sumX)) / data.length;
+	Sxy = sumXY - ((sumX)*(sumY)) / data.length;
+	
+	text += "S<sub>XX</sub> = " + Sxx.toFixed(3) + "<br>";	
+	text += "S<sub>XY</sub> = " + Sxy.toFixed(3) + "<br>";	
+
+	sol[1] = Sxy / Sxx;
+	var meany = mean(data, 1);
+	var meanx = mean(data, 0);
+	sol[0] = meany - sol[1]*meanx;
+
+	text += "<table><tr><td><img src='http://learninglover.com/chars/beta.gif'><sub>1</sub> = </td><td><table><tr><td>" + Sxy.toFixed(3) + "</td></tr><tr><td><hr></td></tr><tr><td>" + Sxx.toFixed(3) + "</td></tr></table></td><td> = </td><td> " + sol[1].toFixed(3) + "</td></tr></table>";
+	text += "<img src='http://www.learninglover.com/chars/ybar.jpg'> = " + meany.toFixed(3) + "<br>";
+	text += "<img src='http://www.learninglover.com/chars/xbar.jpg'> = " + meanx.toFixed(3) + "<br>";
+	text += "<img src='http://learninglover.com/chars/beta.gif'><sub>0</sub> = " + meany.toFixed(3) + " + " + sol[1].toFixed(3) + " * " + meanx.toFixed(3) + " = " + sol[0].toFixed(3) + "<br>";
+
+	if (show)
+	{
+		document.getElementById("output").innerHTML += text;
+	}
+	
+	return sol;
+}
+
+function postProcess(data, show)
+{
+	var text = "";
+	text += "<table><tr><td><b>x</b></td><td><b>y</b></td></tr>";
+	for (var i = 0; i < data.length; i++)
+	{
+		text += "<tr><td>" + data[i][0].toFixed(3) + "</td><td>" + data[i][1].toFixed(3) + "</td></tr>";
+	}
+	text += "</table>";
+	
+	document.getElementById('dataPts').hidden = true;
+	document.getElementById('dataPts').innerHTML = text;
+	document.getElementById('output').innerHTML = "";
+	sol = multLinReg(data, show);
+	
+	text = "The linear regression for this model is <br>" + "y = " + sol[0].toFixed(4) + " + " + sol[1].toFixed(3) + "*x<br><br>";
+
+	document.getElementById("output").innerHTML += text;
+	document.getElementById('sseBtn').hidden = false;
+	document.getElementById('sstBtn').hidden = true;
+	document.getElementById('ssrBtn').hidden = true;
+	document.getElementById('rsqBtn').hidden = true;
+
+	drawLine(data, sol);	
+}
+
+function getsse(data, sol, show)
+{
+	var text = "";
+
+	if (show)
+	{
+		text += "The Sum of Squares Error (SSE) measures how much our data differs from the model we generated. <br>";
+		text += "To compute this we will calculate: <br>";
+		text += "SSE = <img src='http://learninglover.com/chars/csigma.gif'><sub>i = 1 to n</sub>(y<sub>i</sub> - <img src='http://www.learninglover.com/chars/yhat.jpg'><sub>i</sub>)<sup>2</sup>";
+	}
+	
+	var sse = 0;
+
+	for (var i = 0; i < data.length; i++)
+	{
+		var temp = evalReg(sol, data[i][0]);
+		sse += (data[i][1] - temp)*(data[i][1] - temp);
+	}
+
+	text += "The Sum of Squares Error (SSE) for this linear regression is <br>";
+	text += "SSE: " + sse.toFixed(3) + "<br><br>";
+
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("sstBtn").hidden = false;
+	
+	return sse;
+}
+
+function getsst(data, sol, show)
+{
+	var text = "";
+
+	if (show)
+	{
+		text += "The Total Sum of Squares (SST) measures how accurate the mean of our data could be used as a model for the data. <br>";
+		text += "To compute this we will calculate: <br>";
+		text += "SST = <img src='http://learninglover.com/chars/csigma.gif'><sub>i = 1 to n</sub>(y<sub>i</sub> - <img src='http://www.learninglover.com/chars/ybar.jpg'>)<sup>2</sup>";
+	}
+	
+	var sst = 0;
+	var dtaMean = mean(data, 1);
+
+	for (var i = 0; i < data.length; i++)
+	{
+		sst += (data[i][1] - dtaMean)*(data[i][1] - dtaMean);
+	}
+
+	text += "The Total Sum of Squares (SST) for this linear regression is <br>";
+	text += "SST: " + sst.toFixed(3) + "<br><br>";
+
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("ssrBtn").hidden = false;
+	
+	return sst;
+}
+
+function getssr(data, sol, show)
+{
+	var text = "";
+
+	if (show)
+	{
+		text += "The Regression Sum of Squares (SSR) measures how much of our total variation is remaining from the difference between the total sum of squares and the error sum of squares. <br>";
+		text += "To compute this we will calculate: <br>";
+		text += "SSR = SST - SSE";
+	}
+	
+	var ssr = 0;
+	var dtaMean = mean(data, 1);
+
+	for (var i = 0; i < data.length; i++)
+	{
+		var temp = evalReg(sol, data[i][0]);
+		ssr += (temp - dtaMean)*(temp - dtaMean);
+	}
+	
+	text += "The Regression Sum of Squares (SSR) for this linear regression is <br>";
+	text += "SSR: " + ssr.toFixed(3) + "<br><br>";
+
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("rsqBtn").hidden = false;
+	
+	return ssr;
+}
+
+function getrsq(data, sol, show, ssr, sst)
+{
+	var text = "";
+
+	if (show)
+	{
+		text += "The Coefficient of Determination (r<sup>2</sup>) tells what percentage of the total sum of squares that is accounted for in the error sum of squares. <br>";
+		text += "To compute this we will calculate: <br>";
+		text += "r<sup>2</sup> = SSR / SST";
+	}
+	
+	var rsq = ssr / sst;
+	
+	text += "The Coefficient of Determination (r<sup>2</sup>) for this linear regression is <br>";
+	text += "r<sup>2</sup>: " + rsq.toFixed(3) + "<br><br>";
+
+	document.getElementById("output").innerHTML += text;
+	
+	return rsq;
+}
+
+function init()
+{
+	document.getElementById('sseBtn').hidden = true;
+	document.getElementById('sstBtn').hidden = true;
+	document.getElementById('ssrBtn').hidden = true;
+	document.getElementById('rsqBtn').hidden = true;
+	document.getElementById('dataPts').hidden = true;
+	document.getElementById('output').innerHTML = '';
+
+	var numElts = document.getElementById('noElts').value;
+	var incDec = Math.floor(Math.random()*2);
+	var atZero = Math.floor(Math.random()*20) + 10;
+	var rate = Math.floor(Math.random()*5);
+	var vrnce;
+	do
+	{
+		vrnce = Math.floor(Math.random()*5);
+	}
+	while (vrnce == 0);
+	
+	var xMin = 0;
+	var xMax = Math.floor(Math.random()*25) + xMin + 5;
+	
+	if (!incDec)
+	{
+		incDec = -1;
+	}
+	
+	var b = new Array();
+	var text = "";
+	
+	text += "<table><tr><td><b>x</b></td><td><b>y</b></td></tr>";
+	for (var i = 0; i < numElts; i++)
+	{
+		var noise = Math.random()*vrnce;
+		var len = b.length;
+		b[len] = new Array();
+		b[len][0] = Math.floor(Math.random()*(xMax - xMin)*100)/100;
+		b[len][1] = atZero + incDec*rate*b[len][0] + noise;
+		text += "<tr><td>" + b[len][0].toFixed(3) + "</td><td>" + b[len][1].toFixed(3) + "</td></tr>";
+	}
+	text += "</table>";
+	document.getElementById("dataPts").innerHTML += text;
+	
+	drawPoints(b);
+	
+	return b;
+}
+
+function maximum(data, clmn)
+{
+	var mxm = Number.MIN_VALUE;
+	for (var i = 0; i < data.length;  i++)
+	{
+		if (parseFloat(data[i][clmn]) > mxm)
+		{
+			mxm = parseFloat(data[i][clmn]);
+		}
+	}
+	
+	return mxm;
+}
+
+function minimum(data, clmn)
+{
+	var mnm = Number.MAX_VALUE;
+	for (var i = 0; i < data.length;  i++)
+	{
+		if (parseFloat(data[i][clmn]) < mnm)
+		{
+			mnm = parseFloat(data[i][clmn]);
+		}
+	}
+	
+	return mnm;
+}
+
+function evalReg(beta, xVal)
+{
+	return (beta[0] + beta[1]*xVal);
+}
+
+function drawPoints(data)
+{
+	var mxm_y = maximum(data, 1);
+	var mnm_y = minimum(data, 1);
+	var mxm_x = maximum(data, 0)+1;
+	var mnm_x = 0;
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	var vpp_y;
+	var vpp_x;
+	var numRows;
+	var loc_y;
+	var loc_x = 0;
+	
+	if (mnm_y < 0)
+	{
+		vpp_y = (mxm_y - mnm_y) / c.height;
+		numRows = Math.ceil(mxm_y - mnm_y);
+		loc_y = c.height - (mxm_y) / vpp_y;
+	}
+	else
+	{
+		vpp_y = (mxm_y) / c.height;
+		numRows = Math.ceil (mxm_y);
+		loc_y = 0;
+	}
+	
+//	document.getElementById("output").innerHTML += "min_x = " + mnm_x.toFixed(3) + ", max_x = " + mxm_x.toFixed(3) + "<br>";
+//	document.getElementById("output").innerHTML += "min_y = " + mnm_y.toFixed(3) + ", max_y = " + mxm_y.toFixed(3) + "<br>";
+//	document.getElementById("output").innerHTML += "loc_x = " + loc_x + ", loc_y = " + loc_y + "<br>";
+	
+	vpp_x = (mxm_x - mnm_x) / c.width;
+	
+//	document.getElementById("output").innerHTML += "vpp_x = " + vpp_x.toFixed(3) + ", vpp_y = " + vpp_y.toFixed(3) + "<br>";
+	numClms = Math.ceil(mxm_x - mnm_x);
+	
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect (0, 0, c.width, c.height);
+	
+	var xWidth = c.width / numClms;
+	var yHeight = c.height / numRows;
+	
+//	document.getElementById("output").innerHTML += "xWidth = " + xWidth.toFixed(3) + ", yHeight = " + yHeight.toFixed(3) + "<br>";
+	
+	//Draw the axes
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(loc_x, 0);
+	ctx.lineTo(loc_x, c.height);
+	ctx.stroke();
+	
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(0, c.height - loc_y);
+	ctx.lineTo(c.width, c.height - loc_y);
+	ctx.stroke();
+	
+	//Draw the notches
+	for (var i = 0; i < c.height; i += yHeight)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(loc_x    , c.height - loc_y - i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y - i);
+		
+		ctx.moveTo(loc_x    , c.height - loc_y + i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y + i);
+		ctx.stroke();
+	}
+	
+	for (var i = 0; i < c.width; i += xWidth)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(i, c.height - loc_y + 5);
+		ctx.lineTo(i, c.height - loc_y - 5);
+		ctx.stroke();
+	}	
+	
+	for (var i = 0; i < data.length;  i++)
+	{
+		ctx.beginPath();
+		ctx.arc((data[i][0])*xWidth,c.height - data[i][1]*yHeight - loc_y,3,0,2*Math.PI);
+		ctx.stroke();
+	}
+}
+
+function drawLine(data, beta)
+{
+	var mxm_y = maximum(data, 1);
+	var mnm_y = minimum(data, 1);
+	var mxm_x = maximum(data, 0)+1;
+	var mnm_x = 0;
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	var vpp_y;
+	var vpp_x;
+	var numRows;
+	var loc_y;
+	var loc_x = 0;
+	
+	if (mnm_y < 0)
+	{
+		vpp_y = (mxm_y - mnm_y) / c.height;
+		numRows = Math.ceil(mxm_y - mnm_y);
+		loc_y = c.height - (mxm_y) / vpp_y;
+	}
+	else
+	{
+		vpp_y = (mxm_y) / c.height;
+		numRows = Math.ceil (mxm_y);
+		loc_y = 0;
+	}
+	
+	vpp_x = (mxm_x - mnm_x) / c.width;
+	
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect (0, 0, c.width, c.height);
+	
+	numClms = Math.ceil(mxm_x - mnm_x);
+	var xWidth = c.width / numClms;
+	var yHeight = c.height / numRows;
+	
+	//Draw the axes
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(loc_x, 0);
+	ctx.lineTo(loc_x, c.height);
+	ctx.stroke();
+	
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(0, c.height - loc_y);
+	ctx.lineTo(c.width, c.height - loc_y);
+	ctx.stroke();
+	
+	//Draw the notches
+	for (var i = 0; i < c.height; i += yHeight)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(loc_x    , c.height - loc_y - i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y - i);
+		
+		ctx.moveTo(loc_x    , c.height - loc_y + i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y + i);
+		ctx.stroke();
+	}
+	
+	for (var i = 0; i < c.width; i += xWidth)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(i, c.height - loc_y + 5);
+		ctx.lineTo(i, c.height - loc_y - 5);
+		ctx.stroke();
+	}	
+	
+	for (var i = 0; i < data.length;  i++)
+	{
+		ctx.beginPath();
+		ctx.arc((data[i][0])*xWidth,c.height - data[i][1]*yHeight - loc_y,3,0,2*Math.PI);
+		ctx.stroke();
+	}
+	
+	var pt0x = 0;
+	var pt0y = evalReg(beta, pt0x);
+	
+	var pt1x = numClms;
+	var pt1y = evalReg(beta, pt1x);
+
+	ctx.strokeStyle = "#3333ff";
+	ctx.beginPath();
+	ctx.moveTo(pt0x*xWidth, c.height - pt0y*yHeight - loc_y);
+	ctx.lineTo(pt1x*xWidth, c.height - pt1y*yHeight - loc_y);
+	ctx.stroke();
+
+	for (var i = 0; i < data.length;  i++)
+	{
+		ctx.strokeStyle = "#FFFF00";
+		ctx.beginPath();
+		ctx.moveTo(data[i][0]*xWidth, c.height - evalReg(beta, data[i][0])*yHeight-loc_y);
+		ctx.lineTo(data[i][0]*xWidth, c.height - data[i][1]*yHeight - loc_y)
+		ctx.stroke();
+	}	
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="vector, simple linear regression, examples, math tutor, linear regression, linearly independent, javascript, script, mathematics, math, linear algebra, trend line" />
+
+<meta name="description" content="This procedure finds the simple linear regression equation and displays the trend line for a given vector" />
+
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function mean(data, coord)
+{
+	var size = data.length;
+	var sum = 0;
+	
+	for (var i = 0; i < data.length; i++)
+	{
+		sum += parseFloat(data[i][coord]);
+	}
+	
+	return (sum / size);
+}
+
+function multLinReg(data, show)
+{
+	var text = "";
+	var Sxx = 0;
+	var Sxy = 0;
+	var sumXX = 0;
+	var sumXY = 0;
+	var sumYY = 0;
+	var sumX = 0;
+	var sumY = 0;
+	var sol = new Array();
+	
+	for (var zen = 0; zen < data.length; zen++)
+	{
+		sumXX += data[zen][0]*data[zen][0];
+		sumXY += data[zen][0]*data[zen][1];
+		sumYY += data[zen][1]*data[zen][1];
+		sumX += data[zen][0];
+		sumY += data[zen][1];
+	}
+	
+	Sxx = sumXX - ((sumX)*(sumX)) / data.length;
+	Sxy = sumXY - ((sumX)*(sumY)) / data.length;
+	
+	text += "S<sub>XX</sub> = " + Sxx.toFixed(3) + "<br>";	
+	text += "S<sub>XY</sub> = " + Sxy.toFixed(3) + "<br>";	
+
+	sol[1] = Sxy / Sxx;
+	var meany = mean(data, 1);
+	var meanx = mean(data, 0);
+	sol[0] = meany - sol[1]*meanx;
+
+	text += "<table><tr><td><img src='http://learninglover.com/chars/beta.gif'><sub>1</sub> = </td><td><table><tr><td>" + Sxy.toFixed(3) + "</td></tr><tr><td><hr></td></tr><tr><td>" + Sxx.toFixed(3) + "</td></tr></table></td><td> = </td><td> " + sol[1].toFixed(3) + "</td></tr></table>";
+	text += "<img src='http://www.learninglover.com/chars/ybar.jpg'> = " + meany.toFixed(3) + "<br>";
+	text += "<img src='http://www.learninglover.com/chars/xbar.jpg'> = " + meanx.toFixed(3) + "<br>";
+	text += "<img src='http://learninglover.com/chars/beta.gif'><sub>0</sub> = " + meany.toFixed(3) + " + " + sol[1].toFixed(3) + " * " + meanx.toFixed(3) + " = " + sol[0].toFixed(3) + "<br>";
+
+	if (show)
+	{
+		document.getElementById("output").innerHTML += text;
+	}
+	
+	return sol;
+}
+
+function postProcess(data, show)
+{
+	var text = "";
+	text += "<table><tr><td><b>x</b></td><td><b>y</b></td></tr>";
+	for (var i = 0; i < data.length; i++)
+	{
+		text += "<tr><td>" + data[i][0].toFixed(3) + "</td><td>" + data[i][1].toFixed(3) + "</td></tr>";
+	}
+	text += "</table>";
+	
+	document.getElementById('dataPts').hidden = true;
+	document.getElementById('dataPts').innerHTML = text;
+	document.getElementById('output').innerHTML = "";
+	sol = multLinReg(data, show);
+	
+	text = "The linear regression for this model is <br>" + "y = " + sol[0].toFixed(4) + " + " + sol[1].toFixed(3) + "*x<br><br>";
+
+	document.getElementById("output").innerHTML += text;
+	document.getElementById('sseBtn').hidden = false;
+	document.getElementById('sstBtn').hidden = true;
+	document.getElementById('ssrBtn').hidden = true;
+	document.getElementById('rsqBtn').hidden = true;
+
+	drawLine(data, sol);	
+}
+
+function getsse(data, sol, show)
+{
+	var text = "";
+
+	if (show)
+	{
+		text += "The Sum of Squares Error (SSE) measures how much our data differs from the model we generated. <br>";
+		text += "To compute this we will calculate: <br>";
+		text += "SSE = <img src='http://learninglover.com/chars/csigma.gif'><sub>i = 1 to n</sub>(y<sub>i</sub> - <img src='http://www.learninglover.com/chars/yhat.jpg'><sub>i</sub>)<sup>2</sup>";
+	}
+	
+	var sse = 0;
+
+	for (var i = 0; i < data.length; i++)
+	{
+		var temp = evalReg(sol, data[i][0]);
+		sse += (data[i][1] - temp)*(data[i][1] - temp);
+	}
+
+	text += "The Sum of Squares Error (SSE) for this linear regression is <br>";
+	text += "SSE: " + sse.toFixed(3) + "<br><br>";
+
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("sstBtn").hidden = false;
+	
+	return sse;
+}
+
+function getsst(data, sol, show)
+{
+	var text = "";
+
+	if (show)
+	{
+		text += "The Total Sum of Squares (SST) measures how accurate the mean of our data could be used as a model for the data. <br>";
+		text += "To compute this we will calculate: <br>";
+		text += "SST = <img src='http://learninglover.com/chars/csigma.gif'><sub>i = 1 to n</sub>(y<sub>i</sub> - <img src='http://www.learninglover.com/chars/ybar.jpg'>)<sup>2</sup>";
+	}
+	
+	var sst = 0;
+	var dtaMean = mean(data, 1);
+
+	for (var i = 0; i < data.length; i++)
+	{
+		sst += (data[i][1] - dtaMean)*(data[i][1] - dtaMean);
+	}
+
+	text += "The Total Sum of Squares (SST) for this linear regression is <br>";
+	text += "SST: " + sst.toFixed(3) + "<br><br>";
+
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("ssrBtn").hidden = false;
+	
+	return sst;
+}
+
+function getssr(data, sol, show)
+{
+	var text = "";
+
+	if (show)
+	{
+		text += "The Regression Sum of Squares (SSR) measures how much of our total variation is remaining from the difference between the total sum of squares and the error sum of squares. <br>";
+		text += "To compute this we will calculate: <br>";
+		text += "SSR = SST - SSE";
+	}
+	
+	var ssr = 0;
+	var dtaMean = mean(data, 1);
+
+	for (var i = 0; i < data.length; i++)
+	{
+		var temp = evalReg(sol, data[i][0]);
+		ssr += (temp - dtaMean)*(temp - dtaMean);
+	}
+	
+	text += "The Regression Sum of Squares (SSR) for this linear regression is <br>";
+	text += "SSR: " + ssr.toFixed(3) + "<br><br>";
+
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("rsqBtn").hidden = false;
+	
+	return ssr;
+}
+
+function getrsq(data, sol, show, ssr, sst)
+{
+	var text = "";
+
+	if (show)
+	{
+		text += "The Coefficient of Determination (r<sup>2</sup>) tells what percentage of the total sum of squares that is accounted for in the error sum of squares. <br>";
+		text += "To compute this we will calculate: <br>";
+		text += "r<sup>2</sup> = SSR / SST";
+	}
+	
+	var rsq = ssr / sst;
+	
+	text += "The Coefficient of Determination (r<sup>2</sup>) for this linear regression is <br>";
+	text += "r<sup>2</sup>: " + rsq.toFixed(3) + "<br><br>";
+
+	document.getElementById("output").innerHTML += text;
+	
+	return rsq;
+}
+
+function init()
+{
+	document.getElementById('sseBtn').hidden = true;
+	document.getElementById('sstBtn').hidden = true;
+	document.getElementById('ssrBtn').hidden = true;
+	document.getElementById('rsqBtn').hidden = true;
+	document.getElementById('dataPts').hidden = true;
+	document.getElementById('output').innerHTML = '';
+
+	var numElts = document.getElementById('noElts').value;
+	var incDec = Math.floor(Math.random()*2);
+	var atZero = Math.floor(Math.random()*20) + 10;
+	var rate = Math.floor(Math.random()*5);
+	var vrnce;
+	do
+	{
+		vrnce = Math.floor(Math.random()*5);
+	}
+	while (vrnce == 0);
+	
+	var xMin = 0;
+	var xMax = Math.floor(Math.random()*25) + xMin + 5;
+	
+	if (!incDec)
+	{
+		incDec = -1;
+	}
+	
+	var b = new Array();
+	var text = "";
+	
+	text += "<table><tr><td><b>x</b></td><td><b>y</b></td></tr>";
+	for (var i = 0; i < numElts; i++)
+	{
+		var noise = Math.random()*vrnce;
+		var len = b.length;
+		b[len] = new Array();
+		b[len][0] = Math.floor(Math.random()*(xMax - xMin)*100)/100;
+		b[len][1] = atZero + incDec*rate*b[len][0] + noise;
+		text += "<tr><td>" + b[len][0].toFixed(3) + "</td><td>" + b[len][1].toFixed(3) + "</td></tr>";
+	}
+	text += "</table>";
+	document.getElementById("dataPts").innerHTML += text;
+	
+	drawPoints(b);
+	
+	return b;
+}
+
+function maximum(data, clmn)
+{
+	var mxm = Number.MIN_VALUE;
+	for (var i = 0; i < data.length;  i++)
+	{
+		if (parseFloat(data[i][clmn]) > mxm)
+		{
+			mxm = parseFloat(data[i][clmn]);
+		}
+	}
+	
+	return mxm;
+}
+
+function minimum(data, clmn)
+{
+	var mnm = Number.MAX_VALUE;
+	for (var i = 0; i < data.length;  i++)
+	{
+		if (parseFloat(data[i][clmn]) < mnm)
+		{
+			mnm = parseFloat(data[i][clmn]);
+		}
+	}
+	
+	return mnm;
+}
+
+function evalReg(beta, xVal)
+{
+	return (beta[0] + beta[1]*xVal);
+}
+
+function drawPoints(data)
+{
+	var mxm_y = maximum(data, 1);
+	var mnm_y = minimum(data, 1);
+	var mxm_x = maximum(data, 0)+1;
+	var mnm_x = 0;
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	var vpp_y;
+	var vpp_x;
+	var numRows;
+	var loc_y;
+	var loc_x = 0;
+	
+	if (mnm_y < 0)
+	{
+		vpp_y = (mxm_y - mnm_y) / c.height;
+		numRows = Math.ceil(mxm_y - mnm_y);
+		loc_y = c.height - (mxm_y) / vpp_y;
+	}
+	else
+	{
+		vpp_y = (mxm_y) / c.height;
+		numRows = Math.ceil (mxm_y);
+		loc_y = 0;
+	}
+	
+//	document.getElementById("output").innerHTML += "min_x = " + mnm_x.toFixed(3) + ", max_x = " + mxm_x.toFixed(3) + "<br>";
+//	document.getElementById("output").innerHTML += "min_y = " + mnm_y.toFixed(3) + ", max_y = " + mxm_y.toFixed(3) + "<br>";
+//	document.getElementById("output").innerHTML += "loc_x = " + loc_x + ", loc_y = " + loc_y + "<br>";
+	
+	vpp_x = (mxm_x - mnm_x) / c.width;
+	
+//	document.getElementById("output").innerHTML += "vpp_x = " + vpp_x.toFixed(3) + ", vpp_y = " + vpp_y.toFixed(3) + "<br>";
+	numClms = Math.ceil(mxm_x - mnm_x);
+	
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect (0, 0, c.width, c.height);
+	
+	var xWidth = c.width / numClms;
+	var yHeight = c.height / numRows;
+	
+//	document.getElementById("output").innerHTML += "xWidth = " + xWidth.toFixed(3) + ", yHeight = " + yHeight.toFixed(3) + "<br>";
+	
+	//Draw the axes
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(loc_x, 0);
+	ctx.lineTo(loc_x, c.height);
+	ctx.stroke();
+	
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(0, c.height - loc_y);
+	ctx.lineTo(c.width, c.height - loc_y);
+	ctx.stroke();
+	
+	//Draw the notches
+	for (var i = 0; i < c.height; i += yHeight)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(loc_x    , c.height - loc_y - i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y - i);
+		
+		ctx.moveTo(loc_x    , c.height - loc_y + i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y + i);
+		ctx.stroke();
+	}
+	
+	for (var i = 0; i < c.width; i += xWidth)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(i, c.height - loc_y + 5);
+		ctx.lineTo(i, c.height - loc_y - 5);
+		ctx.stroke();
+	}	
+	
+	for (var i = 0; i < data.length;  i++)
+	{
+		ctx.beginPath();
+		ctx.arc((data[i][0])*xWidth,c.height - data[i][1]*yHeight - loc_y,3,0,2*Math.PI);
+		ctx.stroke();
+	}
+}
+
+function drawLine(data, beta)
+{
+	var mxm_y = maximum(data, 1);
+	var mnm_y = minimum(data, 1);
+	var mxm_x = maximum(data, 0)+1;
+	var mnm_x = 0;
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	var vpp_y;
+	var vpp_x;
+	var numRows;
+	var loc_y;
+	var loc_x = 0;
+	
+	if (mnm_y < 0)
+	{
+		vpp_y = (mxm_y - mnm_y) / c.height;
+		numRows = Math.ceil(mxm_y - mnm_y);
+		loc_y = c.height - (mxm_y) / vpp_y;
+	}
+	else
+	{
+		vpp_y = (mxm_y) / c.height;
+		numRows = Math.ceil (mxm_y);
+		loc_y = 0;
+	}
+	
+	vpp_x = (mxm_x - mnm_x) / c.width;
+	
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect (0, 0, c.width, c.height);
+	
+	numClms = Math.ceil(mxm_x - mnm_x);
+	var xWidth = c.width / numClms;
+	var yHeight = c.height / numRows;
+	
+	//Draw the axes
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(loc_x, 0);
+	ctx.lineTo(loc_x, c.height);
+	ctx.stroke();
+	
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(0, c.height - loc_y);
+	ctx.lineTo(c.width, c.height - loc_y);
+	ctx.stroke();
+	
+	//Draw the notches
+	for (var i = 0; i < c.height; i += yHeight)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(loc_x    , c.height - loc_y - i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y - i);
+		
+		ctx.moveTo(loc_x    , c.height - loc_y + i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y + i);
+		ctx.stroke();
+	}
+	
+	for (var i = 0; i < c.width; i += xWidth)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(i, c.height - loc_y + 5);
+		ctx.lineTo(i, c.height - loc_y - 5);
+		ctx.stroke();
+	}	
+	
+	for (var i = 0; i < data.length;  i++)
+	{
+		ctx.beginPath();
+		ctx.arc((data[i][0])*xWidth,c.height - data[i][1]*yHeight - loc_y,3,0,2*Math.PI);
+		ctx.stroke();
+	}
+	
+	var pt0x = 0;
+	var pt0y = evalReg(beta, pt0x);
+	
+	var pt1x = numClms;
+	var pt1y = evalReg(beta, pt1x);
+
+	ctx.strokeStyle = "#3333ff";
+	ctx.beginPath();
+	ctx.moveTo(pt0x*xWidth, c.height - pt0y*yHeight - loc_y);
+	ctx.lineTo(pt1x*xWidth, c.height - pt1y*yHeight - loc_y);
+	ctx.stroke();
+
+	for (var i = 0; i < data.length;  i++)
+	{
+		ctx.strokeStyle = "#FFFF00";
+		ctx.beginPath();
+		ctx.moveTo(data[i][0]*xWidth, c.height - evalReg(beta, data[i][0])*yHeight-loc_y);
+		ctx.lineTo(data[i][0]*xWidth, c.height - data[i][1]*yHeight - loc_y)
+		ctx.stroke();
+	}	
+}
+</script>
+<h3><center></center></h3>
+<p><p>We will use the Linear Regression technique to generate trend lines for a randomly generated vector. 
+  To do this, we will search for a line whose distance from each of the data points in the vector is minimal. This distance will be 
+  calculated using the sum of squares of two data points. So the formula that we are using to determine this line is <br>
+  <br>
+  D = <img src="http://learninglover.com/chars/csigma.gif"><sub>i = 1 to n</sub> [y<sub>i</sub> - (<img src="http://learninglover.com/chars/beta.gif"><sub>0</sub> + <img src="http://learninglover.com/chars/beta.gif"><sub>1</sub>x)]<sup>2</sup><br>
+  <br>
+  For simple linear regression, we can find the line that minimizes this line by the following equations: <br>
+  <table><tr><td>S<sub>XY</sub> = <img src="http://learninglover.com/chars/csigma.gif"><sub>i = 1 to n</sub>(xy) - </td><td><table><tr><td>(<img src="http://learninglover.com/chars/csigma.gif"><sub>i = 1 to n</sub>x)(<img src="http://learninglover.com/chars/csigma.gif"><sub>i = 1 to n</sub>y)</td></tr><tr><td><hr></td></tr><tr><td>n</td></tr></table></td></tr></table>
+  <table><tr><td>S<sub>XX</sub> = <img src="http://learninglover.com/chars/csigma.gif"><sub>i = 1 to n</sub>(x<sup>2</sup>) - </td><td><table><tr><td>(<img src="http://learninglover.com/chars/csigma.gif"><sub>i = 1 to n</sub>x)<sup>2</sup></td></tr><tr><td><hr></td></tr><tr><td>n</td></tr></table></td></tr></table>
+  <table><tr><td><img src="http://learninglover.com/chars/beta.gif"><sub>1</sub> = </td><td><table><tr><td>S<sub>XY</sub></td></tr><tr><td><hr></td></tr><tr><td>S<sub>XX</sub></td></tr></table></td></tr></table>
+  <table><tr><td><img src="http://learninglover.com/chars/beta.gif"><sub>0</sub> = <img src="http://learninglover.com/chars/ybar.jpg"> - <img src="http://learninglover.com/chars/beta.gif"><sub>1</sub><img src="http://learninglover.com/chars/xbar.jpg"></td></tr></table>
+  </p>
+</p>
+<form name="data" id="data">
+  <p name="input" id="input"></p>
+  <select name=noElts id=noElts onchange="b = init()">
+    <option value="25">25 Points</option>
+    <option value="50">50 Points</option>
+    <option value="100">100 Points</option>
+    <option value="200">200 Points</option>
+</select>
+<input type="button" value="Trend Line" id=button1 name=button1 onclick="postProcess(b, document.getElementById('show').checked)">
+  <input type="button" value="Get SSE" id=sseBtn name=sseBtn onclick="sse = getsse(b, sol, document.getElementById('show').checked)">
+  <input type="button" value="Get SST" id=sstBtn name=sstBtn onclick="sst = getsst(b, sol, document.getElementById('show').checked)">
+  <input type="button" value="Get SSR" id=ssrBtn name=ssrBtn onclick="ssr = getssr(b, sol, document.getElementById('show').checked)">
+  <input type="button" value="Get r-Squared" id=rsqBtn name=rsqBtn onclick="getrsq(b, sol, document.getElementById('show').checked, ssr, sst)">
+  Show Work <input type="checkbox" id="show" name="show"><br>
+  <center>
+    <canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas><br>
+    <input type="button" value="New Problem" id=button1 name=button1 onclick="b = init()">
+  </center>
+<input type="button" value="Show/Hide Points" id=shwHdePts name=showHdePts onclick="document.getElementById('dataPts').hidden = !document.getElementById('dataPts').hidden">
+  <p name="dataPts" id="dataPts"></p>
+  <p name="output" id="output"></p>
+  <script type="text/javascript">
+    var sol;
+	var sse, sst, ssr;
+    var b = init();
+  </script>
+</FORM>
