@@ -1,0 +1,276 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+Gram-SchmidtOrthogonalVectors<script type="text/javascript">
+function GramSchmidt(A, n, show)
+{
+	V = [];
+	
+	for (i = 0; i < A.length; i++)
+	{
+		V[i] = [];
+		for (j = 0; j < A[i].length; j++)
+			V[i][j] = A[i][j];
+	}
+
+	text = "";
+
+	for (i = 0; i < V.length; i++)
+	{
+		text += "i = " + i + "<br>";
+
+		for (j = 0; j < i; j++)
+		{
+			projd = 0;
+			temp = [];
+			sum = [];
+			for (k = 0; k < V[j].length; k++)
+			{
+				projd += V[j][k]*V[j][k];
+				temp[k] = V[j][k];
+				sum[k] = 0;
+			}
+			text += "v<sub>" + j + "</sub> <img src='http://www.learninglover.com/chars/cdot.png'> v<sub>" + j + "</sub> = " + Math.floor(projd*100)/100 + "<br>";
+
+			projn = 0;
+			for (k = 0; k < V[i].length; k++)
+				projn += V[i][k]*V[j][k];
+	
+			text += "v<sub>" + i + "</sub> <img src='http://www.learninglover.com/chars/cdot.png'> v<sub>" + j + "</sub> = " + Math.floor(projn*100)/100 + "<br>";
+
+			text += "proj<sub>u<sub>" + i + "</sub></sub>(v<sub>" + j + "</sub>) = ";
+			for (k = 0; k < V[i].length; k++)
+			{
+				temp[k] = temp[k]*(projn/projd);
+				sum[k] += temp[k];
+				text += temp[k].toFixed(3);
+				if (k < V[i].length - 1)
+					text += ", ";
+				else
+					text += "<br>";
+			}
+
+			text += "u<sub>" + i + "</sub> = ";
+			for (k = 0; k < V[i].length; k++)
+			{
+				V[i][k] = V[i][k] - sum[k];
+				text += V[i][k].toFixed(3);
+				if (k < V[i].length - 1)
+					text += ", ";
+				else
+					text += "<br>";
+			}
+		}
+	}
+
+	if (show)
+		document.getElementById('output').innerHTML = text;
+
+	return V;
+}
+
+function normalize(vec)
+{
+	var norm = 0;
+	for (var i = 0; i < vec.length; i++)
+	{
+		norm += vec[i]*vec[i];
+	}
+	norm = Math.sqrt(norm);
+	
+	for (var i = 0; i < vec.length; i++)
+	{
+		vec[i] = vec[i] / norm;
+	}
+	
+	return vec;
+}
+
+function postProcess()
+{
+	document.getElementById('output').innerHTML = '';
+	text2 = 'Orthogonal Basis = <table>';
+	sol = GramSchmidt(A, xvars, document.getElementById('show').checked);
+	for (var i = 0; i < sol.length; i++) 
+	{
+		text2 += '<tr><td>v<sub>' + i + '</sub><sup>T</sup> = (</td>';
+		for(var j = 0; j < sol[i].length; j++)
+			text2 += '<td>' + sol[i][j].toFixed(3) + '</td>';
+		text2 += '<td>)<sup>T</sup></td></tr>'; 
+	}
+	text2 += '</table>';
+	text2 += 'Orthonormal Basis = <table>';
+	for (var i = 0; i < sol.length; i++) 
+		sol[i] = normalize(sol[i]); 
+	for (var i = 0; i < sol.length; i++) 
+	{
+		text2 += '<tr><td>v<sub>' + i + '</sub><sup>T</sup> = (</td>';
+		for(j = 0; j < sol[i].length; j++)
+			text2 += '<td>' + sol[i][j].toFixed(3) + '</td>';
+		text2 += '<td>)<sup>T</sup></td></tr>'; 
+	} 
+	text2 += '</table>';
+	document.getElementById('output').innerHTML += text2;
+}
+
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="vector, orthogonal, orthonormal, gram-schmidt, gram, schmidt, linearly, independent, span, perpendicular, basis, space, algorithm, javascript, script, mathematics, math, linear algebra" />
+<meta name="description" content="This procedure runs the Gram-Schmidt Process on a random set of vectors." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function GramSchmidt(A, n, show)
+{
+	V = [];
+	
+	for (i = 0; i < A.length; i++)
+	{
+		V[i] = [];
+		for (j = 0; j < A[i].length; j++)
+			V[i][j] = A[i][j];
+	}
+
+	text = "";
+
+	for (i = 0; i < V.length; i++)
+	{
+		text += "i = " + i + "<br>";
+
+		for (j = 0; j < i; j++)
+		{
+			projd = 0;
+			temp = [];
+			sum = [];
+			for (k = 0; k < V[j].length; k++)
+			{
+				projd += V[j][k]*V[j][k];
+				temp[k] = V[j][k];
+				sum[k] = 0;
+			}
+			text += "v<sub>" + j + "</sub> <img src='http://www.learninglover.com/chars/cdot.png'> v<sub>" + j + "</sub> = " + Math.floor(projd*100)/100 + "<br>";
+
+			projn = 0;
+			for (k = 0; k < V[i].length; k++)
+				projn += V[i][k]*V[j][k];
+	
+			text += "v<sub>" + i + "</sub> <img src='http://www.learninglover.com/chars/cdot.png'> v<sub>" + j + "</sub> = " + Math.floor(projn*100)/100 + "<br>";
+
+			text += "proj<sub>u<sub>" + i + "</sub></sub>(v<sub>" + j + "</sub>) = ";
+			for (k = 0; k < V[i].length; k++)
+			{
+				temp[k] = temp[k]*(projn/projd);
+				sum[k] += temp[k];
+				text += temp[k].toFixed(3);
+				if (k < V[i].length - 1)
+					text += ", ";
+				else
+					text += "<br>";
+			}
+
+			text += "u<sub>" + i + "</sub> = ";
+			for (k = 0; k < V[i].length; k++)
+			{
+				V[i][k] = V[i][k] - sum[k];
+				text += V[i][k].toFixed(3);
+				if (k < V[i].length - 1)
+					text += ", ";
+				else
+					text += "<br>";
+			}
+		}
+	}
+
+	if (show)
+		document.getElementById('output').innerHTML = text;
+
+	return V;
+}
+
+function normalize(vec)
+{
+	var norm = 0;
+	for (var i = 0; i < vec.length; i++)
+	{
+		norm += vec[i]*vec[i];
+	}
+	norm = Math.sqrt(norm);
+	
+	for (var i = 0; i < vec.length; i++)
+	{
+		vec[i] = vec[i] / norm;
+	}
+	
+	return vec;
+}
+
+function postProcess()
+{
+	document.getElementById('output').innerHTML = '';
+	text2 = 'Orthogonal Basis = <table>';
+	sol = GramSchmidt(A, xvars, document.getElementById('show').checked);
+	for (var i = 0; i < sol.length; i++) 
+	{
+		text2 += '<tr><td>v<sub>' + i + '</sub><sup>T</sup> = (</td>';
+		for(var j = 0; j < sol[i].length; j++)
+			text2 += '<td>' + sol[i][j].toFixed(3) + '</td>';
+		text2 += '<td>)<sup>T</sup></td></tr>'; 
+	}
+	text2 += '</table>';
+	text2 += 'Orthonormal Basis = <table>';
+	for (var i = 0; i < sol.length; i++) 
+		sol[i] = normalize(sol[i]); 
+	for (var i = 0; i < sol.length; i++) 
+	{
+		text2 += '<tr><td>v<sub>' + i + '</sub><sup>T</sup> = (</td>';
+		for(j = 0; j < sol[i].length; j++)
+			text2 += '<td>' + sol[i][j].toFixed(3) + '</td>';
+		text2 += '<td>)<sup>T</sup></td></tr>'; 
+	} 
+	text2 += '</table>';
+	document.getElementById('output').innerHTML += text2;
+}
+
+</script>
+<h3><center></center></h3>
+<p>This procedure runs the Gram-Schmidt Process on a random set of vectors. 
+
+The way the procedure works is to build an orthogonal set of vectors from the original set by computing the projection of the current vector being worked on in terms of the previous vectors in the orthogonal set. This projection procedure is defined as proj<sub>u</sub>(v) = ((u <img src='http://www.learninglover.com/chars/cdot.png'> v) / (u <img src='http://www.learninglover.com/chars/cdot.png'> u))u. The formula for the i<sup>th</sup> vector of the Gram-Schmidt process is 
+
+u<sub>i</sub> = v<sub>i</sub> - <img src='http://www.learninglover.com/chars/sum.gif'><sub>j = 1 to i-1</sub> proj<sub>u<sub>j</sub></sub>(v<sub>i</sub>). </p>
+<script type="text/javascript">
+var xvars = Math.floor(Math.random()*10+2);
+</script>
+<form name="data" id="data">
+<input type=button onclick="javascript:location.reload(true)" value="New Problem"><br>
+<script type="text/javascript">
+A = [];
+text = "<table>";
+//xvars = 3;
+//A = [];
+//A[0] = [1,-1,1];
+//A[1] = [1,0,1];
+//A[2] = [1,1,2];
+for (i = 0; i < xvars; i++)
+{
+	text += "<tr><td>v<sub>" + i + "</sub><sup>T</sup> = (</td>";
+	A[i] = [];
+	for (j = 0; j < xvars; j++)
+	{
+		num = Math.floor(Math.random()*25);
+		sign = Math.floor(Math.random()*2);
+		if (sign == 0)
+			num = num*-1;
+		A[i][j] = num;
+		text += "<td>" + A[i][j] + "</td>";
+	}
+	text += "<td>)<sup>T</sup></td></tr>";
+}
+text += "</table>";
+document.write(text);
+
+
+</script>
+<input type="checkbox" name="show" id="show"> Show Work?
+<input type="button" value="Solve" id=button1 name=button1 onclick="postProcess()">
+<p name="output" id="output"></p>
+</FORM>

@@ -1,0 +1,1120 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+DotsandBoxes<style type="text/css">
+#table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.c {
+    width: 1.0em;
+    height: 1.0em;
+}
+
+.nmv {
+    color:#FF0000;
+}
+
+.omv {
+    color:#000000;
+}
+
+</style>
+<script type="text/javascript">
+function buildTable(rows, clms)
+{
+    var table = "<table cellpadding='0' cellspacing='0' border='0'>";
+    rem = new Array(rows);
+    own = new Array(rows-1);
+    last = "";
+    
+    for (var yin = 0; yin < 2*rows - 1; yin++)
+    {
+        rem[yin] = new Array(clms);
+        if (yin % 2 == 1)
+        {
+            own[Math.floor(yin / 2)] = new Array(clms-1);
+        }
+        table += "<tr>";
+        for (var yang = 0; yang < 2*clms - 1; yang++)
+        {
+            rem[yin][yang] = 1;
+            if (yin % 2 == 0 && yang % 2 == 0)
+            {
+                //This is a dot in the table. 
+                table += "<td class='c' name='tdc" + yin + "_" + yang + "' id='tdc" + yin + "_" + yang + "'><center>\u2022</center></td>";
+            }
+            else if (yin % 2 == 0 && yang % 2 == 1)
+            {
+                //This is an on_click_make_horizontal cell. 
+                //and an on_mouse_over_make_grey_horizontal cell. 
+                table += "<td class='c' name='tdc" + yin + "_" + yang + "' id='tdc" + yin + "_" + yang + "' onclick=makeHoriz('" + yin + "_" + yang + "','P')><p name='c" + yin + "_" + yang + "' id='c" + yin + "_" + yang + "'></p></td>";
+            }
+            else if (yin % 2 == 1 && yang % 2 == 0)
+            {
+                //This is an on_click_make_vertical cell. 
+                //and an on_mouse_over_make_grey_vertical cell. 
+                table += "<td class='c' name='tdc" + yin + "_" + yang + "' id='tdc" + yin + "_" + yang + "' onclick=makeVert('" + yin + "_" + yang + "','P')><p name='c" + yin + "_" + yang + "' id='c" + yin + "_" + yang + "'></p></td>";
+            }
+            else if (yin % 2 == 1 && yang % 2 == 1)
+            {
+                //This is a cell that will change colors when all 4 sides are clicked. 
+                table += "<td class='c' name='tdc" + yin + "_" + yang + "' id='tdc" + yin + "_" + yang + "'><center></center></td>";
+            }
+//            prob += "<td class='c' name='tdc" + yin + "_" + yang + "' id='tdc" + yin + "_" + yang + "' onclick=changecolor('tdc" + yin + "_" + yang + "')><p name='c" + yin + "_" + yang + "' id='c" + yin + "_" + yang + "'></p></td>";
+        }
+        table += "</tr>";
+    }
+    table += "</table>";
+    
+    document.getElementById("table").innerHTML = table;
+}
+
+function makeHoriz(loc, user)
+{
+    var dtls = loc.split("_");
+    var row = parseInt(dtls[0]);
+    var clm = parseInt(dtls[1]);
+    var found1 = false;
+    var found2 = false;
+
+    if (row % 2 == 1 || clm % 2 == 0)
+    {
+        return;
+    }
+
+    if (rem[row][clm] == 0)
+    {
+        return;
+    }
+    
+    rem[row][clm] = 0;
+    
+    if (last != "")
+    {
+        var ldtls = last.split("_");
+        var lrow = parseInt(ldtls[0]);
+        var lclm = parseInt(ldtls[1]);
+        if (lrow % 2 == 1 && lclm % 2 == 0)
+        {
+            document.getElementById("tdc" + last).className = "omv";
+        }
+        else if (lrow % 2 == 0 && lclm % 2 == 1)
+        {
+            document.getElementById("tdc" + last).className = "omv";
+        }
+    }
+    
+    if (user == "P")
+    {
+        document.getElementById("tdc" + loc).innerHTML = "<center>\u2014</center>";
+    }
+    else
+    {
+        document.getElementById("tdc" + loc).innerHTML = "<center>\u2014</center>";
+        document.getElementById("tdc" + loc).className = "nmv";
+        last = loc;
+    }
+    
+    if (eval(row+1) < rem.length)
+    {
+        found1 = checkRect(eval(row+1) + "_" + clm, user);
+    }
+
+//    dispTbl(rem);
+    
+    if (eval(row-1) >= 0)
+    {
+        found2 = checkRect(eval(row-1) + "_" + clm, user);
+    }
+    
+//    dispTbl(rem);
+    
+    if ((!found1 && !found2 && user == "P") || ((found1 || found2) && user == "C"))
+    {
+        cpuMove();
+    }
+    else
+    {
+        checkDone();
+    }
+}
+
+function makeVert(loc, user)
+{
+    var dtls = loc.split("_");
+    var row = parseInt(dtls[0]);
+    var clm = parseInt(dtls[1]);
+    var found1 = false;
+    var found2 = false;
+    
+    if (row % 2 == 0 || clm % 2 == 1)
+    {
+        return;
+    }
+
+    if (rem[row][clm] == 0)
+    {
+        return;
+    }
+    
+    rem[row][clm] = 0;
+
+    document.getElementById("tdc" + loc).innerHTML = "<center>|</center>";    
+    
+    if (last != "")
+    {
+        var ldtls = last.split("_");
+        var lrow = parseInt(ldtls[0]);
+        var lclm = parseInt(ldtls[1]);
+        if (lrow % 2 == 1 && lclm % 2 == 0)
+        {
+            document.getElementById("tdc" + last).className = "omv";
+        }
+        else if (lrow % 2 == 0 && lclm % 2 == 1)
+        {
+            document.getElementById("tdc" + last).className = "omv";
+        }
+    }
+    
+    
+    if (user == "C")
+    {
+        document.getElementById("tdc" + loc).className = "nmv";
+        last = loc;
+    }
+    else
+    {
+        document.getElementById("tdc" + loc).className = "omv";
+    }
+    
+//    dispTbl(rem);
+    
+    if (eval(clm+1) < rem[row].length)
+    {
+        found1 = checkRect(row + "_" + eval(clm+1), user);
+    }
+    
+//    dispTbl(rem);
+    
+    if (eval(clm-1) >= 0)
+    {
+        found2 = checkRect(row + "_" + eval(clm-1), user);
+    }
+    
+    if ((!found1 && !found2 && user == "P") || ((found1 || found2) && user == "C"))
+    {
+        cpuMove();
+    }
+    else
+    {
+        checkDone();
+    }
+}
+
+function dispTbl(rem)
+{
+    var table = "<table>";
+    for (var yin = 0; yin < rem.length; yin++)
+    {
+        table += "<tr>";
+        for (var yang = 0; yang < rem[yin].length; yang++)
+        {
+            table += "<td>" + rem[yin][yang] + "</td>";
+        }
+        table += "</tr>";
+    }
+    table += "</table>";
+    
+    document.getElementById("table").innerHTML += table;
+}
+
+function checkRect(loc, user)
+{
+    var dtls = loc.split("_");
+    var row = parseInt(dtls[0]);
+    var clm = parseInt(dtls[1]);
+    var found = false;
+        
+    if (row % 2 == 0 || clm % 2 == 0)
+    {
+        return;
+    }
+    
+    if (!rem[row-1][clm] && !rem[row+1][clm] && !rem[row][clm-1] && !rem[row][clm+1])
+    {
+        found = true;
+        if (user == "P")
+        {
+            document.getElementById("tdc" + row + "_" + clm).bgColor = '#00FF00';
+            own[Math.floor(row/2)][Math.floor(clm/2)] = "P";
+        }
+        else
+        {
+            document.getElementById("tdc" + row + "_" + clm).bgColor = '#FF0000';
+            own[Math.floor(row/2)][Math.floor(clm/2)] = "C";
+        }
+    }
+    
+    return found;
+}
+
+function cpuMove()
+{
+    if (checkDone() != false)
+    {
+        return;
+    }
+
+    var poss0 = new Array();
+    var poss1 = new Array();
+    var poss2 = new Array();
+    var poss3 = new Array();
+    var poss4 = new Array();
+    
+    for (var yin = 0; yin < rem.length; yin ++)
+    {
+        for (var yang = 0; yang < rem[yin].length; yang++)
+        {
+            if (yin % 2 == 1 && yang % 2 == 1)
+            {
+                if (!rem[yin-1][yang] && !rem[yin+1][yang] && !rem[yin][yang-1] && !rem[yin][yang+1])
+                {
+                    poss4[poss4.length] = yin + "_" + yang;
+                }
+                else if (!rem[yin-1][yang] && !rem[yin+1][yang] && !rem[yin][yang-1])
+                {
+                    poss3[poss3.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin-1][yang] && !rem[yin+1][yang] && !rem[yin][yang+1])
+                {
+                    poss3[poss3.length] = yin + "_" + eval(yang-1);
+                }
+                else if (!rem[yin-1][yang] && !rem[yin][yang-1] && !rem[yin][yang+1])
+                {
+                    poss3[poss3.length] = eval(yin+1) + "_" + yang;
+                }
+                else if (!rem[yin+1][yang] && !rem[yin][yang-1] && !rem[yin][yang+1])
+                {
+                    poss3[poss3.length] = eval(yin-1) + "_" + yang;
+                }
+                else if (!rem[yin-1][yang] && !rem[yin+1][yang])
+                {
+                    poss2[poss2.length] = yin + "_" + eval(yang-1);
+                    poss2[poss2.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin-1][yang] && !rem[yin][yang-1])
+                {
+                    poss2[poss2.length] = eval(yin+1) + "_" + yang;
+                    poss2[poss2.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin-1][yang] && !rem[yin][yang+1])
+                {
+                    poss2[poss2.length] = eval(yin+1) + "_" + yang;
+                    poss2[poss2.length] = yin + "_" + eval(yang-1);
+                }
+                else if (!rem[yin+1][yang] && !rem[yin][yang-1])
+                {
+                    poss2[poss2.length] = eval(yin-1) + "_" + yang;
+                    poss2[poss2.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin+1][yang] && !rem[yin][yang+1])
+                {
+                    poss2[poss2.length] = eval(yin-1) + "_" + yang;
+                    poss2[poss2.length] = yin + "_" + eval(yang-1);
+                }
+                else if (!rem[yin][yang-1] && !rem[yin][yang+1])
+                {
+                    poss2[poss2.length] = eval(yin+1) + "_" + yang;
+                    poss2[poss2.length] = eval(yin-1) + "_" + yang;
+                }
+                else if (!rem[yin-1][yang])
+                {
+                    poss1[poss1.length] = eval(yin+1) + "_" + yang;
+                    poss1[poss1.length] = yin + "_" + eval(yang-1);
+                    poss1[poss1.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin+1][yang])
+                {
+                    poss1[poss1.length] = eval(yin-1) + "_" + yang;
+                    poss1[poss1.length] = yin + "_" + eval(yang-1);
+                    poss1[poss1.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin][yang-1])
+                {
+                    poss1[poss1.length] = eval(yin+1) + "_" + yang;
+                    poss1[poss1.length] = eval(yin-1) + "_" + yang;
+                    poss1[poss1.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin][yang+1])
+                {
+                    poss1[poss1.length] = eval(yin+1) + "_" + yang;
+                    poss1[poss1.length] = eval(yin-1) + "_" + yang;
+                    poss1[poss1.length] = yin + "_" + eval(yang-1);
+                }
+                else
+                {
+                    poss0[poss0.length] = eval(yin+1) + "_" + yang;
+                    poss0[poss0.length] = eval(yin-1) + "_" + yang;
+                    poss0[poss0.length] = yin + "_" + eval(yang-1);
+                    poss0[poss0.length] = yin + "_" + eval(yang+1);
+                }
+            }
+        }
+    }
+    
+    var found = false;
+    if (poss3.length > 0)
+    {
+        var row = parseInt(poss3[0].split("_")[0]);
+        var clm = parseInt(poss3[0].split("_")[1]);
+        
+        if (row % 2 == 0 && clm % 2 == 1)
+        {
+            makeHoriz(poss3[0], 'C');
+            return;
+        }
+        else
+        {
+            makeVert(poss3[0], 'C');
+            return;
+        }
+    }
+    
+    if (poss0.length > 0 || poss1.length > 0)
+    {
+        var loc;
+        var redo = false;
+        do
+        {
+            var inP1 = false;
+            redo = false;
+            loc = Math.floor(Math.random()*(poss0.length + poss1.length));
+            if (loc >= poss0.length)
+            {
+//                document.getElementById("table").innerHTML += "loc = " + loc + ", poss0 = " + poss0 + "<br>poss1 = " + poss1 + "<br>";
+                loc = loc - poss0.length
+//                document.getElementById("table").innerHTML += "loc = " + loc + "<br>";
+                inP1 = true;
+            }
+            else
+            {
+                inP1 = false;
+            }
+            
+            if ((!inP1 && poss2.indexOf(poss0[loc]) != -1) || (inP1 && poss2.indexOf(poss1[loc]) != -1))
+            {
+                redo = true;
+                if (inP1)
+                {
+                    poss1[loc] = poss1[poss1.length-1];
+                    poss1.length--;
+                }
+                else
+                {
+                    poss0[loc] = poss0[poss0.length-1];
+                    poss0.length--;
+                }
+            }
+        }
+        while (redo);
+        
+        if (!inP1)
+        {
+//            document.getElementById("table").innerHTML += "loc = " + loc + ", p0 = " + poss0 + "<br>";;
+            var row = parseInt(poss0[loc].split("_")[0]);
+            var clm = parseInt(poss0[loc].split("_")[1]);
+        
+            if (row % 2 == 0 && clm % 2 == 1)
+            {
+                makeHoriz(poss0[loc], 'C');
+                return;
+            }
+            else
+            {
+                makeVert(poss0[loc], 'C');
+                return;
+            }
+        }
+        else if (poss1.length > 0)
+        {
+//            document.getElementById("table").innerHTML += "loc = " + loc + ", p1 = " + poss1 + "<br>";;
+            var row = parseInt(poss1[loc].split("_")[0]);
+            var clm = parseInt(poss1[loc].split("_")[1]);
+        
+            if (row % 2 == 0 && clm % 2 == 1)
+            {
+                makeHoriz(poss1[loc], 'C');
+                return;
+            }
+            else
+            {
+                makeVert(poss1[loc], 'C');
+                return;
+            }
+        }
+    }
+    
+    if (poss2.length > 0)
+    {
+        var loc = Math.floor(Math.random()*poss2.length);
+        var row = parseInt(poss2[loc].split("_")[0]);
+        var clm = parseInt(poss2[loc].split("_")[1]);
+        
+        if (row % 2 == 0 && clm % 2 == 1)
+        {
+            makeHoriz(poss2[loc], 'C');
+            return;
+        }
+        else
+        {
+            makeVert(poss2[loc], 'C');
+            return;
+        }
+    }
+}
+
+function checkDone()
+{
+    var poss4 = new Array();
+    
+    for (var yin = 0; yin < rem.length; yin ++)
+    {
+        for (var yang = 0; yang < rem[yin].length; yang++)
+        {
+            if (yin % 2 == 1 && yang % 2 == 1)
+            {
+                if (!rem[yin-1][yang] && !rem[yin+1][yang] && !rem[yin][yang-1] && !rem[yin][yang+1])
+                {
+                    poss4[poss4.length] = yin + "_" + yang;
+                }
+            }
+        }
+    }
+    
+    if (poss4.length == (rows - 1) * (clms - 1))
+    {
+        var cCnt = 0;
+        var pCnt = 0;
+        for (var yin = 0; yin < own.length; yin++)
+        {
+            for (var yang = 0; yang < own[yin].length; yang++)
+            {
+                if (own[yin][yang] == "P")
+                {
+                    pCnt++;
+                }
+                else
+                {
+                    cCnt++;
+                }
+            }
+        }
+        
+        if (pCnt > cCnt)
+        {
+            document.getElementById("table").innerHTML += "<h3>You Win!!!!!</h3>";
+            return "P";
+        }
+        else 
+        {
+            document.getElementById("table").innerHTML += "<h3>Sorry, You Lose!!!!!</h3>";
+            return "C";
+        }
+    }
+    
+    return false;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="dots, boxes, dots and boxes, combinatorics, math, game, combinatorial game, game theory, algorithm, javascript, script, line, square, impartial" />
+<meta name="description" content="This is a javascript implementation of the dots and boxes game" />
+<title> at LEARNINGlover.com</title>
+<style type="text/css">
+#table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.c {
+    width: 1.0em;
+    height: 1.0em;
+}
+
+.nmv {
+    color:#FF0000;
+}
+
+.omv {
+    color:#000000;
+}
+
+</style>
+<script type="text/javascript">
+function buildTable(rows, clms)
+{
+    var table = "<table cellpadding='0' cellspacing='0' border='0'>";
+    rem = new Array(rows);
+    own = new Array(rows-1);
+    last = "";
+    
+    for (var yin = 0; yin < 2*rows - 1; yin++)
+    {
+        rem[yin] = new Array(clms);
+        if (yin % 2 == 1)
+        {
+            own[Math.floor(yin / 2)] = new Array(clms-1);
+        }
+        table += "<tr>";
+        for (var yang = 0; yang < 2*clms - 1; yang++)
+        {
+            rem[yin][yang] = 1;
+            if (yin % 2 == 0 && yang % 2 == 0)
+            {
+                //This is a dot in the table. 
+                table += "<td class='c' name='tdc" + yin + "_" + yang + "' id='tdc" + yin + "_" + yang + "'><center>\u2022</center></td>";
+            }
+            else if (yin % 2 == 0 && yang % 2 == 1)
+            {
+                //This is an on_click_make_horizontal cell. 
+                //and an on_mouse_over_make_grey_horizontal cell. 
+                table += "<td class='c' name='tdc" + yin + "_" + yang + "' id='tdc" + yin + "_" + yang + "' onclick=makeHoriz('" + yin + "_" + yang + "','P')><p name='c" + yin + "_" + yang + "' id='c" + yin + "_" + yang + "'></p></td>";
+            }
+            else if (yin % 2 == 1 && yang % 2 == 0)
+            {
+                //This is an on_click_make_vertical cell. 
+                //and an on_mouse_over_make_grey_vertical cell. 
+                table += "<td class='c' name='tdc" + yin + "_" + yang + "' id='tdc" + yin + "_" + yang + "' onclick=makeVert('" + yin + "_" + yang + "','P')><p name='c" + yin + "_" + yang + "' id='c" + yin + "_" + yang + "'></p></td>";
+            }
+            else if (yin % 2 == 1 && yang % 2 == 1)
+            {
+                //This is a cell that will change colors when all 4 sides are clicked. 
+                table += "<td class='c' name='tdc" + yin + "_" + yang + "' id='tdc" + yin + "_" + yang + "'><center></center></td>";
+            }
+//            prob += "<td class='c' name='tdc" + yin + "_" + yang + "' id='tdc" + yin + "_" + yang + "' onclick=changecolor('tdc" + yin + "_" + yang + "')><p name='c" + yin + "_" + yang + "' id='c" + yin + "_" + yang + "'></p></td>";
+        }
+        table += "</tr>";
+    }
+    table += "</table>";
+    
+    document.getElementById("table").innerHTML = table;
+}
+
+function makeHoriz(loc, user)
+{
+    var dtls = loc.split("_");
+    var row = parseInt(dtls[0]);
+    var clm = parseInt(dtls[1]);
+    var found1 = false;
+    var found2 = false;
+
+    if (row % 2 == 1 || clm % 2 == 0)
+    {
+        return;
+    }
+
+    if (rem[row][clm] == 0)
+    {
+        return;
+    }
+    
+    rem[row][clm] = 0;
+    
+    if (last != "")
+    {
+        var ldtls = last.split("_");
+        var lrow = parseInt(ldtls[0]);
+        var lclm = parseInt(ldtls[1]);
+        if (lrow % 2 == 1 && lclm % 2 == 0)
+        {
+            document.getElementById("tdc" + last).className = "omv";
+        }
+        else if (lrow % 2 == 0 && lclm % 2 == 1)
+        {
+            document.getElementById("tdc" + last).className = "omv";
+        }
+    }
+    
+    if (user == "P")
+    {
+        document.getElementById("tdc" + loc).innerHTML = "<center>\u2014</center>";
+    }
+    else
+    {
+        document.getElementById("tdc" + loc).innerHTML = "<center>\u2014</center>";
+        document.getElementById("tdc" + loc).className = "nmv";
+        last = loc;
+    }
+    
+    if (eval(row+1) < rem.length)
+    {
+        found1 = checkRect(eval(row+1) + "_" + clm, user);
+    }
+
+//    dispTbl(rem);
+    
+    if (eval(row-1) >= 0)
+    {
+        found2 = checkRect(eval(row-1) + "_" + clm, user);
+    }
+    
+//    dispTbl(rem);
+    
+    if ((!found1 && !found2 && user == "P") || ((found1 || found2) && user == "C"))
+    {
+        cpuMove();
+    }
+    else
+    {
+        checkDone();
+    }
+}
+
+function makeVert(loc, user)
+{
+    var dtls = loc.split("_");
+    var row = parseInt(dtls[0]);
+    var clm = parseInt(dtls[1]);
+    var found1 = false;
+    var found2 = false;
+    
+    if (row % 2 == 0 || clm % 2 == 1)
+    {
+        return;
+    }
+
+    if (rem[row][clm] == 0)
+    {
+        return;
+    }
+    
+    rem[row][clm] = 0;
+
+    document.getElementById("tdc" + loc).innerHTML = "<center>|</center>";    
+    
+    if (last != "")
+    {
+        var ldtls = last.split("_");
+        var lrow = parseInt(ldtls[0]);
+        var lclm = parseInt(ldtls[1]);
+        if (lrow % 2 == 1 && lclm % 2 == 0)
+        {
+            document.getElementById("tdc" + last).className = "omv";
+        }
+        else if (lrow % 2 == 0 && lclm % 2 == 1)
+        {
+            document.getElementById("tdc" + last).className = "omv";
+        }
+    }
+    
+    
+    if (user == "C")
+    {
+        document.getElementById("tdc" + loc).className = "nmv";
+        last = loc;
+    }
+    else
+    {
+        document.getElementById("tdc" + loc).className = "omv";
+    }
+    
+//    dispTbl(rem);
+    
+    if (eval(clm+1) < rem[row].length)
+    {
+        found1 = checkRect(row + "_" + eval(clm+1), user);
+    }
+    
+//    dispTbl(rem);
+    
+    if (eval(clm-1) >= 0)
+    {
+        found2 = checkRect(row + "_" + eval(clm-1), user);
+    }
+    
+    if ((!found1 && !found2 && user == "P") || ((found1 || found2) && user == "C"))
+    {
+        cpuMove();
+    }
+    else
+    {
+        checkDone();
+    }
+}
+
+function dispTbl(rem)
+{
+    var table = "<table>";
+    for (var yin = 0; yin < rem.length; yin++)
+    {
+        table += "<tr>";
+        for (var yang = 0; yang < rem[yin].length; yang++)
+        {
+            table += "<td>" + rem[yin][yang] + "</td>";
+        }
+        table += "</tr>";
+    }
+    table += "</table>";
+    
+    document.getElementById("table").innerHTML += table;
+}
+
+function checkRect(loc, user)
+{
+    var dtls = loc.split("_");
+    var row = parseInt(dtls[0]);
+    var clm = parseInt(dtls[1]);
+    var found = false;
+        
+    if (row % 2 == 0 || clm % 2 == 0)
+    {
+        return;
+    }
+    
+    if (!rem[row-1][clm] && !rem[row+1][clm] && !rem[row][clm-1] && !rem[row][clm+1])
+    {
+        found = true;
+        if (user == "P")
+        {
+            document.getElementById("tdc" + row + "_" + clm).bgColor = '#00FF00';
+            own[Math.floor(row/2)][Math.floor(clm/2)] = "P";
+        }
+        else
+        {
+            document.getElementById("tdc" + row + "_" + clm).bgColor = '#FF0000';
+            own[Math.floor(row/2)][Math.floor(clm/2)] = "C";
+        }
+    }
+    
+    return found;
+}
+
+function cpuMove()
+{
+    if (checkDone() != false)
+    {
+        return;
+    }
+
+    var poss0 = new Array();
+    var poss1 = new Array();
+    var poss2 = new Array();
+    var poss3 = new Array();
+    var poss4 = new Array();
+    
+    for (var yin = 0; yin < rem.length; yin ++)
+    {
+        for (var yang = 0; yang < rem[yin].length; yang++)
+        {
+            if (yin % 2 == 1 && yang % 2 == 1)
+            {
+                if (!rem[yin-1][yang] && !rem[yin+1][yang] && !rem[yin][yang-1] && !rem[yin][yang+1])
+                {
+                    poss4[poss4.length] = yin + "_" + yang;
+                }
+                else if (!rem[yin-1][yang] && !rem[yin+1][yang] && !rem[yin][yang-1])
+                {
+                    poss3[poss3.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin-1][yang] && !rem[yin+1][yang] && !rem[yin][yang+1])
+                {
+                    poss3[poss3.length] = yin + "_" + eval(yang-1);
+                }
+                else if (!rem[yin-1][yang] && !rem[yin][yang-1] && !rem[yin][yang+1])
+                {
+                    poss3[poss3.length] = eval(yin+1) + "_" + yang;
+                }
+                else if (!rem[yin+1][yang] && !rem[yin][yang-1] && !rem[yin][yang+1])
+                {
+                    poss3[poss3.length] = eval(yin-1) + "_" + yang;
+                }
+                else if (!rem[yin-1][yang] && !rem[yin+1][yang])
+                {
+                    poss2[poss2.length] = yin + "_" + eval(yang-1);
+                    poss2[poss2.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin-1][yang] && !rem[yin][yang-1])
+                {
+                    poss2[poss2.length] = eval(yin+1) + "_" + yang;
+                    poss2[poss2.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin-1][yang] && !rem[yin][yang+1])
+                {
+                    poss2[poss2.length] = eval(yin+1) + "_" + yang;
+                    poss2[poss2.length] = yin + "_" + eval(yang-1);
+                }
+                else if (!rem[yin+1][yang] && !rem[yin][yang-1])
+                {
+                    poss2[poss2.length] = eval(yin-1) + "_" + yang;
+                    poss2[poss2.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin+1][yang] && !rem[yin][yang+1])
+                {
+                    poss2[poss2.length] = eval(yin-1) + "_" + yang;
+                    poss2[poss2.length] = yin + "_" + eval(yang-1);
+                }
+                else if (!rem[yin][yang-1] && !rem[yin][yang+1])
+                {
+                    poss2[poss2.length] = eval(yin+1) + "_" + yang;
+                    poss2[poss2.length] = eval(yin-1) + "_" + yang;
+                }
+                else if (!rem[yin-1][yang])
+                {
+                    poss1[poss1.length] = eval(yin+1) + "_" + yang;
+                    poss1[poss1.length] = yin + "_" + eval(yang-1);
+                    poss1[poss1.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin+1][yang])
+                {
+                    poss1[poss1.length] = eval(yin-1) + "_" + yang;
+                    poss1[poss1.length] = yin + "_" + eval(yang-1);
+                    poss1[poss1.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin][yang-1])
+                {
+                    poss1[poss1.length] = eval(yin+1) + "_" + yang;
+                    poss1[poss1.length] = eval(yin-1) + "_" + yang;
+                    poss1[poss1.length] = yin + "_" + eval(yang+1);
+                }
+                else if (!rem[yin][yang+1])
+                {
+                    poss1[poss1.length] = eval(yin+1) + "_" + yang;
+                    poss1[poss1.length] = eval(yin-1) + "_" + yang;
+                    poss1[poss1.length] = yin + "_" + eval(yang-1);
+                }
+                else
+                {
+                    poss0[poss0.length] = eval(yin+1) + "_" + yang;
+                    poss0[poss0.length] = eval(yin-1) + "_" + yang;
+                    poss0[poss0.length] = yin + "_" + eval(yang-1);
+                    poss0[poss0.length] = yin + "_" + eval(yang+1);
+                }
+            }
+        }
+    }
+    
+    var found = false;
+    if (poss3.length > 0)
+    {
+        var row = parseInt(poss3[0].split("_")[0]);
+        var clm = parseInt(poss3[0].split("_")[1]);
+        
+        if (row % 2 == 0 && clm % 2 == 1)
+        {
+            makeHoriz(poss3[0], 'C');
+            return;
+        }
+        else
+        {
+            makeVert(poss3[0], 'C');
+            return;
+        }
+    }
+    
+    if (poss0.length > 0 || poss1.length > 0)
+    {
+        var loc;
+        var redo = false;
+        do
+        {
+            var inP1 = false;
+            redo = false;
+            loc = Math.floor(Math.random()*(poss0.length + poss1.length));
+            if (loc >= poss0.length)
+            {
+//                document.getElementById("table").innerHTML += "loc = " + loc + ", poss0 = " + poss0 + "<br>poss1 = " + poss1 + "<br>";
+                loc = loc - poss0.length
+//                document.getElementById("table").innerHTML += "loc = " + loc + "<br>";
+                inP1 = true;
+            }
+            else
+            {
+                inP1 = false;
+            }
+            
+            if ((!inP1 && poss2.indexOf(poss0[loc]) != -1) || (inP1 && poss2.indexOf(poss1[loc]) != -1))
+            {
+                redo = true;
+                if (inP1)
+                {
+                    poss1[loc] = poss1[poss1.length-1];
+                    poss1.length--;
+                }
+                else
+                {
+                    poss0[loc] = poss0[poss0.length-1];
+                    poss0.length--;
+                }
+            }
+        }
+        while (redo);
+        
+        if (!inP1)
+        {
+//            document.getElementById("table").innerHTML += "loc = " + loc + ", p0 = " + poss0 + "<br>";;
+            var row = parseInt(poss0[loc].split("_")[0]);
+            var clm = parseInt(poss0[loc].split("_")[1]);
+        
+            if (row % 2 == 0 && clm % 2 == 1)
+            {
+                makeHoriz(poss0[loc], 'C');
+                return;
+            }
+            else
+            {
+                makeVert(poss0[loc], 'C');
+                return;
+            }
+        }
+        else if (poss1.length > 0)
+        {
+//            document.getElementById("table").innerHTML += "loc = " + loc + ", p1 = " + poss1 + "<br>";;
+            var row = parseInt(poss1[loc].split("_")[0]);
+            var clm = parseInt(poss1[loc].split("_")[1]);
+        
+            if (row % 2 == 0 && clm % 2 == 1)
+            {
+                makeHoriz(poss1[loc], 'C');
+                return;
+            }
+            else
+            {
+                makeVert(poss1[loc], 'C');
+                return;
+            }
+        }
+    }
+    
+    if (poss2.length > 0)
+    {
+        var loc = Math.floor(Math.random()*poss2.length);
+        var row = parseInt(poss2[loc].split("_")[0]);
+        var clm = parseInt(poss2[loc].split("_")[1]);
+        
+        if (row % 2 == 0 && clm % 2 == 1)
+        {
+            makeHoriz(poss2[loc], 'C');
+            return;
+        }
+        else
+        {
+            makeVert(poss2[loc], 'C');
+            return;
+        }
+    }
+}
+
+function checkDone()
+{
+    var poss4 = new Array();
+    
+    for (var yin = 0; yin < rem.length; yin ++)
+    {
+        for (var yang = 0; yang < rem[yin].length; yang++)
+        {
+            if (yin % 2 == 1 && yang % 2 == 1)
+            {
+                if (!rem[yin-1][yang] && !rem[yin+1][yang] && !rem[yin][yang-1] && !rem[yin][yang+1])
+                {
+                    poss4[poss4.length] = yin + "_" + yang;
+                }
+            }
+        }
+    }
+    
+    if (poss4.length == (rows - 1) * (clms - 1))
+    {
+        var cCnt = 0;
+        var pCnt = 0;
+        for (var yin = 0; yin < own.length; yin++)
+        {
+            for (var yang = 0; yang < own[yin].length; yang++)
+            {
+                if (own[yin][yang] == "P")
+                {
+                    pCnt++;
+                }
+                else
+                {
+                    cCnt++;
+                }
+            }
+        }
+        
+        if (pCnt > cCnt)
+        {
+            document.getElementById("table").innerHTML += "<h3>You Win!!!!!</h3>";
+            return "P";
+        }
+        else 
+        {
+            document.getElementById("table").innerHTML += "<h3>Sorry, You Lose!!!!!</h3>";
+            return "C";
+        }
+    }
+    
+    return false;
+}
+</script>
+<h3><center></center></h3>
+<p><p>In a game of Dots and Boxes, we start with an initial grid with dots at each row and column intersection. 
+At each player's turn, they have the option of drawing either a horizontal or vertical line between two 
+neighboring dots (depending on if the dots are in the same row or column).  If a player fills in the last line 
+on a box (the 4th side), we say that player "owns" the box and they are allowed an additional move. The game ends when there are no neighboring dots 
+without a line between them. At the conclusion of the game, the player who owns the most dots is declared the winner. </p></p>
+<center>
+<select name="numRws" id="numRws">
+ <option value="2">2</option>
+ <option value="3">3</option>
+ <option value="4">4</option>
+ <option value="5" selected>5</option>
+ <option value="6">6</option>
+ <option value="7">7</option>
+ <option value="8">8</option>
+ <option value="9">9</option>
+ <option value="10">10</option>
+ <option value="11">11</option>
+ <option value="12">12</option>
+ <option value="13">13</option>
+ <option value="14">14</option>
+ <option value="15">15</option>
+ <option value="16">16</option>
+ <option value="17">17</option>
+ <option value="18">18</option>
+ <option value="19">19</option>
+ <option value="20">20</option>
+ </select> Rows 
+ <select name="numClms" id="numClms">
+ <option value="2">2</option>
+ <option value="3">3</option>
+ <option value="4">4</option>
+ <option value="5" selected>5</option>
+ <option value="6">6</option>
+ <option value="7">7</option>
+ <option value="8">8</option>
+ <option value="9">9</option>
+ <option value="10">10</option>
+ <option value="11">11</option>
+ <option value="12">12</option>
+ <option value="13">13</option>
+ <option value="14">14</option>
+ <option value="15">15</option>
+ <option value="16">16</option>
+ <option value="17">17</option>
+ <option value="18">18</option>
+ <option value="19">19</option>
+ <option value="20">20</option>
+ </select> Columns<br>
+<input type="button" name="ngme" id="ngme" onclick="rows=document.getElementById('numRws').value;clms=document.getElementById('numClms').value;buildTable(rows, clms)" value="New Game"><br>
+<p name="table" id="table"></p>
+
+</center>
+<script type="text/javascript">
+var rem = new Array();
+var own = new Array();
+var last = "";
+var rows = 5;
+var clms = 5;
+buildTable(rows, clms);
+</script>

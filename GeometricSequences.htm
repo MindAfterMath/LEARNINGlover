@@ -1,0 +1,348 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+GeometricSequences<script type="text/javascript">
+function generate(first, ratio, terms)
+{
+	var ans = new Array();
+	var i;
+	ans[0] = first;
+	for (i = 1; i < terms; i++)
+		ans[i] = ans[0]*Math.pow(ratio, i);
+	
+	return ans;
+}
+
+function init()
+{
+	var first;
+	do{
+		first = Math.floor(Math.random()*50);
+	} while (first == 0);
+	var fsign = Math.floor(Math.random()*2);
+	if (!fsign)
+		first *= -1;
+	
+	var ratio;
+	do{
+		ratio = Math.floor(Math.random()*10);
+	} while (ratio == 0 || ratio == 1);
+
+	var rsign = Math.floor(Math.random()*2);
+	if (!rsign)
+		ratio *= -1;
+		
+	var seq = generate(first, ratio, 6);
+	
+	document.getElementById("input").innerHTML += disp(seq) + "<br><br>";
+	
+	var pos = Math.floor(Math.random()*20);
+	var ques = Math.floor(Math.random()*3);
+	
+	switch (ques)
+	{
+	case 0:
+		document.getElementById("input").innerHTML += "What is term g<sub>" + pos + "</sub> of this sequence ";
+		break;
+	case 1:
+		document.getElementById("input").innerHTML += "What is sum S<sub>" + pos + "</sub> of this sequence ";
+		break;
+	case 2: 
+		document.getElementById("input").innerHTML += "What is the common ratio? ";
+		break;
+	}
+	
+	var ans = new Array();
+	ans[0] = seq;
+	ans[1] = ques;
+	ans[2] = pos;
+	
+	return ans;
+}
+
+function disp(seq)
+{
+	var output = "";
+	var i;
+	
+	for (i = 0; i < seq.length; i++)
+	{
+		output += seq[i];
+		if (i < seq.length - 1)
+			output += " + ";
+	}
+	
+	return output;
+}
+
+function solve(ques, seq, n)
+{
+	var ans = "";
+	switch (ques)
+	{
+	case 0:
+		ans += "The formula for term g<sub>n</sub> of a sequence is g<sub>n</sub> = a<sub>1</sub> * r<sup>(n - 1)</sup><br>";
+		ans += "a<sub>1</sub> = " + seq[0] + "<br>";
+		ans += "n = " + n + "<br>";
+		ans += "r = " + (seq[1] / seq[0]) + "<br>";
+		ans += "This evaluates to: <br>";
+		ans += "a<sub>" + n + "</sub> = " + term(seq, n);
+		ans += "<br>";
+		break;
+	case 1:
+		ans += "The formula for sum S<sub>n</sub> of a sequence is S<sub>n</sub> = a<sub>1</sub>*(1 - r<sup>n+1</sup>)/(1 - r)<br>";
+		ans += "a<sub>1</sub> = " + seq[0] + "<br>";
+		ans += "n = " + n + "<br>";
+		ans += "r = " + (seq[1] / seq[0]) + "<br>";
+		ans += "This evaluates to: <br>";
+		ans += "S<sub>" + n + "</sub> = " + sum(seq, n);
+		ans += "<br>";
+		break;
+	case 2: 
+		ans += "To calculate the common ratio in a geometric sequence, we need to divide two consecucetive terms. <br>";
+		ans += "By dividing the second term by the first term we get: <br>";
+		ans += "a<sub>1</sub> = " + seq[0] + "<br>";
+		ans += "a<sub>2</sub> = " + seq[1] + "<br>";
+		ans += "r = " + seq[1] + " / " + seq[0] + "<br>";
+		ans += " = " + getRat(seq);
+		ans += "<br>";
+		break;
+	}
+	
+	document.getElementById("output").innerHTML = ans;
+}
+
+function term(seq, n)
+{
+	var ratio = 0;
+	var first = 0;
+	
+	if (seq.length > 1)
+		first = seq[0];
+		
+	if (seq.length > 2)
+		ratio = seq[1] / seq[0];
+	
+	var ans = first*Math.pow(ratio, (n - 1));
+	
+	return ans;
+}
+
+function sum(seq, n)
+{
+	var ratio = 0;
+	var first = 0;
+	
+	if (seq.length > 1)
+		first = seq[0];
+		
+	if (seq.length > 2)
+		ratio = seq[1] / seq[0];
+		
+	var ans = first*(1-Math.pow(ratio, n+1))/(1-ratio);
+
+	return ans;
+}
+
+function getRat(seq)
+{
+	var ratio = 0;
+	
+	if (seq.length > 2)
+		ratio = seq[1] / seq[0];
+		
+	return ratio;
+}
+
+function clearAll()
+{
+	document.getElementById("input").innerHTML = "";
+	document.getElementById("output").innerHTML = "";
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="ratio, first, geometric, geometric sequence, JavaScript, math, script, sequence, series, term" />
+
+
+<meta name="description" content="This script helps userd understand geometric sequences. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function generate(first, ratio, terms)
+{
+	var ans = new Array();
+	var i;
+	ans[0] = first;
+	for (i = 1; i < terms; i++)
+		ans[i] = ans[0]*Math.pow(ratio, i);
+	
+	return ans;
+}
+
+function init()
+{
+	var first;
+	do{
+		first = Math.floor(Math.random()*50);
+	} while (first == 0);
+	var fsign = Math.floor(Math.random()*2);
+	if (!fsign)
+		first *= -1;
+	
+	var ratio;
+	do{
+		ratio = Math.floor(Math.random()*10);
+	} while (ratio == 0 || ratio == 1);
+
+	var rsign = Math.floor(Math.random()*2);
+	if (!rsign)
+		ratio *= -1;
+		
+	var seq = generate(first, ratio, 6);
+	
+	document.getElementById("input").innerHTML += disp(seq) + "<br><br>";
+	
+	var pos = Math.floor(Math.random()*20);
+	var ques = Math.floor(Math.random()*3);
+	
+	switch (ques)
+	{
+	case 0:
+		document.getElementById("input").innerHTML += "What is term g<sub>" + pos + "</sub> of this sequence ";
+		break;
+	case 1:
+		document.getElementById("input").innerHTML += "What is sum S<sub>" + pos + "</sub> of this sequence ";
+		break;
+	case 2: 
+		document.getElementById("input").innerHTML += "What is the common ratio? ";
+		break;
+	}
+	
+	var ans = new Array();
+	ans[0] = seq;
+	ans[1] = ques;
+	ans[2] = pos;
+	
+	return ans;
+}
+
+function disp(seq)
+{
+	var output = "";
+	var i;
+	
+	for (i = 0; i < seq.length; i++)
+	{
+		output += seq[i];
+		if (i < seq.length - 1)
+			output += " + ";
+	}
+	
+	return output;
+}
+
+function solve(ques, seq, n)
+{
+	var ans = "";
+	switch (ques)
+	{
+	case 0:
+		ans += "The formula for term g<sub>n</sub> of a sequence is g<sub>n</sub> = a<sub>1</sub> * r<sup>(n - 1)</sup><br>";
+		ans += "a<sub>1</sub> = " + seq[0] + "<br>";
+		ans += "n = " + n + "<br>";
+		ans += "r = " + (seq[1] / seq[0]) + "<br>";
+		ans += "This evaluates to: <br>";
+		ans += "a<sub>" + n + "</sub> = " + term(seq, n);
+		ans += "<br>";
+		break;
+	case 1:
+		ans += "The formula for sum S<sub>n</sub> of a sequence is S<sub>n</sub> = a<sub>1</sub>*(1 - r<sup>n+1</sup>)/(1 - r)<br>";
+		ans += "a<sub>1</sub> = " + seq[0] + "<br>";
+		ans += "n = " + n + "<br>";
+		ans += "r = " + (seq[1] / seq[0]) + "<br>";
+		ans += "This evaluates to: <br>";
+		ans += "S<sub>" + n + "</sub> = " + sum(seq, n);
+		ans += "<br>";
+		break;
+	case 2: 
+		ans += "To calculate the common ratio in a geometric sequence, we need to divide two consecucetive terms. <br>";
+		ans += "By dividing the second term by the first term we get: <br>";
+		ans += "a<sub>1</sub> = " + seq[0] + "<br>";
+		ans += "a<sub>2</sub> = " + seq[1] + "<br>";
+		ans += "r = " + seq[1] + " / " + seq[0] + "<br>";
+		ans += " = " + getRat(seq);
+		ans += "<br>";
+		break;
+	}
+	
+	document.getElementById("output").innerHTML = ans;
+}
+
+function term(seq, n)
+{
+	var ratio = 0;
+	var first = 0;
+	
+	if (seq.length > 1)
+		first = seq[0];
+		
+	if (seq.length > 2)
+		ratio = seq[1] / seq[0];
+	
+	var ans = first*Math.pow(ratio, (n - 1));
+	
+	return ans;
+}
+
+function sum(seq, n)
+{
+	var ratio = 0;
+	var first = 0;
+	
+	if (seq.length > 1)
+		first = seq[0];
+		
+	if (seq.length > 2)
+		ratio = seq[1] / seq[0];
+		
+	var ans = first*(1-Math.pow(ratio, n+1))/(1-ratio);
+
+	return ans;
+}
+
+function getRat(seq)
+{
+	var ratio = 0;
+	
+	if (seq.length > 2)
+		ratio = seq[1] / seq[0];
+		
+	return ratio;
+}
+
+function clearAll()
+{
+	document.getElementById("input").innerHTML = "";
+	document.getElementById("output").innerHTML = "";
+}
+</script>
+<h3><center></center></h3>
+<p>A geometric sequence is a sequence with an initial term, a<sub>1</sub> and a common ration, r, where each term after the initial term is obtained by multiplying the previous term by the ratio (a<sub>1</sub> cannot be zero, and r cannot be zero or one). 
+
+In a geometric sequence, if we know the first term and the ratio, we can determine the n<sup>th</sup> term by the formula
+
+a<sub>n</sub> = a<sub>1</sub>*r<sup>n - 1</sup>
+
+Similarly, if we know the first term and the ratio, we can determine the sum of the first n terms in a geometric sequence by the formula:
+
+<table><tr><td>S<sub>n</sub> = </td><td><table><tr><td style="border-bottom: solid; width=15px">a<sub>1</sub>(1 - r<sup>n</sup>)</td></tr><tr><td>1 - r</td></tr></table></td></tr></table>
+</p>
+<p name="input" id="input"></p>
+<input type="button" onclick="solve(ques, seq, pos);" value="Solve">
+<input type="button" onclick="clearAll();ans = init();seq = ans[0]; ques=ans[1]; pos = ans[2];" value="New Problem">
+<script type="text/javascript">
+var ans = init();
+var seq = ans[0];
+var ques = ans[1];
+var pos = ans[2];
+</script>
+<p name="output" id="output"></p>

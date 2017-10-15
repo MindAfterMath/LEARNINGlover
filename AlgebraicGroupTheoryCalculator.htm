@@ -1,0 +1,1484 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+AlgebraicGroupTheoryCalculator<script type="text/javascript">
+function getPermStr(init, perm)
+{
+	var rem = new Array();
+	var strRep = "";
+	var size = init.length;
+	var elmt;
+	var found = false;
+	var i;
+	
+	for (i = 0; i < size; i++)
+	{
+		rem[i] = init[i];
+	}
+	
+	var loc1 = 0;
+	var loc2 = -1;
+	strRep += "(";
+	strRep += "0";
+
+	for (i = 0; i < size; i++)
+	{
+		elmt = init[loc1];
+		loc2 = linsear(perm, elmt);
+		found = linsear(strRep, loc2);
+		if (found >= 0)
+		{
+			strRep += ")";
+			loc1 = linsear(rem, elmt);
+			rem = remove(rem, loc1);
+			if (rem.length > 0)
+			{
+				strRep += "(";
+				loc1 = linsear(init, rem[0]);
+				strRep += loc1;
+			}
+		}
+		else
+		{
+			strRep += loc2;
+			loc1 = linsear(rem, elmt);
+			rem = remove(rem, loc1)
+			loc1 = loc2;
+		}
+	}
+	
+	var temp = "";
+	
+	var temp = strRep.split(")(");
+	var out = "";
+	
+	for (i = 0; i < temp.length; i++)
+	{
+		if (temp[i].length > 2 || (temp[i].length == 2 && temp[i].indexOf("(") == -1 && temp[i].indexOf(")") == -1))
+			if (temp[i][0] != "(" && temp[i][temp[i].length - 1] != ")")
+				out += "(" + temp[i] + ")";
+			else if (temp[i][0] != "(")
+				out += "(" + temp[i];
+			else if (temp[i][temp[i].length - 1] != ")")
+				out += temp[i] + ")";
+			else
+				out += temp[i];
+	}
+	if (out == (""))
+		out = "(1)";
+	
+	return out;
+}
+
+function genSn()
+{
+	reset();
+	var len = document.getElementById("snSize").value;
+	var n = 1;
+	var locs = new Array();
+	var actions = new Array();
+	for (var i = 1; i <= len; i++)
+		n *= i;
+		
+	document.getElementById("size").value = n;
+	
+	setSize();
+	var testStr = "";
+	for (var i = 0; i < len; i++)
+	{
+		testStr += i;
+		locs[i] = new Array();
+		locs[i][0] = (i+1);
+	}
+	
+	for (i = 0; i < locs.length; i++)
+	for (j = i+1; j < locs.length; j++)
+		if (i != j)
+			for (var k1 = 0; k1 < locs[i].length; k1++)
+			for (var k2 = 0; k2 < locs[j].length; k2++)
+			{
+				var k = actions.length;
+				actions[k] = new Array();
+				actions[k] = "(" + locs[i][k1] + locs[j][k2] + ")"
+//				actions[k][0] = new Array();
+//				actions[k][0][0] = locs[i][k1];
+//				actions[k][0][1] = locs[j][k2];
+			}
+	
+	for (i = 0; i < actions.length; i++)
+	for (j = 0; j < actions.length; j++)
+	{
+		var temp = prod(len, actions[i], actions[j]);
+		if (linsear(actions, temp) == -1)
+			actions[actions.length] = temp;
+	}
+	
+	for (i = 0; i < actions.length; i++)
+	{
+		document.getElementById("elt" + (i+1)).value = actions[i];
+	}
+	setElts();
+	
+	for (i = 0; i < actions.length; i++)
+	for (j = 0; j < actions.length; j++)
+	{
+		var temp = prod(len, actions[i], actions[j]);
+		document.getElementById("prod" + (i+1) + "_" + (j+1)).value = temp;
+	}
+}
+
+function getNextPerm(firstTime) 
+{
+	var j;
+
+	if (!firstTime)
+	{
+		var done = 0;
+		var index = 0;
+
+		while (!done && (index < (ARRAY_COUNT - 1)))
+		{
+			moveArray[index]++;
+
+			if (moveArray[index] >= (ARRAY_COUNT - index))
+			{
+				moveArray[index] = 0;
+			}
+			else
+			{
+				done = 1;
+			}
+
+			index++;
+		}
+
+		if (!done)
+		{
+			return 0;
+		}
+	}
+
+	firstTime = 0;
+
+	for (var i = 0; i < ARRAY_COUNT - 1; i++)
+	{
+		var index1 = (ARRAY_COUNT - i - 1);
+		var index2 = moveArray[i];
+
+		var temp = tempString[index1];
+		var loc1, loc2;
+		if (index1 < index2)
+		{
+			loc1 = index1;
+			loc2 = index2;
+		}
+		else
+		{
+			loc1 = index2;
+			loc2 = index1;
+		}
+		
+		if (index1 != index2)
+			tempString = tempString.substring(0, loc1) + tempString[loc2] + tempString.substring(loc1+1, loc2) + tempString[loc1] + tempString.substring(loc2+1, tempString.length);
+	}
+
+	return 1;
+}
+
+function genZn(n)
+{
+	reset();
+	var i, j;
+	document.getElementById("size").value = n;
+
+	setSize();
+	for (i = 0; i < n; i++)
+		document.getElementById("elt" + (i+1)).value = i;
+
+	setElts();
+	for (i = 0; i < n; i++)
+	for (j = 0; j < n; j++)
+	{
+		document.getElementById("prod" + (i+1) + "_" + (j+1)).value = (i + j) % n;
+	}
+}
+
+function getOrder()
+{
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "<b>Order Test</b><br>";
+	
+	var size = document.getElementById("size").value;
+	var elts = new Array(size);
+	var order = new Array();
+	var generators = new Array();
+	var cyclic = false;
+	
+	var i, j;
+	for (i = 0; i < size; i++)
+	{
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+	}
+	
+	var iden = testIdentity();
+	
+	for (i = 0; i < size; i++)
+	{
+		var mapsTo = new Array();
+		for (j = 0; j < size && mapsTo[j-1] != elts[iden-1]; j++)
+		{
+			if (j == 0)
+				mapsTo[j] = document.getElementById("prod" + (i+1) + "_" + (iden)).value;
+			else
+			{
+				var loc = linsear(elts, mapsTo[j-1]);
+				
+				mapsTo[j] = document.getElementById("prod" + (i+1) + "_" + (loc+1)).value;
+			}
+		}
+		order[i] = mapsTo.length;
+	}
+	
+	document.getElementById("output").innerHTML += "The order of the elements are: <br>";
+	for (i = 0; i < size; i++)
+	{
+		if (order[i] == size)
+			cyclic = true;
+		document.getElementById("output").innerHTML += elts[i] + "&nbsp;&nbsp;&nbsp;&nbsp;" + order[i] + "<br>";
+	}
+	
+	if (cyclic)
+		document.getElementById("output").innerHTML += "This group is cyclic<br>";
+	
+	return;
+}
+
+function genZnZm(n, m)
+{
+	reset();
+	var i, j;
+	document.getElementById("size").value = parseInt(n)*parseInt(m);
+	var size = document.getElementById("size").value;
+		
+	setSize();
+	var count = 0;
+	var elts = new Array();
+	
+	for (i = 0; i < n; i++)
+	for (j = 0; j < m; j++)
+	{
+		document.getElementById("elt" + (count+1)).value = i + "" + j;
+		count++;
+	}
+
+	setElts();
+	for (i = 0; i < size; i++)
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+
+	for (i = 0; i < size; i++)
+	for (j = 0; j < size; j++)
+	{
+		document.getElementById("prod" + (i+1) + "_" + (j+1)).value += ((parseInt(elts[i][0]) + parseInt(elts[j][0])) % n);
+		document.getElementById("prod" + (i+1) + "_" + (j+1)).value += ((parseInt(elts[i][1]) + parseInt(elts[j][1])) % m);
+	}
+}
+
+function linsear(set, elmnt)
+{
+	var i;
+	var ans = -1;
+
+	for (i = 0; i < set.length && ans == -1; i++)
+	{
+		if (set[i] == elmnt)
+			ans = i;
+	}
+	
+	return ans;
+}
+
+function prod(size, str1, str2)
+{
+	var i;
+	for (i = 1; i <= size; i++)
+	{
+		if (str1.indexOf(i) == -1)
+			str1 += "(" + i + ")";
+		if (str2.indexOf(i) == -1)
+			str2 += "(" + i + ")";	
+	}
+//	document.getElementById("test").innerHTML += "str1 = " + str1 + "<br>";
+//	document.getElementById("test").innerHTML += "str2 = " + str2 + "<br>";
+	var rem = str1 + str2;
+	var strRep = "";
+	var elmt;
+	var found = false;
+	
+	rem = sort(rem);
+	
+	for (i = 0; i < rem.length; i++)
+	{
+		if (rem[i] == "(" || rem[i] == ")" || (i + 1 < rem.length && rem[i] == rem[i+1]))
+		{
+			rem = remove(rem, i);
+			i--;
+		}
+	}
+//	document.getElementById("output").innerHTML += "rem = " + rem + "<br>";
+	
+	var loc1 = 0;
+	var loc2 = -1;
+	strRep += "(";
+	elmt = rem[0];
+	strRep += elmt;
+
+	for (i = 0; i < size; i++)
+	{
+		loc1 = linsear(str2, elmt);
+//		document.getElementById("output").innerHTML += "loc1 = " + loc1 + "<br>";
+		elmt = str2[loc1 + 1];
+		if (elmt == ")")
+		{
+			for (var j = loc1; str2[j] != "("; j--)
+			{ }
+			elmt = str2[j+1];
+		}
+//		document.getElementById("output").innerHTML += "elmt = " + elmt + "<br>";
+		
+		loc2 = linsear(str1, elmt);
+//		document.getElementById("output").innerHTML += "loc2 = " + loc2 + "<br>";
+		elmt = str1[loc2 + 1];
+		
+		if (elmt == ")")
+		{
+			for (var j = loc2; str1[j] != "("; j--)
+			{ }
+			elmt = str1[j+1];
+		}
+//		document.getElementById("output").innerHTML += "elmt = " + elmt + "<br>";
+		found = linsear(strRep, elmt);
+//		document.getElementById("output").innerHTML += "found = " + found + "<br>";
+		if (found >= 0)
+		{
+			strRep += ")";
+//			document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+			loc1 = linsear(rem, elmt);
+//			document.getElementById("output").innerHTML += "loc1 = " + loc1 + "<br>";
+			rem = remove(rem, loc1);
+//			document.getElementById("output").innerHTML += "rem = " + rem + "<br>";
+			if (rem.length > 0)
+			{
+				strRep += "(";
+//				document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+				elmt = rem[0];
+//				document.getElementById("output").innerHTML += "elmt = " + elmt + "<br>";
+				loc1 = linsear(str2, elmt);
+//				document.getElementById("output").innerHTML += "loc1 = " + loc1 + "<br>";
+				strRep += elmt;
+//				document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+			}
+		}
+		else
+		{
+			strRep += elmt;
+//			document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+		}
+	}
+	
+	var temp = "";
+	
+	var temp = strRep.split(")(");
+	var out = "";
+	
+	for (i = 0; i < temp.length; i++)
+	{
+		if (temp[i].length > 2 || (temp[i].length == 2 && temp[i].indexOf("(") == -1 && temp[i].indexOf(")") == -1))
+			if (temp[i][0] != "(" && temp[i][temp[i].length - 1] != ")")
+				out += "(" + temp[i] + ")";
+			else if (temp[i][0] != "(")
+				out += "(" + temp[i];
+			else if (temp[i][temp[i].length - 1] != ")")
+				out += temp[i] + ")";
+			else
+				out += temp[i];
+	}
+	if (out == (""))
+		out = "(1)";
+	
+	return out;	
+}
+
+function remove (set, loc)
+{
+	var i, len = set.length;
+
+	for (i = loc; i < len; i++)
+		set[i] = set[i+1];
+
+	set.length--;
+
+	return set;
+}
+
+function reset()
+{
+	document.getElementById("namesLbl").hidden = true;
+	document.getElementById("elts").hidden = true;
+	document.getElementById("elts").innerHTML = "";
+
+	document.getElementById("cayleyLbl").hidden = true;
+	document.getElementById("cayley").hidden = true;
+	document.getElementById("cayley").innerHTML = "";
+	
+	document.getElementById("outputLbl").hidden = true;
+	document.getElementById("output").hidden = true;
+	document.getElementById("output").innerHTML = "";
+}
+
+function setElts()
+{
+	var size = document.getElementById("size").value;
+	var names = new Array(size);
+	var text = "";
+	
+	document.getElementById("cayleyLbl").hidden = false;
+	document.getElementById("cayley").hidden = false;
+	document.getElementById("cayley").innerHTML = "";
+	text += "<table>";
+	
+	for (i = 0; i <= size; i++)
+	{
+		if (i == 0)
+			text += "<tr><td></td>";
+		else
+			text += "<tr><td>" + document.getElementById("elt" + i).value + "</td>";
+		for (j = 1; j <= size; j++)
+		{
+			if (i == 0)
+				text += "<td>" + document.getElementById("elt" + j).value + "</td>";
+			else
+			{
+				text += "<td><input name='prod" + i + "_" + j + "' id='prod" + i + "_" + j + "' size=3></td>";
+			}
+		}
+		text += "</tr>";
+	}
+	
+	text += "</table>";
+	
+	text += "<input type=checkbox name=show id=show>";
+	text += "<label>Show Work?</label>";
+	text += "<input type=button onClick=testGroup() value='Test Group'>";
+	
+	document.getElementById("cayley").innerHTML += text;
+}
+
+function setSize()
+{
+	var size = document.getElementById("size").value;
+	var i;
+	
+	for (i = 1; i <= size; i++)
+	{
+		document.getElementById("namesLbl").hidden = false;
+		document.getElementById("elts").hidden = false;
+		document.getElementById("elts").innerHTML += "<label name='elt" + i + "Lbl' id='elt" + i + "Lbl'>Element " + i + "</label>";
+		document.getElementById("elts").innerHTML += "<input name='elt" + i + "' id='elt" + i + "' size=3><br>";
+	}
+	
+	document.getElementById("elts").innerHTML += "<input type=button onclick='setElts()' value='Set'>";	
+}
+
+function sort(A) 
+{
+	var left = new Array();
+ 	count = 0;
+  	var i, j, min;
+  	for (i = 0; i < A.length; i++)
+ 		left[i] = A[i];
+  	for (i = 0; i < left.length-1; i++)
+ 	{
+ 		swap = 0;
+ 		min = i;
+ 		for (j = i+1; j < left.length; j++)
+ 			if (left[j] < left[min])
+ 			{
+ 				min = j;
+ 				swap ++;
+ 			}
+ 		temp = left[i];
+ 		left[i] = left[min];
+ 		left[min] = temp;
+  		if (swap)
+ 			count++;
+ 	}
+  	return left; 
+}
+
+function testAssoc()
+{
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "<b>Associativity Test</b><br>";
+	var size = document.getElementById("size").value;
+	var elts = new Array(size);
+	var i;
+	for (i = 0; i < size; i++)
+	{
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+	}
+	
+	var ans = true;
+	
+	for (i = 0; i < size && ans; i++)
+	for (j = 0; j < size && ans; j++)
+	for (k = 0; k < size && ans; k++)
+	{
+		var elmt1 = document.getElementById("prod" + (i+1) + "_" + (j+1)).value;
+		var loc1 = linsear(elts, elmt1);
+		var elmt2 = document.getElementById("prod" + (loc1+1) + "_" +(k+1)).value;
+		var loc2 = linsear(elts, elmt2);
+		
+		var elmt3 = document.getElementById("prod" + (j+1) + "_" +(k+1)).value;
+		var loc3 = linsear(elts, elmt3);
+		var elmt4 = document.getElementById("prod" + (i+1) + "_" +(loc3+1)).value;
+		var loc4 = linsear(elts, elmt4);
+		
+		if (document.getElementById("show").checked)
+		{
+			document.getElementById("output").innerHTML += "((" + elts[i] + " * " + elts[j] + ") * " + elts[k] + ") = " + elts[loc1] + " * " + elts[k] + " = " + elts[loc2] + "<br>";
+			document.getElementById("output").innerHTML += "(" + elts[i] + " * (" + elts[j] + " * " + elts[k] + ")) = " + elts[i] + " * " + elts[loc3] + " = " + elts[loc4] + "<br><br>";
+		}
+		
+		if (elmt2 != elmt4)
+			ans = !ans;
+	}
+	
+	return ans;
+}
+
+function testClosed()
+{
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "<b>Closure Test</b><br>";
+	var size = document.getElementById("size").value;
+	var elts = new Array(size);
+	var i;
+	for (i = 0; i < size; i++)
+	{
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+	}
+	
+	var ans = true;
+
+	for (i = 0; i < size && ans; i++)
+	for (j = 0; j < size && ans; j++)
+	{
+		var elt = document.getElementById("prod" + (i+1) + "_" + (j+1)).value;
+		var loc = linsear(elts, elt);
+		
+		if (loc == -1)
+			ans = !ans;
+	}
+	
+	return ans;
+}
+
+function testGroup()
+{
+	var closed = testClosed();
+	var assoc = testAssoc();
+	var ident = testIdentity();
+	var inv = testInverse();
+	
+	document.getElementById("outputLbl").hidden = false;
+	document.getElementById("output").hidden = false;
+	
+	if (closed && assoc && ident != -1 && inv)
+	{
+		document.getElementById("output").innerHTML += "This is a group<br>";
+		document.getElementById("output").innerHTML += "Do you want to know the order of the elements?";
+		document.getElementById("output").innerHTML += "<input type=button onClick=getOrder() value='Get Order'><br>";
+	}
+	else
+	{
+		if (!closed)
+			document.getElementById("output").innerHTML += "The operator is not closed on this set<br>";
+		if (!assoc)
+			document.getElementById("output").innerHTML += "The operator is not associative on this set<br>";
+		if (!ident)
+			document.getElementById("output").innerHTML += "There is no identity element<br>";
+		if (!inv)
+			document.getElementById("output").innerHTML += "There exists at least one element with no inverse<br>";
+	}
+}
+
+function testIdentity()
+{
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "<b>Identity Test</b><br>";
+	var size = document.getElementById("size").value;
+	var elts = new Array(size);
+	var i;
+	for (i = 0; i < size; i++)
+	{
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+	}
+	
+	var ans = false;
+
+	for (i = 0; i < size && !ans; i++)
+	{
+		var elt1 = document.getElementById("elt" + (i+1)).value;
+//		var loc1 = linsear(elts, elt1);
+		var ans2 = 0;
+		for (j = 0; j < size && !ans; j++)
+		{
+			var elt2 = document.getElementById("prod" + (i+1) + "_" + (j+1)).value;
+			var loc = linsear(elts, elt2);
+			
+			if (document.getElementById("show").checked)
+				document.getElementById("output").innerHTML += elts[i] + " * " + elts[j] + " = " + elts[loc] + "<br>";
+			
+			if (elts[j] == elt2)
+				ans2++;
+		}
+		
+		if (ans2 == size)
+			ans = !ans;
+	}
+	
+	if (i == size)
+		ans = -1;
+	else
+		ans = i;
+	
+	return ans;
+}
+
+function testInverse()
+{
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "<b>Inverse Test</b><br>";
+	var size = document.getElementById("size").value;
+	var elts = new Array(size);
+	var i;
+	for (i = 0; i < size; i++)
+	{
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+	}
+	
+	var ans = false;
+
+	var iden = testIdentity();
+	if (iden != -1)
+		ans = !ans;
+		
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "The identity of this group is " + elts[iden] + "<br>";
+		
+	var count = 0;
+	for (i = 0; i < size; i++)
+	{
+		var ans2 = false;
+		for (j = 0; j < size && !ans2; j++)
+		{
+			var elt =  document.getElementById("prod" + (i+1) + "_" + (j+1)).value;
+			var loc = linsear(elts, elt);
+			
+			if (document.getElementById("show").checked)
+				document.getElementById("output").innerHTML += elts[i] + " * " + elts[j] + " = " + elts[loc] + "<br>";
+			if (elts[loc] == elts[iden])
+				ans2 = !ans2;
+		}
+		if (ans2)
+			count++;
+	}
+	
+	if (count == size)
+		ans = true;
+	else
+		ans = false;
+		
+	return ans;
+}
+</script>
+</head><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="abstract algebra, modern algebra, group, groups, group theory, cyclic, order, associative, closed, inverse, identity, javascript, script, math, maths, calculator" />
+<meta name="description" content="This is a calculator for Algebraic Groups that allows users to input a Cayley table and determine if it represents a group, as well as determine properties of this group. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function getPermStr(init, perm)
+{
+	var rem = new Array();
+	var strRep = "";
+	var size = init.length;
+	var elmt;
+	var found = false;
+	var i;
+	
+	for (i = 0; i < size; i++)
+	{
+		rem[i] = init[i];
+	}
+	
+	var loc1 = 0;
+	var loc2 = -1;
+	strRep += "(";
+	strRep += "0";
+
+	for (i = 0; i < size; i++)
+	{
+		elmt = init[loc1];
+		loc2 = linsear(perm, elmt);
+		found = linsear(strRep, loc2);
+		if (found >= 0)
+		{
+			strRep += ")";
+			loc1 = linsear(rem, elmt);
+			rem = remove(rem, loc1);
+			if (rem.length > 0)
+			{
+				strRep += "(";
+				loc1 = linsear(init, rem[0]);
+				strRep += loc1;
+			}
+		}
+		else
+		{
+			strRep += loc2;
+			loc1 = linsear(rem, elmt);
+			rem = remove(rem, loc1)
+			loc1 = loc2;
+		}
+	}
+	
+	var temp = "";
+	
+	var temp = strRep.split(")(");
+	var out = "";
+	
+	for (i = 0; i < temp.length; i++)
+	{
+		if (temp[i].length > 2 || (temp[i].length == 2 && temp[i].indexOf("(") == -1 && temp[i].indexOf(")") == -1))
+			if (temp[i][0] != "(" && temp[i][temp[i].length - 1] != ")")
+				out += "(" + temp[i] + ")";
+			else if (temp[i][0] != "(")
+				out += "(" + temp[i];
+			else if (temp[i][temp[i].length - 1] != ")")
+				out += temp[i] + ")";
+			else
+				out += temp[i];
+	}
+	if (out == (""))
+		out = "(1)";
+	
+	return out;
+}
+
+function genSn()
+{
+	reset();
+	var len = document.getElementById("snSize").value;
+	var n = 1;
+	var locs = new Array();
+	var actions = new Array();
+	for (var i = 1; i <= len; i++)
+		n *= i;
+		
+	document.getElementById("size").value = n;
+	
+	setSize();
+	var testStr = "";
+	for (var i = 0; i < len; i++)
+	{
+		testStr += i;
+		locs[i] = new Array();
+		locs[i][0] = (i+1);
+	}
+	
+	for (i = 0; i < locs.length; i++)
+	for (j = i+1; j < locs.length; j++)
+		if (i != j)
+			for (var k1 = 0; k1 < locs[i].length; k1++)
+			for (var k2 = 0; k2 < locs[j].length; k2++)
+			{
+				var k = actions.length;
+				actions[k] = new Array();
+				actions[k] = "(" + locs[i][k1] + locs[j][k2] + ")"
+//				actions[k][0] = new Array();
+//				actions[k][0][0] = locs[i][k1];
+//				actions[k][0][1] = locs[j][k2];
+			}
+	
+	for (i = 0; i < actions.length; i++)
+	for (j = 0; j < actions.length; j++)
+	{
+		var temp = prod(len, actions[i], actions[j]);
+		if (linsear(actions, temp) == -1)
+			actions[actions.length] = temp;
+	}
+	
+	for (i = 0; i < actions.length; i++)
+	{
+		document.getElementById("elt" + (i+1)).value = actions[i];
+	}
+	setElts();
+	
+	for (i = 0; i < actions.length; i++)
+	for (j = 0; j < actions.length; j++)
+	{
+		var temp = prod(len, actions[i], actions[j]);
+		document.getElementById("prod" + (i+1) + "_" + (j+1)).value = temp;
+	}
+}
+
+function getNextPerm(firstTime) 
+{
+	var j;
+
+	if (!firstTime)
+	{
+		var done = 0;
+		var index = 0;
+
+		while (!done && (index < (ARRAY_COUNT - 1)))
+		{
+			moveArray[index]++;
+
+			if (moveArray[index] >= (ARRAY_COUNT - index))
+			{
+				moveArray[index] = 0;
+			}
+			else
+			{
+				done = 1;
+			}
+
+			index++;
+		}
+
+		if (!done)
+		{
+			return 0;
+		}
+	}
+
+	firstTime = 0;
+
+	for (var i = 0; i < ARRAY_COUNT - 1; i++)
+	{
+		var index1 = (ARRAY_COUNT - i - 1);
+		var index2 = moveArray[i];
+
+		var temp = tempString[index1];
+		var loc1, loc2;
+		if (index1 < index2)
+		{
+			loc1 = index1;
+			loc2 = index2;
+		}
+		else
+		{
+			loc1 = index2;
+			loc2 = index1;
+		}
+		
+		if (index1 != index2)
+			tempString = tempString.substring(0, loc1) + tempString[loc2] + tempString.substring(loc1+1, loc2) + tempString[loc1] + tempString.substring(loc2+1, tempString.length);
+	}
+
+	return 1;
+}
+
+function genZn(n)
+{
+	reset();
+	var i, j;
+	document.getElementById("size").value = n;
+
+	setSize();
+	for (i = 0; i < n; i++)
+		document.getElementById("elt" + (i+1)).value = i;
+
+	setElts();
+	for (i = 0; i < n; i++)
+	for (j = 0; j < n; j++)
+	{
+		document.getElementById("prod" + (i+1) + "_" + (j+1)).value = (i + j) % n;
+	}
+}
+
+function getOrder()
+{
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "<b>Order Test</b><br>";
+	
+	var size = document.getElementById("size").value;
+	var elts = new Array(size);
+	var order = new Array();
+	var generators = new Array();
+	var cyclic = false;
+	
+	var i, j;
+	for (i = 0; i < size; i++)
+	{
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+	}
+	
+	var iden = testIdentity();
+	
+	for (i = 0; i < size; i++)
+	{
+		var mapsTo = new Array();
+		for (j = 0; j < size && mapsTo[j-1] != elts[iden-1]; j++)
+		{
+			if (j == 0)
+				mapsTo[j] = document.getElementById("prod" + (i+1) + "_" + (iden)).value;
+			else
+			{
+				var loc = linsear(elts, mapsTo[j-1]);
+				
+				mapsTo[j] = document.getElementById("prod" + (i+1) + "_" + (loc+1)).value;
+			}
+		}
+		order[i] = mapsTo.length;
+	}
+	
+	document.getElementById("output").innerHTML += "The order of the elements are: <br>";
+	for (i = 0; i < size; i++)
+	{
+		if (order[i] == size)
+			cyclic = true;
+		document.getElementById("output").innerHTML += elts[i] + "&nbsp;&nbsp;&nbsp;&nbsp;" + order[i] + "<br>";
+	}
+	
+	if (cyclic)
+		document.getElementById("output").innerHTML += "This group is cyclic<br>";
+	
+	return;
+}
+
+function genZnZm(n, m)
+{
+	reset();
+	var i, j;
+	document.getElementById("size").value = parseInt(n)*parseInt(m);
+	var size = document.getElementById("size").value;
+		
+	setSize();
+	var count = 0;
+	var elts = new Array();
+	
+	for (i = 0; i < n; i++)
+	for (j = 0; j < m; j++)
+	{
+		document.getElementById("elt" + (count+1)).value = i + "" + j;
+		count++;
+	}
+
+	setElts();
+	for (i = 0; i < size; i++)
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+
+	for (i = 0; i < size; i++)
+	for (j = 0; j < size; j++)
+	{
+		document.getElementById("prod" + (i+1) + "_" + (j+1)).value += ((parseInt(elts[i][0]) + parseInt(elts[j][0])) % n);
+		document.getElementById("prod" + (i+1) + "_" + (j+1)).value += ((parseInt(elts[i][1]) + parseInt(elts[j][1])) % m);
+	}
+}
+
+function linsear(set, elmnt)
+{
+	var i;
+	var ans = -1;
+
+	for (i = 0; i < set.length && ans == -1; i++)
+	{
+		if (set[i] == elmnt)
+			ans = i;
+	}
+	
+	return ans;
+}
+
+function prod(size, str1, str2)
+{
+	var i;
+	for (i = 1; i <= size; i++)
+	{
+		if (str1.indexOf(i) == -1)
+			str1 += "(" + i + ")";
+		if (str2.indexOf(i) == -1)
+			str2 += "(" + i + ")";	
+	}
+//	document.getElementById("test").innerHTML += "str1 = " + str1 + "<br>";
+//	document.getElementById("test").innerHTML += "str2 = " + str2 + "<br>";
+	var rem = str1 + str2;
+	var strRep = "";
+	var elmt;
+	var found = false;
+	
+	rem = sort(rem);
+	
+	for (i = 0; i < rem.length; i++)
+	{
+		if (rem[i] == "(" || rem[i] == ")" || (i + 1 < rem.length && rem[i] == rem[i+1]))
+		{
+			rem = remove(rem, i);
+			i--;
+		}
+	}
+//	document.getElementById("output").innerHTML += "rem = " + rem + "<br>";
+	
+	var loc1 = 0;
+	var loc2 = -1;
+	strRep += "(";
+	elmt = rem[0];
+	strRep += elmt;
+
+	for (i = 0; i < size; i++)
+	{
+		loc1 = linsear(str2, elmt);
+//		document.getElementById("output").innerHTML += "loc1 = " + loc1 + "<br>";
+		elmt = str2[loc1 + 1];
+		if (elmt == ")")
+		{
+			for (var j = loc1; str2[j] != "("; j--)
+			{ }
+			elmt = str2[j+1];
+		}
+//		document.getElementById("output").innerHTML += "elmt = " + elmt + "<br>";
+		
+		loc2 = linsear(str1, elmt);
+//		document.getElementById("output").innerHTML += "loc2 = " + loc2 + "<br>";
+		elmt = str1[loc2 + 1];
+		
+		if (elmt == ")")
+		{
+			for (var j = loc2; str1[j] != "("; j--)
+			{ }
+			elmt = str1[j+1];
+		}
+//		document.getElementById("output").innerHTML += "elmt = " + elmt + "<br>";
+		found = linsear(strRep, elmt);
+//		document.getElementById("output").innerHTML += "found = " + found + "<br>";
+		if (found >= 0)
+		{
+			strRep += ")";
+//			document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+			loc1 = linsear(rem, elmt);
+//			document.getElementById("output").innerHTML += "loc1 = " + loc1 + "<br>";
+			rem = remove(rem, loc1);
+//			document.getElementById("output").innerHTML += "rem = " + rem + "<br>";
+			if (rem.length > 0)
+			{
+				strRep += "(";
+//				document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+				elmt = rem[0];
+//				document.getElementById("output").innerHTML += "elmt = " + elmt + "<br>";
+				loc1 = linsear(str2, elmt);
+//				document.getElementById("output").innerHTML += "loc1 = " + loc1 + "<br>";
+				strRep += elmt;
+//				document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+			}
+		}
+		else
+		{
+			strRep += elmt;
+//			document.getElementById("output").innerHTML += "strRep = " + strRep + "<br>";
+		}
+	}
+	
+	var temp = "";
+	
+	var temp = strRep.split(")(");
+	var out = "";
+	
+	for (i = 0; i < temp.length; i++)
+	{
+		if (temp[i].length > 2 || (temp[i].length == 2 && temp[i].indexOf("(") == -1 && temp[i].indexOf(")") == -1))
+			if (temp[i][0] != "(" && temp[i][temp[i].length - 1] != ")")
+				out += "(" + temp[i] + ")";
+			else if (temp[i][0] != "(")
+				out += "(" + temp[i];
+			else if (temp[i][temp[i].length - 1] != ")")
+				out += temp[i] + ")";
+			else
+				out += temp[i];
+	}
+	if (out == (""))
+		out = "(1)";
+	
+	return out;	
+}
+
+function remove (set, loc)
+{
+	var i, len = set.length;
+
+	for (i = loc; i < len; i++)
+		set[i] = set[i+1];
+
+	set.length--;
+
+	return set;
+}
+
+function reset()
+{
+	document.getElementById("namesLbl").hidden = true;
+	document.getElementById("elts").hidden = true;
+	document.getElementById("elts").innerHTML = "";
+
+	document.getElementById("cayleyLbl").hidden = true;
+	document.getElementById("cayley").hidden = true;
+	document.getElementById("cayley").innerHTML = "";
+	
+	document.getElementById("outputLbl").hidden = true;
+	document.getElementById("output").hidden = true;
+	document.getElementById("output").innerHTML = "";
+}
+
+function setElts()
+{
+	var size = document.getElementById("size").value;
+	var names = new Array(size);
+	var text = "";
+	
+	document.getElementById("cayleyLbl").hidden = false;
+	document.getElementById("cayley").hidden = false;
+	document.getElementById("cayley").innerHTML = "";
+	text += "<table>";
+	
+	for (i = 0; i <= size; i++)
+	{
+		if (i == 0)
+			text += "<tr><td></td>";
+		else
+			text += "<tr><td>" + document.getElementById("elt" + i).value + "</td>";
+		for (j = 1; j <= size; j++)
+		{
+			if (i == 0)
+				text += "<td>" + document.getElementById("elt" + j).value + "</td>";
+			else
+			{
+				text += "<td><input name='prod" + i + "_" + j + "' id='prod" + i + "_" + j + "' size=3></td>";
+			}
+		}
+		text += "</tr>";
+	}
+	
+	text += "</table>";
+	
+	text += "<input type=checkbox name=show id=show>";
+	text += "<label>Show Work?</label>";
+	text += "<input type=button onClick=testGroup() value='Test Group'>";
+	
+	document.getElementById("cayley").innerHTML += text;
+}
+
+function setSize()
+{
+	var size = document.getElementById("size").value;
+	var i;
+	
+	for (i = 1; i <= size; i++)
+	{
+		document.getElementById("namesLbl").hidden = false;
+		document.getElementById("elts").hidden = false;
+		document.getElementById("elts").innerHTML += "<label name='elt" + i + "Lbl' id='elt" + i + "Lbl'>Element " + i + "</label>";
+		document.getElementById("elts").innerHTML += "<input name='elt" + i + "' id='elt" + i + "' size=3><br>";
+	}
+	
+	document.getElementById("elts").innerHTML += "<input type=button onclick='setElts()' value='Set'>";	
+}
+
+function sort(A) 
+{
+	var left = new Array();
+ 	count = 0;
+  	var i, j, min;
+  	for (i = 0; i < A.length; i++)
+ 		left[i] = A[i];
+  	for (i = 0; i < left.length-1; i++)
+ 	{
+ 		swap = 0;
+ 		min = i;
+ 		for (j = i+1; j < left.length; j++)
+ 			if (left[j] < left[min])
+ 			{
+ 				min = j;
+ 				swap ++;
+ 			}
+ 		temp = left[i];
+ 		left[i] = left[min];
+ 		left[min] = temp;
+  		if (swap)
+ 			count++;
+ 	}
+  	return left; 
+}
+
+function testAssoc()
+{
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "<b>Associativity Test</b><br>";
+	var size = document.getElementById("size").value;
+	var elts = new Array(size);
+	var i;
+	for (i = 0; i < size; i++)
+	{
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+	}
+	
+	var ans = true;
+	
+	for (i = 0; i < size && ans; i++)
+	for (j = 0; j < size && ans; j++)
+	for (k = 0; k < size && ans; k++)
+	{
+		var elmt1 = document.getElementById("prod" + (i+1) + "_" + (j+1)).value;
+		var loc1 = linsear(elts, elmt1);
+		var elmt2 = document.getElementById("prod" + (loc1+1) + "_" +(k+1)).value;
+		var loc2 = linsear(elts, elmt2);
+		
+		var elmt3 = document.getElementById("prod" + (j+1) + "_" +(k+1)).value;
+		var loc3 = linsear(elts, elmt3);
+		var elmt4 = document.getElementById("prod" + (i+1) + "_" +(loc3+1)).value;
+		var loc4 = linsear(elts, elmt4);
+		
+		if (document.getElementById("show").checked)
+		{
+			document.getElementById("output").innerHTML += "((" + elts[i] + " * " + elts[j] + ") * " + elts[k] + ") = " + elts[loc1] + " * " + elts[k] + " = " + elts[loc2] + "<br>";
+			document.getElementById("output").innerHTML += "(" + elts[i] + " * (" + elts[j] + " * " + elts[k] + ")) = " + elts[i] + " * " + elts[loc3] + " = " + elts[loc4] + "<br><br>";
+		}
+		
+		if (elmt2 != elmt4)
+			ans = !ans;
+	}
+	
+	return ans;
+}
+
+function testClosed()
+{
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "<b>Closure Test</b><br>";
+	var size = document.getElementById("size").value;
+	var elts = new Array(size);
+	var i;
+	for (i = 0; i < size; i++)
+	{
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+	}
+	
+	var ans = true;
+
+	for (i = 0; i < size && ans; i++)
+	for (j = 0; j < size && ans; j++)
+	{
+		var elt = document.getElementById("prod" + (i+1) + "_" + (j+1)).value;
+		var loc = linsear(elts, elt);
+		
+		if (loc == -1)
+			ans = !ans;
+	}
+	
+	return ans;
+}
+
+function testGroup()
+{
+	var closed = testClosed();
+	var assoc = testAssoc();
+	var ident = testIdentity();
+	var inv = testInverse();
+	
+	document.getElementById("outputLbl").hidden = false;
+	document.getElementById("output").hidden = false;
+	
+	if (closed && assoc && ident != -1 && inv)
+	{
+		document.getElementById("output").innerHTML += "This is a group<br>";
+		document.getElementById("output").innerHTML += "Do you want to know the order of the elements?";
+		document.getElementById("output").innerHTML += "<input type=button onClick=getOrder() value='Get Order'><br>";
+	}
+	else
+	{
+		if (!closed)
+			document.getElementById("output").innerHTML += "The operator is not closed on this set<br>";
+		if (!assoc)
+			document.getElementById("output").innerHTML += "The operator is not associative on this set<br>";
+		if (!ident)
+			document.getElementById("output").innerHTML += "There is no identity element<br>";
+		if (!inv)
+			document.getElementById("output").innerHTML += "There exists at least one element with no inverse<br>";
+	}
+}
+
+function testIdentity()
+{
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "<b>Identity Test</b><br>";
+	var size = document.getElementById("size").value;
+	var elts = new Array(size);
+	var i;
+	for (i = 0; i < size; i++)
+	{
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+	}
+	
+	var ans = false;
+
+	for (i = 0; i < size && !ans; i++)
+	{
+		var elt1 = document.getElementById("elt" + (i+1)).value;
+//		var loc1 = linsear(elts, elt1);
+		var ans2 = 0;
+		for (j = 0; j < size && !ans; j++)
+		{
+			var elt2 = document.getElementById("prod" + (i+1) + "_" + (j+1)).value;
+			var loc = linsear(elts, elt2);
+			
+			if (document.getElementById("show").checked)
+				document.getElementById("output").innerHTML += elts[i] + " * " + elts[j] + " = " + elts[loc] + "<br>";
+			
+			if (elts[j] == elt2)
+				ans2++;
+		}
+		
+		if (ans2 == size)
+			ans = !ans;
+	}
+	
+	if (i == size)
+		ans = -1;
+	else
+		ans = i;
+	
+	return ans;
+}
+
+function testInverse()
+{
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "<b>Inverse Test</b><br>";
+	var size = document.getElementById("size").value;
+	var elts = new Array(size);
+	var i;
+	for (i = 0; i < size; i++)
+	{
+		elts[i] = document.getElementById("elt" + (i+1)).value;
+	}
+	
+	var ans = false;
+
+	var iden = testIdentity();
+	if (iden != -1)
+		ans = !ans;
+		
+	if (document.getElementById("show").checked)
+		document.getElementById("output").innerHTML += "The identity of this group is " + elts[iden] + "<br>";
+		
+	var count = 0;
+	for (i = 0; i < size; i++)
+	{
+		var ans2 = false;
+		for (j = 0; j < size && !ans2; j++)
+		{
+			var elt =  document.getElementById("prod" + (i+1) + "_" + (j+1)).value;
+			var loc = linsear(elts, elt);
+			
+			if (document.getElementById("show").checked)
+				document.getElementById("output").innerHTML += elts[i] + " * " + elts[j] + " = " + elts[loc] + "<br>";
+			if (elts[loc] == elts[iden])
+				ans2 = !ans2;
+		}
+		if (ans2)
+			count++;
+	}
+	
+	if (count == size)
+		ans = true;
+	else
+		ans = false;
+		
+	return ans;
+}
+</script>
+</head>
+<h3><center></center></h3>
+<p>This calculator goes over the concept of groups from Abstract Algebra. A user will initially enter the size of a prospective group and click "Set", which will allow the user to name each element of this group. Once this is done and "Set" is clicked again, the input for a Cayley table is generated. Upon filling this Cayley table out, users can click "Test Group" to determine whether or not this is a group. If not, the reasons why are listed. If so, then users can also see the order of the elements and other properties of this group. </p>
+<form name=groups id=groups>
+<label>How large is your set?</label>
+<select name=size id=size>
+ <option value=2>2</option>
+ <option value=3 selected>3</option>
+ <option value=4>4</option>
+ <option value=5>5</option>
+ <option value=6>6</option>
+ <option value=7>7</option>
+ <option value=8>8</option>
+ <option value=9>9</option>
+ <option value=10>10</option>
+ <option value=11>11</option>
+ <option value=12>12</option>
+ <option value=13>13</option>
+ <option value=14>14</option>
+ <option value=15>15</option>
+ <option value=16>16</option>
+</select>
+<input type=button onclick="setSize()" value="Set">
+<br>
+<label hidden=true name=namesLbl id=namesLbl>What are the names of the elements?</label> 
+<p id=elts name=elts hidden=true></p>
+<input type=button onclick="setElts()" value="Set" hidden=true name=bttn2 id=bttn2>
+
+<label hidden=true name=cayleyLbl id=cayleyLbl>Input Prospective Cayley Table:</label><br>
+<p id=cayley name=cayley hidden=true></p>
+
+<label hidden=true name=output id=outputLbl>Results:</label><br>
+<p hidden=true id=output name=output></p>
+
+<label>Example Groups:</label><br>
+Integers Mod 
+<select name=znSize id=znSize>
+ <option value=2>2</option>
+ <option value=3 selected>3</option>
+ <option value=4>4</option>
+ <option value=5>5</option>
+ <option value=6>6</option>
+ <option value=7>7</option>
+ <option value=8>8</option>
+ <option value=9>9</option>
+ <option value=10>10</option>
+ <option value=11>11</option>
+ <option value=12>12</option>
+ <option value=13>13</option>
+ <option value=14>14</option>
+ <option value=15>15</option>
+ <option value=16>16</option>
+</select>
+<input type=button value="Generate" onClick="genZn(document.getElementById('znSize').value);"><br>
+
+Integers Mod 
+<select name=znSize1 id=znSize1>
+ <option value=2>2</option>
+ <option value=3 selected>3</option>
+ <option value=4>4</option>
+</select> X Integers Mod 
+<select name=znSize2 id=znSize2>
+ <option value=2>2</option>
+ <option value=3>3</option>
+ <option value=4 selected>4</option>
+</select>
+<input type=button value="Generate" onClick="genZnZm(document.getElementById('znSize1').value, document.getElementById('znSize2').value);"><br>
+Permutations on a string of size 
+<select name=snSize id=snSize>
+ <option value=2>2</option>
+ <option value=3 selected>3</option>
+ </select>
+<input type=button value="Generate" onClick="genSn();">
+</form>

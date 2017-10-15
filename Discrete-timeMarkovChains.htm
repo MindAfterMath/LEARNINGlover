@@ -1,0 +1,1477 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+Discrete-timeMarkovChains<style type="text/css">
+.clrd {
+	border: 1px black solidCy;
+	width: 1.2em;
+	height: 1.2em;
+}
+</style>
+<script type="text/javascript">
+function GElim(A) 
+{
+	var B = new Array();
+ 	var x = new Array();
+	xvars = A.length;
+	 	
+	for (var i = 0; i < xvars; i++) 	
+	{
+		B[i] = new Array();
+		for (var j = 0; j <= xvars; j++)
+		{
+			B[i][j] = A[i][j];
+		}
+		x[i] = 0;
+	}
+
+	var i, j, k, rowmax;
+ 	var temp;
+	
+	for (var i = 0; i < xvars; i++)
+ 	{
+		rowmax = i;
+ 		for (var j = i + 1; j < xvars; j++)
+		{
+			if (Math.abs(B[j][i]) > Math.abs(B[rowmax][i]))
+			{
+				rowmax = j;
+			}
+
+			if (rowmax != i)
+			{
+				for (var k = i; k < xvars+1; k++)
+				{
+					temp = B[i][k];
+					B[i][k] = B[rowmax][k];
+					B[rowmax][k] = temp;
+				}
+			}
+
+			if (Math.abs(B[i][i]) < 0.00001)
+			{
+				text += "The Matrix is singular, so we cannot perform Gaussian Elimination on this problem. ";
+				return FALSE;
+			}
+
+			denom = B[i][i];
+			for (var k = i; k < xvars+1; k++)
+			{
+				B[i][k] = (B[i][k] / denom);
+			}
+
+			for (var j1 = i+1; j1 < xvars; j1++)
+			{
+				for (var k = xvars; k >= i; k--)
+				{
+					B[j1][k] -= B[i][k] * B[j1][i];
+				}
+			}
+		}
+
+ 	 	for (var j = xvars-1; j >= 0; j--) 	
+		{
+			temp = 0.0; 		
+			for (var k = j+1; k < xvars; k++) 			
+			{
+				temp += B[j][k] * x[k]; 		
+			}
+			x[j] = (B[j][xvars]-temp) / B[j][j];
+		}
+	}
+	
+	return x;
+}
+
+function transpose(A)
+{
+	var ATrans = new Array(A[0].length);
+	for (var i = 0; i < ATrans.length; i++)
+	{
+		ATrans[i] = new Array(A.length);
+		for (var j = 0; j < ATrans[i].length; j++)
+		{
+			ATrans[i][j] = A[j][i];
+		}
+	}
+   
+	return ATrans;
+}
+
+function indexOf(arr, elt)
+{
+	var loc = 0;
+	
+	for (var temp in arr)
+	{
+		if (arr[temp] == elt)
+		{
+			break;
+		}
+		loc++;
+	}
+	
+	if (loc == arr.length)
+	{
+		loc = -1;
+	}
+	
+	return loc;
+}
+
+function randInst()
+{
+	var trans = getTransMtrx();
+
+	var start = Math.floor(Math.random() * starts.length);
+	var len = Math.floor(Math.random() * 15) + 5;
+	var order = new Array();
+	order[0] = start;
+
+	for (var i = 1; i < len; i++)
+	{
+		var prob = Math.random();
+		var sum = 0;
+		for (var j = 0; j < trans[order[i-1]].length; j++)
+		{
+			if (prob >= sum && prob < (sum + trans[order[i-1]][j]))
+			{
+				order[i] = j;
+				break;
+			}
+			else
+			{
+				sum += trans[order[i-1]][j];
+			}
+		}	
+	}
+
+	var end = Math.floor (Math.random() * ends.length);
+	order[len] = end;
+
+	var text = "<table><tr><td style='background-color:#C0C0C0; width:1.2em'></td>";
+
+	for (var i = 0; i < order.length; i++)
+	{
+		text += "<td class='clrd' style='background-color:" + clrs [order[i]] + "'></td>";
+	}
+
+	text += "<td style='background-color:#000000; width:1.2em'></td></tr></table>";
+
+	document.getElementById("output2").innerHTML += text;
+}
+    
+
+function markov()
+{
+	var trans = getTransMtrx();
+	
+	for (var i = 0; i < numClrs; i++) 
+	{		
+		trans[i][i] -= 1;
+	}
+	
+	trans = transpose(trans);
+	
+	for (var i = 0; i < numClrs; i++)
+	{
+		trans[i][numClrs] = 0;
+	}
+	
+	var loc = trans.length-1;
+	trans[loc] = new Array();
+	for (var j = 0; j < numClrs; j++)
+	{
+		trans[loc][j] = 1;
+	}
+	trans[loc][numClrs] = 1;
+	
+	var text = "";
+	
+	for (var i = 0; i < numClrs; i++)
+	{
+		for (var j = 0; j <= numClrs; j++)
+		{	
+			if (j < numClrs-1) if (trans[i][j] != 0) 			
+			{
+				text += trans[i][j].toFixed(4) + "x<sub>" + j + "</sub> + ";
+			}
+			else if (j == numClrs-1) if (trans[i][j] != 0) 			
+			{
+				text += trans[i][j].toFixed(4) + "x<sub>" + j + "</sub> = ";
+			}
+			else if (j == numClrs)		
+			{
+				text += trans[i][j].toFixed(4);
+			}
+		}
+		
+		text += "<br>"; 
+	}
+	
+	document.getElementById("output2").innerHTML += text;
+	document.getElementById("button4").style.visibility = "visible";
+	
+	return trans;
+}
+
+function randomColor()
+{
+	var letters = "0123456789ABCDEF".split("");
+	var color = '#';
+	for (var i = 0; i < 6; i++ ) 
+	{
+		color += letters[Math.floor(Math.random() * letters.length)];
+	}
+	return color;
+}
+
+function colorDist(clrs, newClr)
+{
+	var num1 = newClr.split("");
+	var minDist = Number.MIN_VALUE;
+	var norm1 = 0;
+	
+	for (var j = 0; j < clrs.length; j++)
+	{
+		norm1 = 0;
+		var num2 = clrs[j].split("");
+		var norm2 = 0;
+		var ans = 0;
+		for (var i = 1; i < num1.length; i++)
+		{
+			num1[i] = parseInt(num1[i], 16);
+			num2[i] = parseInt(num2[i], 16);
+			ans += (num1[i] * num2[i]);
+			norm1 += (num1[i] * num1[i]);
+			norm2 += (num2[i] * num2[i]);
+		}
+		
+		norm1 = Math.sqrt(norm1);
+		norm2 = Math.sqrt(norm2);
+		ans = ans / (norm1 * norm2);
+		document.getElementById("output2").innerHTML += "<table><tr><td style='background-color:" + newClr + "; width: 1.2em; height: 1.2em;'></td><td style='background-color:" + clrs[j] + "; width: 1.2em; height: 1.2em;'></td><td>" + ans + "</td></tr></table>";
+		if (ans > minDist)
+		{
+			minDist = ans;
+		}
+	}
+	
+	return minDist;
+}
+
+function buildProfile()
+{
+	var text = "";
+	
+	numRows = Math.floor(Math.random()*15) + 5;
+	numClms = new Array();
+	numClrs = Math.floor(Math.random()*10) + 5;
+
+	text += "<table>";
+	var first = randomColor();
+	clrs = new Array();
+
+	clrs[0] = "#0000FF";
+	clrs[1] = "#00FF00";
+	clrs[2] = "#FF0000";
+	clrs[3] = "#00AAFF";
+	clrs[4] = "#005555";
+	clrs[5] = "#AA00AA";
+	clrs[6] = "#00AAAA";
+	clrs[7] = "#AAAA00";
+	clrs[8] = "#AA00FF";
+	clrs[9] = "#00FFFF";
+	clrs[10] = "#FFAA00";
+	clrs[11] = "#FF00FF";
+	clrs[12] = "#AAAAFF";
+	clrs[13] = "#D2691E";
+	clrs[14] = "#FFAAAA";
+	clrs[15] = "#4682BD";
+	clrs[16] = "#FFFF00";
+	clrs[17] = "#FFFFAA";
+	clrs[18] = "#0000AA";
+	clrs[19] = "#00AA00";
+	clrs[20] = "#AA0000";
+	clrs[21] = "#F0F8FF";
+	clrs[22] = "#F0F8FF";
+	clrs[23] = "#FAEBD7";
+	clrs[24] = "#DEB887";
+	
+	clrs.length = numClrs;
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		text += "<tr><td>(" + i + ")</td><td style='background-color:#C0C0C0; width:1.2em'></td>";
+		numClms[i] = Math.floor(Math.random()*15) + 5;
+		for (var j = 0; j < numClms[i]; j++)
+		{
+			text += "<td class='clrd' id='cell" + i + "-" + j + "'  style='background-color:" + clrs[Math.floor(Math.random()*clrs.length)] + "'></td>";
+		}
+		text += "<td style='background-color:#000000; width:1.2em'></td></tr>";
+	}
+	text += "</table>";
+	text += "This person used " + clrs.length + " colors <br>";
+	
+	return text;
+}
+
+function toColorString(rgbCode)
+{
+	var clrStr = "";
+	if (rgbCode.startsWith(")"))
+	{
+		return rgbCode;
+	}
+	else if (rgbCode.startsWith("rgb")) if (rgbCode.endsWith(")"))
+	{
+		clrStr = rgbCode.substring(4, rgbCode.length-1);
+	}
+	else if (rgbCode.startsWith("none repeat scroll 0% 0% rgb"))
+	{
+		clrStr = rgbCode.substring(29, rgbCode.length-1);
+	}
+	else if (rgbCode.startsWith("rgb")) if (rgbCode.endsWith("none repeat scroll 0% 0%"))
+	{
+		clrStr = rgbCode.substring(4, rgbCode.length-26);
+	}
+	
+	clrStr = clrStr.split(", ");
+	var ans = new Array();
+	for (var i = 0; i < 3; i++)
+	{
+		clr1 = Math.floor(clrStr[i] / 16);
+		clr2 = clrStr[i] - clr1*16;
+		if (clr1 == 10)
+		{
+			ans[2*i] = "A"
+		}
+		else if (clr1 == 11)
+		{
+			ans[2*i] = "B"
+		}
+		else if (clr1 == 12)
+		{
+			ans[2*i] = "C"
+		}
+		else if (clr1 == 13)
+		{
+			ans[2*i] = "D"
+		}
+		else if (clr1 == 14)
+		{
+			ans[2*i] = "E"
+		}
+		else if (clr1 == 15)
+		{
+			ans[2*i] = "F"
+		}
+		else
+		{
+			ans[2*i] = clr1;
+		}
+		
+		if (clr2 == 10)
+		{
+			ans[2*i + 1] = "A"
+		}
+		else if (clr2 == 11)
+		{
+			ans[2*i + 1] = "B"
+		}
+		else if (clr2 == 12)
+		{
+			ans[2*i + 1] = "C"
+		}
+		else if (clr2 == 13)
+		{
+			ans[2*i + 1] = "D"
+		}
+		else if (clr2 == 14)
+		{
+			ans[2*i + 1] = "E"
+		}
+		else if (clr2 == 15)
+		{
+			ans[2*i + 1] = "F"
+		}
+		else
+		{
+			ans[2*i + 1] = clr2;
+		}
+	}
+	
+	return "#" + ans[0] + ans[1] + ans[2] + ans[3] + ans[4] + ans[5];
+}
+
+function getTransMtrx()
+{
+	var trans = new Array();
+	var counts = new Array();
+	starts = new Array();
+	ends = new Array();
+	
+	for (var i = 0; i < numClrs; i++)
+	{
+		starts[i] = 0;
+		ends[i] = 0;
+		trans[i] = new Array();
+		counts[i] = 0;
+		for (var j = 0; j < numClrs; j++)
+		{
+			trans[i][j] = 0;
+		}
+	}
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		starts[clrs.indexOf(toColorString(document.getElementById("cell" + i + "-" + 0).style.backgroundColor))]++;
+		for (var j = 0; j < numClms[i]-1; j++)
+		{
+			var loc1 = clrs.indexOf(toColorString(document.getElementById("cell" + i + "-" + j).style.backgroundColor));
+			var loc2 = clrs.indexOf(toColorString(document.getElementById("cell" + i + "-" + (j+1)).style.backgroundColor));
+			trans[loc1][loc2]++;
+			counts[loc1]++;
+		}
+		ends[clrs.indexOf(toColorString(document.getElementById("cell" + i + "-" + (numClms[i]-1)).style.backgroundColor))]++;
+	}
+	
+	for (var i = 0; i < numClrs; i++)
+	{
+		starts[i] /= numRows;
+		for (var j = 0; j < numClrs; j++)
+		{
+			trans[i][j] /= counts[i];
+		}
+		ends[i] /= numRows;
+	}
+	
+	return trans;
+}
+
+function disp(x)
+{
+	var text = "<table>"; 	
+			
+	for (var j = 0; j < numClrs; j++)
+	{
+		text += "<tr><td>x<sub>" + j + "</sub> = " + x[j].toFixed(4) + "</td><td style='background-color:" + clrs[j] + "; width: 1.2em; height: 1.2em;'></td></tr>"; 	
+	} 	
+	text += "</table>";  	
+	document.getElementById("output2").innerHTML += text;
+	
+}
+
+function drawGraph()
+{
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect (0, 0, c.width,  c.height);
+	
+	var trans = getTransMtrx();
+	var xVals = new Array();
+	var yVals = new Array();
+	var theta = new Array();
+	
+	for (var i = 0; i < numClrs + 2; i++)
+	{
+		theta[i] = (2*Math.PI*i) / (numClrs + 2);
+
+		xVals[i] = 200*Math.cos(theta[i]) + 275;
+		yVals[i] = 200*Math.sin(theta[i]) + 275;
+	}
+	
+	for (var i = 0; i < numClrs + 2; i++)
+	{
+		for (var j = 0; j < numClrs + 2; j++)
+		{
+			if (i < numClrs) if (j < numClrs) if (trans[i][j] == 0)
+			{
+				continue;
+			}
+			else if (i == j) if (i < numClrs)
+			{
+				var slope = (275 - yVals[i])/(275 - xVals[i]);
+				var ang = Math.atan(slope);
+				var ptx, pty;
+				if (xVals[i] < 275) if (yVals[i] == 275)
+				{
+					ptx = xVals[i] - 20;
+					pty = 275;
+				}
+				else if (xVals[i] > 275) if (yVals[i] == 275)
+				{
+					ptx = xVals[i] + 20;
+					pty = 275;
+				}
+				else if (xVals[i] == 275) if (yVals[i] > 275)
+				{
+					ptx = 275;
+					pty = yVals[i] + 20;
+				}
+				else if (xVals[i] == 275) if (yVals[i] < 275)
+				{
+					ptx = 275;
+					pty = yVals[i] - 20;
+				}
+				else if (slope < 0) if (yVals[i] < 275)
+				{
+					ptx = 20*Math.cos(ang) + xVals[i];
+					pty = 20*Math.sin(ang) + yVals[i];
+				}
+				else if (slope > 0) if (yVals[i] < 275)
+				{
+					ptx = -20*Math.cos(ang) + xVals[i];
+					pty = -20*Math.sin(ang) + yVals[i];
+				}
+				else if (slope < 0) if (yVals[i] > 275)
+				{
+					ptx = -20*Math.cos(ang) + xVals[i];
+					pty = -20*Math.sin(ang) + yVals[i];
+				}
+				else if (slope > 0) if (yVals[i] > 275)
+				{
+					ptx = 20*Math.cos(ang) + xVals[i];
+					pty = 20*Math.sin(ang) + yVals[i];
+				}
+				ctx.lineWidth = 1;
+				ctx.strokeStyle = "#000000";
+				ctx.beginPath();
+				ctx.arc(ptx, pty, 25, 0*Math.PI,2*Math.PI);
+				ctx.stroke();
+			}
+			else if (!(i >= numClrs || j >= numClrs || trans[i][j] == 0) || !(i != numClrs || j >= numClrs || starts[j] <= 0) || !(i >= numClrs || j != numClrs + 1 || ends[i] <= 0))
+			{
+				var slope1 = (yVals[j] - yVals[i])/(xVals[j] - xVals[i]);
+				var slope2 = -1/slope1;
+				if (slope1 == 0)
+				{
+					slope2 = Number.MAX_VALUE;
+				}
+				var ang2 = Math.atan(slope2);
+				var ang1 = Math.atan(slope1);
+				var x5 = -1, y5 = -1, x6 = -1, y6 = -1, x7 = -1, y7 = -1, x8 = -1, y8 = -1;
+				if (xVals[j] > xVals[i]) if (yVals[j] < yVals[i])
+				{
+					x7 = -20*Math.cos(ang1) + xVals[j];
+					y7 = -20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] < xVals[i]) if (yVals[j] < yVals[i])
+				{
+					x7 = 20*Math.cos(ang1) + xVals[j];
+					y7 = 20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] > xVals[i]) if (yVals[j] > yVals[i])
+				{
+					x7 = -20*Math.cos(ang1) + xVals[j];
+					y7 = -20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] < xVals[i]) if (yVals[j] > yVals[i])
+				{
+					x7 = 20*Math.cos(ang1) + xVals[j];
+					y7 = 20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] > xVals[i]) if (yVals[j] == yVals[i])
+				{
+					x7 = -20*Math.cos(ang1) + xVals[j];
+					y7 = 0*Math.sin(ang1) + yVals[j];
+					x8 = 0*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] < xVals[i]) if (yVals[j] == yVals[i])
+				{
+					x7 = 20*Math.cos(ang1) + xVals[j];
+					y7 = 0*Math.sin(ang1) + yVals[j];
+					x8 = 0*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] == xVals[i]) if (yVals[j] > yVals[i])
+				{
+					x7 = 0*Math.cos(ang1) + xVals[j];
+					y7 = 20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 0*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] == xVals[i]) if (yVals[j] < yVals[i])
+				{
+					x7 = 0*Math.cos(ang1) + xVals[j];
+					y7 = -20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 0*Math.sin(ang2) + y7;
+				}
+				
+				if (i < numClrs) if (j < numClrs)
+				{
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[i], yVals[i]);
+					ctx.lineTo(xVals[j], yVals[j]);
+					ctx.stroke();
+
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[j], yVals[j]);
+					ctx.lineTo(xVals[i], yVals[i]);
+					ctx.stroke();
+				}
+				else if (i == numClrs)
+				{
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[i], yVals[i]);
+					ctx.lineTo(xVals[j], yVals[j]);
+					ctx.stroke();
+
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[j], yVals[j]);
+					ctx.lineTo(xVals[i], yVals[i]);
+					ctx.stroke();
+				}
+				else if (j == numClrs + 1)
+				{
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[i], yVals[i]);
+					ctx.lineTo(xVals[j], yVals[j]);
+					ctx.stroke();
+
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[j], yVals[j]);
+					ctx.lineTo(xVals[i], yVals[i]);
+					ctx.stroke();
+				}
+				
+				ctx.lineWidth = 1;
+				if (i < numClrs)
+				{
+					ctx.fillStyle = clrs[i];
+				}
+				else if (i == numClrs)
+				{
+					ctx.fillStyle = "#C0C0C0";
+				}
+				else if (j == numClrs + 1)
+				{
+					ctx.fillStyle = "#000000";
+				}
+				ctx.beginPath();
+				ctx.moveTo(x7, y7);
+				ctx.lineTo(x8, y8);
+				ctx.lineTo(xVals[j], yVals[j]);
+				ctx.fill();
+			}
+		}
+	}
+	
+	for (var i = 0; i < numClrs + 2; i++)
+	{
+		if (i < numClrs)
+		{
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.stroke();
+
+			ctx.fillStyle = clrs[i];
+			ctx.font = "10px Arial";
+
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.fill();
+		}
+		else if (i == numClrs)
+		{
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.stroke();
+
+			ctx.fillStyle = "#C0C0C0";
+			ctx.font = "10px Arial";
+
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.fill();
+		}
+		else if (i == numClrs + 1)
+		{
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.stroke();
+
+			ctx.fillStyle = "#000000";
+			ctx.font = "10px Arial";
+
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.fill();
+		}
+	}
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" 
+="markov, chain, steady, state, predict, future, data, memoryless, probability, discrete, time, artist, color, javascript, program, regular, colors, matrix, transition, examples, math, tutor, computer science, compsci, algorithm" />
+<meta name="description" content="This page describes Discrete-time Markov Chains and gives a javascript examples of them. " />
+<title> at LEARNINGlover.com</title>
+<style type="text/css">
+.clrd {
+	border: 1px black solidCy;
+	width: 1.2em;
+	height: 1.2em;
+}
+</style>
+<script type="text/javascript">
+function GElim(A) 
+{
+	var B = new Array();
+ 	var x = new Array();
+	xvars = A.length;
+	 	
+	for (var i = 0; i < xvars; i++) 	
+	{
+		B[i] = new Array();
+		for (var j = 0; j <= xvars; j++)
+		{
+			B[i][j] = A[i][j];
+		}
+		x[i] = 0;
+	}
+
+	var i, j, k, rowmax;
+ 	var temp;
+	
+	for (var i = 0; i < xvars; i++)
+ 	{
+		rowmax = i;
+ 		for (var j = i + 1; j < xvars; j++)
+		{
+			if (Math.abs(B[j][i]) > Math.abs(B[rowmax][i]))
+			{
+				rowmax = j;
+			}
+
+			if (rowmax != i)
+			{
+				for (var k = i; k < xvars+1; k++)
+				{
+					temp = B[i][k];
+					B[i][k] = B[rowmax][k];
+					B[rowmax][k] = temp;
+				}
+			}
+
+			if (Math.abs(B[i][i]) < 0.00001)
+			{
+				text += "The Matrix is singular, so we cannot perform Gaussian Elimination on this problem. ";
+				return FALSE;
+			}
+
+			denom = B[i][i];
+			for (var k = i; k < xvars+1; k++)
+			{
+				B[i][k] = (B[i][k] / denom);
+			}
+
+			for (var j1 = i+1; j1 < xvars; j1++)
+			{
+				for (var k = xvars; k >= i; k--)
+				{
+					B[j1][k] -= B[i][k] * B[j1][i];
+				}
+			}
+		}
+
+ 	 	for (var j = xvars-1; j >= 0; j--) 	
+		{
+			temp = 0.0; 		
+			for (var k = j+1; k < xvars; k++) 			
+			{
+				temp += B[j][k] * x[k]; 		
+			}
+			x[j] = (B[j][xvars]-temp) / B[j][j];
+		}
+	}
+	
+	return x;
+}
+
+function transpose(A)
+{
+	var ATrans = new Array(A[0].length);
+	for (var i = 0; i < ATrans.length; i++)
+	{
+		ATrans[i] = new Array(A.length);
+		for (var j = 0; j < ATrans[i].length; j++)
+		{
+			ATrans[i][j] = A[j][i];
+		}
+	}
+   
+	return ATrans;
+}
+
+function indexOf(arr, elt)
+{
+	var loc = 0;
+	
+	for (var temp in arr)
+	{
+		if (arr[temp] == elt)
+		{
+			break;
+		}
+		loc++;
+	}
+	
+	if (loc == arr.length)
+	{
+		loc = -1;
+	}
+	
+	return loc;
+}
+
+function randInst()
+{
+	var trans = getTransMtrx();
+
+	var start = Math.floor(Math.random() * starts.length);
+	var len = Math.floor(Math.random() * 15) + 5;
+	var order = new Array();
+	order[0] = start;
+
+	for (var i = 1; i < len; i++)
+	{
+		var prob = Math.random();
+		var sum = 0;
+		for (var j = 0; j < trans[order[i-1]].length; j++)
+		{
+			if (prob >= sum && prob < (sum + trans[order[i-1]][j]))
+			{
+				order[i] = j;
+				break;
+			}
+			else
+			{
+				sum += trans[order[i-1]][j];
+			}
+		}	
+	}
+
+	var end = Math.floor (Math.random() * ends.length);
+	order[len] = end;
+
+	var text = "<table><tr><td style='background-color:#C0C0C0; width:1.2em'></td>";
+
+	for (var i = 0; i < order.length; i++)
+	{
+		text += "<td class='clrd' style='background-color:" + clrs [order[i]] + "'></td>";
+	}
+
+	text += "<td style='background-color:#000000; width:1.2em'></td></tr></table>";
+
+	document.getElementById("output2").innerHTML += text;
+}
+    
+
+function markov()
+{
+	var trans = getTransMtrx();
+	
+	for (var i = 0; i < numClrs; i++) 
+	{		
+		trans[i][i] -= 1;
+	}
+	
+	trans = transpose(trans);
+	
+	for (var i = 0; i < numClrs; i++)
+	{
+		trans[i][numClrs] = 0;
+	}
+	
+	var loc = trans.length-1;
+	trans[loc] = new Array();
+	for (var j = 0; j < numClrs; j++)
+	{
+		trans[loc][j] = 1;
+	}
+	trans[loc][numClrs] = 1;
+	
+	var text = "";
+	
+	for (var i = 0; i < numClrs; i++)
+	{
+		for (var j = 0; j <= numClrs; j++)
+		{	
+			if (j < numClrs-1) if (trans[i][j] != 0) 			
+			{
+				text += trans[i][j].toFixed(4) + "x<sub>" + j + "</sub> + ";
+			}
+			else if (j == numClrs-1) if (trans[i][j] != 0) 			
+			{
+				text += trans[i][j].toFixed(4) + "x<sub>" + j + "</sub> = ";
+			}
+			else if (j == numClrs)		
+			{
+				text += trans[i][j].toFixed(4);
+			}
+		}
+		
+		text += "<br>"; 
+	}
+	
+	document.getElementById("output2").innerHTML += text;
+	document.getElementById("button4").style.visibility = "visible";
+	
+	return trans;
+}
+
+function randomColor()
+{
+	var letters = "0123456789ABCDEF".split("");
+	var color = '#';
+	for (var i = 0; i < 6; i++ ) 
+	{
+		color += letters[Math.floor(Math.random() * letters.length)];
+	}
+	return color;
+}
+
+function colorDist(clrs, newClr)
+{
+	var num1 = newClr.split("");
+	var minDist = Number.MIN_VALUE;
+	var norm1 = 0;
+	
+	for (var j = 0; j < clrs.length; j++)
+	{
+		norm1 = 0;
+		var num2 = clrs[j].split("");
+		var norm2 = 0;
+		var ans = 0;
+		for (var i = 1; i < num1.length; i++)
+		{
+			num1[i] = parseInt(num1[i], 16);
+			num2[i] = parseInt(num2[i], 16);
+			ans += (num1[i] * num2[i]);
+			norm1 += (num1[i] * num1[i]);
+			norm2 += (num2[i] * num2[i]);
+		}
+		
+		norm1 = Math.sqrt(norm1);
+		norm2 = Math.sqrt(norm2);
+		ans = ans / (norm1 * norm2);
+		document.getElementById("output2").innerHTML += "<table><tr><td style='background-color:" + newClr + "; width: 1.2em; height: 1.2em;'></td><td style='background-color:" + clrs[j] + "; width: 1.2em; height: 1.2em;'></td><td>" + ans + "</td></tr></table>";
+		if (ans > minDist)
+		{
+			minDist = ans;
+		}
+	}
+	
+	return minDist;
+}
+
+function buildProfile()
+{
+	var text = "";
+	
+	numRows = Math.floor(Math.random()*15) + 5;
+	numClms = new Array();
+	numClrs = Math.floor(Math.random()*10) + 5;
+
+	text += "<table>";
+	var first = randomColor();
+	clrs = new Array();
+
+	clrs[0] = "#0000FF";
+	clrs[1] = "#00FF00";
+	clrs[2] = "#FF0000";
+	clrs[3] = "#00AAFF";
+	clrs[4] = "#005555";
+	clrs[5] = "#AA00AA";
+	clrs[6] = "#00AAAA";
+	clrs[7] = "#AAAA00";
+	clrs[8] = "#AA00FF";
+	clrs[9] = "#00FFFF";
+	clrs[10] = "#FFAA00";
+	clrs[11] = "#FF00FF";
+	clrs[12] = "#AAAAFF";
+	clrs[13] = "#D2691E";
+	clrs[14] = "#FFAAAA";
+	clrs[15] = "#4682BD";
+	clrs[16] = "#FFFF00";
+	clrs[17] = "#FFFFAA";
+	clrs[18] = "#0000AA";
+	clrs[19] = "#00AA00";
+	clrs[20] = "#AA0000";
+	clrs[21] = "#F0F8FF";
+	clrs[22] = "#F0F8FF";
+	clrs[23] = "#FAEBD7";
+	clrs[24] = "#DEB887";
+	
+	clrs.length = numClrs;
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		text += "<tr><td>(" + i + ")</td><td style='background-color:#C0C0C0; width:1.2em'></td>";
+		numClms[i] = Math.floor(Math.random()*15) + 5;
+		for (var j = 0; j < numClms[i]; j++)
+		{
+			text += "<td class='clrd' id='cell" + i + "-" + j + "'  style='background-color:" + clrs[Math.floor(Math.random()*clrs.length)] + "'></td>";
+		}
+		text += "<td style='background-color:#000000; width:1.2em'></td></tr>";
+	}
+	text += "</table>";
+	text += "This person used " + clrs.length + " colors <br>";
+	
+	return text;
+}
+
+function toColorString(rgbCode)
+{
+	var clrStr = "";
+	if (rgbCode.startsWith(")"))
+	{
+		return rgbCode;
+	}
+	else if (rgbCode.startsWith("rgb")) if (rgbCode.endsWith(")"))
+	{
+		clrStr = rgbCode.substring(4, rgbCode.length-1);
+	}
+	else if (rgbCode.startsWith("none repeat scroll 0% 0% rgb"))
+	{
+		clrStr = rgbCode.substring(29, rgbCode.length-1);
+	}
+	else if (rgbCode.startsWith("rgb")) if (rgbCode.endsWith("none repeat scroll 0% 0%"))
+	{
+		clrStr = rgbCode.substring(4, rgbCode.length-26);
+	}
+	
+	clrStr = clrStr.split(", ");
+	var ans = new Array();
+	for (var i = 0; i < 3; i++)
+	{
+		clr1 = Math.floor(clrStr[i] / 16);
+		clr2 = clrStr[i] - clr1*16;
+		if (clr1 == 10)
+		{
+			ans[2*i] = "A"
+		}
+		else if (clr1 == 11)
+		{
+			ans[2*i] = "B"
+		}
+		else if (clr1 == 12)
+		{
+			ans[2*i] = "C"
+		}
+		else if (clr1 == 13)
+		{
+			ans[2*i] = "D"
+		}
+		else if (clr1 == 14)
+		{
+			ans[2*i] = "E"
+		}
+		else if (clr1 == 15)
+		{
+			ans[2*i] = "F"
+		}
+		else
+		{
+			ans[2*i] = clr1;
+		}
+		
+		if (clr2 == 10)
+		{
+			ans[2*i + 1] = "A"
+		}
+		else if (clr2 == 11)
+		{
+			ans[2*i + 1] = "B"
+		}
+		else if (clr2 == 12)
+		{
+			ans[2*i + 1] = "C"
+		}
+		else if (clr2 == 13)
+		{
+			ans[2*i + 1] = "D"
+		}
+		else if (clr2 == 14)
+		{
+			ans[2*i + 1] = "E"
+		}
+		else if (clr2 == 15)
+		{
+			ans[2*i + 1] = "F"
+		}
+		else
+		{
+			ans[2*i + 1] = clr2;
+		}
+	}
+	
+	return "#" + ans[0] + ans[1] + ans[2] + ans[3] + ans[4] + ans[5];
+}
+
+function getTransMtrx()
+{
+	var trans = new Array();
+	var counts = new Array();
+	starts = new Array();
+	ends = new Array();
+	
+	for (var i = 0; i < numClrs; i++)
+	{
+		starts[i] = 0;
+		ends[i] = 0;
+		trans[i] = new Array();
+		counts[i] = 0;
+		for (var j = 0; j < numClrs; j++)
+		{
+			trans[i][j] = 0;
+		}
+	}
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		starts[clrs.indexOf(toColorString(document.getElementById("cell" + i + "-" + 0).style.backgroundColor))]++;
+		for (var j = 0; j < numClms[i]-1; j++)
+		{
+			var loc1 = clrs.indexOf(toColorString(document.getElementById("cell" + i + "-" + j).style.backgroundColor));
+			var loc2 = clrs.indexOf(toColorString(document.getElementById("cell" + i + "-" + (j+1)).style.backgroundColor));
+			trans[loc1][loc2]++;
+			counts[loc1]++;
+		}
+		ends[clrs.indexOf(toColorString(document.getElementById("cell" + i + "-" + (numClms[i]-1)).style.backgroundColor))]++;
+	}
+	
+	for (var i = 0; i < numClrs; i++)
+	{
+		starts[i] /= numRows;
+		for (var j = 0; j < numClrs; j++)
+		{
+			trans[i][j] /= counts[i];
+		}
+		ends[i] /= numRows;
+	}
+	
+	return trans;
+}
+
+function disp(x)
+{
+	var text = "<table>"; 	
+			
+	for (var j = 0; j < numClrs; j++)
+	{
+		text += "<tr><td>x<sub>" + j + "</sub> = " + x[j].toFixed(4) + "</td><td style='background-color:" + clrs[j] + "; width: 1.2em; height: 1.2em;'></td></tr>"; 	
+	} 	
+	text += "</table>";  	
+	document.getElementById("output2").innerHTML += text;
+	
+}
+
+function drawGraph()
+{
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect (0, 0, c.width,  c.height);
+	
+	var trans = getTransMtrx();
+	var xVals = new Array();
+	var yVals = new Array();
+	var theta = new Array();
+	
+	for (var i = 0; i < numClrs + 2; i++)
+	{
+		theta[i] = (2*Math.PI*i) / (numClrs + 2);
+
+		xVals[i] = 200*Math.cos(theta[i]) + 275;
+		yVals[i] = 200*Math.sin(theta[i]) + 275;
+	}
+	
+	for (var i = 0; i < numClrs + 2; i++)
+	{
+		for (var j = 0; j < numClrs + 2; j++)
+		{
+			if (i < numClrs) if (j < numClrs) if (trans[i][j] == 0)
+			{
+				continue;
+			}
+			else if (i == j) if (i < numClrs)
+			{
+				var slope = (275 - yVals[i])/(275 - xVals[i]);
+				var ang = Math.atan(slope);
+				var ptx, pty;
+				if (xVals[i] < 275) if (yVals[i] == 275)
+				{
+					ptx = xVals[i] - 20;
+					pty = 275;
+				}
+				else if (xVals[i] > 275) if (yVals[i] == 275)
+				{
+					ptx = xVals[i] + 20;
+					pty = 275;
+				}
+				else if (xVals[i] == 275) if (yVals[i] > 275)
+				{
+					ptx = 275;
+					pty = yVals[i] + 20;
+				}
+				else if (xVals[i] == 275) if (yVals[i] < 275)
+				{
+					ptx = 275;
+					pty = yVals[i] - 20;
+				}
+				else if (slope < 0) if (yVals[i] < 275)
+				{
+					ptx = 20*Math.cos(ang) + xVals[i];
+					pty = 20*Math.sin(ang) + yVals[i];
+				}
+				else if (slope > 0) if (yVals[i] < 275)
+				{
+					ptx = -20*Math.cos(ang) + xVals[i];
+					pty = -20*Math.sin(ang) + yVals[i];
+				}
+				else if (slope < 0) if (yVals[i] > 275)
+				{
+					ptx = -20*Math.cos(ang) + xVals[i];
+					pty = -20*Math.sin(ang) + yVals[i];
+				}
+				else if (slope > 0) if (yVals[i] > 275)
+				{
+					ptx = 20*Math.cos(ang) + xVals[i];
+					pty = 20*Math.sin(ang) + yVals[i];
+				}
+				ctx.lineWidth = 1;
+				ctx.strokeStyle = "#000000";
+				ctx.beginPath();
+				ctx.arc(ptx, pty, 25, 0*Math.PI,2*Math.PI);
+				ctx.stroke();
+			}
+			else if (!(i >= numClrs || j >= numClrs || trans[i][j] == 0) || !(i != numClrs || j >= numClrs || starts[j] <= 0) || !(i >= numClrs || j != numClrs + 1 || ends[i] <= 0))
+			{
+				var slope1 = (yVals[j] - yVals[i])/(xVals[j] - xVals[i]);
+				var slope2 = -1/slope1;
+				if (slope1 == 0)
+				{
+					slope2 = Number.MAX_VALUE;
+				}
+				var ang2 = Math.atan(slope2);
+				var ang1 = Math.atan(slope1);
+				var x5 = -1, y5 = -1, x6 = -1, y6 = -1, x7 = -1, y7 = -1, x8 = -1, y8 = -1;
+				if (xVals[j] > xVals[i]) if (yVals[j] < yVals[i])
+				{
+					x7 = -20*Math.cos(ang1) + xVals[j];
+					y7 = -20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] < xVals[i]) if (yVals[j] < yVals[i])
+				{
+					x7 = 20*Math.cos(ang1) + xVals[j];
+					y7 = 20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] > xVals[i]) if (yVals[j] > yVals[i])
+				{
+					x7 = -20*Math.cos(ang1) + xVals[j];
+					y7 = -20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] < xVals[i]) if (yVals[j] > yVals[i])
+				{
+					x7 = 20*Math.cos(ang1) + xVals[j];
+					y7 = 20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] > xVals[i]) if (yVals[j] == yVals[i])
+				{
+					x7 = -20*Math.cos(ang1) + xVals[j];
+					y7 = 0*Math.sin(ang1) + yVals[j];
+					x8 = 0*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] < xVals[i]) if (yVals[j] == yVals[i])
+				{
+					x7 = 20*Math.cos(ang1) + xVals[j];
+					y7 = 0*Math.sin(ang1) + yVals[j];
+					x8 = 0*Math.cos(ang2) + x7;
+					y8 = 10*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] == xVals[i]) if (yVals[j] > yVals[i])
+				{
+					x7 = 0*Math.cos(ang1) + xVals[j];
+					y7 = 20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 0*Math.sin(ang2) + y7;
+				}
+				else if (xVals[j] == xVals[i]) if (yVals[j] < yVals[i])
+				{
+					x7 = 0*Math.cos(ang1) + xVals[j];
+					y7 = -20*Math.sin(ang1) + yVals[j];
+					x8 = 10*Math.cos(ang2) + x7;
+					y8 = 0*Math.sin(ang2) + y7;
+				}
+				
+				if (i < numClrs) if (j < numClrs)
+				{
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[i], yVals[i]);
+					ctx.lineTo(xVals[j], yVals[j]);
+					ctx.stroke();
+
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[j], yVals[j]);
+					ctx.lineTo(xVals[i], yVals[i]);
+					ctx.stroke();
+				}
+				else if (i == numClrs)
+				{
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[i], yVals[i]);
+					ctx.lineTo(xVals[j], yVals[j]);
+					ctx.stroke();
+
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[j], yVals[j]);
+					ctx.lineTo(xVals[i], yVals[i]);
+					ctx.stroke();
+				}
+				else if (j == numClrs + 1)
+				{
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[i], yVals[i]);
+					ctx.lineTo(xVals[j], yVals[j]);
+					ctx.stroke();
+
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#000000";
+					ctx.beginPath();
+					ctx.moveTo(xVals[j], yVals[j]);
+					ctx.lineTo(xVals[i], yVals[i]);
+					ctx.stroke();
+				}
+				
+				ctx.lineWidth = 1;
+				if (i < numClrs)
+				{
+					ctx.fillStyle = clrs[i];
+				}
+				else if (i == numClrs)
+				{
+					ctx.fillStyle = "#C0C0C0";
+				}
+				else if (j == numClrs + 1)
+				{
+					ctx.fillStyle = "#000000";
+				}
+				ctx.beginPath();
+				ctx.moveTo(x7, y7);
+				ctx.lineTo(x8, y8);
+				ctx.lineTo(xVals[j], yVals[j]);
+				ctx.fill();
+			}
+		}
+	}
+	
+	for (var i = 0; i < numClrs + 2; i++)
+	{
+		if (i < numClrs)
+		{
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.stroke();
+
+			ctx.fillStyle = clrs[i];
+			ctx.font = "10px Arial";
+
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.fill();
+		}
+		else if (i == numClrs)
+		{
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.stroke();
+
+			ctx.fillStyle = "#C0C0C0";
+			ctx.font = "10px Arial";
+
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.fill();
+		}
+		else if (i == numClrs + 1)
+		{
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.stroke();
+
+			ctx.fillStyle = "#000000";
+			ctx.font = "10px Arial";
+
+			ctx.beginPath();
+			ctx.arc(xVals[i], yVals[i], 10, 0*Math.PI, 2*Math.PI);
+			ctx.fill();
+		}
+	}
+}
+</script>
+<h3><center></center></h3>
+<p>I have generated a set of painting samples for a fictional artist. The states are the different colors and the transitions are the colors that the artist will use after other colors. as well as the starting and ending colors. Given this input, we can form a Markov Chain to understand the artist's behavior. This Markov Chain can then be used to solve for the steady state vector or to generate random paintings according to the artist's profile.</p>
+<form name="data" id="data"> 
+<input type=button onclick="document.getElementById('button4').style.visibility = 'hidden';document.getElementById('output').innerHTML = buildProfile();document.getElementById ('myCanvas').getContext('2d').clearRect(0, 0, 550, 550);document.getElementById('output2').innerHTML = '';" value="New Problem"><br> 
+<p name="output" id="output"></p> 
+<script type="text/javascript"> 
+var numRows;
+var numClrs;
+var starts;
+var ends;
+var trans;
+var clrs;
+var stdy;
+document.getElementById("output").innerHTML = buildProfile();
+//document.getElementById("output").innerHTML += "This person used " + clrs.length + " colors <br>";
+</script> 
+<input type="checkbox" name="show" id="show"> Show Work? 
+<input type="button" onclick="drawGraph()" value="Draw States" id=button2 name=button2> 
+<input type="button" onclick="trans = markov()" value="Get Steady State Equations" id=button3 name=button3> 
+<input type="button" onclick="stdy = GElim(trans); disp(stdy)" value="Solve Steady State" id=button4 name=button4 style="visibility:hidden">
+<input type="button" onclick="document.getElementById('output2').innerHTML = ''; randInst();" value="Generate Random Instance" id=button5 name=button5>
+<br>
+<canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas>
+<p name="output2" id="output2"></p> 
+</form>

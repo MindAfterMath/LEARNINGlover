@@ -1,0 +1,1239 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+AssemblyLineSchedulingProblem<script type="text/javascript">
+function getData()
+{
+	var numStages = Math.floor(Math.random()*5)+3;
+	var prob = new Object();
+	var text = "";
+	prob.assemb = new Array(2);
+	prob.transf = new Array(2);
+	prob.entry = new Array(2);
+	prob.exit = new Array(2);
+	prob.stages = new Array(2);
+	prob.route = new Array(2);
+	
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#000000";
+	
+	for (var i = 0; i < 2; i++)
+	{
+		prob.assemb[i] = new Array(numStages);
+		prob.transf[i] = new Array(numStages-1);
+		prob.stages[i] = new Array(numStages);
+		prob.route[i] = new Array(numStages);
+		for (var j = 0; j < numStages; j++)
+		{
+			prob.assemb[i][j] = Math.floor(Math.random()*5) + 4;
+			if (j < numStages-1)
+			{
+				prob.transf[i][j] = Math.floor(Math.random()*3) + 1;
+			}
+			prob.stages[i][j] = new Object();
+			prob.stages[i][j].yLoc = j*75 + 70;
+			if (i == 0)
+			{
+				prob.stages[i][j].xLoc = (0 + c.width) / 5;
+			}
+			else
+			{
+				prob.stages[i][j].xLoc = 4*(0 + c.width) / 5;
+			}
+		}
+		
+		prob.entry[i] = Math.floor(Math.random()*3) + 1;
+		prob.exit[i] = Math.floor(Math.random()*3) + 1;
+	}
+	
+	text += "<table>";
+	text += "<tr><td></td><td>Assembly line 1</td><td>Assembly line 2</td></tr>";
+	text += "<tr><td>Entry Cost</td><td>" + prob.entry[0] + "</td><td>" + prob.entry[1] + "</td></tr>";
+	for (var j = 0; j < numStages; j++)
+	{
+		text += "<tr><td>Assembly Cost</td>";
+		
+		for (var i = 0; i < 2; i++)
+		{
+			text += "<td>" + prob.assemb[i][j] + "</td>";
+		}
+		
+		text += "</tr>";
+	}
+	
+	for (var j = 0; j < numStages-1; j++)
+	{
+		text += "<tr><td>Transfer Cost</td>";
+		
+		for (var i = 0; i < 2; i++)
+		{
+			text += "<td>" + prob.transf[i][j] + "</td>";
+		}
+		
+		text += "</tr>";
+	}
+	
+	text += "<tr><td>Exit Cost</td><td>" + prob.exit[0] + "</td><td>" + prob.exit[1] + "</td></tr>";
+
+	text += "</table>";
+	
+//	document.getElementById("output").innerHTML = text;
+	
+	return prob;
+}
+
+function sample()
+{
+	var numStages = 6;
+	var prob = new Object();
+	var text = "";
+	prob.assemb = new Array(2);
+	prob.transf = new Array(2);
+	prob.entry = new Array(2);
+	prob.exit = new Array(2);
+	prob.stages = new Array(2);
+	prob.route = new Array(2);
+	
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#000000";
+	
+	for (var i = 0; i < 2; i++)
+	{
+		prob.assemb[i] = new Array(numStages);
+		prob.transf[i] = new Array(numStages-1);
+		prob.stages[i] = new Array(numStages);
+		prob.route[i] = new Array(numStages);
+		for (var j = 0; j < numStages; j++)
+		{
+			prob.stages[i][j] = new Object();
+			prob.stages[i][j].yLoc = j*75 + 70;
+			if (i == 0)
+			{
+				prob.stages[i][j].xLoc = (0 + c.width) / 5;
+			}
+			else
+			{
+				prob.stages[i][j].xLoc = 4*(0 + c.width) / 5;
+			}
+		}		
+	}
+	
+	prob.entry[0] = 2;
+	prob.entry[1] = 4;
+	
+	prob.assemb[0][0] = 7;
+	prob.assemb[0][1] = 9;
+	prob.assemb[0][2] = 3;
+	prob.assemb[0][3] = 4;
+	prob.assemb[0][4] = 8;
+	prob.assemb[0][5] = 4;
+	
+	prob.assemb[1][0] = 8;
+	prob.assemb[1][1] = 5;
+	prob.assemb[1][2] = 6;
+	prob.assemb[1][3] = 4;
+	prob.assemb[1][4] = 5;
+	prob.assemb[1][5] = 7;
+	
+	prob.transf[0][0] = 2;
+	prob.transf[0][1] = 3;
+	prob.transf[0][2] = 1;
+	prob.transf[0][3] = 3;
+	prob.transf[0][4] = 4;
+	
+	prob.transf[1][0] = 2;
+	prob.transf[1][1] = 1;
+	prob.transf[1][2] = 2;
+	prob.transf[1][3] = 2;
+	prob.transf[1][4] = 1;
+	
+	prob.exit[0] = 3;
+	prob.exit[1] = 2;
+	
+	text += "<table>";
+	text += "<tr><td></td><td>Assembly line 1</td><td>Assembly line 2</td></tr>";
+	text += "<tr><td>Entry Cost</td><td>" + prob.entry[0] + "</td><td>" + prob.entry[1] + "</td></tr>";
+	for (var j = 0; j < numStages; j++)
+	{
+		text += "<tr><td>Assembly Cost</td>";
+		
+		for (var i = 0; i < 2; i++)
+		{
+			text += "<td>" + prob.assemb[i][j] + "</td>";
+		}
+		
+		text += "</tr>";
+	}
+	
+	for (var j = 0; j < numStages-1; j++)
+	{
+		text += "<tr><td>Transfer Cost</td>";
+		
+		for (var i = 0; i < 2; i++)
+		{
+			text += "<td>" + prob.transf[i][j] + "</td>";
+		}
+		
+		text += "</tr>";
+	}
+	
+	text += "<tr><td>Exit Cost</td><td>" + prob.exit[0] + "</td><td>" + prob.exit[1] + "</td></tr>";
+
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML = text;
+	
+	document.getElementById("B9").hidden = true;
+	document.getElementById("B10").hidden = true;
+	document.getElementById("B11").hidden = true;
+	document.getElementById("B12").hidden = true;
+	
+	return prob;
+}
+
+function fastestWay(prob)
+{
+	prob.cost = new Array(2);
+	var numStages = prob.stages[0].length;
+	var text = "";
+	
+	for (var i = 0; i < 2; i++)
+	{
+		prob.cost[i] = new Array(numStages+1);
+	}
+	
+	prob.cost[0][0] = prob.entry[0] + prob.assemb[0][0];
+	prob.cost[1][0] = prob.entry[1] + prob.assemb[1][0];
+	
+	for (var j = 1; j < numStages; j++)
+	{
+		if (prob.cost[0][j-1] + prob.assemb[0][j] <= prob.cost[1][j-1] + prob.transf[1][j-1] + prob.assemb[0][j])
+		{
+			prob.cost[0][j] = prob.cost[0][j-1] + prob.assemb[0][j];
+			prob.route[0][j-1] = 0;
+		}
+		else
+		{
+			prob.cost[0][j] = prob.cost[1][j-1] + prob.transf[1][j-1] + prob.assemb[0][j];
+			prob.route[0][j-1] = 1;
+		}
+		
+		if (prob.cost[1][j-1] + prob.assemb[1][j] <= prob.cost[0][j-1] + prob.transf[0][j-1] + prob.assemb[1][j])
+		{
+			prob.cost[1][j] = prob.cost[1][j-1] + prob.assemb[1][j];
+			prob.route[1][j-1] = 1;
+		}
+		else
+		{
+			prob.cost[1][j] = prob.cost[0][j-1] + prob.transf[0][j-1] + prob.assemb[1][j];
+			prob.route[1][j-1] = 0;
+		} 
+	}
+	
+	if (prob.cost[0][numStages-1] + prob.exit[0] <= prob.cost[1][numStages-1] + prob.exit[1])
+	{
+		prob.cost[0][numStages] = prob.cost[0][numStages-1] + prob.exit[0];
+		prob.cost[1][numStages] = prob.cost[1][numStages-1] + prob.exit[1];
+		prob.route[0][numStages-1] = 0;
+		prob.route[1][numStages-1] = 0;
+	}
+	else
+	{
+		prob.cost[0][numStages] = prob.cost[0][numStages-1] + prob.exit[0];
+		prob.cost[1][numStages] = prob.cost[1][numStages-1] + prob.exit[1];
+		prob.route[0][numStages-1] = 1;
+		prob.route[1][numStages-1] = 1;
+	}
+	
+	text += "<table>"
+	text += "<tr><td></td>";
+	for (var i = 0; i < numStages; i++)
+	{
+		text += "<td>Station " + (i+1) + "</td>";
+	}
+	text += "<td>TotalCost</td></tr>";
+	
+	text += "<tr><td>cost<sub>1</sub>(j)</td>";
+	for (var i = 0; i <= numStages; i++)
+	{
+		text += "<td>" + prob.cost[0][i] + "</td>";
+	}
+	text += "</tr><tr><td>cost<sub>2</sub>(j)</td>";
+	for (var i = 0; i <= numStages; i++)
+	{
+		text += "<td>" + prob.cost[1][i] + "</td>";
+	}
+	text += "</tr></table>";
+	
+	text += "<table>";
+	text += "<tr><td></td>";
+	for (var i = 1; i < numStages; i++)
+	{
+		text += "<td>Station " + (i+1) + "</td>";
+	}
+	text += "<td>Finish</td></tr>";
+
+	text += "<tr><td>line<sub>1</sub>(j)</td>";
+	for (var i = 0; i <= numStages-1; i++)
+	{
+		text += "<td>" + (prob.route[0][i]+1) + "</td>";
+	}
+	text += "</tr><tr><td>line<sub>2</sub>(j)</td>";
+	for (var i = 0; i <= numStages-1; i++)
+	{
+		text += "<td>" + (prob.route[1][i]+1) + "</td>";
+	}
+	text += "</tr></table>";
+	
+	document.getElementById("output").innerHTML += text;
+	return prob;
+}
+
+function resetBoard()
+{
+	document.getElementById('output').innerHTML='';
+	document.getElementById('arrs').innerHTML='';
+	document.getElementById('lens').innerHTML='';
+	document.getElementById('rbss').innerHTML='';
+	resetCanvas(prob);
+	drawStage1(prob);
+	drawStage2(prob);
+}
+
+function drawStage1(prob)
+{
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#000000";
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillText("Assembly Line 1", (0 + c.width) / 5 - 30, 20);
+	ctx.fillText("Assembly Line 2", 4*(0 + c.width) / 5-30, 20);
+
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+	ctx.lineTo(prob.stages[1][0].xLoc - 10, prob.stages[1][0].yLoc);
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+	ctx.lineTo(prob.stages[0][0].xLoc + 10, prob.stages[0][0].yLoc);
+	ctx.stroke();
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillStyle="#000000";
+	ctx.fillText(prob.entry[0], 2*(0 + c.width) / 5, (prob.stages[0][0].yLoc/2 + prob.stages[0][0].yLoc) / 2 - 10);
+		
+	ctx.fillText(prob.entry[1], 3*(0 + c.width) / 5, (prob.stages[0][0].yLoc/2 + prob.stages[0][0].yLoc) / 2 - 10);
+	
+	for (var j = 0; j < prob.stages[0].length; j++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(prob.stages[0][j].xLoc,prob.stages[0][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#c0c0c0";
+		ctx.beginPath();
+		ctx.arc(prob.stages[0][j].xLoc,prob.stages[0][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+		
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(prob.stages[1][j].xLoc,prob.stages[1][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+		
+		ctx.fillStyle="#c0c0c0";
+		ctx.beginPath();
+		ctx.arc(prob.stages[1][j].xLoc,prob.stages[1][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillStyle="#000000";
+		ctx.fillText(prob.assemb[0][j], prob.stages[0][j].xLoc-3*(Math.floor(Math.log(prob.assemb[0][j])/Math.log(10))+1), prob.stages[0][j].yLoc+4);
+		ctx.fillText(prob.assemb[1][j], prob.stages[1][j].xLoc-3*(Math.floor(Math.log(prob.assemb[1][j])/Math.log(10))+1), prob.stages[0][j].yLoc+4);
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillText("station S", prob.stages[0][j].xLoc-3*(Math.floor(13/Math.log(10))+1)-60, prob.stages[0][j].yLoc+4);
+		ctx.fillText("station S", prob.stages[1][j].xLoc-3*(Math.floor(13/Math.log(10))+1)+35, prob.stages[1][j].yLoc+4);
+		
+		ctx.font = '6pt Calibri';
+		ctx.fillText("1, " + (j+1), prob.stages[0][j].xLoc-3*(Math.floor(13/Math.log(10))+1)-18, prob.stages[0][j].yLoc+4+3);
+		ctx.fillText("2, " + (j+1), prob.stages[1][j].xLoc-3*(Math.floor(13/Math.log(10))+1)+77, prob.stages[1][j].yLoc+4+3);
+	}
+	
+	ctx.beginPath();
+	ctx.moveTo(prob.stages[1][prob.stages[0].length-1].xLoc - 10, prob.stages[1][prob.stages[0].length-1].yLoc);
+	ctx.lineTo(c.width/2, prob.stages[0][prob.stages[0].length-1].yLoc + 35);
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.moveTo(prob.stages[0][prob.stages[0].length-1].xLoc + 10, prob.stages[0][prob.stages[0].length-1].yLoc);
+	ctx.lineTo(c.width/2, prob.stages[1][prob.stages[0].length-1].yLoc + 35);
+	ctx.stroke();
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillStyle="#000000";
+	ctx.fillText(prob.exit[0], 2*(0 + c.width) / 5, (prob.stages[0][prob.stages[0].length-1].yLoc + prob.stages[1][prob.stages[0].length-1].yLoc + 35) / 2);
+		
+	ctx.fillText(prob.exit[1], 3*(0 + c.width) / 5, (prob.stages[0][prob.stages[0].length-1].yLoc + prob.stages[1][prob.stages[0].length-1].yLoc + 35) / 2);
+	
+	ctx.strokeStyle = "#000000";
+	ctx.lineWidth = 1;
+	
+	for (var j = 0; j < prob.stages[0].length-1; j++)
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[0][j].xLoc + 10, prob.stages[0][j].yLoc);
+		ctx.lineTo(prob.stages[1][j+1].xLoc - 10, prob.stages[1][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[1][j].xLoc - 10, prob.stages[1][j].yLoc);
+		ctx.lineTo(prob.stages[0][j+1].xLoc + 10, prob.stages[0][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[0][j].xLoc + 10, prob.stages[0][j].yLoc);
+		ctx.lineTo(prob.stages[0][j+1].xLoc + 10, prob.stages[0][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[1][j].xLoc - 10, prob.stages[1][j].yLoc);
+		ctx.lineTo(prob.stages[1][j+1].xLoc - 10, prob.stages[1][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillStyle="#000000";
+		ctx.fillText(prob.transf[0][j], 2*(0 + c.width) / 5, (prob.stages[0][j].yLoc + prob.stages[0][j+1].yLoc) / 2 - 20);
+		
+		ctx.fillText(prob.transf[1][j], 3*(0 + c.width) / 5, (prob.stages[1][j].yLoc + prob.stages[1][j+1].yLoc) / 2 - 20);
+	}
+	
+	document.getElementById("stage1").focus();
+}
+
+function drawStage1Sol(prob)
+{
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	var text = "";
+	
+	ctx.fillStyle = "#000000";
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillText("Assembly Line 1", (0 + c.width) / 5 - 30, 20);
+	ctx.fillText("Assembly Line 2", 4*(0 + c.width) / 5-30, 20);
+
+	ctx.beginPath();
+	ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+	ctx.lineTo(prob.stages[1][0].xLoc - 10, prob.stages[1][0].yLoc);
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+	ctx.lineTo(prob.stages[0][0].xLoc + 10, prob.stages[0][0].yLoc);
+	ctx.stroke();
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillStyle="#000000";
+	ctx.fillText(prob.entry[0], 2*(0 + c.width) / 5, (prob.stages[0][0].yLoc/2 + prob.stages[0][0].yLoc) / 2 - 10);
+		
+	ctx.fillText(prob.entry[1], 3*(0 + c.width) / 5, (prob.stages[0][0].yLoc/2 + prob.stages[0][0].yLoc) / 2 - 10);
+	
+	for (var j = 0; j < prob.stages[0].length; j++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(prob.stages[0][j].xLoc,prob.stages[0][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#c0c0c0";
+		ctx.beginPath();
+		ctx.arc(prob.stages[0][j].xLoc,prob.stages[0][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+		
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(prob.stages[1][j].xLoc,prob.stages[1][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+		
+		ctx.fillStyle="#c0c0c0";
+		ctx.beginPath();
+		ctx.arc(prob.stages[1][j].xLoc,prob.stages[1][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillStyle="#000000";
+		ctx.fillText(prob.assemb[0][j], prob.stages[0][j].xLoc-3*(Math.floor(Math.log(prob.assemb[0][j])/Math.log(10))+1), prob.stages[0][j].yLoc+4);
+		ctx.fillText(prob.assemb[1][j], prob.stages[1][j].xLoc-3*(Math.floor(Math.log(prob.assemb[1][j])/Math.log(10))+1), prob.stages[0][j].yLoc+4);
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillText("station S", prob.stages[0][j].xLoc-3*(Math.floor(13/Math.log(10))+1)-60, prob.stages[0][j].yLoc+4);
+		ctx.fillText("station S", prob.stages[1][j].xLoc-3*(Math.floor(13/Math.log(10))+1)+35, prob.stages[1][j].yLoc+4);
+		
+		ctx.font = '6pt Calibri';
+		ctx.fillText("1, " + (j+1), prob.stages[0][j].xLoc-3*(Math.floor(13/Math.log(10))+1)-18, prob.stages[0][j].yLoc+4+3);
+		ctx.fillText("2, " + (j+1), prob.stages[1][j].xLoc-3*(Math.floor(13/Math.log(10))+1)+77, prob.stages[1][j].yLoc+4+3);
+	}
+	
+	ctx.beginPath();
+	ctx.moveTo(prob.stages[1][prob.stages[0].length-1].xLoc - 10, prob.stages[1][prob.stages[0].length-1].yLoc);
+	ctx.lineTo(c.width/2, prob.stages[0][prob.stages[0].length-1].yLoc + 35);
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.moveTo(prob.stages[0][prob.stages[0].length-1].xLoc + 10, prob.stages[0][prob.stages[0].length-1].yLoc);
+	ctx.lineTo(c.width/2, prob.stages[1][prob.stages[0].length-1].yLoc + 35);
+	ctx.stroke();
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillStyle="#000000";
+	ctx.fillText(prob.exit[0], 2*(0 + c.width) / 5, (prob.stages[0][prob.stages[0].length-1].yLoc + prob.stages[1][prob.stages[0].length-1].yLoc + 35) / 2);
+		
+	ctx.fillText(prob.exit[1], 3*(0 + c.width) / 5, (prob.stages[0][prob.stages[0].length-1].yLoc + prob.stages[1][prob.stages[0].length-1].yLoc + 35) / 2);
+	
+	ctx.strokeStyle = "#000000";
+	ctx.lineWidth = 1;
+	
+	for (var j = 0; j < prob.stages[0].length-1; j++)
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[0][j].xLoc + 10, prob.stages[0][j].yLoc);
+		ctx.lineTo(prob.stages[1][j+1].xLoc - 10, prob.stages[1][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[1][j].xLoc - 10, prob.stages[1][j].yLoc);
+		ctx.lineTo(prob.stages[0][j+1].xLoc + 10, prob.stages[0][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[0][j].xLoc + 10, prob.stages[0][j].yLoc);
+		ctx.lineTo(prob.stages[0][j+1].xLoc + 10, prob.stages[0][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[1][j].xLoc - 10, prob.stages[1][j].yLoc);
+		ctx.lineTo(prob.stages[1][j+1].xLoc - 10, prob.stages[1][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillStyle="#000000";
+		ctx.fillText(prob.transf[0][j], 2*(0 + c.width) / 5, (prob.stages[0][j].yLoc + prob.stages[0][j+1].yLoc) / 2 - 20);
+		
+		ctx.fillText(prob.transf[1][j], 3*(0 + c.width) / 5, (prob.stages[1][j].yLoc + prob.stages[1][j+1].yLoc) / 2 - 20);
+	}
+	
+	ctx.strokeStyle = "#00FFFF";
+	ctx.lineWidth = 2;
+	
+	var route = prob.route[0][prob.route[0].length-1];
+	
+	if (route)
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[route][prob.stages[0].length-1].xLoc - 10, prob.stages[route][prob.stages[0].length-1].yLoc);
+		ctx.lineTo(c.width/2, prob.stages[0][prob.stages[0].length-1].yLoc + 35);
+		ctx.stroke();
+	}
+	else
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[route][prob.stages[0].length-1].xLoc + 10, prob.stages[route][prob.stages[0].length-1].yLoc);
+		ctx.lineTo(c.width/2, prob.stages[0][prob.stages[0].length-1].yLoc + 35);
+		ctx.stroke();
+	}
+	
+	for (var j = prob.route[0].length-1; j >= 1; j--)
+	{
+		text += "l[" + (route+1) + "][" + (j+2) + "] = " + (prob.route[route][j]+1) + "<br>";
+		route = prob.route[route][j];
+		
+		ctx.beginPath();
+		if (prob.route[route][j-1] == 0 && prob.route[route][j] == 1)
+		{
+			ctx.moveTo(prob.stages[prob.route[route][j-1]][j-1].xLoc + 10, prob.stages[prob.route[route][j-1]][j-1].yLoc);
+			ctx.lineTo(prob.stages[prob.route[route][j]][j].xLoc - 10, prob.stages[prob.route[route][j]][j].yLoc);
+		}
+		else if (prob.route[route][j-1] == 1 && prob.route[route][j] == 0)
+		{
+			ctx.moveTo(prob.stages[prob.route[route][j-1]][j-1].xLoc - 10, prob.stages[prob.route[route][j-1]][j-1].yLoc);
+			ctx.lineTo(prob.stages[prob.route[route][j]][j].xLoc + 10, prob.stages[prob.route[route][j]][j].yLoc);
+		}
+		else if (prob.route[route][j-1] == 1 && prob.route[route][j] == 1)
+		{
+			ctx.moveTo(prob.stages[prob.route[route][j-1]][j-1].xLoc - 10, prob.stages[prob.route[route][j-1]][j-1].yLoc);
+			ctx.lineTo(prob.stages[prob.route[route][j]][j].xLoc - 10, prob.stages[prob.route[route][j]][j].yLoc);
+		}
+		else if (prob.route[route][j-1] == 0 && prob.route[route][j] == 0)
+		{
+			ctx.moveTo(prob.stages[prob.route[route][j-1]][j-1].xLoc + 10, prob.stages[prob.route[route][j-1]][j-1].yLoc);
+			ctx.lineTo(prob.stages[prob.route[route][j]][j].xLoc + 10, prob.stages[prob.route[route][j]][j].yLoc);
+		}
+		ctx.stroke();
+	}
+	
+	if (prob.route[route][0] == 0)
+	{
+		ctx.beginPath();
+		ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+		ctx.lineTo(prob.stages[prob.route[route][0]][0].xLoc + 10, prob.stages[prob.route[route][0]][0].yLoc);
+		ctx.stroke();
+	}
+	else
+	{
+		ctx.beginPath();
+		ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+		ctx.lineTo(prob.stages[prob.route[route][0]][0].xLoc - 10, prob.stages[prob.route[route][0]][0].yLoc);
+		ctx.stroke();
+	}
+		
+//	document.getElementById("output").innerHTML += text;	
+	document.getElementById("stage1").focus();
+}
+
+
+function resetCanvas(prob)
+{
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#F8F8F8";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	document.getElementById("output").innerHTML = "";
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, computer science, algorithms, javascript, script, graph theory, graph, animation, programming, assembly line, dynamic programming" />
+<meta name="description" content="This is an introduction to the assembly line scheduling problem and dynamic programming. " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function getData()
+{
+	var numStages = Math.floor(Math.random()*5)+3;
+	var prob = new Object();
+	var text = "";
+	prob.assemb = new Array(2);
+	prob.transf = new Array(2);
+	prob.entry = new Array(2);
+	prob.exit = new Array(2);
+	prob.stages = new Array(2);
+	prob.route = new Array(2);
+	
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#000000";
+	
+	for (var i = 0; i < 2; i++)
+	{
+		prob.assemb[i] = new Array(numStages);
+		prob.transf[i] = new Array(numStages-1);
+		prob.stages[i] = new Array(numStages);
+		prob.route[i] = new Array(numStages);
+		for (var j = 0; j < numStages; j++)
+		{
+			prob.assemb[i][j] = Math.floor(Math.random()*5) + 4;
+			if (j < numStages-1)
+			{
+				prob.transf[i][j] = Math.floor(Math.random()*3) + 1;
+			}
+			prob.stages[i][j] = new Object();
+			prob.stages[i][j].yLoc = j*75 + 70;
+			if (i == 0)
+			{
+				prob.stages[i][j].xLoc = (0 + c.width) / 5;
+			}
+			else
+			{
+				prob.stages[i][j].xLoc = 4*(0 + c.width) / 5;
+			}
+		}
+		
+		prob.entry[i] = Math.floor(Math.random()*3) + 1;
+		prob.exit[i] = Math.floor(Math.random()*3) + 1;
+	}
+	
+	text += "<table>";
+	text += "<tr><td></td><td>Assembly line 1</td><td>Assembly line 2</td></tr>";
+	text += "<tr><td>Entry Cost</td><td>" + prob.entry[0] + "</td><td>" + prob.entry[1] + "</td></tr>";
+	for (var j = 0; j < numStages; j++)
+	{
+		text += "<tr><td>Assembly Cost</td>";
+		
+		for (var i = 0; i < 2; i++)
+		{
+			text += "<td>" + prob.assemb[i][j] + "</td>";
+		}
+		
+		text += "</tr>";
+	}
+	
+	for (var j = 0; j < numStages-1; j++)
+	{
+		text += "<tr><td>Transfer Cost</td>";
+		
+		for (var i = 0; i < 2; i++)
+		{
+			text += "<td>" + prob.transf[i][j] + "</td>";
+		}
+		
+		text += "</tr>";
+	}
+	
+	text += "<tr><td>Exit Cost</td><td>" + prob.exit[0] + "</td><td>" + prob.exit[1] + "</td></tr>";
+
+	text += "</table>";
+	
+//	document.getElementById("output").innerHTML = text;
+	
+	return prob;
+}
+
+function sample()
+{
+	var numStages = 6;
+	var prob = new Object();
+	var text = "";
+	prob.assemb = new Array(2);
+	prob.transf = new Array(2);
+	prob.entry = new Array(2);
+	prob.exit = new Array(2);
+	prob.stages = new Array(2);
+	prob.route = new Array(2);
+	
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#000000";
+	
+	for (var i = 0; i < 2; i++)
+	{
+		prob.assemb[i] = new Array(numStages);
+		prob.transf[i] = new Array(numStages-1);
+		prob.stages[i] = new Array(numStages);
+		prob.route[i] = new Array(numStages);
+		for (var j = 0; j < numStages; j++)
+		{
+			prob.stages[i][j] = new Object();
+			prob.stages[i][j].yLoc = j*75 + 70;
+			if (i == 0)
+			{
+				prob.stages[i][j].xLoc = (0 + c.width) / 5;
+			}
+			else
+			{
+				prob.stages[i][j].xLoc = 4*(0 + c.width) / 5;
+			}
+		}		
+	}
+	
+	prob.entry[0] = 2;
+	prob.entry[1] = 4;
+	
+	prob.assemb[0][0] = 7;
+	prob.assemb[0][1] = 9;
+	prob.assemb[0][2] = 3;
+	prob.assemb[0][3] = 4;
+	prob.assemb[0][4] = 8;
+	prob.assemb[0][5] = 4;
+	
+	prob.assemb[1][0] = 8;
+	prob.assemb[1][1] = 5;
+	prob.assemb[1][2] = 6;
+	prob.assemb[1][3] = 4;
+	prob.assemb[1][4] = 5;
+	prob.assemb[1][5] = 7;
+	
+	prob.transf[0][0] = 2;
+	prob.transf[0][1] = 3;
+	prob.transf[0][2] = 1;
+	prob.transf[0][3] = 3;
+	prob.transf[0][4] = 4;
+	
+	prob.transf[1][0] = 2;
+	prob.transf[1][1] = 1;
+	prob.transf[1][2] = 2;
+	prob.transf[1][3] = 2;
+	prob.transf[1][4] = 1;
+	
+	prob.exit[0] = 3;
+	prob.exit[1] = 2;
+	
+	text += "<table>";
+	text += "<tr><td></td><td>Assembly line 1</td><td>Assembly line 2</td></tr>";
+	text += "<tr><td>Entry Cost</td><td>" + prob.entry[0] + "</td><td>" + prob.entry[1] + "</td></tr>";
+	for (var j = 0; j < numStages; j++)
+	{
+		text += "<tr><td>Assembly Cost</td>";
+		
+		for (var i = 0; i < 2; i++)
+		{
+			text += "<td>" + prob.assemb[i][j] + "</td>";
+		}
+		
+		text += "</tr>";
+	}
+	
+	for (var j = 0; j < numStages-1; j++)
+	{
+		text += "<tr><td>Transfer Cost</td>";
+		
+		for (var i = 0; i < 2; i++)
+		{
+			text += "<td>" + prob.transf[i][j] + "</td>";
+		}
+		
+		text += "</tr>";
+	}
+	
+	text += "<tr><td>Exit Cost</td><td>" + prob.exit[0] + "</td><td>" + prob.exit[1] + "</td></tr>";
+
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML = text;
+	
+	document.getElementById("B9").hidden = true;
+	document.getElementById("B10").hidden = true;
+	document.getElementById("B11").hidden = true;
+	document.getElementById("B12").hidden = true;
+	
+	return prob;
+}
+
+function fastestWay(prob)
+{
+	prob.cost = new Array(2);
+	var numStages = prob.stages[0].length;
+	var text = "";
+	
+	for (var i = 0; i < 2; i++)
+	{
+		prob.cost[i] = new Array(numStages+1);
+	}
+	
+	prob.cost[0][0] = prob.entry[0] + prob.assemb[0][0];
+	prob.cost[1][0] = prob.entry[1] + prob.assemb[1][0];
+	
+	for (var j = 1; j < numStages; j++)
+	{
+		if (prob.cost[0][j-1] + prob.assemb[0][j] <= prob.cost[1][j-1] + prob.transf[1][j-1] + prob.assemb[0][j])
+		{
+			prob.cost[0][j] = prob.cost[0][j-1] + prob.assemb[0][j];
+			prob.route[0][j-1] = 0;
+		}
+		else
+		{
+			prob.cost[0][j] = prob.cost[1][j-1] + prob.transf[1][j-1] + prob.assemb[0][j];
+			prob.route[0][j-1] = 1;
+		}
+		
+		if (prob.cost[1][j-1] + prob.assemb[1][j] <= prob.cost[0][j-1] + prob.transf[0][j-1] + prob.assemb[1][j])
+		{
+			prob.cost[1][j] = prob.cost[1][j-1] + prob.assemb[1][j];
+			prob.route[1][j-1] = 1;
+		}
+		else
+		{
+			prob.cost[1][j] = prob.cost[0][j-1] + prob.transf[0][j-1] + prob.assemb[1][j];
+			prob.route[1][j-1] = 0;
+		} 
+	}
+	
+	if (prob.cost[0][numStages-1] + prob.exit[0] <= prob.cost[1][numStages-1] + prob.exit[1])
+	{
+		prob.cost[0][numStages] = prob.cost[0][numStages-1] + prob.exit[0];
+		prob.cost[1][numStages] = prob.cost[1][numStages-1] + prob.exit[1];
+		prob.route[0][numStages-1] = 0;
+		prob.route[1][numStages-1] = 0;
+	}
+	else
+	{
+		prob.cost[0][numStages] = prob.cost[0][numStages-1] + prob.exit[0];
+		prob.cost[1][numStages] = prob.cost[1][numStages-1] + prob.exit[1];
+		prob.route[0][numStages-1] = 1;
+		prob.route[1][numStages-1] = 1;
+	}
+	
+	text += "<table>"
+	text += "<tr><td></td>";
+	for (var i = 0; i < numStages; i++)
+	{
+		text += "<td>Station " + (i+1) + "</td>";
+	}
+	text += "<td>TotalCost</td></tr>";
+	
+	text += "<tr><td>cost<sub>1</sub>(j)</td>";
+	for (var i = 0; i <= numStages; i++)
+	{
+		text += "<td>" + prob.cost[0][i] + "</td>";
+	}
+	text += "</tr><tr><td>cost<sub>2</sub>(j)</td>";
+	for (var i = 0; i <= numStages; i++)
+	{
+		text += "<td>" + prob.cost[1][i] + "</td>";
+	}
+	text += "</tr></table>";
+	
+	text += "<table>";
+	text += "<tr><td></td>";
+	for (var i = 1; i < numStages; i++)
+	{
+		text += "<td>Station " + (i+1) + "</td>";
+	}
+	text += "<td>Finish</td></tr>";
+
+	text += "<tr><td>line<sub>1</sub>(j)</td>";
+	for (var i = 0; i <= numStages-1; i++)
+	{
+		text += "<td>" + (prob.route[0][i]+1) + "</td>";
+	}
+	text += "</tr><tr><td>line<sub>2</sub>(j)</td>";
+	for (var i = 0; i <= numStages-1; i++)
+	{
+		text += "<td>" + (prob.route[1][i]+1) + "</td>";
+	}
+	text += "</tr></table>";
+	
+	document.getElementById("output").innerHTML += text;
+	return prob;
+}
+
+function resetBoard()
+{
+	document.getElementById('output').innerHTML='';
+	document.getElementById('arrs').innerHTML='';
+	document.getElementById('lens').innerHTML='';
+	document.getElementById('rbss').innerHTML='';
+	resetCanvas(prob);
+	drawStage1(prob);
+	drawStage2(prob);
+}
+
+function drawStage1(prob)
+{
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#000000";
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillText("Assembly Line 1", (0 + c.width) / 5 - 30, 20);
+	ctx.fillText("Assembly Line 2", 4*(0 + c.width) / 5-30, 20);
+
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+	ctx.lineTo(prob.stages[1][0].xLoc - 10, prob.stages[1][0].yLoc);
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+	ctx.lineTo(prob.stages[0][0].xLoc + 10, prob.stages[0][0].yLoc);
+	ctx.stroke();
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillStyle="#000000";
+	ctx.fillText(prob.entry[0], 2*(0 + c.width) / 5, (prob.stages[0][0].yLoc/2 + prob.stages[0][0].yLoc) / 2 - 10);
+		
+	ctx.fillText(prob.entry[1], 3*(0 + c.width) / 5, (prob.stages[0][0].yLoc/2 + prob.stages[0][0].yLoc) / 2 - 10);
+	
+	for (var j = 0; j < prob.stages[0].length; j++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(prob.stages[0][j].xLoc,prob.stages[0][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#c0c0c0";
+		ctx.beginPath();
+		ctx.arc(prob.stages[0][j].xLoc,prob.stages[0][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+		
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(prob.stages[1][j].xLoc,prob.stages[1][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+		
+		ctx.fillStyle="#c0c0c0";
+		ctx.beginPath();
+		ctx.arc(prob.stages[1][j].xLoc,prob.stages[1][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillStyle="#000000";
+		ctx.fillText(prob.assemb[0][j], prob.stages[0][j].xLoc-3*(Math.floor(Math.log(prob.assemb[0][j])/Math.log(10))+1), prob.stages[0][j].yLoc+4);
+		ctx.fillText(prob.assemb[1][j], prob.stages[1][j].xLoc-3*(Math.floor(Math.log(prob.assemb[1][j])/Math.log(10))+1), prob.stages[0][j].yLoc+4);
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillText("station S", prob.stages[0][j].xLoc-3*(Math.floor(13/Math.log(10))+1)-60, prob.stages[0][j].yLoc+4);
+		ctx.fillText("station S", prob.stages[1][j].xLoc-3*(Math.floor(13/Math.log(10))+1)+35, prob.stages[1][j].yLoc+4);
+		
+		ctx.font = '6pt Calibri';
+		ctx.fillText("1, " + (j+1), prob.stages[0][j].xLoc-3*(Math.floor(13/Math.log(10))+1)-18, prob.stages[0][j].yLoc+4+3);
+		ctx.fillText("2, " + (j+1), prob.stages[1][j].xLoc-3*(Math.floor(13/Math.log(10))+1)+77, prob.stages[1][j].yLoc+4+3);
+	}
+	
+	ctx.beginPath();
+	ctx.moveTo(prob.stages[1][prob.stages[0].length-1].xLoc - 10, prob.stages[1][prob.stages[0].length-1].yLoc);
+	ctx.lineTo(c.width/2, prob.stages[0][prob.stages[0].length-1].yLoc + 35);
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.moveTo(prob.stages[0][prob.stages[0].length-1].xLoc + 10, prob.stages[0][prob.stages[0].length-1].yLoc);
+	ctx.lineTo(c.width/2, prob.stages[1][prob.stages[0].length-1].yLoc + 35);
+	ctx.stroke();
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillStyle="#000000";
+	ctx.fillText(prob.exit[0], 2*(0 + c.width) / 5, (prob.stages[0][prob.stages[0].length-1].yLoc + prob.stages[1][prob.stages[0].length-1].yLoc + 35) / 2);
+		
+	ctx.fillText(prob.exit[1], 3*(0 + c.width) / 5, (prob.stages[0][prob.stages[0].length-1].yLoc + prob.stages[1][prob.stages[0].length-1].yLoc + 35) / 2);
+	
+	ctx.strokeStyle = "#000000";
+	ctx.lineWidth = 1;
+	
+	for (var j = 0; j < prob.stages[0].length-1; j++)
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[0][j].xLoc + 10, prob.stages[0][j].yLoc);
+		ctx.lineTo(prob.stages[1][j+1].xLoc - 10, prob.stages[1][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[1][j].xLoc - 10, prob.stages[1][j].yLoc);
+		ctx.lineTo(prob.stages[0][j+1].xLoc + 10, prob.stages[0][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[0][j].xLoc + 10, prob.stages[0][j].yLoc);
+		ctx.lineTo(prob.stages[0][j+1].xLoc + 10, prob.stages[0][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[1][j].xLoc - 10, prob.stages[1][j].yLoc);
+		ctx.lineTo(prob.stages[1][j+1].xLoc - 10, prob.stages[1][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillStyle="#000000";
+		ctx.fillText(prob.transf[0][j], 2*(0 + c.width) / 5, (prob.stages[0][j].yLoc + prob.stages[0][j+1].yLoc) / 2 - 20);
+		
+		ctx.fillText(prob.transf[1][j], 3*(0 + c.width) / 5, (prob.stages[1][j].yLoc + prob.stages[1][j+1].yLoc) / 2 - 20);
+	}
+	
+	document.getElementById("stage1").focus();
+}
+
+function drawStage1Sol(prob)
+{
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	var text = "";
+	
+	ctx.fillStyle = "#000000";
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillText("Assembly Line 1", (0 + c.width) / 5 - 30, 20);
+	ctx.fillText("Assembly Line 2", 4*(0 + c.width) / 5-30, 20);
+
+	ctx.beginPath();
+	ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+	ctx.lineTo(prob.stages[1][0].xLoc - 10, prob.stages[1][0].yLoc);
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+	ctx.lineTo(prob.stages[0][0].xLoc + 10, prob.stages[0][0].yLoc);
+	ctx.stroke();
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillStyle="#000000";
+	ctx.fillText(prob.entry[0], 2*(0 + c.width) / 5, (prob.stages[0][0].yLoc/2 + prob.stages[0][0].yLoc) / 2 - 10);
+		
+	ctx.fillText(prob.entry[1], 3*(0 + c.width) / 5, (prob.stages[0][0].yLoc/2 + prob.stages[0][0].yLoc) / 2 - 10);
+	
+	for (var j = 0; j < prob.stages[0].length; j++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(prob.stages[0][j].xLoc,prob.stages[0][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#c0c0c0";
+		ctx.beginPath();
+		ctx.arc(prob.stages[0][j].xLoc,prob.stages[0][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+		
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(prob.stages[1][j].xLoc,prob.stages[1][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+		
+		ctx.fillStyle="#c0c0c0";
+		ctx.beginPath();
+		ctx.arc(prob.stages[1][j].xLoc,prob.stages[1][j].yLoc,10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillStyle="#000000";
+		ctx.fillText(prob.assemb[0][j], prob.stages[0][j].xLoc-3*(Math.floor(Math.log(prob.assemb[0][j])/Math.log(10))+1), prob.stages[0][j].yLoc+4);
+		ctx.fillText(prob.assemb[1][j], prob.stages[1][j].xLoc-3*(Math.floor(Math.log(prob.assemb[1][j])/Math.log(10))+1), prob.stages[0][j].yLoc+4);
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillText("station S", prob.stages[0][j].xLoc-3*(Math.floor(13/Math.log(10))+1)-60, prob.stages[0][j].yLoc+4);
+		ctx.fillText("station S", prob.stages[1][j].xLoc-3*(Math.floor(13/Math.log(10))+1)+35, prob.stages[1][j].yLoc+4);
+		
+		ctx.font = '6pt Calibri';
+		ctx.fillText("1, " + (j+1), prob.stages[0][j].xLoc-3*(Math.floor(13/Math.log(10))+1)-18, prob.stages[0][j].yLoc+4+3);
+		ctx.fillText("2, " + (j+1), prob.stages[1][j].xLoc-3*(Math.floor(13/Math.log(10))+1)+77, prob.stages[1][j].yLoc+4+3);
+	}
+	
+	ctx.beginPath();
+	ctx.moveTo(prob.stages[1][prob.stages[0].length-1].xLoc - 10, prob.stages[1][prob.stages[0].length-1].yLoc);
+	ctx.lineTo(c.width/2, prob.stages[0][prob.stages[0].length-1].yLoc + 35);
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.moveTo(prob.stages[0][prob.stages[0].length-1].xLoc + 10, prob.stages[0][prob.stages[0].length-1].yLoc);
+	ctx.lineTo(c.width/2, prob.stages[1][prob.stages[0].length-1].yLoc + 35);
+	ctx.stroke();
+	
+	ctx.font = '8pt Calibri';
+	ctx.fillStyle="#000000";
+	ctx.fillText(prob.exit[0], 2*(0 + c.width) / 5, (prob.stages[0][prob.stages[0].length-1].yLoc + prob.stages[1][prob.stages[0].length-1].yLoc + 35) / 2);
+		
+	ctx.fillText(prob.exit[1], 3*(0 + c.width) / 5, (prob.stages[0][prob.stages[0].length-1].yLoc + prob.stages[1][prob.stages[0].length-1].yLoc + 35) / 2);
+	
+	ctx.strokeStyle = "#000000";
+	ctx.lineWidth = 1;
+	
+	for (var j = 0; j < prob.stages[0].length-1; j++)
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[0][j].xLoc + 10, prob.stages[0][j].yLoc);
+		ctx.lineTo(prob.stages[1][j+1].xLoc - 10, prob.stages[1][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[1][j].xLoc - 10, prob.stages[1][j].yLoc);
+		ctx.lineTo(prob.stages[0][j+1].xLoc + 10, prob.stages[0][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[0][j].xLoc + 10, prob.stages[0][j].yLoc);
+		ctx.lineTo(prob.stages[0][j+1].xLoc + 10, prob.stages[0][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[1][j].xLoc - 10, prob.stages[1][j].yLoc);
+		ctx.lineTo(prob.stages[1][j+1].xLoc - 10, prob.stages[1][j+1].yLoc);
+		ctx.stroke();
+		
+		ctx.font = '8pt Calibri';
+		ctx.fillStyle="#000000";
+		ctx.fillText(prob.transf[0][j], 2*(0 + c.width) / 5, (prob.stages[0][j].yLoc + prob.stages[0][j+1].yLoc) / 2 - 20);
+		
+		ctx.fillText(prob.transf[1][j], 3*(0 + c.width) / 5, (prob.stages[1][j].yLoc + prob.stages[1][j+1].yLoc) / 2 - 20);
+	}
+	
+	ctx.strokeStyle = "#00FFFF";
+	ctx.lineWidth = 2;
+	
+	var route = prob.route[0][prob.route[0].length-1];
+	
+	if (route)
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[route][prob.stages[0].length-1].xLoc - 10, prob.stages[route][prob.stages[0].length-1].yLoc);
+		ctx.lineTo(c.width/2, prob.stages[0][prob.stages[0].length-1].yLoc + 35);
+		ctx.stroke();
+	}
+	else
+	{
+		ctx.beginPath();
+		ctx.moveTo(prob.stages[route][prob.stages[0].length-1].xLoc + 10, prob.stages[route][prob.stages[0].length-1].yLoc);
+		ctx.lineTo(c.width/2, prob.stages[0][prob.stages[0].length-1].yLoc + 35);
+		ctx.stroke();
+	}
+	
+	for (var j = prob.route[0].length-1; j >= 1; j--)
+	{
+		text += "l[" + (route+1) + "][" + (j+2) + "] = " + (prob.route[route][j]+1) + "<br>";
+		route = prob.route[route][j];
+		
+		ctx.beginPath();
+		if (prob.route[route][j-1] == 0 && prob.route[route][j] == 1)
+		{
+			ctx.moveTo(prob.stages[prob.route[route][j-1]][j-1].xLoc + 10, prob.stages[prob.route[route][j-1]][j-1].yLoc);
+			ctx.lineTo(prob.stages[prob.route[route][j]][j].xLoc - 10, prob.stages[prob.route[route][j]][j].yLoc);
+		}
+		else if (prob.route[route][j-1] == 1 && prob.route[route][j] == 0)
+		{
+			ctx.moveTo(prob.stages[prob.route[route][j-1]][j-1].xLoc - 10, prob.stages[prob.route[route][j-1]][j-1].yLoc);
+			ctx.lineTo(prob.stages[prob.route[route][j]][j].xLoc + 10, prob.stages[prob.route[route][j]][j].yLoc);
+		}
+		else if (prob.route[route][j-1] == 1 && prob.route[route][j] == 1)
+		{
+			ctx.moveTo(prob.stages[prob.route[route][j-1]][j-1].xLoc - 10, prob.stages[prob.route[route][j-1]][j-1].yLoc);
+			ctx.lineTo(prob.stages[prob.route[route][j]][j].xLoc - 10, prob.stages[prob.route[route][j]][j].yLoc);
+		}
+		else if (prob.route[route][j-1] == 0 && prob.route[route][j] == 0)
+		{
+			ctx.moveTo(prob.stages[prob.route[route][j-1]][j-1].xLoc + 10, prob.stages[prob.route[route][j-1]][j-1].yLoc);
+			ctx.lineTo(prob.stages[prob.route[route][j]][j].xLoc + 10, prob.stages[prob.route[route][j]][j].yLoc);
+		}
+		ctx.stroke();
+	}
+	
+	if (prob.route[route][0] == 0)
+	{
+		ctx.beginPath();
+		ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+		ctx.lineTo(prob.stages[prob.route[route][0]][0].xLoc + 10, prob.stages[prob.route[route][0]][0].yLoc);
+		ctx.stroke();
+	}
+	else
+	{
+		ctx.beginPath();
+		ctx.moveTo(c.width/2, prob.stages[0][0].yLoc/2);
+		ctx.lineTo(prob.stages[prob.route[route][0]][0].xLoc - 10, prob.stages[prob.route[route][0]][0].yLoc);
+		ctx.stroke();
+	}
+		
+//	document.getElementById("output").innerHTML += text;	
+	document.getElementById("stage1").focus();
+}
+
+
+function resetCanvas(prob)
+{
+	var c = document.getElementById("stage1");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#F8F8F8";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	document.getElementById("output").innerHTML = "";
+}
+</script>
+<h3><center></center></h3>
+<p>Keisha recently started a clothing company that uses two assembly lines to produce articles of clothing. She has separated the the process of manufacturing an item of clothing into <em>n</em> steps, so each assembly line is separated into <em>n</em> different stations, with each station performing a specific task (So for example station three's job may be to add a right sleeve to shirts). The task of a specific station is independent of which line the station occurs on (so if station three's job is to add a right sleeve to shirts, this will be true in both assembly line 1 and assembly line 2). Lets denote the <em>j</em><sup>th</sup> station (with <em>j</em> = 1, 2, ..., <em>n</em>) on line <em>i</em> (where <em>i</em> is 1 or 2) by <em>S<sub>i, j</sub></em>. Although they're doing the same jobs the time it takes the employee at station <em>S</em><sub>1, <em>j</em></sub> may be different from the time it takes the employee at station <em>S</em><sub>2, <em>j</em></sub>. We will denote the time required at station <em>S<sub>i, j</sub></em> by <em>a<sub>i, j</sub></em>. For each line, there is also an amount of time required for the article of clothing to enter assembly line <em>i</em>, <em>e<sub>i</sub></em>; and an amount of time required for the article of clothing to exit assembly line <em>i</em>, <em>x<sub>i</sub></em>. <br>
+<br>
+One of the reasons that assembly lines are very productive is that stations on the same assembly line are generally in close proximity to one another, resulting in a very low cost of transferring an item from one station to the next on the same assembly line. When we have multiple lines in place, as Keisha has, there is a (possibly beneficial) cost of transferring an item from one line to another. Lets denote this cost by <em>t<sub>i, j</sub></em> which represents the cost of transferring a partially completed item of clothing from line <em>i</em> after having gone through station <em>S<sub>i, j</sub></em> (again, <em>i</em> is 1 or 2 and <em>j</em> = 1, 2, ..., <em>n</em>). </p>
+<center><canvas id="stage1" width="400" height="600" style="border:1px solid #d3d3d3;" tabindex="1">
+your browser does not support the canvas tag
+</canvas></center>
+<center>
+<p name="input" id="input"></p>
+	
+<input type="reset" value="Reset" name="B1" id="B1" onclick="resetBoard(); document.getElementById('output').innerHTML=''">
+<input type="button" value="Solve" name="B4" id="B4" onclick="resetCanvas(prob); prob=fastestWay(prob); drawStage1Sol(prob)">
+<input type="button" value="New Problem" name="B5" id="B5" onclick="prob=getData();resetCanvas(prob);drawStage1(prob);"><br>
+<br><br><br><br><br>	
+</center>
+<p name="output" id="output"></p>
+<script type="text/javascript">
+var prob=getData();
+drawStage1(prob);
+</script>

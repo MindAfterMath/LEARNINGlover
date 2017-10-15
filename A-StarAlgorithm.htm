@@ -1,0 +1,1112 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+A-StarAlgorithm<style type="text/css">
+.cred {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #FF0000;
+}
+
+.cwh {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #FFFFFF;
+}
+
+.cblk {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #000000;
+}
+
+.cblue {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #0000FF;
+}
+.cfin {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #FF00FF;
+}
+.cstart {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #00FFFF;
+}
+.cgreen {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #00FF00;
+}
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 0.5em;
+	height: 0.5em;
+}
+.cbeg {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+}
+
+td
+{
+	vertical-align:top;
+}
+
+</style>
+<script type="text/javascript">
+function astar(grid, start, goal)
+{
+	var closedSet = new Array();
+	var openSet = [start];
+	var cameFrom = new Object();
+	cameFrom.prev = new Array();
+	cameFrom.elt = new Array();
+	var gScore = new Array();
+	gScore[0] = new Array();
+	wkthru.text = new Array();
+	wkthru.cell = new Array();
+	wkthru.path = new Array();
+   
+	var fScore = new Array();
+	fScore[0] = new Array();
+   
+	gScore[start.x][start.y] = 0;
+	fScore[start.x][start.y] = gScore[start.x][start.y] + hScore(start, goal);
+	var count = 0;
+	
+	while (openSet.length > 0 && count < 1000)
+	{
+		var textLen = wkthru.text.length;
+		var cellLen = wkthru.cell.length;
+		wkthru.text[textLen] = "<center>";
+		count ++;
+		wkthru.text[textLen] += "<table><tr><td style=\"border:1px solid\">We are currently considering ";
+		wkthru.text[textLen] += "<table><tr><td>|Location|</td><td>|fScore|</td></tr>";
+		var minOpen = new Object();
+		for (var zen = 0; zen < openSet.length; zen++)
+		{
+			wkthru.text[textLen] += "<tr><td>(" + openSet[zen].x + ", " + openSet[zen].y + ")</td><td>" + fScore[openSet[zen].x][openSet[zen].y].toFixed(4) + "</td></tr>";
+			if (zen == 0 || (fScore[openSet[zen].x][openSet[zen].y] < fScore[minOpen.x][minOpen.y]))
+			{
+				minOpen.x = openSet[zen].x;
+				minOpen.y = openSet[zen].y;
+			}
+		}
+		wkthru.text[textLen] += "</table></td></tr>";
+		var current = minOpen;
+		wkthru.text[textLen] += "<tr><td style=\"border:1px solid\">The cell with the minimum fScore is " + current.x + ", " + current.y + "</td></tr>";
+		if (wkthru.cell.indexOf(current) == -1)
+		{
+			wkthru.cell[cellLen] = current;
+		}
+		
+		if (current.x == goal.x && current.y == goal.y)
+		{
+			wkthru.text[textLen] += "<tr><td style=\"border:1px solid\">We have reached the goal</td></tr></table>";
+			wkthru.path = makePath(cameFrom, goal);
+			wkthru.text[textLen] += "Path is " + "<br>";
+			for (var i = 0; i < wkthru.path.length; i++)
+			{
+				wkthru.text[textLen] += "(" + wkthru.path[i].x + ", " + wkthru.path[i].y + ")";
+				if (i != 0 && i != wkthru.path.length-1)
+				{
+					document.getElementById("tdc" + wkthru.path[i].x + "_" + wkthru.path[i].y).style.backgroundColor = "#909090";
+					var cell = new Object();
+					cell.x = wkthru.path[i].x;
+					cell.y = wkthru.path[i].y;
+				}
+			}
+			wkthru.text[textLen] += "<br>";
+		   
+			break;
+		}
+		openSet = remove(openSet, current);
+		if (current.x != start.x || current.y != start.y)
+		{
+			document.getElementById("tdc" + current.x + "_" + current.y).style.backgroundColor = "#FFFF00";
+		}
+		closedSet[closedSet.length] = current;
+		var neigh = neighbors(grid, current);
+		wkthru.text[textLen] += "<tr><td style=\"border:1px solid\">The neighbors of " + current.x + ", " + current.y + " are ";
+		
+		for (var zen = 0; zen < neigh.length; zen++)
+		{
+			wkthru.text[textLen] += "(" + neigh[zen].x + ", " + neigh[zen].y + ")";
+			if (zen < neigh.length - 1)
+			{
+				wkthru.text[textLen] += ", ";
+			}
+			else
+			{
+				wkthru.text[textLen] += "<br>";
+			}
+		}
+
+		wkthru.text[textLen] += "<table><tr><td>|Neighbor|</td><td>|gScore(" + current.x + ", " + current.y + ")|</td><td>|Dist to Neighbor|</td><td>|gScore|</td><td>|In Queue|</td><td>|hScore|</td><td>|fScore|</td></tr>";
+		for (var zen = 0; zen < neigh.length; zen++)
+		{
+			tempGscr = gScore[current.x][current.y] + dist(current, neigh[zen]);
+			if (contains(closedSet, neigh[zen]) == -1 || tempGscr < gScore[neigh[zen].x][neigh[zen].y])
+			{
+				if (contains(openSet, neigh[zen]) == -1 || (tempGscr < gScore[neigh[zen].x][neigh[zen].y]))
+				{
+					var loc = contains(cameFrom.elt, neigh[zen]);
+					if (loc == -1)
+					{
+						var len = cameFrom.prev.length;
+						cameFrom.prev[len] = current;
+						cameFrom.elt[len] = neigh[zen];
+					}
+					else
+					{
+						cameFrom.prev[loc] = current;
+					}
+				   
+					if (!Array.isArray(gScore[neigh[zen].x]))
+					{
+						gScore[neigh[zen].x] = new Array();
+					}
+					gScore[neigh[zen].x][neigh[zen].y] = tempGscr;
+				   
+					if (!Array.isArray(fScore[neigh[zen].x]))
+					{
+						fScore[neigh[zen].x] = new Array();
+					}
+					fScore[neigh[zen].x][neigh[zen].y] = gScore[neigh[zen].x][neigh[zen].y] + hScore(neigh[zen], goal);
+					wkthru.text[textLen] += "<tr><td>" + neigh[zen].x + ", " + neigh[zen].y + "</td><td>" + gScore[current.x][current.y].toFixed(4) + "</td><td>" + dist(current, neigh[zen]).toFixed(4) + "</td><td>" + tempGscr.toFixed(4) + "</td><td>N</td><td>" + hScore(neigh[zen], goal).toFixed(4) + "</td><td>" + fScore[neigh[zen].x][neigh[zen].y].toFixed(4) + "</td></tr>";
+					
+					if (contains(openSet, neigh[zen]) == -1)
+					{
+						openSet[openSet.length] = neigh[zen];
+					}
+				}
+				else if (contains(openSet, neigh[zen] != -1))
+				{
+					wkthru.text[textLen] += "<tr><td>" + neigh[zen].x + ", " + neigh[zen].y + "</td><td>-----</td><td>-----</td><td>" + gScore[neigh[zen].x][neigh[zen].y].toFixed(4) + "</td><td>Y</td><td>" + hScore(neigh[zen], goal).toFixed(4) + "</td><td>" + fScore[neigh[zen].x][neigh[zen].y].toFixed(4) + "</td></tr>";
+				}
+				else if (tempGscr >= gScore[neigh[zen].x][neigh[zen].y])
+				{
+					wkthru.text[textLen] += "<tr><td>" + neigh[zen].x + ", " + neigh[zen].y + "</td><td>" + gScore[current.x][current.y].toFixed(4) + "</td><td>" + dist(current, neigh[zen]).toFixed(4) + "</td><td>" + tempGscr.toFixed(4) + "</td><td>N</td><td>" + hScore(neigh[zen], goal).toFixed(4) + "</td><td>" + fScore[neigh[zen].x][neigh[zen].y].toFixed(4) + "</td></tr>";
+				}
+			}	
+			else if (tempGscr >= gScore[neigh[zen].x][neigh[zen].y])
+			{
+				wkthru.text[textLen] += "<tr><td><i>" + neigh[zen].x + ", " + neigh[zen].y + "</i></td><td><i>" + gScore[current.x][current.y].toFixed(4) + "</i></td><td><i>" + dist(current, neigh[zen]).toFixed(4) + "</i></td><td><i>" + tempGscr.toFixed(4) + "</i></td><td>N</td><td><i>" + hScore(neigh[zen], goal).toFixed(4) + "</i></td><td><i>" + fScore[neigh[zen].x][neigh[zen].y].toFixed(4) + "</i></td></tr>";
+			}
+		}
+		wkthru.text[textLen] += "</table></td></tr></table>";
+		wkthru.text[textLen] += "<br>";
+	}
+	
+	wkthru.text[textLen] += "</center>";
+	
+	document.getElementById("output").innerHTML += wkthru.text[0];
+	return wkthru;
+}
+
+function makePath(cameFrom, curr)
+{
+	var loc = contains(cameFrom.elt, curr);
+//	document.getElementById("output").innerHTML += "curr = " + curr.x + ", " + curr.y + "<br>";
+   
+//	for (var i = 0; i < cameFrom.prev.length; i++)
+//	{
+//		document.getElementById("output").innerHTML += "cameFrom.elt[" + i + "] = " + cameFrom.elt[i].x + ", " + cameFrom.elt[i].y + ", ";
+//		document.getElementById("output").innerHTML += "cameFrom.prev[" + i + "] = " + cameFrom.prev[i].x + ", " + cameFrom.prev[i].y + "<br>";
+//	}
+//	document.getElementById("output").innerHTML += "loc = " + loc + "<br>";
+   
+	if (loc != -1)
+	{
+		var p = makePath(cameFrom, cameFrom.prev[loc]);
+		p[p.length] = curr;
+		return p;
+	}
+	else
+	{
+		var p = new Array();
+		p[p.length] = curr;
+		return p;
+	}
+}
+function hScore(start, goal)
+{
+//	document.getElementById("output").innerHTML += "start = " + start.x + ", " + start.y + ", goal = " + goal.x + ", " + goal.y + "<br>";
+//	return Math.sqrt(Math.pow(start.x - goal.x, 2) + Math.pow(start.y - goal.y, 2));
+	return Math.abs(start.x - goal.x) + Math.abs(start.y - goal.y);
+//	return Math.max(Math.abs(start.x - goal.x), Math.abs(start.y - goal.y));
+}
+function remove(set, elmt)
+{
+	for (var zen = 0; zen < set.length && !(set[zen].x == elmt.x && set[zen].y == elmt.y); zen++)
+	{
+	}
+	for (; zen < set.length-1; zen++)
+	{
+		set[zen] = set[zen+1];
+	}
+   
+	set.length--;
+	return set;
+}
+function neighbors(grid, node)
+{
+	var neigh = new Array();
+	if (node.x - 1 >= 0 && grid[node.x-1][node.y] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x - 1;
+		next.y = node.y;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+	if (node.y - 1 >= 0 && grid[node.x][node.y-1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x;
+		next.y = node.y-1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+	if (node.x + 1 < grid.length && grid[node.x+1][node.y] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x + 1;
+		next.y = node.y;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+	if (node.y + 1 < grid[0].length && grid[node.x][node.y+1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x;
+		next.y = node.y + 1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+   
+	if (node.x + 1 < grid.length && node.y + 1 < grid[0].length && grid[node.x+1][node.y+1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x + 1;
+		next.y = node.y + 1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+   
+	if (node.x - 1 >= 0 && node.y - 1 >= 0 && grid[node.x-1][node.y-1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x - 1;
+		next.y = node.y - 1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+   
+	if (node.x + 1 < grid.length && node.y - 1 >= 0 && grid[node.x+1][node.y-1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x + 1;
+		next.y = node.y - 1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+   
+	if (node.x - 1 >= 0 && node.y + 1 < grid[0].length && grid[node.x-1][node.y+1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x - 1;
+		next.y = node.y + 1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+	return neigh;
+}
+function contains(set, elmt)
+{
+	for (var zen = 0; zen < set.length && !(set[zen].x == elmt.x && set[zen].y == elmt.y); zen++)
+	{ }
+	if (zen < set.length)
+	{
+		return zen;
+	}
+	else
+	{
+		return -1;
+	}
+}
+function dist(point1, point2)
+{
+	if ((point1.x == point2.x) && Math.abs(point1.y - point2.y) == 1)
+	{
+		return 1;
+	}
+	else if ((point1.y == point2.y) && Math.abs(point1.x - point2.x) == 1)
+	{
+		return 1;
+	}
+	else if (Math.abs(point1.x - point2.x) == 1 && Math.abs(point1.y - point2.y) == 1)
+	{
+		return Math.sqrt(2);
+	}
+	else
+	{
+		return Number.MAX_VALUE;
+	}
+}
+
+function init(size, grid)
+{
+	grid = new Array(size);
+	
+	start.x = 0;
+	start.y = 0;
+   
+	end.x = size-1;
+	end.y = size-1;
+	for (var i = 0; i < grid.length; i++)
+	{
+		grid[i] = new Array(size);
+		for (var j = 0; j < grid[i].length; j++)
+		{
+			grid[i][j] = 0;
+		}
+	}
+	
+	var numCells = (grid.length - 1) * (grid[0].length - 1) / 2;
+//	numCells = Math.floor(Math.random()*numCells) + (grid.length - 1) * (grid[0].length - 1) / 4;
+   
+//	var lineStartX = Math.floor(Math.random()*Math.floor((size-1)/2)) + 1;
+//	lineStartX = 5;
+//	var lineStartY = Math.floor(Math.random()*Math.floor((size-1)/2)) + 1;
+//	lineStartY = 1;
+//	var lineEndX = Math.floor(Math.random()*Math.floor((size)/2)+Math.floor((size-1)/2));
+//	lineEndX = 5;
+//	var lineEndY = Math.floor(Math.random()*Math.floor((size)/2)+Math.floor((size-1)/2));
+//	lineEndY = 1;
+	
+	var rem = new Array();
+	for (var i = 1; i < grid.length - 1; i++)
+	{
+		for (var j = 1; j < grid[0].length - 1; j++)
+		{
+			rem[rem.length] = i + " " + j;
+		}
+	}
+	
+	for (var i = 0; i < numCells; i++)
+	{
+		var loc = Math.floor(Math.random()*rem.length);
+		var pos = rem[loc].split(" ");
+		rem[loc] = rem[rem.length-1];
+		rem.length--;
+		
+		grid[pos[0]][pos[1]] = 1;
+	}
+   
+	document.getElementById("gridMaze").innerHTML = disp(grid, start, end);
+   
+	wkthru = astar(grid, start, end);
+	document.getElementById("output").innerHTML = wkthru.text[0];
+	
+	return grid;
+}
+
+function chClr(cell)
+{
+	document.getElementById(cell).class = "cblk";
+	var loc = cell.split("_");
+	loc[0] = loc[0].substring(3, loc[0].length);
+	grid[loc[0]][loc[1]] = !grid[loc[0]][loc[1]];
+	document.getElementById("gridMaze").innerHTML = disp(grid, start, end);
+	astar(grid, start, end);
+}
+
+function disp(grid, start, end)
+{
+	var output = "<center><table>";
+	for (var i = 0; i < grid.length; i++)
+	{
+		output += "<tr>";
+		for (var j = 0; j < grid[i].length; j++)
+		{
+			if (!grid[i][j] && (i != start.x || j != start.x) && (i != end.x || j != end.y))
+			{
+				output += "<td class='cwh' id='tdc" + i + "_" + j + "' onclick='chClr(\"tdc" + i + "_" + j + "\")'></td>";
+			}
+			else if (i == start.x && j == start.y)
+			{
+				output += "<td class='cgreen' id='tdc" + i + "_" + j + "' onclick='chClr(\"tdc" + i + "_" + j + "\")'></td>";
+			}
+			else if (i == end.x && j == end.y)
+			{
+				output += "<td class='cred' id='tdc" + i + "_" + j + "' onclick='chClr(\"tdc" + i + "_" + j + "\")'></td>";
+			}
+			else
+			{
+				output += "<td class='cblk' id='tdc" + i + "_" + j + "' onclick='chClr(\"tdc" + i + "_" + j + "\")'></td>";
+			}
+		}
+		output += "</tr>";
+	}
+	output += "</table></center>";
+   
+	return output;
+}
+
+function disp_next(loc)
+{
+	if (loc + 1 >= wkthru.text.length)
+	{
+		return;
+	}
+	
+	if (contains(wkthru.path, wkthru.cell[loc]) != -1)
+	{
+		document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#909090";
+	}
+	else
+	{
+		document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#FFFF00";
+	}
+	
+	loc++;
+	document.getElementById("output").innerHTML = wkthru.text[loc];
+	document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#008B8B";
+	return loc;
+}
+
+function disp_prev(loc)
+{
+	if (loc - 1 < 0)
+	{
+		return;
+	}
+	
+	if (contains(wkthru.path, wkthru.cell[loc]) != -1)
+	{
+		document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#909090";
+	}
+	else
+	{
+		document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#FFFF00";
+	}
+	
+	loc--;
+	document.getElementById("output").innerHTML = wkthru.text[loc];
+	document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#008B8B";
+	return loc;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="algorithm, astar, cell, finding, best, first, search, heuristic, dijkstra, javascript, maze, path, script, search, greedy, open, closed, set, approximate, neighbors, math, mathematics, computer science, tutor">
+<meta name="description" content="This is an entry describing the A* Algorithm and provides a script to help users get acquainted with the algorithm">
+<title> at LEARNINGlover.com</title>
+<style type="text/css">
+.cred {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #FF0000;
+}
+
+.cwh {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #FFFFFF;
+}
+
+.cblk {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #000000;
+}
+
+.cblue {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #0000FF;
+}
+.cfin {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #FF00FF;
+}
+.cstart {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #00FFFF;
+}
+.cgreen {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+	background-color: #00FF00;
+}
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 0.5em;
+	height: 0.5em;
+}
+.cbeg {
+	border: 1px black solid;
+	width: 0.5em;
+	height: 0.5em;
+}
+
+td
+{
+	vertical-align:top;
+}
+
+</style>
+<script type="text/javascript">
+function astar(grid, start, goal)
+{
+	var closedSet = new Array();
+	var openSet = [start];
+	var cameFrom = new Object();
+	cameFrom.prev = new Array();
+	cameFrom.elt = new Array();
+	var gScore = new Array();
+	gScore[0] = new Array();
+	wkthru.text = new Array();
+	wkthru.cell = new Array();
+	wkthru.path = new Array();
+   
+	var fScore = new Array();
+	fScore[0] = new Array();
+   
+	gScore[start.x][start.y] = 0;
+	fScore[start.x][start.y] = gScore[start.x][start.y] + hScore(start, goal);
+	var count = 0;
+	
+	while (openSet.length > 0 && count < 1000)
+	{
+		var textLen = wkthru.text.length;
+		var cellLen = wkthru.cell.length;
+		wkthru.text[textLen] = "<center>";
+		count ++;
+		wkthru.text[textLen] += "<table><tr><td style=\"border:1px solid\">We are currently considering ";
+		wkthru.text[textLen] += "<table><tr><td>|Location|</td><td>|fScore|</td></tr>";
+		var minOpen = new Object();
+		for (var zen = 0; zen < openSet.length; zen++)
+		{
+			wkthru.text[textLen] += "<tr><td>(" + openSet[zen].x + ", " + openSet[zen].y + ")</td><td>" + fScore[openSet[zen].x][openSet[zen].y].toFixed(4) + "</td></tr>";
+			if (zen == 0 || (fScore[openSet[zen].x][openSet[zen].y] < fScore[minOpen.x][minOpen.y]))
+			{
+				minOpen.x = openSet[zen].x;
+				minOpen.y = openSet[zen].y;
+			}
+		}
+		wkthru.text[textLen] += "</table></td></tr>";
+		var current = minOpen;
+		wkthru.text[textLen] += "<tr><td style=\"border:1px solid\">The cell with the minimum fScore is " + current.x + ", " + current.y + "</td></tr>";
+		if (wkthru.cell.indexOf(current) == -1)
+		{
+			wkthru.cell[cellLen] = current;
+		}
+		
+		if (current.x == goal.x && current.y == goal.y)
+		{
+			wkthru.text[textLen] += "<tr><td style=\"border:1px solid\">We have reached the goal</td></tr></table>";
+			wkthru.path = makePath(cameFrom, goal);
+			wkthru.text[textLen] += "Path is " + "<br>";
+			for (var i = 0; i < wkthru.path.length; i++)
+			{
+				wkthru.text[textLen] += "(" + wkthru.path[i].x + ", " + wkthru.path[i].y + ")";
+				if (i != 0 && i != wkthru.path.length-1)
+				{
+					document.getElementById("tdc" + wkthru.path[i].x + "_" + wkthru.path[i].y).style.backgroundColor = "#909090";
+					var cell = new Object();
+					cell.x = wkthru.path[i].x;
+					cell.y = wkthru.path[i].y;
+				}
+			}
+			wkthru.text[textLen] += "<br>";
+		   
+			break;
+		}
+		openSet = remove(openSet, current);
+		if (current.x != start.x || current.y != start.y)
+		{
+			document.getElementById("tdc" + current.x + "_" + current.y).style.backgroundColor = "#FFFF00";
+		}
+		closedSet[closedSet.length] = current;
+		var neigh = neighbors(grid, current);
+		wkthru.text[textLen] += "<tr><td style=\"border:1px solid\">The neighbors of " + current.x + ", " + current.y + " are ";
+		
+		for (var zen = 0; zen < neigh.length; zen++)
+		{
+			wkthru.text[textLen] += "(" + neigh[zen].x + ", " + neigh[zen].y + ")";
+			if (zen < neigh.length - 1)
+			{
+				wkthru.text[textLen] += ", ";
+			}
+			else
+			{
+				wkthru.text[textLen] += "<br>";
+			}
+		}
+
+		wkthru.text[textLen] += "<table><tr><td>|Neighbor|</td><td>|gScore(" + current.x + ", " + current.y + ")|</td><td>|Dist to Neighbor|</td><td>|gScore|</td><td>|In Queue|</td><td>|hScore|</td><td>|fScore|</td></tr>";
+		for (var zen = 0; zen < neigh.length; zen++)
+		{
+			tempGscr = gScore[current.x][current.y] + dist(current, neigh[zen]);
+			if (contains(closedSet, neigh[zen]) == -1 || tempGscr < gScore[neigh[zen].x][neigh[zen].y])
+			{
+				if (contains(openSet, neigh[zen]) == -1 || (tempGscr < gScore[neigh[zen].x][neigh[zen].y]))
+				{
+					var loc = contains(cameFrom.elt, neigh[zen]);
+					if (loc == -1)
+					{
+						var len = cameFrom.prev.length;
+						cameFrom.prev[len] = current;
+						cameFrom.elt[len] = neigh[zen];
+					}
+					else
+					{
+						cameFrom.prev[loc] = current;
+					}
+				   
+					if (!Array.isArray(gScore[neigh[zen].x]))
+					{
+						gScore[neigh[zen].x] = new Array();
+					}
+					gScore[neigh[zen].x][neigh[zen].y] = tempGscr;
+				   
+					if (!Array.isArray(fScore[neigh[zen].x]))
+					{
+						fScore[neigh[zen].x] = new Array();
+					}
+					fScore[neigh[zen].x][neigh[zen].y] = gScore[neigh[zen].x][neigh[zen].y] + hScore(neigh[zen], goal);
+					wkthru.text[textLen] += "<tr><td>" + neigh[zen].x + ", " + neigh[zen].y + "</td><td>" + gScore[current.x][current.y].toFixed(4) + "</td><td>" + dist(current, neigh[zen]).toFixed(4) + "</td><td>" + tempGscr.toFixed(4) + "</td><td>N</td><td>" + hScore(neigh[zen], goal).toFixed(4) + "</td><td>" + fScore[neigh[zen].x][neigh[zen].y].toFixed(4) + "</td></tr>";
+					
+					if (contains(openSet, neigh[zen]) == -1)
+					{
+						openSet[openSet.length] = neigh[zen];
+					}
+				}
+				else if (contains(openSet, neigh[zen] != -1))
+				{
+					wkthru.text[textLen] += "<tr><td>" + neigh[zen].x + ", " + neigh[zen].y + "</td><td>-----</td><td>-----</td><td>" + gScore[neigh[zen].x][neigh[zen].y].toFixed(4) + "</td><td>Y</td><td>" + hScore(neigh[zen], goal).toFixed(4) + "</td><td>" + fScore[neigh[zen].x][neigh[zen].y].toFixed(4) + "</td></tr>";
+				}
+				else if (tempGscr >= gScore[neigh[zen].x][neigh[zen].y])
+				{
+					wkthru.text[textLen] += "<tr><td>" + neigh[zen].x + ", " + neigh[zen].y + "</td><td>" + gScore[current.x][current.y].toFixed(4) + "</td><td>" + dist(current, neigh[zen]).toFixed(4) + "</td><td>" + tempGscr.toFixed(4) + "</td><td>N</td><td>" + hScore(neigh[zen], goal).toFixed(4) + "</td><td>" + fScore[neigh[zen].x][neigh[zen].y].toFixed(4) + "</td></tr>";
+				}
+			}	
+			else if (tempGscr >= gScore[neigh[zen].x][neigh[zen].y])
+			{
+				wkthru.text[textLen] += "<tr><td><i>" + neigh[zen].x + ", " + neigh[zen].y + "</i></td><td><i>" + gScore[current.x][current.y].toFixed(4) + "</i></td><td><i>" + dist(current, neigh[zen]).toFixed(4) + "</i></td><td><i>" + tempGscr.toFixed(4) + "</i></td><td>N</td><td><i>" + hScore(neigh[zen], goal).toFixed(4) + "</i></td><td><i>" + fScore[neigh[zen].x][neigh[zen].y].toFixed(4) + "</i></td></tr>";
+			}
+		}
+		wkthru.text[textLen] += "</table></td></tr></table>";
+		wkthru.text[textLen] += "<br>";
+	}
+	
+	wkthru.text[textLen] += "</center>";
+	
+	document.getElementById("output").innerHTML += wkthru.text[0];
+	return wkthru;
+}
+
+function makePath(cameFrom, curr)
+{
+	var loc = contains(cameFrom.elt, curr);
+//	document.getElementById("output").innerHTML += "curr = " + curr.x + ", " + curr.y + "<br>";
+   
+//	for (var i = 0; i < cameFrom.prev.length; i++)
+//	{
+//		document.getElementById("output").innerHTML += "cameFrom.elt[" + i + "] = " + cameFrom.elt[i].x + ", " + cameFrom.elt[i].y + ", ";
+//		document.getElementById("output").innerHTML += "cameFrom.prev[" + i + "] = " + cameFrom.prev[i].x + ", " + cameFrom.prev[i].y + "<br>";
+//	}
+//	document.getElementById("output").innerHTML += "loc = " + loc + "<br>";
+   
+	if (loc != -1)
+	{
+		var p = makePath(cameFrom, cameFrom.prev[loc]);
+		p[p.length] = curr;
+		return p;
+	}
+	else
+	{
+		var p = new Array();
+		p[p.length] = curr;
+		return p;
+	}
+}
+function hScore(start, goal)
+{
+//	document.getElementById("output").innerHTML += "start = " + start.x + ", " + start.y + ", goal = " + goal.x + ", " + goal.y + "<br>";
+//	return Math.sqrt(Math.pow(start.x - goal.x, 2) + Math.pow(start.y - goal.y, 2));
+	return Math.abs(start.x - goal.x) + Math.abs(start.y - goal.y);
+//	return Math.max(Math.abs(start.x - goal.x), Math.abs(start.y - goal.y));
+}
+function remove(set, elmt)
+{
+	for (var zen = 0; zen < set.length && !(set[zen].x == elmt.x && set[zen].y == elmt.y); zen++)
+	{
+	}
+	for (; zen < set.length-1; zen++)
+	{
+		set[zen] = set[zen+1];
+	}
+   
+	set.length--;
+	return set;
+}
+function neighbors(grid, node)
+{
+	var neigh = new Array();
+	if (node.x - 1 >= 0 && grid[node.x-1][node.y] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x - 1;
+		next.y = node.y;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+	if (node.y - 1 >= 0 && grid[node.x][node.y-1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x;
+		next.y = node.y-1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+	if (node.x + 1 < grid.length && grid[node.x+1][node.y] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x + 1;
+		next.y = node.y;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+	if (node.y + 1 < grid[0].length && grid[node.x][node.y+1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x;
+		next.y = node.y + 1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+   
+	if (node.x + 1 < grid.length && node.y + 1 < grid[0].length && grid[node.x+1][node.y+1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x + 1;
+		next.y = node.y + 1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+   
+	if (node.x - 1 >= 0 && node.y - 1 >= 0 && grid[node.x-1][node.y-1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x - 1;
+		next.y = node.y - 1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+   
+	if (node.x + 1 < grid.length && node.y - 1 >= 0 && grid[node.x+1][node.y-1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x + 1;
+		next.y = node.y - 1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+   
+	if (node.x - 1 >= 0 && node.y + 1 < grid[0].length && grid[node.x-1][node.y+1] != 1)
+	{
+		var len = neigh.length;
+		var next  = new Object();
+		next.x = node.x - 1;
+		next.y = node.y + 1;
+		if (contains(neigh, next) == -1)
+		{
+//			document.getElementById("output").innerHTML += "adding " + next.x + ", " + next.y + " to neigh<br>";
+			neigh[len] = next;
+		}
+	}
+	return neigh;
+}
+function contains(set, elmt)
+{
+	for (var zen = 0; zen < set.length && !(set[zen].x == elmt.x && set[zen].y == elmt.y); zen++)
+	{ }
+	if (zen < set.length)
+	{
+		return zen;
+	}
+	else
+	{
+		return -1;
+	}
+}
+function dist(point1, point2)
+{
+	if ((point1.x == point2.x) && Math.abs(point1.y - point2.y) == 1)
+	{
+		return 1;
+	}
+	else if ((point1.y == point2.y) && Math.abs(point1.x - point2.x) == 1)
+	{
+		return 1;
+	}
+	else if (Math.abs(point1.x - point2.x) == 1 && Math.abs(point1.y - point2.y) == 1)
+	{
+		return Math.sqrt(2);
+	}
+	else
+	{
+		return Number.MAX_VALUE;
+	}
+}
+
+function init(size, grid)
+{
+	grid = new Array(size);
+	
+	start.x = 0;
+	start.y = 0;
+   
+	end.x = size-1;
+	end.y = size-1;
+	for (var i = 0; i < grid.length; i++)
+	{
+		grid[i] = new Array(size);
+		for (var j = 0; j < grid[i].length; j++)
+		{
+			grid[i][j] = 0;
+		}
+	}
+	
+	var numCells = (grid.length - 1) * (grid[0].length - 1) / 2;
+//	numCells = Math.floor(Math.random()*numCells) + (grid.length - 1) * (grid[0].length - 1) / 4;
+   
+//	var lineStartX = Math.floor(Math.random()*Math.floor((size-1)/2)) + 1;
+//	lineStartX = 5;
+//	var lineStartY = Math.floor(Math.random()*Math.floor((size-1)/2)) + 1;
+//	lineStartY = 1;
+//	var lineEndX = Math.floor(Math.random()*Math.floor((size)/2)+Math.floor((size-1)/2));
+//	lineEndX = 5;
+//	var lineEndY = Math.floor(Math.random()*Math.floor((size)/2)+Math.floor((size-1)/2));
+//	lineEndY = 1;
+	
+	var rem = new Array();
+	for (var i = 1; i < grid.length - 1; i++)
+	{
+		for (var j = 1; j < grid[0].length - 1; j++)
+		{
+			rem[rem.length] = i + " " + j;
+		}
+	}
+	
+	for (var i = 0; i < numCells; i++)
+	{
+		var loc = Math.floor(Math.random()*rem.length);
+		var pos = rem[loc].split(" ");
+		rem[loc] = rem[rem.length-1];
+		rem.length--;
+		
+		grid[pos[0]][pos[1]] = 1;
+	}
+   
+	document.getElementById("gridMaze").innerHTML = disp(grid, start, end);
+   
+	wkthru = astar(grid, start, end);
+	document.getElementById("output").innerHTML = wkthru.text[0];
+	
+	return grid;
+}
+
+function chClr(cell)
+{
+	document.getElementById(cell).class = "cblk";
+	var loc = cell.split("_");
+	loc[0] = loc[0].substring(3, loc[0].length);
+	grid[loc[0]][loc[1]] = !grid[loc[0]][loc[1]];
+	document.getElementById("gridMaze").innerHTML = disp(grid, start, end);
+	astar(grid, start, end);
+}
+
+function disp(grid, start, end)
+{
+	var output = "<center><table>";
+	for (var i = 0; i < grid.length; i++)
+	{
+		output += "<tr>";
+		for (var j = 0; j < grid[i].length; j++)
+		{
+			if (!grid[i][j] && (i != start.x || j != start.x) && (i != end.x || j != end.y))
+			{
+				output += "<td class='cwh' id='tdc" + i + "_" + j + "' onclick='chClr(\"tdc" + i + "_" + j + "\")'></td>";
+			}
+			else if (i == start.x && j == start.y)
+			{
+				output += "<td class='cgreen' id='tdc" + i + "_" + j + "' onclick='chClr(\"tdc" + i + "_" + j + "\")'></td>";
+			}
+			else if (i == end.x && j == end.y)
+			{
+				output += "<td class='cred' id='tdc" + i + "_" + j + "' onclick='chClr(\"tdc" + i + "_" + j + "\")'></td>";
+			}
+			else
+			{
+				output += "<td class='cblk' id='tdc" + i + "_" + j + "' onclick='chClr(\"tdc" + i + "_" + j + "\")'></td>";
+			}
+		}
+		output += "</tr>";
+	}
+	output += "</table></center>";
+   
+	return output;
+}
+
+function disp_next(loc)
+{
+	if (loc + 1 >= wkthru.text.length)
+	{
+		return;
+	}
+	
+	if (contains(wkthru.path, wkthru.cell[loc]) != -1)
+	{
+		document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#909090";
+	}
+	else
+	{
+		document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#FFFF00";
+	}
+	
+	loc++;
+	document.getElementById("output").innerHTML = wkthru.text[loc];
+	document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#008B8B";
+	return loc;
+}
+
+function disp_prev(loc)
+{
+	if (loc - 1 < 0)
+	{
+		return;
+	}
+	
+	if (contains(wkthru.path, wkthru.cell[loc]) != -1)
+	{
+		document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#909090";
+	}
+	else
+	{
+		document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#FFFF00";
+	}
+	
+	loc--;
+	document.getElementById("output").innerHTML = wkthru.text[loc];
+	document.getElementById("tdc" + wkthru.cell[loc].x + "_" + wkthru.cell[loc].y).style.backgroundColor = "#008B8B";
+	return loc;
+}
+</script>
+<h3><center></center></h3>
+<p><p>In the A* Algorithm, we have three main functions: <br>
+ dist(m,n) denotes the length of the edge between the nodes m and n<br>
+ gScore(n) represents the exact cost of the path from the starting point to any vertex n<br>
+ hScore(n) represents the heuristic estimated cost from vertex n to the goal<br>
+ fScore(n) = g(n) + h(n)<br>
+ </p></p>
+<p name="gridMaze" id="gridMaze"></p>
+<p name="buttons" id="buttons">
+<center>
+<input type="button" value="New Problem" onclick="grid=init(25); loc=0">
+<input type="button" value="Next Cell" onclick="loc=disp_next(loc)">
+<input type="button" value="Previous Cell" onclick="loc=disp_prev(loc)">
+</center>
+</p>
+<p name="output" id="output"></p>
+<script type="text/javascript">
+var start = new Object();
+var end = new Object();
+var wkthru = new Object();
+var loc = 0;
+var grid = init(25);
+</script>

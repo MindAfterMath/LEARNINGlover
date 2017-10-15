@@ -1,0 +1,419 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+GaussianElimination<script id="sc1" type="text/javascript">
+function GElim(A, show) 
+{
+	var B = new Array();
+ 	var x = new Array();
+	xvars = A.length;
+	var text = ""; 	
+
+	for (var i = 0; i < xvars; i++) 	
+	{
+		B[i] = new Array();
+		for (var j = 0; j <= xvars; j++)
+		{
+			B[i][j] = A[i][j];
+		}
+		x[i] = 0;
+	}
+
+	var i, j, k, rowmax;
+ 	var temp;
+	if (show)
+ 	{
+		text = "<table>";
+ 		for (var j = 0; j < xvars; j++)
+		{
+			text += "<tr>";
+ 			for (var k = 0; k < xvars+1; k++)
+			{
+				text += "<td>" + B[j][k].toFixed(3) + "</td>";
+			}
+			text += "</tr>";
+		}
+ 		text += "</table>";
+	}
+
+	for (var i = 0; i < xvars; i++)
+ 	{
+		rowmax = i;
+ 		for (var j = i + 1; j < xvars; j++)
+		{
+			if (Math.abs(B[j][i]) > Math.abs(B[rowmax][i]))
+			{
+				rowmax = j;
+			}
+			if (show)
+			{
+				text += "The remaining row with the largest first remaining value is row " + (rowmax+1) + "<br>";
+				if (rowmax != i)
+				{
+					text += "So we will swap rows " + (rowmax + 1) + " and " + (i + 1) + "<br>";
+				}
+			}
+			if (rowmax != i)
+			{
+				for (var k = i; k < xvars+1; k++)
+				{
+					temp = B[i][k];
+					B[i][k] = B[rowmax][k];
+					B[rowmax][k] = temp;
+				}
+				if (show)
+				{
+					text += "<table>";
+					for (var j = 0; j < xvars; j++)
+					{
+						text += "<tr>";
+						for (var k = 0; k < xvars+1; k++)
+							text += "<td>" + B[j][k].toFixed(3) + "</td>";
+						text += "</tr>";
+					} 
+					text += "</table>";
+				}
+			}
+
+			if (Math.abs(B[i][i]) < 0.00001)
+			{
+				text += "The Matrix is singular, so we cannot perform Gaussian Elimination on this problem. ";
+				return FALSE;
+			}
+			if (show)
+			{
+				text += "Divide row " + (i+1) + " by " + B[i][i].toFixed(3) + "<br>";
+			}
+			denom = B[i][i];
+			for (var k = i; k < xvars+1; k++)
+			{
+				B[i][k] = (B[i][k] / denom);
+			}
+
+			if (show)
+			{
+				text += "<table>";
+				for (var j = 0; j < xvars; j++)
+				{
+					text += "<tr>";
+					for (var k = 0; k < xvars+1; k++)
+					{
+						text += "<td>" + B[j][k].toFixed(3) + "</td>";
+					}
+					text += "</tr>";
+				} 
+				text += "</table>";
+			}
+
+			for (var j = i+1; j < xvars; j++)
+			{
+				if (show)
+				{
+					text += "Multiply row " + (i+1) + " by " + B[j][i].toFixed(3) + " and subtract it from row " + (j+1) + "<br>";
+				}
+				for (var k = xvars; k >= i; k--)
+				{
+					B[j][k] -= B[i][k] * B[j][i];
+				}
+				if (show)
+				{
+					text += "<table>";
+					for (var r = 0; r < xvars; r++)
+					{
+						text += "<tr>";
+						for (var c = 0; c < xvars+1; c++)
+						{
+							text += "<td>" + B[r][c].toFixed(3) + "</td>";
+						}
+						text += "</tr>";
+					}
+					text += "</table>";
+				}
+			}
+		}
+
+ 	 	for (var j = xvars-1; j >= 0; j--) 	
+		{
+			temp = 0.0; 		
+			for (var k = j+1; k < xvars; k++) 			
+			{
+				temp += B[j][k] * x[k]; 		
+			}
+			x[j] = ((B[j][xvars]-temp) / B[j][j]); 	
+		} 	 	
+
+		if (i == xvars-1 || show)
+		{		
+			text += "<table>"; 	
+
+			for (var j = 0; j < xvars; j++) 	
+			{ 		
+				text += "<tr>"; 		
+				for (var k = 0; k < xvars+1; k++) 			
+				{
+					text += "<td>" + B[j][k].toFixed(3) + "</td>"; 		
+				}
+				text += "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x<sub>" + j + "</sub> = " + x[j].toFixed(3) + "</td></tr>"; 	
+			} 	
+
+			text += "</table>";  	
+			}
+		}	
+			document.getElementById('output').innerHTML += text; 
+} 
+
+function init()
+{
+	var xvars = Math.floor(Math.random()*10+2);
+	var A = new Array(); 
+	var text = "";
+
+	for (var i = 0; i < xvars; i++) 
+	{ 	
+		A[i] = new Array(); 	
+		for (var j = 0; j <= xvars; j++) 	
+		{ 		
+			A[i][j] = Math.floor(Math.random()*25); 		
+			var sign = Math.floor(Math.random()*2); 		
+			if (sign == 0)
+			{ 			
+				A[i][j] = A[i][j]*-1; 		
+			}
+			if (j < xvars-1) 			
+			{
+				text += A[i][j] + "x<sub>" + j + "</sub> + ";
+			}
+			else if (j == xvars-1) 			
+			{
+				text += A[i][j] + "x<sub>" + j + "</sub> = ";
+			}
+			else 			
+			{
+				text += A[i][j];
+			}
+		} 	
+
+		text += "<br>"; 
+	}
+
+	document.getElementById("output").innerHTML = text;
+
+	return A;
+}
+</script> <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="algorithm, back-substitution, coefficient matrix, coefficients, computer science, elementary row operations, Gaussian Elimination, intersect, JavaScript, lines, math, mathematics, matrix, point, script, upper triangular, vector" /> 
+<meta name="description" content="This page contains a script I've written to help understand the Gaussian Elimination Algorithm." />
+<title> at LEARNINGlover.com</title>
+<script id="sc1" type="text/javascript">
+function GElim(A, show) 
+{
+	var B = new Array();
+ 	var x = new Array();
+	xvars = A.length;
+	var text = ""; 	
+
+	for (var i = 0; i < xvars; i++) 	
+	{
+		B[i] = new Array();
+		for (var j = 0; j <= xvars; j++)
+		{
+			B[i][j] = A[i][j];
+		}
+		x[i] = 0;
+	}
+
+	var i, j, k, rowmax;
+ 	var temp;
+	if (show)
+ 	{
+		text = "<table>";
+ 		for (var j = 0; j < xvars; j++)
+		{
+			text += "<tr>";
+ 			for (var k = 0; k < xvars+1; k++)
+			{
+				text += "<td>" + B[j][k].toFixed(3) + "</td>";
+			}
+			text += "</tr>";
+		}
+ 		text += "</table>";
+	}
+
+	for (var i = 0; i < xvars; i++)
+ 	{
+		rowmax = i;
+ 		for (var j = i + 1; j < xvars; j++)
+		{
+			if (Math.abs(B[j][i]) > Math.abs(B[rowmax][i]))
+			{
+				rowmax = j;
+			}
+			if (show)
+			{
+				text += "The remaining row with the largest first remaining value is row " + (rowmax+1) + "<br>";
+				if (rowmax != i)
+				{
+					text += "So we will swap rows " + (rowmax + 1) + " and " + (i + 1) + "<br>";
+				}
+			}
+			if (rowmax != i)
+			{
+				for (var k = i; k < xvars+1; k++)
+				{
+					temp = B[i][k];
+					B[i][k] = B[rowmax][k];
+					B[rowmax][k] = temp;
+				}
+				if (show)
+				{
+					text += "<table>";
+					for (var j = 0; j < xvars; j++)
+					{
+						text += "<tr>";
+						for (var k = 0; k < xvars+1; k++)
+							text += "<td>" + B[j][k].toFixed(3) + "</td>";
+						text += "</tr>";
+					} 
+					text += "</table>";
+				}
+			}
+
+			if (Math.abs(B[i][i]) < 0.00001)
+			{
+				text += "The Matrix is singular, so we cannot perform Gaussian Elimination on this problem. ";
+				return FALSE;
+			}
+			if (show)
+			{
+				text += "Divide row " + (i+1) + " by " + B[i][i].toFixed(3) + "<br>";
+			}
+			denom = B[i][i];
+			for (var k = i; k < xvars+1; k++)
+			{
+				B[i][k] = (B[i][k] / denom);
+			}
+
+			if (show)
+			{
+				text += "<table>";
+				for (var j = 0; j < xvars; j++)
+				{
+					text += "<tr>";
+					for (var k = 0; k < xvars+1; k++)
+					{
+						text += "<td>" + B[j][k].toFixed(3) + "</td>";
+					}
+					text += "</tr>";
+				} 
+				text += "</table>";
+			}
+
+			for (var j = i+1; j < xvars; j++)
+			{
+				if (show)
+				{
+					text += "Multiply row " + (i+1) + " by " + B[j][i].toFixed(3) + " and subtract it from row " + (j+1) + "<br>";
+				}
+				for (var k = xvars; k >= i; k--)
+				{
+					B[j][k] -= B[i][k] * B[j][i];
+				}
+				if (show)
+				{
+					text += "<table>";
+					for (var r = 0; r < xvars; r++)
+					{
+						text += "<tr>";
+						for (var c = 0; c < xvars+1; c++)
+						{
+							text += "<td>" + B[r][c].toFixed(3) + "</td>";
+						}
+						text += "</tr>";
+					}
+					text += "</table>";
+				}
+			}
+		}
+
+ 	 	for (var j = xvars-1; j >= 0; j--) 	
+		{
+			temp = 0.0; 		
+			for (var k = j+1; k < xvars; k++) 			
+			{
+				temp += B[j][k] * x[k]; 		
+			}
+			x[j] = ((B[j][xvars]-temp) / B[j][j]); 	
+		} 	 	
+
+		if (i == xvars-1 || show)
+		{		
+			text += "<table>"; 	
+
+			for (var j = 0; j < xvars; j++) 	
+			{ 		
+				text += "<tr>"; 		
+				for (var k = 0; k < xvars+1; k++) 			
+				{
+					text += "<td>" + B[j][k].toFixed(3) + "</td>"; 		
+				}
+				text += "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x<sub>" + j + "</sub> = " + x[j].toFixed(3) + "</td></tr>"; 	
+			} 	
+
+			text += "</table>";  	
+			}
+		}	
+			document.getElementById('output').innerHTML += text; 
+} 
+
+function init()
+{
+	var xvars = Math.floor(Math.random()*10+2);
+	var A = new Array(); 
+	var text = "";
+
+	for (var i = 0; i < xvars; i++) 
+	{ 	
+		A[i] = new Array(); 	
+		for (var j = 0; j <= xvars; j++) 	
+		{ 		
+			A[i][j] = Math.floor(Math.random()*25); 		
+			var sign = Math.floor(Math.random()*2); 		
+			if (sign == 0)
+			{ 			
+				A[i][j] = A[i][j]*-1; 		
+			}
+			if (j < xvars-1) 			
+			{
+				text += A[i][j] + "x<sub>" + j + "</sub> + ";
+			}
+			else if (j == xvars-1) 			
+			{
+				text += A[i][j] + "x<sub>" + j + "</sub> = ";
+			}
+			else 			
+			{
+				text += A[i][j];
+			}
+		} 	
+
+		text += "<br>"; 
+	}
+
+	document.getElementById("output").innerHTML = text;
+
+	return A;
+}
+</script> 
+<h3><center></center></h3>
+<p><p>When we have a collection of lines we wish to know if they all intersect at some point. Many times we are interested in determining what that point is. In order to calculate this information, we first need an understanding of the lines themselves. The way the Gaussian Elimination Algorithm works is that the collection of lines are input using a notation of Ax = b, where the matrix A is called the coefficient matrix, as the n<sup>th</sup> row of it corresponds to the coefficients for the n<sup>th</sup> line being considered. The vector b represents the right hand side vector (in two dimensions, we would call these constants the y-intercepts of the lines. In higher dimensions they hold a similar property). The vector x represents the point where the lines intersect. It is this quantity which Gaussian Elimination seeks to determine. </p>  <p>The basic procedure of Gaussian Elimination is to use \"elementary row operations\" on the matrix (A|b), which is called the augmented matrix, to transform A into upper triangular form. Once this is done, a procedure called back-substitution can find the solution (x) to this problem. </P>  <p>The elementary row operations that we are allowed to perform are:  <li>Interchange two rows.  <li>Multiply a row by a nonzero number.  <li>Add a row to another one multiplied by a number. </p>  <p>For the last property listed above, we will determine this number by dividing the coefficient of the term we which to eliminate by the negative of the coefficient of the element on the main diagonal of the same column of the matrix. This will have the property of canceling out, or producing a desired zero in the resulting row. </p>  <p>If this algorithm produces an upper triangular matrix from which we can solve for x using back-substitution. This procedure of back-substitution is simply solving for the vector x from the bottom of the matrix to the top. If the algorithm does not produce an upper triangular matrix (because somewhere along the line, we are unable to obtain a ratio because we have zero's on the diagonal and all zeros below the diagonal), then we say the matrix is singular. This means that there is no unique point where the lines all intersect.</p> </p>
+<form name="data" id="data"> 
+	<input type=button onclick="A=init()" value="New Problem"><br> 
+<p name="output" id="output"></p> 
+<script id="sc2" type="text/javascript"> 
+var A = init();
+</script> 
+
+<input type="checkbox" name="show" id="show"> Show Work? 
+<input type="button" onclick="GElim(A, document.getElementById('show').checked)" value="Solve" id=button1 name=button1> 
+</FORM> 

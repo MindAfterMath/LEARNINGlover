@@ -1,0 +1,1100 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+DescriptiveStatistics<script type="text/javascript">
+function init()
+{
+	list = new Array();
+	var size = Math.floor(Math.random()*25) + 5;
+	for (var i = 0; i < size; i++)
+	{
+		list[i] = Math.floor(Math.random()*50);
+		var sign = Math.floor(Math.random()*2);
+		if (sign == 0)
+		{
+			sign = -1;
+		}
+		list[i] = list[i] * sign;
+	}
+	
+	var out = "<center><table><tr>";
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		out += "<td>" + list[i] + "</td>";
+	}
+	
+	out += "</tr></table></center>";
+	
+	document.getElementById("input").innerHTML = out;
+	
+	var c = document.getElementById("myCanvas");
+	if (c != null)
+	{
+		var ctx = c.getContext("2d");
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, c.width, c.height);
+		ctx.fill();
+	}
+	
+	return list;
+}
+
+function getMin(list)
+{
+	var minLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (minLoc == -1 || list[i] < list[minLoc])
+		{
+			minLoc = i;
+		}
+	}
+	
+	return list[minLoc];
+}
+
+function getMax(list)
+{
+	var maxLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (maxLoc == -1 || list[i] > list[maxLoc])
+		{
+			maxLoc = i;
+		}
+	}
+	
+	return list[maxLoc];
+}
+
+function getMean(list)
+{
+	var avgVal = 0;
+	for (var i = 0; i < list.length; i++)
+	{
+		avgVal += list[i];
+	}
+	
+	avgVal = avgVal / list.length;
+		
+	return avgVal;
+}
+
+function getMode(list)
+{
+	var temp = sort(list);
+	var counts = new Array();
+	counts[0] = new Array();
+	counts[1] = new Array();
+
+	for (var i = 0; i < temp.length; i++)
+	{
+		if (counts[0].indexOf(temp[i]) == -1)
+		{
+			var loc = counts[0].length;
+			counts[0][loc] = temp[i];
+			counts[1][loc] = 1;
+		}
+		else
+		{
+			var loc = counts[0].indexOf(temp[i]);
+			counts[1][loc] ++;
+		}
+	}
+	
+	var maxLoc = -1;
+	var modes = new Array();
+	for (var i = 0; i < counts[0].length; i++)
+	{
+		if (maxLoc == -1 || counts[1][i] >= counts[1][maxLoc])
+		{
+			maxLoc = i;
+			modes[modes.length] = counts[0][i];
+		}
+	}
+	
+	return modes;
+}
+
+function getMedian(list)
+{
+	var temp = sort(list);
+		
+	return temp[Math.floor(temp.length/2)];
+}
+
+function getStdDev(list)
+{
+	var dev = 0;
+	
+	var mean = getMean(list);
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		dev += (list[i] - mean)*(list[i] - mean);
+	}
+	
+	dev = dev / list.length;
+	dev = Math.sqrt(dev);
+	
+	return dev;
+}
+
+function getVarnce(list)
+{
+	var dev = 0;
+	
+	var mean = getMean(list);
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		dev += (list[i] - mean)*(list[i] - mean);
+	}
+	
+	dev = dev / list.length;
+	
+	return Math.sqrt(dev);
+}	
+
+function plotHist1(list)
+{
+	var temp = sort(list);
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	var counts = new Array();
+	counts[0] = new Array();
+	counts[1] = new Array();
+	
+	for (var i = 0; i < temp.length; i++)
+	{
+		if (counts[0].indexOf(temp[i]) == -1)
+		{
+			var loc = counts[0].length;
+			counts[0][loc] = temp[i];
+			counts[1][loc] = 1;
+		}
+		else
+		{
+			var loc = counts[0].indexOf(temp[i]);
+			counts[1][loc] ++;
+		}
+	}
+	
+	var barWidth = Math.floor(c.width / (counts[0].length + 2));
+	var unitHght = Math.floor(c.height / (getMax(counts[1]) + 2));
+	
+	for (var i = 0; i < counts[0].length; i++)
+	{
+//		document.getElementById("output").innerHTML += "filling " + eval(i*barWidth) + " to " + eval((i+1)*barWidth) + " with height "  + counts[1][i] + "<br>";
+		ctx.fillStyle = "#0033FF";
+		ctx.fillRect(i*barWidth + barWidth/2 + i, c.height - unitHght * counts[1][i] - unitHght, barWidth, unitHght * counts[1][i]);
+		ctx.fillText(counts[0][i], i*barWidth + barWidth + i - 2, c.height - 10);
+		ctx.fill();
+	}
+}
+
+// 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11 
+//-5, -4, -3, -2, -1, -0,  0,  1,  2,  3,  4,  5
+// 5,  5,  5,  5,  5,  5,  6,  6,  6,  6,  6,  6
+
+// I want the point 10 on the x scale to correspond to the minimum in the set of values
+// I want the point 590 on the x scale to correspond to the maximum in the set of values
+// So point 11 should be min + 1 / (max - min)
+
+
+function plotBoxWhis(list)
+{
+	var min = getMin(list);
+	var max = getMax(list);
+	var avg = getMean(list);
+	var quart1 = (max - min) / 4 + min;
+	var quart3 = 3*(max - min) / 4 + min;
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	var scale = (c.width - 20)/ (101);
+	var offset = 10 - -50*scale;
+
+
+	ctx.beginPath();
+	ctx.moveTo(min*scale + offset, c.height / 2);
+	ctx.lineTo(min*scale + offset, c.height / 2 - 20);
+	
+	ctx.moveTo(min*scale + offset, c.height / 2 - 10);
+	ctx.lineTo(quart1*scale + offset, c.height / 2 - 10);
+
+	ctx.moveTo(quart1*scale + offset, c.height/2);
+	ctx.lineTo(quart1*scale + offset, c.height/2 - 20);
+	
+	ctx.moveTo(quart1*scale + offset, c.height/2 - 20);
+	ctx.lineTo(quart3*scale + offset, c.height/2 - 20);
+	
+	ctx.moveTo(quart3*scale + offset, c.height/2 - 20);
+	ctx.lineTo(quart3*scale + offset, c.height/2);
+	
+	ctx.moveTo(quart3*scale + offset, c.height/2);
+	ctx.lineTo(quart1*scale + offset, c.height/2);
+	
+	ctx.moveTo(avg*scale + offset, c.height / 2);
+	ctx.lineTo(avg*scale + offset, c.height / 2 - 20);
+	
+	ctx.moveTo(max*scale + offset, c.height / 2);
+	ctx.lineTo(max*scale + offset, c.height / 2 - 20);
+	
+	ctx.moveTo(max*scale + offset, c.height / 2 - 10);
+	ctx.lineTo(quart3*scale + offset, c.height / 2 - 10);
+	ctx.stroke();
+	
+	ctx.fillStyle = "#000000";
+	ctx.fillText(min, min*scale + offset, c.height / 2 + 20);
+	ctx.fillText(quart1, quart1*scale + offset, c.height / 2 + 20);
+	ctx.fillText(avg.toFixed(4), avg*scale + offset, c.height / 2 + 20);
+	ctx.fillText(quart3, quart3*scale + offset, c.height / 2 + 20);
+	ctx.fillText(max, max*scale + offset, c.height / 2 + 20);
+}
+
+function plotHist2(list)
+{
+	var temp = sort(list);
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	var counts = new Array();
+	counts[0] = new Array();
+	counts[1] = new Array();
+	
+	for (var i = 0; i < temp.length; i++)
+	{
+		if (counts[0].indexOf(temp[i]) == -1)
+		{
+			var loc = counts[0].length;
+			counts[0][loc] = temp[i];
+			counts[1][loc] = 1;
+		}
+		else
+		{
+			var loc = counts[0].indexOf(temp[i]);
+			counts[1][loc] ++;
+		}
+	}
+	
+	var barWidth = Math.floor(c.width / (counts[0].length + 2));
+	var unitHght = Math.floor(c.height / (getMax(counts[1]) + 2));
+	var clr = new Array();
+	for (var j = 0; j < 6; j++)
+	{
+		clr[j] = Math.floor(Math.random()*16);
+		if (clr[j] == 10)
+		{
+			clr[j] = "A"
+		}
+		else if (clr[j] == 11)
+		{
+			clr[j] = "B"
+		}
+		else if (clr[j] == 12)
+		{
+			clr[j] = "C"
+		}
+		else if (clr[j] == 13)
+		{
+			clr[j] = "D"
+		}
+		else if (clr[j] == 14)
+		{
+			clr[j] = "E"
+		}
+		else if (clr[j] == 15)
+		{
+			clr[j] = "F"
+		}
+	}
+	
+	for (var i = 0; i < counts[0].length; i++)
+	{	
+		ctx.fillStyle = "#" + clr[0] + clr[1] + clr[2] + clr[3] + clr[4] + clr[5];
+		ctx.fillRect(i*barWidth + barWidth/2 + i, c.height - unitHght * counts[1][i] - unitHght, barWidth, unitHght * counts[1][i]);
+		ctx.fillText(counts[0][i], i*barWidth + barWidth + i - 2, c.height - 10);
+		ctx.fill();
+	}
+}
+
+function sort(list)
+{
+	var temp = new Array();
+	for (var i = 0; i < list.length; i++)
+	{
+		temp[i] = list[i];
+	}
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			if (temp[i] < temp[j])
+			{
+				var temp2 = temp[i];
+				temp[i] = temp[j];
+				temp[j] = temp2;
+			}
+		}
+	}
+	
+	return temp;
+}
+
+function plotStemLeaf(list)
+{
+	var plot = new Object();
+	plot.left = new Array();
+	plot.right = new Array();
+	
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fillStyle = "#000000";
+	ctx.font = "14px Arial";
+	var loc;
+	var out = new Array();
+	
+	list = sort(list);
+
+	for (var i = 0; i < list.length; i++)
+	{
+		if (Math.floor(list[i] / 10) >= 0)
+		{
+			if (plot.left.indexOf(Math.floor(list[i] / 10)) == -1)
+			{
+				plot.left[plot.left.length] = Math.floor(list[i] / 10);
+				loc = plot.left.length-1;
+			}
+		}
+		else if (Math.floor(list[i]) < 0 && Math.floor(list[i]) > -10)
+		{
+			if (plot.left.indexOf("-0") == -1)
+			{
+				plot.left[plot.left.length] = "-0";
+				loc = plot.left.length-1;
+			}
+		}
+		else
+		{
+			if (plot.left.indexOf(Math.ceil(list[i] / 10)) == -1)
+			{
+				plot.left[plot.left.length] = Math.ceil(list[i] / 10);
+				loc = plot.left.length-1;
+			}
+		}
+		
+		// Now we're sure that the left index is in the left array of the plot object. 
+		
+		if (!Array.isArray(plot.right[loc]))
+		{
+			plot.right[loc] = new Array();
+			plot.right[loc][0] = Math.floor(list[i] % 10);
+		}
+		else
+		{
+			var temp = plot.right[loc].length;
+			plot.right[loc][temp] = Math.floor(list[i] % 10);
+		}
+	}
+	
+	var vgap = c.height - 16 * plot.left.length;
+
+	for (var i = 0; i < plot.left.length; i++)
+	{
+		ctx.fillText(plot.left[i] + "|" + plot.right[i], 20, vgap/2 + 18*i);
+	}
+}
+
+function process()
+{
+	var cmd = parseInt(document.getElementById("doWhat").value);
+	var ans = "";
+	var out = "";
+	switch (cmd)
+	{
+		case 0:
+			out = "The minimum of a list is the value that is less than all other points in that list. <br>";
+			ans = "The minimum of " + list + " is " + getMin(list) + "<br>";
+			break;
+		case 1:
+			out = "The maximum of a list is the value that is greater than all other points in that list. <br>";
+			ans = "The maximum of " + list + " is " + getMax(list) + "<br>";
+			break;
+		case 2:
+			ans = "The arithmetic mean of " + list + " is " + getMean(list).toFixed(4) + "<br>";
+			out = "The arithmetic mean of  a set of n numbers {a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>} is the sum of the numbers divided by n: <br>";
+			out += "<table><tr><td>a<sub>1</sub> + a<sub>2</sub> + ... + a<sub>n</sub></td></tr><tr><td><hr></td></tr><tr><td>n</td></tr></table>";
+			break;
+		case 3:
+			out = "The mode of a list of numbers s the number that occurs most frequently in that list. <br>";
+			ans = "The mode of " + list + " is " + getMode(list) + "<br>"
+			break;
+		case 4:
+			out = "The median of a list of n numbers is the number such that just as many numbers are greater than it as are less than it. <br>";
+			ans = "The median of " + list + " is " + getMedian(list)  + "<br>";
+			break;
+		case 5:
+			out = "The standard deviation is used to measure the amount of variation in a list, particularly how close the values are to the mean of that list. It is the square root of the variance of that list. <br>";
+			ans = "The standard deviation of " + list + " is " + getStdDev(list).toFixed(4) + "<br>";
+			break;
+		case 6:
+			out = "The variance is a measure of how widespread a list are likely to be. It is given by fhe following formula: <br>";
+			out += "<table><tr><td>(a<sub>1</sub> - <img src='http://www.learninglover.com/chars/mu.gif'>)<sup>2</sup> + (a<sub>2</sub> - <img src='http://www.learninglover.com/chars/mu.gif'>)<sup>2</sup> + ... + (a<sub>n</sub> - <img src='http://www.learninglover.com/chars/mu.gif'>)<sup>2</sup></td></tr><tr><td><hr></td></tr><tr><td>n</td></tr></table>";
+			out += "where <img src='http://www.learninglover.com/chars/mu.gif'> represents the mean. <br>";
+			ans = "The variance of " + list + " is " + getVarnce(list).toFixed(4) + "<br>";
+			break;
+		case 7:
+			out = "A histogram is a bar diagram wherethe horizontal axis shows different categories of values, and the height of each bar is related to the<br>";
+			out += "number of observations in the corresponding category. ";
+			plotHist2(list);
+			break;
+		case 8:
+			out = "A box-and-whisker plot for a list of numbers consists of a rectangle whose left edge is at the first quartile of the data and whose right edge is at the third quartile, <br>";
+			out += "with a left whisker sticking out to the smallest value, and a right whisker sticking out to the largest value. <br>";
+			plotBoxWhis(list);
+			break;
+		case 9:
+			out = "The coefficient of variation of a set of numbers is equal to the standard deviation for those numbers divided by the mean. <br>";
+			out += "It  indicates how big the dispersion is in comparison to the mean";
+			ans = "The coefficient of variation of " + list + " is " + getCoeffVaf(list).toFixed(4) + "<br>";
+			break;
+		case 10:
+			out = "A stem and leaf plot illustrates the distribution of a group of numbers by arranging the numbers in categories based on the first digit. <br>";
+			plotStemLeaf(list);
+			break;
+		case 11: 
+			out = "The Kurtosis measures how 'peaked' a distribution is."
+			ans = "The Kurtosis of " + list + " is " + getKurt(list).toFixed(4) + "<br>";
+			break;
+		case 12:
+			out = "The Skewness measures how symmetric a distrubtion is."
+			ans = "The Skewness of " + list + " is " + getSkew(list).toFixed(4) + "<br>";
+			break;
+	}
+	
+	document.getElementById('output').innerHTML = out + "<br>" + ans + "<br>";
+}
+
+function getCoeffVaf(list)
+{
+	var dev = getStdDev(list);
+	var mean = getMean(list);
+	
+	var coeff = dev / mean;
+	
+	return coeff;
+}
+
+function getKurt(list)
+{
+    var mean = getMean(list);    
+    var dev = getStdDev(list);
+    
+    var sum = 0;
+    for (var i = 0; i < list.length; i++)
+    {
+		var temp = (list[i] - mean) / dev;
+		sum += Math.pow(temp, 4);
+    }
+    
+    sum /= list.length;
+    
+    return sum;
+}
+
+function getSkew(list)
+{
+    var mean = getMean(list);    
+    var dev = getStdDev(list);
+    
+    var sum = 0;
+    for (var i = 0; i < list.length; i++)
+    {
+		var temp = (list[i] - mean) / dev;
+		sum += Math.pow(temp, 3);
+    }
+    
+    sum /= list.length;
+    
+    return sum;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="descriptive, statistics, stats, script, javascript, mean, media, arithmetic, mode, standard deviation, deviation, variance, coefficient variation, kurtosis, skewness, histogram, box and whisker, stem and leaf, box, whisker, stem, leaf" />
+<meta name="description" content="This page contains a script with tools to help students with aspects of descriptive statistics " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function init()
+{
+	list = new Array();
+	var size = Math.floor(Math.random()*25) + 5;
+	for (var i = 0; i < size; i++)
+	{
+		list[i] = Math.floor(Math.random()*50);
+		var sign = Math.floor(Math.random()*2);
+		if (sign == 0)
+		{
+			sign = -1;
+		}
+		list[i] = list[i] * sign;
+	}
+	
+	var out = "<center><table><tr>";
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		out += "<td>" + list[i] + "</td>";
+	}
+	
+	out += "</tr></table></center>";
+	
+	document.getElementById("input").innerHTML = out;
+	
+	var c = document.getElementById("myCanvas");
+	if (c != null)
+	{
+		var ctx = c.getContext("2d");
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, c.width, c.height);
+		ctx.fill();
+	}
+	
+	return list;
+}
+
+function getMin(list)
+{
+	var minLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (minLoc == -1 || list[i] < list[minLoc])
+		{
+			minLoc = i;
+		}
+	}
+	
+	return list[minLoc];
+}
+
+function getMax(list)
+{
+	var maxLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (maxLoc == -1 || list[i] > list[maxLoc])
+		{
+			maxLoc = i;
+		}
+	}
+	
+	return list[maxLoc];
+}
+
+function getMean(list)
+{
+	var avgVal = 0;
+	for (var i = 0; i < list.length; i++)
+	{
+		avgVal += list[i];
+	}
+	
+	avgVal = avgVal / list.length;
+		
+	return avgVal;
+}
+
+function getMode(list)
+{
+	var temp = sort(list);
+	var counts = new Array();
+	counts[0] = new Array();
+	counts[1] = new Array();
+
+	for (var i = 0; i < temp.length; i++)
+	{
+		if (counts[0].indexOf(temp[i]) == -1)
+		{
+			var loc = counts[0].length;
+			counts[0][loc] = temp[i];
+			counts[1][loc] = 1;
+		}
+		else
+		{
+			var loc = counts[0].indexOf(temp[i]);
+			counts[1][loc] ++;
+		}
+	}
+	
+	var maxLoc = -1;
+	var modes = new Array();
+	for (var i = 0; i < counts[0].length; i++)
+	{
+		if (maxLoc == -1 || counts[1][i] >= counts[1][maxLoc])
+		{
+			maxLoc = i;
+			modes[modes.length] = counts[0][i];
+		}
+	}
+	
+	return modes;
+}
+
+function getMedian(list)
+{
+	var temp = sort(list);
+		
+	return temp[Math.floor(temp.length/2)];
+}
+
+function getStdDev(list)
+{
+	var dev = 0;
+	
+	var mean = getMean(list);
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		dev += (list[i] - mean)*(list[i] - mean);
+	}
+	
+	dev = dev / list.length;
+	dev = Math.sqrt(dev);
+	
+	return dev;
+}
+
+function getVarnce(list)
+{
+	var dev = 0;
+	
+	var mean = getMean(list);
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		dev += (list[i] - mean)*(list[i] - mean);
+	}
+	
+	dev = dev / list.length;
+	
+	return Math.sqrt(dev);
+}	
+
+function plotHist1(list)
+{
+	var temp = sort(list);
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	var counts = new Array();
+	counts[0] = new Array();
+	counts[1] = new Array();
+	
+	for (var i = 0; i < temp.length; i++)
+	{
+		if (counts[0].indexOf(temp[i]) == -1)
+		{
+			var loc = counts[0].length;
+			counts[0][loc] = temp[i];
+			counts[1][loc] = 1;
+		}
+		else
+		{
+			var loc = counts[0].indexOf(temp[i]);
+			counts[1][loc] ++;
+		}
+	}
+	
+	var barWidth = Math.floor(c.width / (counts[0].length + 2));
+	var unitHght = Math.floor(c.height / (getMax(counts[1]) + 2));
+	
+	for (var i = 0; i < counts[0].length; i++)
+	{
+//		document.getElementById("output").innerHTML += "filling " + eval(i*barWidth) + " to " + eval((i+1)*barWidth) + " with height "  + counts[1][i] + "<br>";
+		ctx.fillStyle = "#0033FF";
+		ctx.fillRect(i*barWidth + barWidth/2 + i, c.height - unitHght * counts[1][i] - unitHght, barWidth, unitHght * counts[1][i]);
+		ctx.fillText(counts[0][i], i*barWidth + barWidth + i - 2, c.height - 10);
+		ctx.fill();
+	}
+}
+
+// 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11 
+//-5, -4, -3, -2, -1, -0,  0,  1,  2,  3,  4,  5
+// 5,  5,  5,  5,  5,  5,  6,  6,  6,  6,  6,  6
+
+// I want the point 10 on the x scale to correspond to the minimum in the set of values
+// I want the point 590 on the x scale to correspond to the maximum in the set of values
+// So point 11 should be min + 1 / (max - min)
+
+
+function plotBoxWhis(list)
+{
+	var min = getMin(list);
+	var max = getMax(list);
+	var avg = getMean(list);
+	var quart1 = (max - min) / 4 + min;
+	var quart3 = 3*(max - min) / 4 + min;
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	var scale = (c.width - 20)/ (101);
+	var offset = 10 - -50*scale;
+
+
+	ctx.beginPath();
+	ctx.moveTo(min*scale + offset, c.height / 2);
+	ctx.lineTo(min*scale + offset, c.height / 2 - 20);
+	
+	ctx.moveTo(min*scale + offset, c.height / 2 - 10);
+	ctx.lineTo(quart1*scale + offset, c.height / 2 - 10);
+
+	ctx.moveTo(quart1*scale + offset, c.height/2);
+	ctx.lineTo(quart1*scale + offset, c.height/2 - 20);
+	
+	ctx.moveTo(quart1*scale + offset, c.height/2 - 20);
+	ctx.lineTo(quart3*scale + offset, c.height/2 - 20);
+	
+	ctx.moveTo(quart3*scale + offset, c.height/2 - 20);
+	ctx.lineTo(quart3*scale + offset, c.height/2);
+	
+	ctx.moveTo(quart3*scale + offset, c.height/2);
+	ctx.lineTo(quart1*scale + offset, c.height/2);
+	
+	ctx.moveTo(avg*scale + offset, c.height / 2);
+	ctx.lineTo(avg*scale + offset, c.height / 2 - 20);
+	
+	ctx.moveTo(max*scale + offset, c.height / 2);
+	ctx.lineTo(max*scale + offset, c.height / 2 - 20);
+	
+	ctx.moveTo(max*scale + offset, c.height / 2 - 10);
+	ctx.lineTo(quart3*scale + offset, c.height / 2 - 10);
+	ctx.stroke();
+	
+	ctx.fillStyle = "#000000";
+	ctx.fillText(min, min*scale + offset, c.height / 2 + 20);
+	ctx.fillText(quart1, quart1*scale + offset, c.height / 2 + 20);
+	ctx.fillText(avg.toFixed(4), avg*scale + offset, c.height / 2 + 20);
+	ctx.fillText(quart3, quart3*scale + offset, c.height / 2 + 20);
+	ctx.fillText(max, max*scale + offset, c.height / 2 + 20);
+}
+
+function plotHist2(list)
+{
+	var temp = sort(list);
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	var counts = new Array();
+	counts[0] = new Array();
+	counts[1] = new Array();
+	
+	for (var i = 0; i < temp.length; i++)
+	{
+		if (counts[0].indexOf(temp[i]) == -1)
+		{
+			var loc = counts[0].length;
+			counts[0][loc] = temp[i];
+			counts[1][loc] = 1;
+		}
+		else
+		{
+			var loc = counts[0].indexOf(temp[i]);
+			counts[1][loc] ++;
+		}
+	}
+	
+	var barWidth = Math.floor(c.width / (counts[0].length + 2));
+	var unitHght = Math.floor(c.height / (getMax(counts[1]) + 2));
+	var clr = new Array();
+	for (var j = 0; j < 6; j++)
+	{
+		clr[j] = Math.floor(Math.random()*16);
+		if (clr[j] == 10)
+		{
+			clr[j] = "A"
+		}
+		else if (clr[j] == 11)
+		{
+			clr[j] = "B"
+		}
+		else if (clr[j] == 12)
+		{
+			clr[j] = "C"
+		}
+		else if (clr[j] == 13)
+		{
+			clr[j] = "D"
+		}
+		else if (clr[j] == 14)
+		{
+			clr[j] = "E"
+		}
+		else if (clr[j] == 15)
+		{
+			clr[j] = "F"
+		}
+	}
+	
+	for (var i = 0; i < counts[0].length; i++)
+	{	
+		ctx.fillStyle = "#" + clr[0] + clr[1] + clr[2] + clr[3] + clr[4] + clr[5];
+		ctx.fillRect(i*barWidth + barWidth/2 + i, c.height - unitHght * counts[1][i] - unitHght, barWidth, unitHght * counts[1][i]);
+		ctx.fillText(counts[0][i], i*barWidth + barWidth + i - 2, c.height - 10);
+		ctx.fill();
+	}
+}
+
+function sort(list)
+{
+	var temp = new Array();
+	for (var i = 0; i < list.length; i++)
+	{
+		temp[i] = list[i];
+	}
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			if (temp[i] < temp[j])
+			{
+				var temp2 = temp[i];
+				temp[i] = temp[j];
+				temp[j] = temp2;
+			}
+		}
+	}
+	
+	return temp;
+}
+
+function plotStemLeaf(list)
+{
+	var plot = new Object();
+	plot.left = new Array();
+	plot.right = new Array();
+	
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fillStyle = "#000000";
+	ctx.font = "14px Arial";
+	var loc;
+	var out = new Array();
+	
+	list = sort(list);
+
+	for (var i = 0; i < list.length; i++)
+	{
+		if (Math.floor(list[i] / 10) >= 0)
+		{
+			if (plot.left.indexOf(Math.floor(list[i] / 10)) == -1)
+			{
+				plot.left[plot.left.length] = Math.floor(list[i] / 10);
+				loc = plot.left.length-1;
+			}
+		}
+		else if (Math.floor(list[i]) < 0 && Math.floor(list[i]) > -10)
+		{
+			if (plot.left.indexOf("-0") == -1)
+			{
+				plot.left[plot.left.length] = "-0";
+				loc = plot.left.length-1;
+			}
+		}
+		else
+		{
+			if (plot.left.indexOf(Math.ceil(list[i] / 10)) == -1)
+			{
+				plot.left[plot.left.length] = Math.ceil(list[i] / 10);
+				loc = plot.left.length-1;
+			}
+		}
+		
+		// Now we're sure that the left index is in the left array of the plot object. 
+		
+		if (!Array.isArray(plot.right[loc]))
+		{
+			plot.right[loc] = new Array();
+			plot.right[loc][0] = Math.floor(list[i] % 10);
+		}
+		else
+		{
+			var temp = plot.right[loc].length;
+			plot.right[loc][temp] = Math.floor(list[i] % 10);
+		}
+	}
+	
+	var vgap = c.height - 16 * plot.left.length;
+
+	for (var i = 0; i < plot.left.length; i++)
+	{
+		ctx.fillText(plot.left[i] + "|" + plot.right[i], 20, vgap/2 + 18*i);
+	}
+}
+
+function process()
+{
+	var cmd = parseInt(document.getElementById("doWhat").value);
+	var ans = "";
+	var out = "";
+	switch (cmd)
+	{
+		case 0:
+			out = "The minimum of a list is the value that is less than all other points in that list. <br>";
+			ans = "The minimum of " + list + " is " + getMin(list) + "<br>";
+			break;
+		case 1:
+			out = "The maximum of a list is the value that is greater than all other points in that list. <br>";
+			ans = "The maximum of " + list + " is " + getMax(list) + "<br>";
+			break;
+		case 2:
+			ans = "The arithmetic mean of " + list + " is " + getMean(list).toFixed(4) + "<br>";
+			out = "The arithmetic mean of  a set of n numbers {a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>} is the sum of the numbers divided by n: <br>";
+			out += "<table><tr><td>a<sub>1</sub> + a<sub>2</sub> + ... + a<sub>n</sub></td></tr><tr><td><hr></td></tr><tr><td>n</td></tr></table>";
+			break;
+		case 3:
+			out = "The mode of a list of numbers s the number that occurs most frequently in that list. <br>";
+			ans = "The mode of " + list + " is " + getMode(list) + "<br>"
+			break;
+		case 4:
+			out = "The median of a list of n numbers is the number such that just as many numbers are greater than it as are less than it. <br>";
+			ans = "The median of " + list + " is " + getMedian(list)  + "<br>";
+			break;
+		case 5:
+			out = "The standard deviation is used to measure the amount of variation in a list, particularly how close the values are to the mean of that list. It is the square root of the variance of that list. <br>";
+			ans = "The standard deviation of " + list + " is " + getStdDev(list).toFixed(4) + "<br>";
+			break;
+		case 6:
+			out = "The variance is a measure of how widespread a list are likely to be. It is given by fhe following formula: <br>";
+			out += "<table><tr><td>(a<sub>1</sub> - <img src='http://www.learninglover.com/chars/mu.gif'>)<sup>2</sup> + (a<sub>2</sub> - <img src='http://www.learninglover.com/chars/mu.gif'>)<sup>2</sup> + ... + (a<sub>n</sub> - <img src='http://www.learninglover.com/chars/mu.gif'>)<sup>2</sup></td></tr><tr><td><hr></td></tr><tr><td>n</td></tr></table>";
+			out += "where <img src='http://www.learninglover.com/chars/mu.gif'> represents the mean. <br>";
+			ans = "The variance of " + list + " is " + getVarnce(list).toFixed(4) + "<br>";
+			break;
+		case 7:
+			out = "A histogram is a bar diagram wherethe horizontal axis shows different categories of values, and the height of each bar is related to the<br>";
+			out += "number of observations in the corresponding category. ";
+			plotHist2(list);
+			break;
+		case 8:
+			out = "A box-and-whisker plot for a list of numbers consists of a rectangle whose left edge is at the first quartile of the data and whose right edge is at the third quartile, <br>";
+			out += "with a left whisker sticking out to the smallest value, and a right whisker sticking out to the largest value. <br>";
+			plotBoxWhis(list);
+			break;
+		case 9:
+			out = "The coefficient of variation of a set of numbers is equal to the standard deviation for those numbers divided by the mean. <br>";
+			out += "It  indicates how big the dispersion is in comparison to the mean";
+			ans = "The coefficient of variation of " + list + " is " + getCoeffVaf(list).toFixed(4) + "<br>";
+			break;
+		case 10:
+			out = "A stem and leaf plot illustrates the distribution of a group of numbers by arranging the numbers in categories based on the first digit. <br>";
+			plotStemLeaf(list);
+			break;
+		case 11: 
+			out = "The Kurtosis measures how 'peaked' a distribution is."
+			ans = "The Kurtosis of " + list + " is " + getKurt(list).toFixed(4) + "<br>";
+			break;
+		case 12:
+			out = "The Skewness measures how symmetric a distrubtion is."
+			ans = "The Skewness of " + list + " is " + getSkew(list).toFixed(4) + "<br>";
+			break;
+	}
+	
+	document.getElementById('output').innerHTML = out + "<br>" + ans + "<br>";
+}
+
+function getCoeffVaf(list)
+{
+	var dev = getStdDev(list);
+	var mean = getMean(list);
+	
+	var coeff = dev / mean;
+	
+	return coeff;
+}
+
+function getKurt(list)
+{
+    var mean = getMean(list);    
+    var dev = getStdDev(list);
+    
+    var sum = 0;
+    for (var i = 0; i < list.length; i++)
+    {
+		var temp = (list[i] - mean) / dev;
+		sum += Math.pow(temp, 4);
+    }
+    
+    sum /= list.length;
+    
+    return sum;
+}
+
+function getSkew(list)
+{
+    var mean = getMean(list);    
+    var dev = getStdDev(list);
+    
+    var sum = 0;
+    for (var i = 0; i < list.length; i++)
+    {
+		var temp = (list[i] - mean) / dev;
+		sum += Math.pow(temp, 3);
+    }
+    
+    sum /= list.length;
+    
+    return sum;
+}
+</script>
+<h3><center></center></h3>
+<p></p>
+<p name="input" id="input"></p>
+<script type="text/javascript">
+var list = init();
+</script>
+<center>
+<select name="doWhat" id="doWhat">
+  <option value="0">Find Minimum</option>
+  <option value="1">Find Maximum</option>
+  <option value="2">Find Arithmetic Mean</option>
+  <option value="3">Find Mode</option>
+  <option value="4">Find Median</option>
+  <option value="5">Find Standard Deviation</option>
+  <option value="9">Find Coefficient of Variation</option>
+  <option value="6">Find Variance</option>
+  <option value="11">Find Kurtosis</option>
+  <option value="12">Find Skewness</option>
+  <option value="7">Plot Histogram</option>
+  <option value="8">Plot Box-and-Whisker</option>
+  <option value="10">Plot Stem-Leaf</option>
+</select><br>
+<input type="button" value="Process" onClick="process()"><br>
+<input type="button" value="New Data" onClick="list = init()"><br>
+<p name="output" id="output"></p>
+<canvas name="myCanvas" id="myCanvas" width="500" height="200" style="border:1px solid #d3d3d3;"></canvas>
+</center>

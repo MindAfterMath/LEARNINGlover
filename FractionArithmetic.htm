@@ -1,0 +1,402 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+FractionArithmetic<style>
+td {border-style:none; text-align:center}
+td.frac {border-bottom-style:solid; text-align:cnter}
+td.none {border-bottom-style:none; text-align:center}
+</style>
+<script type="text/javascript">
+function sum(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	var text = "";
+	ans[0] = num1*den2 + den1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked)
+	{
+		text += "<table><tr><td class='none'>The formula to add two fractions of the form </td><td class='none'><table><tr><td class='frac'> a </td></tr><tr><td class='none'> b </td></tr></table></td><td class='none'> + </td><td class='none'><table><tr><td class='frac'> c </td></tr><tr><td class='none'> d </td></tr></table></td><td class='none'> is </td><td class='none'><table><tr><td class='frac'>a*d + b*c </td></tr><tr><td class='none'> b*d </td></tr></table></td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> + </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + num1 + "*" + den2 + " + " + den1 + "*" + num2 + "</td></tr><tr><td class='none'>" + den1 + "*" + den2 + "</td></tr></table></td><td class='none'><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	
+	text += "<table><tr><td class='none'>So </td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> + </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+		
+	document.getElementById("output").innerHTML = text;
+	return ans;
+}
+
+function diff(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	var text = "";
+	ans[0] = num1*den2 - den1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked)
+	{
+		text += "<table><tr><td class='none'>The formula to subtract two fractions of the form </td><td class='none'><table><tr><td class='frac'> a </td></tr><tr><td class='none'> b </td></tr></table></td><td class='none'> - </td><td class='none'><table><tr><td class='frac'> c </td></tr><tr><td class='none'> d </td></tr></table></td><td class='none'> is </td><td class='none'><table><tr><td class='frac'>a*d - b*c </td></tr><tr><td class='none'> b*d </td></tr></table></td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> - </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + num1 + "*" + den2 + " - " + den1 + "*" + num2 + "</td></tr><tr><td class='none'>" + den1 + "*" + den2 + "</td></tr></table></td><td class='none'><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	
+	text += "<table><tr><td class='none'>So </td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> - </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+		
+	document.getElementById("output").innerHTML = text;
+	return ans;
+}
+
+function prod(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	var text = "";
+	ans[0] = num1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked)
+	{
+		text += "<table><tr><td class='none'>The formula to multiply two fractions of the form </td><td class='none'><table><tr><td class='frac'> a </td></tr><tr><td class='none'> b </td></tr></table></td><td class='none'> * </td><td class='none'><table><tr><td class='frac'> c </td></tr><tr><td class='none'> d </td></tr></table></td><td class='none'> is </td><td class='none'><table><tr><td class='frac'>a*c </td></tr><tr><td class='none'> b*d </td></tr></table></td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> * </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + num1 + "*" + num2 + "</td></tr><tr><td class='none'>" + den1 + "*" + den2 + "</td></tr></table></td><td class='none'><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	
+	text += "<table><tr><td class='none'>So </td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> * </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+		
+	document.getElementById("output").innerHTML = text;
+	return ans;
+}
+
+function quot(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	var text = "";
+	ans[0] = num1*den2;
+	ans[1] = num2*den1;
+
+	if (document.getElementById("show").checked)
+	{
+		text += "<table><tr><td class='none'>The formula to divide two fractions of the form </td><td class='none'><table><tr><td class='frac'> a </td></tr><tr><td class='none'> b </td></tr></table></td><td class='none'> / </td><td class='none'><table><tr><td class='frac'> c </td></tr><tr><td class='none'> d </td></tr></table></td><td class='none'> is </td><td class='none'><table><tr><td class='frac'>a*d</td></tr><tr><td class='none'>b*c</td></tr></table></td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> / </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + num1 + "*" + den2 + "</td></tr><tr><td class='none'>" + den1 + "*" + num2 + "</td></tr></table></td><td class='none'><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	
+	text += "<table><tr><td class='none'>So </td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> / </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+		
+	document.getElementById("output").innerHTML = text;
+	return ans;
+}
+
+
+function gcd(u, v)
+{
+ 	if (v == 0)
+		return u;
+	else
+ 	{
+		return gcd(v, u % v);
+	}
+}
+
+function clr()
+{
+	document.getElementById("input").innerHTML = "";
+	document.getElementById("output").innerHTML = "";
+}
+
+function init()
+{
+	var ans = new Array();
+	ans[0] = Math.floor(Math.random()*20)+1;
+	ans[1] = Math.floor(Math.random()*20)+1;
+	ans[2] = Math.floor(Math.random()*20)+1;
+	ans[3] = Math.floor(Math.random()*20)+1;
+
+	ans[4] = Math.floor(Math.random()*4);
+	
+	switch (ans[4])
+	{
+	case 0:
+		document.getElementById("input").innerHTML += "<table><tr><td class='none'>What is </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[2] + "</td></tr></table></td><td class='none'> + </td><td class='none'><table><tr><td class='frac'>" + ans[1] + "</td></tr><tr><td class='none'>" + ans[3] + "</td></tr></table></td><td class='none'></td></tr></table>";
+		break;
+	case 1:
+		document.getElementById("input").innerHTML += "<table><tr><td class='none'>What is </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[2] + "</td></tr></table></td><td class='none'> - </td><td class='none'><table><tr><td class='frac'>" + ans[1] + "</td></tr><tr><td class='none'>" + ans[3] + "</td></tr></table></td><td class='none'></td></tr></table>";
+		break;
+	case 2:
+		document.getElementById("input").innerHTML += "<table><tr><td class='none'>What is </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[2] + "</td></tr></table></td><td class='none'> * </td><td class='none'><table><tr><td class='frac'>" + ans[1] + "</td></tr><tr><td class='none'>" + ans[3] + "</td></tr></table></td><td class='none'></td></tr></table>";
+		break;
+	case 3:
+		document.getElementById("input").innerHTML += "<table><tr><td class='none'>What is </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[2] + "</td></tr></table></td><td class='none'> / </td><td class='none'><table><tr><td class='frac'>" + ans[1] + "</td></tr><tr><td class='none'>" + ans[3] + "</td></tr></table></td><td class='none'></td></tr></table>";
+		break;
+	}
+
+	return ans;
+}
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="addition, algorithm, common denominator, denominator, difference, division, divisors, formula, fraction, JavaScript, learning, math, mathematics, multiplication, numerator, product, quotient, script,  subtraction, sum" />
+
+<meta name="description" content="This script helps users understand arithmetic with fractions. " />
+
+<title> at LEARNINGlover.com</title>
+<style>
+td {border-style:none; text-align:center}
+td.frac {border-bottom-style:solid; text-align:cnter}
+td.none {border-bottom-style:none; text-align:center}
+</style>
+<script type="text/javascript">
+function sum(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	var text = "";
+	ans[0] = num1*den2 + den1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked)
+	{
+		text += "<table><tr><td class='none'>The formula to add two fractions of the form </td><td class='none'><table><tr><td class='frac'> a </td></tr><tr><td class='none'> b </td></tr></table></td><td class='none'> + </td><td class='none'><table><tr><td class='frac'> c </td></tr><tr><td class='none'> d </td></tr></table></td><td class='none'> is </td><td class='none'><table><tr><td class='frac'>a*d + b*c </td></tr><tr><td class='none'> b*d </td></tr></table></td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> + </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + num1 + "*" + den2 + " + " + den1 + "*" + num2 + "</td></tr><tr><td class='none'>" + den1 + "*" + den2 + "</td></tr></table></td><td class='none'><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	
+	text += "<table><tr><td class='none'>So </td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> + </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+		
+	document.getElementById("output").innerHTML = text;
+	return ans;
+}
+
+function diff(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	var text = "";
+	ans[0] = num1*den2 - den1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked)
+	{
+		text += "<table><tr><td class='none'>The formula to subtract two fractions of the form </td><td class='none'><table><tr><td class='frac'> a </td></tr><tr><td class='none'> b </td></tr></table></td><td class='none'> - </td><td class='none'><table><tr><td class='frac'> c </td></tr><tr><td class='none'> d </td></tr></table></td><td class='none'> is </td><td class='none'><table><tr><td class='frac'>a*d - b*c </td></tr><tr><td class='none'> b*d </td></tr></table></td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> - </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + num1 + "*" + den2 + " - " + den1 + "*" + num2 + "</td></tr><tr><td class='none'>" + den1 + "*" + den2 + "</td></tr></table></td><td class='none'><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	
+	text += "<table><tr><td class='none'>So </td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> - </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+		
+	document.getElementById("output").innerHTML = text;
+	return ans;
+}
+
+function prod(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	var text = "";
+	ans[0] = num1*num2;
+	ans[1] = den1*den2;
+
+	if (document.getElementById("show").checked)
+	{
+		text += "<table><tr><td class='none'>The formula to multiply two fractions of the form </td><td class='none'><table><tr><td class='frac'> a </td></tr><tr><td class='none'> b </td></tr></table></td><td class='none'> * </td><td class='none'><table><tr><td class='frac'> c </td></tr><tr><td class='none'> d </td></tr></table></td><td class='none'> is </td><td class='none'><table><tr><td class='frac'>a*c </td></tr><tr><td class='none'> b*d </td></tr></table></td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> * </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + num1 + "*" + num2 + "</td></tr><tr><td class='none'>" + den1 + "*" + den2 + "</td></tr></table></td><td class='none'><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	
+	text += "<table><tr><td class='none'>So </td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> * </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+		
+	document.getElementById("output").innerHTML = text;
+	return ans;
+}
+
+function quot(num1, den1, num2, den2)
+{
+	var ans = new Array();
+	var text = "";
+	ans[0] = num1*den2;
+	ans[1] = num2*den1;
+
+	if (document.getElementById("show").checked)
+	{
+		text += "<table><tr><td class='none'>The formula to divide two fractions of the form </td><td class='none'><table><tr><td class='frac'> a </td></tr><tr><td class='none'> b </td></tr></table></td><td class='none'> / </td><td class='none'><table><tr><td class='frac'> c </td></tr><tr><td class='none'> d </td></tr></table></td><td class='none'> is </td><td class='none'><table><tr><td class='frac'>a*d</td></tr><tr><td class='none'>b*c</td></tr></table></td><td class='none'>, which equals </td></tr></table>";
+		text += "<table><tr><td class='none'></td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> / </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + num1 + "*" + den2 + "</td></tr><tr><td class='none'>" + den1 + "*" + num2 + "</td></tr></table></td><td class='none'><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+	}
+	
+	var common = gcd(ans[0], ans[1]);
+	var rem0 = ans[0] / common;
+	var rem1 = ans[1] / common;
+	if (common != 1 && document.getElementById("show").checked)
+	{
+		text += ans[0] + " = <b>" + common + "</b> * " + rem0 + " and ";
+		text += ans[1] + " = <b>" + common + "</b> * " + rem1 + "<br>";
+	}
+	ans[0] = ans[0] / common;
+	ans[1] = ans[1] / common;
+	
+	text += "<table><tr><td class='none'>So </td><td class='none'><table><tr><td class='frac'>" + num1 + "</td></tr><tr><td class='none'>" + den1 + "</td></tr></table></td><td class='none'> / </td><td class='none'><table><tr><td class='frac'>" + num2 + "</td></tr><tr><td class='none'>" + den2 + "</td></tr></table></td><td class='none'> = </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[1] + "</td></tr></table></td><td class='none'> </td></tr></table>";
+		
+	document.getElementById("output").innerHTML = text;
+	return ans;
+}
+
+
+function gcd(u, v)
+{
+ 	if (v == 0)
+		return u;
+	else
+ 	{
+		return gcd(v, u % v);
+	}
+}
+
+function clr()
+{
+	document.getElementById("input").innerHTML = "";
+	document.getElementById("output").innerHTML = "";
+}
+
+function init()
+{
+	var ans = new Array();
+	ans[0] = Math.floor(Math.random()*20)+1;
+	ans[1] = Math.floor(Math.random()*20)+1;
+	ans[2] = Math.floor(Math.random()*20)+1;
+	ans[3] = Math.floor(Math.random()*20)+1;
+
+	ans[4] = Math.floor(Math.random()*4);
+	
+	switch (ans[4])
+	{
+	case 0:
+		document.getElementById("input").innerHTML += "<table><tr><td class='none'>What is </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[2] + "</td></tr></table></td><td class='none'> + </td><td class='none'><table><tr><td class='frac'>" + ans[1] + "</td></tr><tr><td class='none'>" + ans[3] + "</td></tr></table></td><td class='none'></td></tr></table>";
+		break;
+	case 1:
+		document.getElementById("input").innerHTML += "<table><tr><td class='none'>What is </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[2] + "</td></tr></table></td><td class='none'> - </td><td class='none'><table><tr><td class='frac'>" + ans[1] + "</td></tr><tr><td class='none'>" + ans[3] + "</td></tr></table></td><td class='none'></td></tr></table>";
+		break;
+	case 2:
+		document.getElementById("input").innerHTML += "<table><tr><td class='none'>What is </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[2] + "</td></tr></table></td><td class='none'> * </td><td class='none'><table><tr><td class='frac'>" + ans[1] + "</td></tr><tr><td class='none'>" + ans[3] + "</td></tr></table></td><td class='none'></td></tr></table>";
+		break;
+	case 3:
+		document.getElementById("input").innerHTML += "<table><tr><td class='none'>What is </td><td class='none'><table><tr><td class='frac'>" + ans[0] + "</td></tr><tr><td class='none'>" + ans[2] + "</td></tr></table></td><td class='none'> / </td><td class='none'><table><tr><td class='frac'>" + ans[1] + "</td></tr><tr><td class='none'>" + ans[3] + "</td></tr></table></td><td class='none'></td></tr></table>";
+		break;
+	}
+
+	return ans;
+}
+</script>
+
+<h3><center></center></h3>
+<p>To add two fractions of the form
+<table style="width:76px">
+<tr>
+<td><table><tr><td style="border-bottom: solid;">num<sub>1</sub></td></tr><tr><td>den<sub>1</sub></td></tr></table></td>
+<td>+</td>
+<td><table><tr><td style="border-bottom: solid;">num<sub>2</sub></td></tr><tr><td>den<sub>2</sub></td></tr></table></td>
+</tr>
+</table>
+We use the formula
+
+<table>
+<tr>
+<td><table><tr><td style="border-bottom: solid;">num<sub>1</sub></td></tr><tr><td>den<sub>1</sub></td></tr></table></td>
+<td>+</td>
+<td><table><tr><td style="border-bottom: solid;">num<sub>2</sub></td></tr><tr><td>den<sub>2</sub></td></tr></table></td>
+<td>=</td>
+</tr>
+<tr>
+<td colspan=4><table><tr><td style="border-bottom: solid;">num<sub>1</sub>*den<sub>2</sub> + num<sub>2</sub>*den<sub>1</sub></td></tr><tr><td>den<sub>1</sub>*den<sub>2</sub></td></tr></table></td>
+</tr>
+</table>
+
+To multiply two fractions (also known as taking the product of two fractions), the resulting numerator is the product of the two initial numerators, and likewise the resulting denominator is the product of the two initial denominators. 
+
+<table>
+<tr>
+<td><table><tr><td style="border-bottom: solid;">num<sub>1</sub></td></tr><tr><td>den<sub>1</sub></td></tr></table></td>
+<td>*</td>
+<td><table><tr><td style="border-bottom: solid;">num<sub>2</sub></td></tr><tr><td>den<sub>2</sub></td></tr></table></td>
+<td>=</td>
+</tr>
+<tr>
+<td colspan=2><table><tr><td style="border-bottom: solid;">num<sub>1</sub>*num<sub>2</sub></td></tr><tr><td>den<sub>1</sub>*den<sub>2</sub></td></tr></table></td>
+<td></td><td></td>
+</tr>
+</table></p>
+<p name="input" id="input"></p>
+<form>
+Show Work <input type=checkbox id="show"><br>
+<input type="button" value="Calculate" onclick="if (prob[4] == 0)	sum(prob[0], prob[2], prob[1], prob[3]);else if (prob[4] == 1)	diff(prob[0], prob[2], prob[1], prob[3]);else if (prob[4] == 2)	prod(prob[0], prob[2], prob[1], prob[3]);else if (prob[4] == 3)	quot(prob[0], prob[2], prob[1], prob[3]);"><br>
+<input type="button" value="New Problem" onclick="clr();prob = init();"><br>
+</form>
+<p name="output" id="output"></p>
+<script type="text/javascript">
+var prob = init();
+</script>

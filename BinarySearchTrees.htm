@@ -1,0 +1,1294 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+BinarySearchTrees<script type="text/javascript">
+var t;
+function buildBST(set)
+{
+	var head = null;
+	var i;
+	for (i = 0; i < set.length; i++)
+	{
+		head = insert(head, set[i]);
+	}
+	
+	var text = inorder(head);
+	var loc1 = 2; 
+	var loc2 = 0;
+	while (loc2 != -1)
+	{
+		loc2 = text.indexOf(")", loc1+1);
+		if (loc2 != -1)
+		{
+			var temp = text.substring(loc1, loc2);
+			document.getElementById("set").options[document.getElementById("set").options.length] = new Option(temp, temp);
+			loc1 = loc2+3;
+		}
+	}
+	
+	document.getElementById("set").hidden = false;
+	document.getElementById("pset").hidden = false;
+	document.getElementById("alg").options[1].hidden = false;
+	document.getElementById("alg").options[2].hidden = false;
+	document.getElementById("alg").options[3].hidden = false;
+	document.getElementById("alg").options[4].hidden = false;
+	document.getElementById("alg").options[5].hidden = false;
+	document.getElementById("alg").options[6].hidden = false;
+	document.getElementById("alg").options[7].hidden = false;
+	document.getElementById("alg").options[8].hidden = false;
+		
+	return head;
+}
+
+function clearRect(head)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	if (head != null)
+		head.drawn = false;
+	if (head != null && head.left != null && head.right != null)
+	{
+		head.left = clearRect(head.left);
+		head.right = clearRect(head.right);
+	}
+	else if (head != null && head.left == null && head.right != null)
+	{
+		head.right = clearRect(head.right);
+	}
+	else if (head != null && head.left != null && head.right == null)
+	{
+		head.left = clearRect(head.left);
+	}
+	
+	return head;
+}
+
+function concat(array1, array2)
+{
+	var i;
+	for (i = 0; i < array2.length; i++)
+		array1[array1.length] = array2[i];
+		
+	return array1;
+}
+
+function count(set, elmnt)
+{
+	var i;
+	var ans = 0;
+
+	for (i = 0; i < set.length; i++)
+
+	if (set[i] == elmnt)
+			ans++;
+
+	return ans;
+}
+
+function depth(head)
+{
+	var ans = 1;
+	
+	if (head != null)
+	{
+		var temp1 = depth(head.left);
+		var temp2 = depth(head.right);
+		if (temp1 > temp2)
+			ans += temp1;
+		else
+			ans += temp2;
+	}
+	else
+		ans = 0;
+		
+	return ans;
+}
+
+function draw(head)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var i;
+
+	if (head != null && head.left == null && head.right == null && head.drawn == false)
+	{
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.arc(head.xval, head.yval, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+		ctx.fillStyle = "#000000";
+		ctx.font = "10px Arial";
+		head.drawn = true;
+				
+		if (head.value != 0)
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(head.value)/Math.log(10))+1), head.yval+4);
+		else
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(1)/Math.log(10))+1), head.yval+4);
+	}
+	else if (head != null && head.left != null && head.right == null && head.drawn == false)
+	{
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.arc(head.xval, head.yval, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+		ctx.fillStyle = "#000000";
+		ctx.font = "10px Arial";
+		head.drawn = true;
+
+		ctx.lineWidth = 1;
+
+		ctx.strokeStyle = "#00FF00";
+		ctx.beginPath();
+		ctx.moveTo(head.xval, head.yval+10);
+		ctx.lineTo(head.left.xval, head.left.yval-10);
+		ctx.stroke();
+
+		if (head.value != 0)
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(head.value)/Math.log(10))+1), head.yval+4);
+		else
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(1)/Math.log(10))+1), head.yval+4);
+
+		t = draw(head.left);
+	}
+	else if (head != null && head.left == null && head.right != null && head.drawn == false)
+	{
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.arc(head.xval, head.yval, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+		ctx.fillStyle = "#000000";
+		ctx.font = "10px Arial";
+		head.drawn = true;
+
+		ctx.lineWidth = 1;
+
+		ctx.strokeStyle = "#00FF00";
+		ctx.beginPath();
+		ctx.moveTo(head.xval, head.yval+10);
+		ctx.lineTo(head.right.xval, head.right.yval-10);
+		ctx.stroke();
+
+		if (head.value != 0)
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(head.value)/Math.log(10))+1), head.yval+4);
+		else
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(1)/Math.log(10))+1), head.yval+4);
+
+		t = draw(head.right);
+	}
+	else if (head != null && head.left != null && head.right != null && head.drawn == false)
+	{
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.arc(head.xval, head.yval, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+		head.drawn = true;
+
+		ctx.lineWidth = 1;
+
+		ctx.strokeStyle = "#00FF00";
+		ctx.beginPath();
+		ctx.moveTo(head.xval, head.yval+10);
+		ctx.lineTo(head.left.xval, head.left.yval-10);
+		ctx.stroke();
+
+		ctx.strokeStyle = "#00FF00";
+		ctx.beginPath();
+		ctx.moveTo(head.xval, head.yval+10);
+		ctx.lineTo(head.right.xval, head.right.yval-10);
+		ctx.stroke();
+		
+		ctx.fillStyle = "#000000";
+
+		if (head.value != 0)
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(head.value)/Math.log(10))+1), head.yval+4);
+		else
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(1)/Math.log(10))+1), head.yval+4);
+			
+		t = draw(head.left);
+		t = draw(head.right);
+	}
+
+	return t;
+}
+
+function generate(n)
+{
+	var A = new Array();
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*100);
+		if (linsear(A, next) == -1)
+			A[A.length] = next;
+		else 
+			i--;
+	}
+
+	return A;
+}
+
+function getLeafs(tree)
+{
+	var leafs = new Array();
+	
+	if (tree != null)
+	{
+		if (tree.left == null && tree.right == null)
+			leafs[leafs.length] = tree.value;
+		else if (tree.left != null && tree.right != null)
+		{
+			leafs = concat(leafs, getLeafs(tree.left));
+			leafs = concat(leafs, getLeafs(tree.right));
+		}
+		else if (tree.left != null)
+			leafs = concat(leafs, getLeafs(tree.left));
+		else if (tree.right != null)
+			leafs = concat(leafs, getLeafs(tree.right));
+	}
+	
+	return leafs;
+}
+
+function init(curr, k1)
+{
+	curr = generate(k1);
+	var next;
+	do 
+	{
+		next = Math.floor((Math.random())*100);
+	} while(search(curr, next));
+	
+	document.getElementById("next").value = next;
+
+	var text = "set = {";
+	for (var i = 0; i < curr.length; i++)
+	{
+		if (i < curr.length - 1)
+			text += curr[i] + ", ";
+		else
+			text += curr[i];
+	}
+	text += "}<br>";
+
+	document.getElementById("list").innerHTML = text;
+	return curr;
+}
+
+function inorder(head)
+{
+	var text = "";
+	if (head != null)
+		text += inorder(head.left) + "(" + head.value + ")" + inorder(head.right);
+	else
+		text += ".";
+		
+	return text;
+}
+
+function insert(head, elmnt)
+{
+	if (head != null)
+	{
+		if (elmnt > head.value)
+		{
+			head.right = insert(head.right, elmnt);
+			head.right.parent = head;
+		}
+		else if (elmnt < head.value)
+		{
+			head.left = insert(head.left, elmnt);
+			head.left.parent = head;
+		}
+		else
+			alert("Element is already present.");
+	}
+	else
+	{
+		head = new Object();
+		head.value = elmnt;
+		head.left = null;
+		head.right = null;
+		head.drawn = false;
+		head.parent = null;
+	}
+	
+	return head;
+}
+
+function linsear(set, elmnt)
+{
+	var i;
+	var ans = -1;
+
+	for (i = 0; i < set.length && ans == -1; i++)
+		if (set[i] == elmnt)
+			ans = i;
+
+	return ans;
+}
+
+function maxValue(head)
+{
+	var ans = null;
+	if (head != null)
+	{
+		ans = head.value;
+		if (head.right != null)
+			ans = maxValue(head.right);
+	}
+	
+	return ans;
+}
+
+function minValue(head)
+{
+	var ans = null;
+	if (head != null)
+	{
+		ans = head.value;
+		if (head.left != null)
+			ans = minValue(head.left);
+	}
+	
+	return ans;
+}
+
+function operate(curr)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var orig = 50;
+	var maxim = c.width - 50;
+	var leafs;
+
+	if (document.getElementById("alg").value == 0)
+	{
+		if (document.getElementById("alg").options[1].hidden == true)
+		{
+			curr = clearRect(curr);
+			curr = buildBST(curr);
+			leafs = getLeafs(curr);
+			var incr = (maxim - orig) / (leafs.length);
+			curr = setXCrds(curr, leafs, incr);
+			curr = setYCrds(curr);
+			draw(curr);
+		}
+	}
+
+ 	if (document.getElementById("alg").value == 1)
+	{
+		curr = clearRect(curr);
+ 		curr = insert(curr, document.getElementById("next").value);
+		var next;
+		do 
+		{
+			next = Math.floor((Math.random())*100);
+		} while(search(curr, next));
+	
+		document.getElementById("next").value = next;
+		leafs = getLeafs(curr);
+		var incr = (maxim - orig) / (leafs.length);
+		curr = setXCrds(curr, leafs, incr);
+		curr = setYCrds(curr);
+		draw(curr);
+		var text = inorder(curr);
+		var loc1 = 2; 
+		var loc2 = 0;
+		document.getElementById("set").options.length = 0;
+		while (loc2 != -1)
+		{
+			loc2 = text.indexOf(")", loc1+1);
+			if (loc2 != -1)
+			{
+				var temp = text.substring(loc1, loc2);
+				document.getElementById("set").options[document.getElementById("set").options.length] = new Option(temp, temp);
+				loc1 = loc2+3;
+			}
+		}
+	}
+ 	else if (document.getElementById("alg").value == 2)
+	{
+		curr = clearRect(curr);
+ 		curr = remove(curr, document.getElementById("set").value);
+		leafs = getLeafs(curr);
+		var incr = Math.floor((maxim - orig) / (leafs.length));
+		curr = setXCrds(curr, leafs, incr)
+		curr = setYCrds(curr);
+		draw(curr);
+		var text = inorder(curr);
+		var loc1 = 2; 
+		var loc2 = 0;
+		document.getElementById("set").options.length = 0;
+		while (loc2 != -1)
+		{
+			loc2 = text.indexOf(")", loc1+1);
+			if (loc2 != -1)
+			{
+				var temp = text.substring(loc1, loc2);
+				document.getElementById("set").options[document.getElementById("set").options.length] = new Option(temp, temp);
+				loc1 = loc2+3;
+			}
+		}
+	}
+
+	else if (document.getElementById("alg").value == 3)
+		document.getElementById("output").innerHTML = "The depth of this tree is currently " + depth(curr) + "<br>";
+
+	else if (document.getElementById("alg").value == 4)
+		document.getElementById("output").innerHTML = "The maximum value of this tree is currently " + maxValue(curr) + "<br>";
+		
+	else if (document.getElementById("alg").value == 5)
+		document.getElementById("output").innerHTML = "The minimum value of this tree is currently " + minValue(curr) + "<br>";
+
+	else if (document.getElementById("alg").value == 6)
+		document.getElementById("output").innerHTML = "The preorder traversal of this tree is <br>" + preorder(curr);
+		
+	else if (document.getElementById("alg").value == 7)
+		document.getElementById("output").innerHTML = "The inorder traversal of this tree is <br>" + inorder(curr);
+
+	else if (document.getElementById("alg").value == 8)
+		document.getElementById("output").innerHTML = "The postorder traversal of this tree is <br>" + postorder(curr);
+
+  	return curr;
+}
+
+function postorder(head)
+{
+	var text = "";
+	if (head != null)
+		text += postorder(head.left) + postorder(head.right) + "(" + head.value + ")";
+	else
+		text += ".";
+		
+	return text;
+}
+
+function preorder(head)
+{
+	var text = "";
+	if (head != null)
+		text += "(" + head.value + ")" + preorder(head.left) + preorder(head.right);
+	else
+		text += ".";
+	
+	return text;
+}
+
+function remove(head, elmnt)
+{
+	if (head != null)
+	{
+		if (head.value == elmnt)
+		{
+			if (head.left == null && head.right == null)
+				head = null;
+			else if (head.left == null && head.right != null)
+			{
+				head.right.parent = head.parent;
+				head = head.right;
+			}
+			else if (head.left != null && head.right == null)
+			{
+				head.left.parent = head.parent;
+				head = head.left;
+			}
+			else if (head.left != null && head.right != null)
+			{
+				head.value = minValue(head.right);
+				head.right = remove(head.right, head.value);
+			}
+		}
+		else if (elmnt > head.value)
+			head.right = remove(head.right, elmnt);
+		else if (elmnt < head.value)
+			head.left = remove(head.left, elmnt);
+	}
+
+	return head;
+}
+
+function resetPage()
+{
+	document.getElementById('set').hidden = true; 
+	document.getElementById('pset').hidden = true; 
+	document.getElementById('alg').options[0].selected = true;
+	document.getElementById('alg').options[1].hidden = true;
+	document.getElementById('alg').options[2].hidden = true;
+	document.getElementById('alg').options[3].hidden = true;	
+	document.getElementById('alg').options[4].hidden = true;	
+	document.getElementById('alg').options[5].hidden = true;	
+	document.getElementById('alg').options[6].hidden = true;	
+	document.getElementById('alg').options[7].hidden = true;	
+	document.getElementById('alg').options[8].hidden = true;
+	document.getElementById('output').innerHTML = '';
+}
+
+function retreive(set, start, finish)
+{
+	var i;
+	var ans = new Array();
+	for (i = start; i < finish; i++)
+		ans[ans.length] = set[i];
+
+	return ans;
+}
+
+function search(head, elmnt)
+{
+	var ans = false;
+	if (head != null)
+	{
+		if (head.value == elmnt)
+			ans = true;
+		else if (elmnt > head.value)
+			ans = search(head.right, elmnt);
+		else if (elmnt < head.value)
+			ans = search(head.left, elmnt);
+	}
+	else
+		ans = false;
+	
+	return ans;
+}
+
+function setXCrds(head, leafs, incr)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var count;
+	var orig = 50;
+	
+	if (head != null)
+	{
+		if (head.left == null && head.right == null)
+		{
+			count = linsear(leafs, head.value);
+			head.xval = orig + count*incr;
+		}
+
+		else if (head.left != null && head.right != null)
+		{
+			head.left = setXCrds(head.left, leafs, incr);
+			head.right = setXCrds(head.right, leafs, incr);
+			head.xval = (head.left.xval + head.right.xval) / 2;
+		}
+		else if (head.left != null)
+		{
+			head.left = setXCrds(head.left, leafs, incr);
+			head.xval = (head.left.xval)+5;
+		}
+		else if (head.right != null)
+		{
+			head.right = setXCrds(head.right, leafs, incr);
+			head.xval = (head.right.xval)-5;
+		}
+	}
+
+	return head;
+}
+
+function setYCrds(head)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	if (head != null)
+	{
+		if (head.parent == null)
+		{
+			head.yval = 30;
+			head.left = setYCrds(head.left);
+			head.right = setYCrds(head.right);
+		}
+		else
+		{
+			head.yval = head.parent.yval + 40;
+			head.left = setYCrds(head.left);
+			head.right = setYCrds(head.right);
+		}
+	}
+
+	return head;
+}
+
+</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content=" binary, binary search tree, child, data, data structure, delete, inorder, insert, javascrtipt. node, left child, log n, n log n. algorithms, parent, postorder, preorder, recursion, remove, right child, script, search, sort, sorted, structure, tree" /> 
+<meta name="description" content="This page contains a script I've written to help understand Binary Search Trees." />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+var t;
+function buildBST(set)
+{
+	var head = null;
+	var i;
+	for (i = 0; i < set.length; i++)
+	{
+		head = insert(head, set[i]);
+	}
+	
+	var text = inorder(head);
+	var loc1 = 2; 
+	var loc2 = 0;
+	while (loc2 != -1)
+	{
+		loc2 = text.indexOf(")", loc1+1);
+		if (loc2 != -1)
+		{
+			var temp = text.substring(loc1, loc2);
+			document.getElementById("set").options[document.getElementById("set").options.length] = new Option(temp, temp);
+			loc1 = loc2+3;
+		}
+	}
+	
+	document.getElementById("set").hidden = false;
+	document.getElementById("pset").hidden = false;
+	document.getElementById("alg").options[1].hidden = false;
+	document.getElementById("alg").options[2].hidden = false;
+	document.getElementById("alg").options[3].hidden = false;
+	document.getElementById("alg").options[4].hidden = false;
+	document.getElementById("alg").options[5].hidden = false;
+	document.getElementById("alg").options[6].hidden = false;
+	document.getElementById("alg").options[7].hidden = false;
+	document.getElementById("alg").options[8].hidden = false;
+		
+	return head;
+}
+
+function clearRect(head)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	if (head != null)
+		head.drawn = false;
+	if (head != null && head.left != null && head.right != null)
+	{
+		head.left = clearRect(head.left);
+		head.right = clearRect(head.right);
+	}
+	else if (head != null && head.left == null && head.right != null)
+	{
+		head.right = clearRect(head.right);
+	}
+	else if (head != null && head.left != null && head.right == null)
+	{
+		head.left = clearRect(head.left);
+	}
+	
+	return head;
+}
+
+function concat(array1, array2)
+{
+	var i;
+	for (i = 0; i < array2.length; i++)
+		array1[array1.length] = array2[i];
+		
+	return array1;
+}
+
+function count(set, elmnt)
+{
+	var i;
+	var ans = 0;
+
+	for (i = 0; i < set.length; i++)
+
+	if (set[i] == elmnt)
+			ans++;
+
+	return ans;
+}
+
+function depth(head)
+{
+	var ans = 1;
+	
+	if (head != null)
+	{
+		var temp1 = depth(head.left);
+		var temp2 = depth(head.right);
+		if (temp1 > temp2)
+			ans += temp1;
+		else
+			ans += temp2;
+	}
+	else
+		ans = 0;
+		
+	return ans;
+}
+
+function draw(head)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var i;
+
+	if (head != null && head.left == null && head.right == null && head.drawn == false)
+	{
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.arc(head.xval, head.yval, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+		ctx.fillStyle = "#000000";
+		ctx.font = "10px Arial";
+		head.drawn = true;
+				
+		if (head.value != 0)
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(head.value)/Math.log(10))+1), head.yval+4);
+		else
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(1)/Math.log(10))+1), head.yval+4);
+	}
+	else if (head != null && head.left != null && head.right == null && head.drawn == false)
+	{
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.arc(head.xval, head.yval, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+		ctx.fillStyle = "#000000";
+		ctx.font = "10px Arial";
+		head.drawn = true;
+
+		ctx.lineWidth = 1;
+
+		ctx.strokeStyle = "#00FF00";
+		ctx.beginPath();
+		ctx.moveTo(head.xval, head.yval+10);
+		ctx.lineTo(head.left.xval, head.left.yval-10);
+		ctx.stroke();
+
+		if (head.value != 0)
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(head.value)/Math.log(10))+1), head.yval+4);
+		else
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(1)/Math.log(10))+1), head.yval+4);
+
+		t = draw(head.left);
+	}
+	else if (head != null && head.left == null && head.right != null && head.drawn == false)
+	{
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.arc(head.xval, head.yval, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+		ctx.fillStyle = "#000000";
+		ctx.font = "10px Arial";
+		head.drawn = true;
+
+		ctx.lineWidth = 1;
+
+		ctx.strokeStyle = "#00FF00";
+		ctx.beginPath();
+		ctx.moveTo(head.xval, head.yval+10);
+		ctx.lineTo(head.right.xval, head.right.yval-10);
+		ctx.stroke();
+
+		if (head.value != 0)
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(head.value)/Math.log(10))+1), head.yval+4);
+		else
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(1)/Math.log(10))+1), head.yval+4);
+
+		t = draw(head.right);
+	}
+	else if (head != null && head.left != null && head.right != null && head.drawn == false)
+	{
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.arc(head.xval, head.yval, 10, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+		head.drawn = true;
+
+		ctx.lineWidth = 1;
+
+		ctx.strokeStyle = "#00FF00";
+		ctx.beginPath();
+		ctx.moveTo(head.xval, head.yval+10);
+		ctx.lineTo(head.left.xval, head.left.yval-10);
+		ctx.stroke();
+
+		ctx.strokeStyle = "#00FF00";
+		ctx.beginPath();
+		ctx.moveTo(head.xval, head.yval+10);
+		ctx.lineTo(head.right.xval, head.right.yval-10);
+		ctx.stroke();
+		
+		ctx.fillStyle = "#000000";
+
+		if (head.value != 0)
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(head.value)/Math.log(10))+1), head.yval+4);
+		else
+			ctx.fillText(head.value, head.xval-3*(Math.floor(Math.log(1)/Math.log(10))+1), head.yval+4);
+			
+		t = draw(head.left);
+		t = draw(head.right);
+	}
+
+	return t;
+}
+
+function generate(n)
+{
+	var A = new Array();
+	var i;
+	for (i = 0; i < n; i++)
+	{
+		next = Math.floor((Math.random())*100);
+		if (linsear(A, next) == -1)
+			A[A.length] = next;
+		else 
+			i--;
+	}
+
+	return A;
+}
+
+function getLeafs(tree)
+{
+	var leafs = new Array();
+	
+	if (tree != null)
+	{
+		if (tree.left == null && tree.right == null)
+			leafs[leafs.length] = tree.value;
+		else if (tree.left != null && tree.right != null)
+		{
+			leafs = concat(leafs, getLeafs(tree.left));
+			leafs = concat(leafs, getLeafs(tree.right));
+		}
+		else if (tree.left != null)
+			leafs = concat(leafs, getLeafs(tree.left));
+		else if (tree.right != null)
+			leafs = concat(leafs, getLeafs(tree.right));
+	}
+	
+	return leafs;
+}
+
+function init(curr, k1)
+{
+	curr = generate(k1);
+	var next;
+	do 
+	{
+		next = Math.floor((Math.random())*100);
+	} while(search(curr, next));
+	
+	document.getElementById("next").value = next;
+
+	var text = "set = {";
+	for (var i = 0; i < curr.length; i++)
+	{
+		if (i < curr.length - 1)
+			text += curr[i] + ", ";
+		else
+			text += curr[i];
+	}
+	text += "}<br>";
+
+	document.getElementById("list").innerHTML = text;
+	return curr;
+}
+
+function inorder(head)
+{
+	var text = "";
+	if (head != null)
+		text += inorder(head.left) + "(" + head.value + ")" + inorder(head.right);
+	else
+		text += ".";
+		
+	return text;
+}
+
+function insert(head, elmnt)
+{
+	if (head != null)
+	{
+		if (elmnt > head.value)
+		{
+			head.right = insert(head.right, elmnt);
+			head.right.parent = head;
+		}
+		else if (elmnt < head.value)
+		{
+			head.left = insert(head.left, elmnt);
+			head.left.parent = head;
+		}
+		else
+			alert("Element is already present.");
+	}
+	else
+	{
+		head = new Object();
+		head.value = elmnt;
+		head.left = null;
+		head.right = null;
+		head.drawn = false;
+		head.parent = null;
+	}
+	
+	return head;
+}
+
+function linsear(set, elmnt)
+{
+	var i;
+	var ans = -1;
+
+	for (i = 0; i < set.length && ans == -1; i++)
+		if (set[i] == elmnt)
+			ans = i;
+
+	return ans;
+}
+
+function maxValue(head)
+{
+	var ans = null;
+	if (head != null)
+	{
+		ans = head.value;
+		if (head.right != null)
+			ans = maxValue(head.right);
+	}
+	
+	return ans;
+}
+
+function minValue(head)
+{
+	var ans = null;
+	if (head != null)
+	{
+		ans = head.value;
+		if (head.left != null)
+			ans = minValue(head.left);
+	}
+	
+	return ans;
+}
+
+function operate(curr)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var orig = 50;
+	var maxim = c.width - 50;
+	var leafs;
+
+	if (document.getElementById("alg").value == 0)
+	{
+		if (document.getElementById("alg").options[1].hidden == true)
+		{
+			curr = clearRect(curr);
+			curr = buildBST(curr);
+			leafs = getLeafs(curr);
+			var incr = (maxim - orig) / (leafs.length);
+			curr = setXCrds(curr, leafs, incr);
+			curr = setYCrds(curr);
+			draw(curr);
+		}
+	}
+
+ 	if (document.getElementById("alg").value == 1)
+	{
+		curr = clearRect(curr);
+ 		curr = insert(curr, document.getElementById("next").value);
+		var next;
+		do 
+		{
+			next = Math.floor((Math.random())*100);
+		} while(search(curr, next));
+	
+		document.getElementById("next").value = next;
+		leafs = getLeafs(curr);
+		var incr = (maxim - orig) / (leafs.length);
+		curr = setXCrds(curr, leafs, incr);
+		curr = setYCrds(curr);
+		draw(curr);
+		var text = inorder(curr);
+		var loc1 = 2; 
+		var loc2 = 0;
+		document.getElementById("set").options.length = 0;
+		while (loc2 != -1)
+		{
+			loc2 = text.indexOf(")", loc1+1);
+			if (loc2 != -1)
+			{
+				var temp = text.substring(loc1, loc2);
+				document.getElementById("set").options[document.getElementById("set").options.length] = new Option(temp, temp);
+				loc1 = loc2+3;
+			}
+		}
+	}
+ 	else if (document.getElementById("alg").value == 2)
+	{
+		curr = clearRect(curr);
+ 		curr = remove(curr, document.getElementById("set").value);
+		leafs = getLeafs(curr);
+		var incr = Math.floor((maxim - orig) / (leafs.length));
+		curr = setXCrds(curr, leafs, incr)
+		curr = setYCrds(curr);
+		draw(curr);
+		var text = inorder(curr);
+		var loc1 = 2; 
+		var loc2 = 0;
+		document.getElementById("set").options.length = 0;
+		while (loc2 != -1)
+		{
+			loc2 = text.indexOf(")", loc1+1);
+			if (loc2 != -1)
+			{
+				var temp = text.substring(loc1, loc2);
+				document.getElementById("set").options[document.getElementById("set").options.length] = new Option(temp, temp);
+				loc1 = loc2+3;
+			}
+		}
+	}
+
+	else if (document.getElementById("alg").value == 3)
+		document.getElementById("output").innerHTML = "The depth of this tree is currently " + depth(curr) + "<br>";
+
+	else if (document.getElementById("alg").value == 4)
+		document.getElementById("output").innerHTML = "The maximum value of this tree is currently " + maxValue(curr) + "<br>";
+		
+	else if (document.getElementById("alg").value == 5)
+		document.getElementById("output").innerHTML = "The minimum value of this tree is currently " + minValue(curr) + "<br>";
+
+	else if (document.getElementById("alg").value == 6)
+		document.getElementById("output").innerHTML = "The preorder traversal of this tree is <br>" + preorder(curr);
+		
+	else if (document.getElementById("alg").value == 7)
+		document.getElementById("output").innerHTML = "The inorder traversal of this tree is <br>" + inorder(curr);
+
+	else if (document.getElementById("alg").value == 8)
+		document.getElementById("output").innerHTML = "The postorder traversal of this tree is <br>" + postorder(curr);
+
+  	return curr;
+}
+
+function postorder(head)
+{
+	var text = "";
+	if (head != null)
+		text += postorder(head.left) + postorder(head.right) + "(" + head.value + ")";
+	else
+		text += ".";
+		
+	return text;
+}
+
+function preorder(head)
+{
+	var text = "";
+	if (head != null)
+		text += "(" + head.value + ")" + preorder(head.left) + preorder(head.right);
+	else
+		text += ".";
+	
+	return text;
+}
+
+function remove(head, elmnt)
+{
+	if (head != null)
+	{
+		if (head.value == elmnt)
+		{
+			if (head.left == null && head.right == null)
+				head = null;
+			else if (head.left == null && head.right != null)
+			{
+				head.right.parent = head.parent;
+				head = head.right;
+			}
+			else if (head.left != null && head.right == null)
+			{
+				head.left.parent = head.parent;
+				head = head.left;
+			}
+			else if (head.left != null && head.right != null)
+			{
+				head.value = minValue(head.right);
+				head.right = remove(head.right, head.value);
+			}
+		}
+		else if (elmnt > head.value)
+			head.right = remove(head.right, elmnt);
+		else if (elmnt < head.value)
+			head.left = remove(head.left, elmnt);
+	}
+
+	return head;
+}
+
+function resetPage()
+{
+	document.getElementById('set').hidden = true; 
+	document.getElementById('pset').hidden = true; 
+	document.getElementById('alg').options[0].selected = true;
+	document.getElementById('alg').options[1].hidden = true;
+	document.getElementById('alg').options[2].hidden = true;
+	document.getElementById('alg').options[3].hidden = true;	
+	document.getElementById('alg').options[4].hidden = true;	
+	document.getElementById('alg').options[5].hidden = true;	
+	document.getElementById('alg').options[6].hidden = true;	
+	document.getElementById('alg').options[7].hidden = true;	
+	document.getElementById('alg').options[8].hidden = true;
+	document.getElementById('output').innerHTML = '';
+}
+
+function retreive(set, start, finish)
+{
+	var i;
+	var ans = new Array();
+	for (i = start; i < finish; i++)
+		ans[ans.length] = set[i];
+
+	return ans;
+}
+
+function search(head, elmnt)
+{
+	var ans = false;
+	if (head != null)
+	{
+		if (head.value == elmnt)
+			ans = true;
+		else if (elmnt > head.value)
+			ans = search(head.right, elmnt);
+		else if (elmnt < head.value)
+			ans = search(head.left, elmnt);
+	}
+	else
+		ans = false;
+	
+	return ans;
+}
+
+function setXCrds(head, leafs, incr)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	var count;
+	var orig = 50;
+	
+	if (head != null)
+	{
+		if (head.left == null && head.right == null)
+		{
+			count = linsear(leafs, head.value);
+			head.xval = orig + count*incr;
+		}
+
+		else if (head.left != null && head.right != null)
+		{
+			head.left = setXCrds(head.left, leafs, incr);
+			head.right = setXCrds(head.right, leafs, incr);
+			head.xval = (head.left.xval + head.right.xval) / 2;
+		}
+		else if (head.left != null)
+		{
+			head.left = setXCrds(head.left, leafs, incr);
+			head.xval = (head.left.xval)+5;
+		}
+		else if (head.right != null)
+		{
+			head.right = setXCrds(head.right, leafs, incr);
+			head.xval = (head.right.xval)-5;
+		}
+	}
+
+	return head;
+}
+
+function setYCrds(head)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	
+	if (head != null)
+	{
+		if (head.parent == null)
+		{
+			head.yval = 30;
+			head.left = setYCrds(head.left);
+			head.right = setYCrds(head.right);
+		}
+		else
+		{
+			head.yval = head.parent.yval + 40;
+			head.left = setYCrds(head.left);
+			head.right = setYCrds(head.right);
+		}
+	}
+
+	return head;
+}
+
+</script>
+
+<h3><center></center></h3>
+<p><p>This script shows the properties of the binary search tree data structure. <br><br>
+These data structures are organized such that the data lies in "nodes" and each node connects directly to up to two new nodes. These new nodes are called the children of the node, and the original node is called the parent. Because there are up to two children, we designate one child as the "left" child, and the other as the "right" child with the properties that the value stored in the left child is less than the value in the parent, which in itself is less than the value of its right child. If a parent has less than two children, then one (or both) of its children are given the value of null. <br>
+<br>
+The insert and delete procedures need to make sure that they keep the elements of a binary search tree in sorted order. <br>
+To insert into a BST, we must first find the correct location where the new element will be placed. This means comparing the value of the new element to the current head of the tree, resulting in three possible outcomes. <br>
+ <li> if the head is null, then insert the new node at the current position because there is no subtree to compare it to. <br>
+ <li> if the value of the new element is less than the value at the head node, run the insert procedure on the left child of head. <br>
+ <li> if the value of the new element is greater than the value at the head node, run the insert procedure on the right child of head. <br>
+<br> 
+ Similarly, the remove procedure for a binary search tree must first find the element to be removed. Once that element is found, there are three cases depending on the type of node we are dealing with. <br>
+ <li> if the node has no children, then simply remove the node from the tree. 
+ <li> if the node has only one child (either a left child or a right child), then have the parent of the node point to the child of the node (thus bypassing the node itself). 
+ <li> if the node has two children, then we have two options, either replace the node with the minimum value of the right subtree or the maximum value of the left subtree. The nodes that have these minimum and maximum values will have at most one child because by definition a value less than the minimum value in a right subtree would be a left child and thus would be less than the minimum value, contradicting the meaning of a minimum value. Because these nodes have at most one child, we can now use the procedures above to remove these nodes from the tree. 
+<br>
+Because a binary search tree is different than a standard array, there are different methods for viewing the its contents. Three common such methods are preorder, inorder, and postorder traversal. <br>
+Preorder traversal visits the nodes of a binary search tree in the order (node), (left child), (right child). <br>
+Inorder traversal visits the nodes of a binary search tree in the order (left child), (node), (right child). <br>
+Postorder traversal visits the nodes of a binary search tree in the order (left child), (right child), (node). <br>
+<br>
+We are also interested in the depth of a tree, which amounts to the amount of layers or levels of the tree. This can be computed by counting the longest path from the root of the tree to a leaf node (a node with no children) in the tree. </p>
+<form name=data id=data> 
+<input type=button onclick="resetPage(); k1 = Math.floor(Math.random()*20)+5; head = clearRect(head); set1 = init(set1, k1);" value="New Problem"><br> 
+<table><tr><td>
+<p name=list id=list></p>
+</td></tr>
+<tr><td valign="top">
+<select name="alg" id="alg">
+ <option value=0 selected>Build BST</OPTION>
+ <option value=1 hidden>Insert</OPTION>
+ <option value=2 hidden>Remove</OPTION>
+ <option value=3 hidden>Depth</option>
+ <option value=4 hidden>Maximum Value</OPTION>
+ <option value=5 hidden>Minimum Value</OPTION>
+ <option value=6 hidden>Preorder Traversal</OPTION>
+ <option value=7 hidden>Inorder Traversal</OPTION>
+ <option value=8 hidden>Postorder Traversal</OPTION>
+</SELECT>
+<br>
+<select name=set id=set hidden=true></select><label name=pset id=pset hidden=true>Value to Remove</label><br>
+<input size=3 name=next id=next> Next Value to Insert<br>
+<input type="button" value="Operate" onclick="set1 = operate(set1);">  </FORM>
+</FORM>
+</td><td valign="top">
+<p name="output" id="output"></p>
+</td></tr></table>
+<canvas id="myCanvas" width="600" height="600" style="border:1px solid #d3d3d3;">
+your browser does not support the canvas tag
+</canvas>
+<script type="text/javascript">
+	var k1 = Math.floor(Math.random()*20)+5;
+	var set1 = new Array();
+	var elmnt;
+	var set1 = init(set1, k1);
+</script>

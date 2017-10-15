@@ -1,0 +1,413 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+CovarianceofVectors<script type="text/javascript">
+function init()
+{
+	document.getElementById ('input').innerHTML = ''; 
+	document.getElementById ('output').innerHTML = ''; 
+	clearPts (); 
+    var k1 = Math.floor(Math.random()*20)+5;
+    var text = "<table>";
+    
+    var set1 = new Array();
+    var set2 = new Array();
+    
+    for (var i = 0; i < k1; i++)
+    {
+        set1[i] = Math.floor(Math.random()*100)+1;
+        set2[i] = Math.floor(Math.random()*24)+1;
+    }
+
+text += "<tr><td>x</td>";
+for (var i = 0; i < set1.length; i++)
+{
+    text += "<td>" + set1[i] + "</td>";
+}
+text += "</tr>";
+
+text += "<tr><td>y</td>";
+
+for (var i = 0; i < set2.length; i++)
+{
+    text += "<td>" + set2[i] + "</td>";
+}
+text += "</tr>";
+    
+    text += "</table>";
+    
+//    for (var i = 0; i < k1; i++)
+//        text += set1[i] + ", ";
+        
+//    text += "<br>";
+//    for (var i = 0; i < k1; i++)
+//        text += set2[i] + ", ";
+    
+    document.getElementById("input").innerHTML = text;
+    
+    var ans = new Array();
+    ans[0] = set1;
+    ans[1] = set2;
+    
+    dispPts(ans);
+    
+    return ans;
+}
+
+function mean(set, show)
+{
+    var text = "";
+    if (show)
+        text += "";
+        
+    var mean = 0;
+    for (var i = 0; i < set.length; i++)
+	{
+		if (show)
+		{
+			text += set[i];
+			if (i < set.length - 1)
+				text += " + ";
+		}
+        mean += set[i];
+	}
+	
+	if (show)
+		text += " = " + mean + "<br>";
+        
+	if (show)
+		text += "Now we divide by the number of elements in the vector to get<br>";
+    mean = mean / set.length;
+	
+	if (show)
+		text += "mean = " + Math.floor(mean*1000)/1000 + "<br>";
+		
+	document.getElementById("output").innerHTML += text;
+    
+    return mean;
+}
+
+function covar(set1, set2, show)
+{
+    var text = "";
+    if (show)
+        document.getElementById("output").innerHTML += "<br>We first calculate the mean of x<br>";
+    var mean1 = mean(set1, show);
+    
+    if (show)
+        document.getElementById("output").innerHTML += "<br>Next, we calcuate the mean of y<br>";
+    var mean2 = mean(set2, show);
+    
+    var nvec = new Array(), sum = 0;
+    
+    if (show)
+    {
+        text += "<br>To calculate the covariance, we first compute how far each element of each vector is from its mean<br>"
+        text += "<table width=400><tr><td>x</td><td>x - <img src='http://www.learninglover.com/chars/mu.gif'><sub>x</sub></td><td>y</td><td>y - <img src='http://www.learninglover.com/chars/mu.gif'><sub>y</sub></td><td>(x - <img src='http://www.learninglover.com/chars/mu.gif'><sub>x</sub>)(y - <img src='http://www.learninglover.com/chars/mu.gif'><sub>y</sub>)</td></tr>";
+    }
+    
+    for (var i = 0; i < set1.length; i++)
+    {
+        if (show)
+            text += "<tr><td>" + set1[i] + "</td><td>" + Math.floor((set1[i] - mean1)*1000)/1000 + "</td><td>" + set2[i] + "</td><td>" + Math.floor((set2[i] - mean2)*1000)/1000 + "</td><td>" + Math.floor(((set1[i] - mean1)*(set2[i] - mean2))*1000)/1000 + "</td></tr>";
+        sum += ((set1[i] - mean1)*(set2[i] - mean2));
+    }
+    text += "</table>";
+    
+    if (show)
+        text += "<br>Now to calculate the covariance, we simply simply add the terms in this last column and divide by " + set1.length + "<br>";
+        
+    sum = sum / (set1.length);
+	
+	if (show)
+		text += "<br>And we see that the covariance of these two vectors is " + Math.floor(sum*1000)/1000 + "<br>";
+    
+    document.getElementById("output").innerHTML += text;
+    
+    return sum;
+}
+
+function dispPts(inp)
+{
+    var i, c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+
+    var text = "";
+    
+    ctx.clearRect(0, 0, 500, 600);
+    ctx.fillStyle="#000000";
+
+    for (i = 0; i < inp[0].length; i++)
+    {
+        text += i + " - (" + (4.8*inp[0][i]+10) + ", " + (600-24*inp[1][i]+12) + ")<br>";
+        ctx.beginPath();
+        ctx.arc(4.8*inp[0][i]+10,600-24*inp[1][i]+12,5,0,Math.PI*2,true);
+        ctx.fillText(i, 4.8*inp[0][i]+10,600-24*inp[1][i]-5+12);
+        ctx.closePath();
+        ctx.fill();
+    }
+    
+//    document.getElementById("output").innerHTML = text;
+}
+
+function process()
+{
+	document.getElementById("output").innerHTML = "";
+    var ans = new Array();
+    var text = "<table><tr><td></td><td>x</td><td>y</td></tr>";
+	var show = document.getElementById("show").checked;
+    for (var i = 0; i < prob.length; i++)
+    {
+		var elt1;
+		if (i == 0)
+			elt1 = "x";
+		else
+			elt1 = "y";
+        text += "<tr><td>" + elt1 + "</td>";
+        ans[i] = new Array();
+        for (var j = 0; j < prob.length; j++)
+        {
+			var elt2;
+			
+			if (j == 0)
+				elt2 = "x";
+			else
+				elt2 = "y";
+			if (show)
+				document.getElementById("output").innerHTML += "Calculating the Covariance of " + elt1 + " and " + elt2 + ".<br>";
+            ans[i][j] = covar(prob[i], prob[j], show);
+            text += "<td>" + Math.floor(ans[i][j]*1000)/1000 + "</td>";
+        }
+        text += "</tr>";
+    }
+    text += "</table>";
+    
+    document.getElementById("output").innerHTML += "Covariance Matrix = " + text;
+}
+
+
+function clearPts()
+{
+   	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="mathematics, math, statistics, stats,
+probability, javascript, script, programming, covariance, variance, vector, plot, points" />
+<meta name="description" content="This is a script that computes the covariance of two random vectors and graphs the result.  " />
+<title> at LEARNINGlover.com</title>
+<script type="text/javascript">
+function init()
+{
+	document.getElementById ('input').innerHTML = ''; 
+	document.getElementById ('output').innerHTML = ''; 
+	clearPts (); 
+    var k1 = Math.floor(Math.random()*20)+5;
+    var text = "<table>";
+    
+    var set1 = new Array();
+    var set2 = new Array();
+    
+    for (var i = 0; i < k1; i++)
+    {
+        set1[i] = Math.floor(Math.random()*100)+1;
+        set2[i] = Math.floor(Math.random()*24)+1;
+    }
+
+text += "<tr><td>x</td>";
+for (var i = 0; i < set1.length; i++)
+{
+    text += "<td>" + set1[i] + "</td>";
+}
+text += "</tr>";
+
+text += "<tr><td>y</td>";
+
+for (var i = 0; i < set2.length; i++)
+{
+    text += "<td>" + set2[i] + "</td>";
+}
+text += "</tr>";
+    
+    text += "</table>";
+    
+//    for (var i = 0; i < k1; i++)
+//        text += set1[i] + ", ";
+        
+//    text += "<br>";
+//    for (var i = 0; i < k1; i++)
+//        text += set2[i] + ", ";
+    
+    document.getElementById("input").innerHTML = text;
+    
+    var ans = new Array();
+    ans[0] = set1;
+    ans[1] = set2;
+    
+    dispPts(ans);
+    
+    return ans;
+}
+
+function mean(set, show)
+{
+    var text = "";
+    if (show)
+        text += "";
+        
+    var mean = 0;
+    for (var i = 0; i < set.length; i++)
+	{
+		if (show)
+		{
+			text += set[i];
+			if (i < set.length - 1)
+				text += " + ";
+		}
+        mean += set[i];
+	}
+	
+	if (show)
+		text += " = " + mean + "<br>";
+        
+	if (show)
+		text += "Now we divide by the number of elements in the vector to get<br>";
+    mean = mean / set.length;
+	
+	if (show)
+		text += "mean = " + Math.floor(mean*1000)/1000 + "<br>";
+		
+	document.getElementById("output").innerHTML += text;
+    
+    return mean;
+}
+
+function covar(set1, set2, show)
+{
+    var text = "";
+    if (show)
+        document.getElementById("output").innerHTML += "<br>We first calculate the mean of x<br>";
+    var mean1 = mean(set1, show);
+    
+    if (show)
+        document.getElementById("output").innerHTML += "<br>Next, we calcuate the mean of y<br>";
+    var mean2 = mean(set2, show);
+    
+    var nvec = new Array(), sum = 0;
+    
+    if (show)
+    {
+        text += "<br>To calculate the covariance, we first compute how far each element of each vector is from its mean<br>"
+        text += "<table width=400><tr><td>x</td><td>x - <img src='http://www.learninglover.com/chars/mu.gif'><sub>x</sub></td><td>y</td><td>y - <img src='http://www.learninglover.com/chars/mu.gif'><sub>y</sub></td><td>(x - <img src='http://www.learninglover.com/chars/mu.gif'><sub>x</sub>)(y - <img src='http://www.learninglover.com/chars/mu.gif'><sub>y</sub>)</td></tr>";
+    }
+    
+    for (var i = 0; i < set1.length; i++)
+    {
+        if (show)
+            text += "<tr><td>" + set1[i] + "</td><td>" + Math.floor((set1[i] - mean1)*1000)/1000 + "</td><td>" + set2[i] + "</td><td>" + Math.floor((set2[i] - mean2)*1000)/1000 + "</td><td>" + Math.floor(((set1[i] - mean1)*(set2[i] - mean2))*1000)/1000 + "</td></tr>";
+        sum += ((set1[i] - mean1)*(set2[i] - mean2));
+    }
+    text += "</table>";
+    
+    if (show)
+        text += "<br>Now to calculate the covariance, we simply simply add the terms in this last column and divide by " + set1.length + "<br>";
+        
+    sum = sum / (set1.length);
+	
+	if (show)
+		text += "<br>And we see that the covariance of these two vectors is " + Math.floor(sum*1000)/1000 + "<br>";
+    
+    document.getElementById("output").innerHTML += text;
+    
+    return sum;
+}
+
+function dispPts(inp)
+{
+    var i, c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+
+    var text = "";
+    
+    ctx.clearRect(0, 0, 500, 600);
+    ctx.fillStyle="#000000";
+
+    for (i = 0; i < inp[0].length; i++)
+    {
+        text += i + " - (" + (4.8*inp[0][i]+10) + ", " + (600-24*inp[1][i]+12) + ")<br>";
+        ctx.beginPath();
+        ctx.arc(4.8*inp[0][i]+10,600-24*inp[1][i]+12,5,0,Math.PI*2,true);
+        ctx.fillText(i, 4.8*inp[0][i]+10,600-24*inp[1][i]-5+12);
+        ctx.closePath();
+        ctx.fill();
+    }
+    
+//    document.getElementById("output").innerHTML = text;
+}
+
+function process()
+{
+	document.getElementById("output").innerHTML = "";
+    var ans = new Array();
+    var text = "<table><tr><td></td><td>x</td><td>y</td></tr>";
+	var show = document.getElementById("show").checked;
+    for (var i = 0; i < prob.length; i++)
+    {
+		var elt1;
+		if (i == 0)
+			elt1 = "x";
+		else
+			elt1 = "y";
+        text += "<tr><td>" + elt1 + "</td>";
+        ans[i] = new Array();
+        for (var j = 0; j < prob.length; j++)
+        {
+			var elt2;
+			
+			if (j == 0)
+				elt2 = "x";
+			else
+				elt2 = "y";
+			if (show)
+				document.getElementById("output").innerHTML += "Calculating the Covariance of " + elt1 + " and " + elt2 + ".<br>";
+            ans[i][j] = covar(prob[i], prob[j], show);
+            text += "<td>" + Math.floor(ans[i][j]*1000)/1000 + "</td>";
+        }
+        text += "</tr>";
+    }
+    text += "</table>";
+    
+    document.getElementById("output").innerHTML += "Covariance Matrix = " + text;
+}
+
+
+function clearPts()
+{
+   	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+}
+</script>
+<h3><center></center></h3>
+<p></p>
+<p name="input" id="input">
+</p>
+<input type="checkbox" name="show" id="show"> Show Work?
+<input type="button" value="New Problem" onClick="prob = init()">
+<input type="button" value="Covariance" onClick="process()"><br>
+<p name="output" id="output">
+</p>
+<canvas id="myCanvas" width="500" height="600" style="border:1px solid #d3d3d3;">
+your browser does not support the canvas tag
+</canvas>
+<script type="text/javascript">
+var prob = init();
+</script>

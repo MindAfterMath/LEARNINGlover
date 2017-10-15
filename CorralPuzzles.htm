@@ -1,0 +1,1274 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+CorralPuzzles<style type="text/css">
+.c {
+	width: 3.0em;
+	height: 3.0em;
+
+}
+</style>
+<script type="text/javascript">
+function generate2()
+{
+	var size = document.getElementById("dim").value;
+	
+	var ans = new Array();
+	var total = new Array();
+	
+	var bdr = new Array();
+	var prob = "<table border = '1'>";
+	
+	for (var i = 1; i <= size; i++)
+	{
+		ans[i] = new Array();
+		var k1 = 0;
+		prob += "<tr>";
+		for (var j = 1; j <= size; j++)
+		{
+			ans[i][j] = 0;
+			prob += "<td class='c' name='tdc" + i + j + "' id='tdc" + i + j + "' onclick=changecolor('tdc" + i + j + "')><p name='c" + i + j + "' id='c" + i + j + "'></p></td>";
+		}
+		prob += "</tr>";
+	}
+	document.getElementById("toSolve").innerHTML = prob;
+	
+	for (var i = 1; i <= size; i++)
+	{
+		bdr[bdr.length] = i + ", " + size;
+		if (i != size)
+		{
+			bdr[bdr.length] = size + ", " + i;
+		}
+		bdr[bdr.length] = i + ", 1";
+		if (i != 1)
+		{
+			bdr[bdr.length] = "1, " + i;
+		}
+	}
+		
+	var numShade = Math.floor(size*size/2);
+	var fpcount = 0;
+	
+	for (var i = 0; i < numShade; i++)
+	{
+		var pos = Math.floor(Math.random()*bdr.length);
+		var elt = bdr[pos].split(", ");
+		
+		bdr[pos] = bdr[bdr.length - 1];
+		bdr.length--;
+		
+		var incr = parseInt(elt[0])+1;
+		var incc = parseInt(elt[1])+1;
+		var decr = parseInt(elt[0])-1;
+		var decc = parseInt(elt[1])-1;
+		
+		if (elt[0] < size)
+		{
+			bdr[bdr.length] = incr + ", " + elt[1];
+		}
+		if (elt[0] > 1)
+		{
+			bdr[bdr.length] = decr + ", " + elt[1];
+		}
+		if (elt[1] < size)
+		{
+			bdr[bdr.length] = elt[0] + ", " + incc;
+		}
+		if (elt[1] > 1)
+		{
+			bdr[bdr.length] = elt[0] + ", " + decc;
+		}
+		
+		ans[elt[0]][elt[1]] = 1;
+		
+		if (label(ans)[1] > 1)
+		{
+			ans[elt[0]][elt[1]] = 0;
+			fpcount++;
+			
+			if (fpcount >= size*size)
+			{
+				break;
+			}
+		}
+	}
+	
+	var vis = visib(ans);
+
+	for (var i = 1; i <= size; i++)
+	{
+		for (var j = 1; j <= size; j++)
+		{
+			document.getElementById("tdc"+i+j).style.background = "#ffffff";
+		}
+	}
+	
+	for (var i = 1; i <= size; i++)
+	{
+		for (var j = 1; j <= size; j++)
+		{
+			if (ans[i][j] == "0")
+			{
+				total[total.length] = i + ", " + j + ", 0";
+			}
+			else if (ans[i][j] == "1")
+			{
+				total[total.length] = i + ", " + j + ", 1";
+			}
+		}
+	}
+	
+	var covers = getCovers(vis);
+	var prob = new Array();
+	prob[0] = covers;
+	prob[1] = total;
+	var elts = greedy(prob);
+	
+	for (var i = 0; i < elts.length; i++)
+	{
+		var loc = new Array();
+		if (i < elts.length)
+		{
+			loc = elts[i].split(", ");
+			document.getElementById("c" + loc[0] + loc[1]).innerHTML = vis[loc[0]][loc[1]];
+		}
+	}
+	
+	return ans;
+}
+
+function label(ans)
+{
+	var glabel = new Array();
+	var size = document.getElementById("dim").value;
+	
+	for (var i = 1; i <= size; i++)
+	{
+		glabel[i] = new Array();
+		for (var j = 1; j <= size; j++)
+		{
+			glabel[i][j] = -1;
+		}
+	}
+	
+	var loc = new Array();
+	for (var i = 1; i <= size && loc.length == 0; i++)
+	{
+		for (var j = 1; j <= size && loc.length == 0; j++)
+		{
+			if (ans[i][j] == 0)
+			{
+				loc[0] = i;
+				loc[1] = j;
+			}
+		}
+	}
+	
+	glabel[loc[0]][loc[1]] = 1;
+	
+	var count = 2;
+	for (var i = 1; i <= size; i++)
+	{
+		for (var j = 1; j <= size; j++)
+		{
+			if (ans[i][j] == 0 && glabel[i][j] != 1)
+			{
+				if (i > 1 && ans[i-1][j] == 0)
+					glabel[i][j] = glabel[i-1][j];
+				else if (j > 1 && ans[i][j-1] == 0)
+					glabel[i][j] = glabel[i][j-1];
+				else
+				{
+					glabel[i][j] = count;
+					count++;
+				}
+				
+				if (j > 1 && ans[i][j] == 0 && ans[i][j-1] == 0 && glabel[i][j] != glabel[i][j-1])
+				{
+					var temp1, temp2;
+					count--;
+					if (glabel[i][j-1] < glabel[i][j])
+					{
+						temp1 = glabel[i][j-1];
+						temp2 = glabel[i][j];
+					}
+					else
+					{
+						temp1 = glabel[i][j];
+						temp2 = glabel[i][j-1];
+					}
+						
+					for (var i1 = 1; i1 <= size; i1++)
+					for (var j1 = 1; j1 <= size; j1++)
+					{
+						if (glabel[i1][j1] == temp2)
+							glabel[i1][j1] = temp1;
+					}
+				}
+			}
+		}
+	}
+	
+	var toRet = new Array();
+	toRet[0] = glabel;
+	toRet[1] = count-1;
+	
+	return toRet;
+}
+
+function visib(ans)
+{
+	var size = document.getElementById("dim").value;
+	var vis = new Array();
+	
+	for (var i = 1; i <= size; i++)
+	{
+		vis[i] = new Array();
+		for (var j = 1; j <= size; j++)
+		{
+			if (ans[i][j] == 0)
+			{
+				var count = 0;
+				for (var r_up = i; r_up >= 1 && ans[r_up][j] == 0; r_up--)
+				{
+					count++;
+				}
+				count--;
+				for (var r_down = i; r_down <= size && ans[r_down][j] == 0; r_down++)
+				{
+					count++;
+				}
+				count--;
+				for (var c_left = j; c_left >= 1 && ans[i][c_left] == 0; c_left--)
+				{
+					count++;
+				}
+				count--;
+				for (var c_right = j; c_right <= size && ans[i][c_right] == 0; c_right++)
+				{
+					count++;
+				}
+				count--;
+			
+				count++;
+			
+				vis[i][j] = count;
+			}
+			else
+			{
+				vis[i][j] = 0;
+			}
+		}
+	}
+	
+	return vis;
+}
+
+function setDim()
+{
+	var sel = document.getElementById("dim");
+	for (i = 3; i <= 10; i++)
+		sel.options[sel.options.length] = new Option(i + " by " + i, i);
+	sel.options[1].selected = true;
+}
+
+
+function clearcells()
+{
+	var size = document.getElementById("dim").value;
+	var i, j;
+	for (i = 1; i <= size; i++)
+	for (j = 1; j <= size; j++)
+		document.getElementById('tdc'+i+j).style.background = "#ffffff";
+}
+
+function changecolor(id)
+{
+	if (document.getElementById(id).style.background == "#FF0000" || 
+		document.getElementById(id).style.background == "rgb(255, 0, 0)" || 
+		document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)" ||
+		document.getElementById(id).style.background == "rgb(255, 0, 0) none repeat scroll 0% 0%")
+		document.getElementById(id).style.background = "#FFFFFF";
+	else if (document.getElementById(id).style.background == "#00ffff" || 
+			document.getElementById(id).style.background == "rgb(0, 255, 255)" || 
+			document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 255, 255)" ||
+			document.getElementById(id).style.background == "rgb(0, 255, 255) none repeat scroll 0% 0%")
+		document.getElementById(id).style.background = "#FF0000";
+	else
+		document.getElementById(id).style.background = "#00ffff";
+
+}
+
+function disp(ans)
+{
+	var i, j;
+	var size = document.getElementById("dim").value;
+	
+	for (i = 1; i <= size; i++)
+	{
+		for (j = 1; j <= size; j++)
+		{
+			if (ans[i][j] == "1")
+				document.getElementById("tdc" + i + j).style.background = "#FF0000";
+			else
+				document.getElementById("tdc" + i + j).style.background = "#00FFFF";
+
+		}
+	}
+}
+
+function checkProg(ans)
+{
+	var i, j;
+	var userAns = new Array();
+	var size = document.getElementById("dim").value;
+	var retVal = true;
+	
+	for (i = 1; i <= size; i++)
+	{
+		userAns[i] = new Array();
+
+		for (j = 1; j <= size; j++)
+		{
+			if (document.getElementById("tdc"+i+j).style.background == "#FF0000" || 
+			document.getElementById("tdc"+i+j).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)" || 
+			document.getElementById("tdc"+i+j).style.background == "rgb(255, 0, 0) none repeat scroll 0% 0%" || 
+			document.getElementById("tdc"+i+j).style.background == "rgb(255, 0, 0)" )
+			{
+				userAns[i][j] = "1";
+			}
+			else if (document.getElementById("tdc"+i+j).style.background == "#00FFFF" || 
+					document.getElementById("tdc"+i+j).style.background == "none repeat scroll 0% 0% rgb(0, 255, 255)" || 
+					document.getElementById("tdc"+i+j).style.background == "rgb(0, 255, 255) none repeat scroll 0% 0%" || 
+					document.getElementById("tdc"+i+j).style.background == "rgb(0, 255, 255)" )
+
+				userAns[i][j] = "0";
+			else
+				userAns[i][j] = "";
+		}
+	}	
+	
+	var text = "user Ans = <table>";
+	for (var i = 1; i <= size; i++)
+	{
+		text += "<tr>";
+		for (var j = 1; j <= size; j++)
+		{
+			text += "<td>" + userAns[i][j] + "</td>";
+
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	var userVis = visib(userAns);
+	
+	text += "user Vis = <table>";
+	for (var i = 1; i <= size; i++)
+	{
+		text += "<tr>";
+		for (var j = 1; j <= size; j++)
+		{
+			text += "<td>" + userVis[i][j] + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	text += "ans Ans = <table>";
+
+	for (var i = 1; i <= size; i++)
+	{
+		text += "<tr>";
+		for (var j = 1; j <= size; j++)
+		{
+			text += "<td>" + ans[i][j] + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	var retVal = true;
+	
+	for (i = 1; i <= size && retVal; i++)
+	{
+		for (j = 1; j <= size && retVal; j++)
+		{
+			if (document.getElementById("c"+i+j).innerHTML != "" && document.getElementById("c"+i+j).innerHTML != userVis[i][j])
+			{
+				alert("Answer is incorrect :-(");
+				retVal = false;
+			}
+		}
+	}
+		
+	var count = 0;
+	
+	for (i = 1; i <= size; i++)
+	for (j = 1; j <= size; j++)
+	{
+		if (userAns[i][j] == "0" || userAns[i][j] == "1")
+		{
+			count++;
+		}
+	}
+	
+	if (retVal && count == (size)*(size))
+	{
+		alert("Answer is correct!");
+	}
+	else if (retVal && count != (size)*(size))
+	{
+		alert("Answer is correct, so far!");
+	}
+	else
+	{
+		alert("Answer is incorrect :-(");
+	}
+}
+
+function clearBoth()
+{
+	document.getElementById("toSolve").innerHTML = "";
+	document.getElementById("solved").innerHTML = "";
+}
+
+function getCovers(path)
+{
+	var sets = new Array();
+	var size = path.length-1;
+	var text = "";
+	text = "size = " + size + "<br>";
+	
+	for (var i = 1; i <= size; i++)
+	{
+		for (var j = 1; j <= size; j++)
+		{	
+			if (path[i][j] != 0)
+			{
+				var temp = new Array();
+				for (var k = 0; j+k <= size && path[i][j+k] != 0; k++)
+				{
+					if (path[i][j+k] != 0)
+					{
+						temp[temp.length] = i + ", " + (j+k) + ", 0";
+					}
+				}
+				
+				if (j+k <= size && path[i][j+k] == 0)
+				{
+					temp[temp.length] = i + ", " + (j+k) + ", 1";
+				}
+				
+				for (var k = 1; k <= size && j-k >= 1 && path[i][j-k] != 0; k++)
+				{
+					if (path[i][j-k] != 0)
+					{
+						temp[temp.length] = i + ", " + (j-k) + ", 0";
+					}
+				}
+				
+				if (j-k >= 1 && path[i][j-k] == 0)
+				{
+					temp[temp.length] = i + ", " + (j-k) + ", 1";
+				}
+				
+				for (var k = 1; i+k <= size && path[i+k][j] != 0; k++)
+				{
+					if (path[i+k][j] != 0)
+					{
+						temp[temp.length] = (i+k) + ", " + j + ", 0";
+					}
+				}
+				
+				if (i+k <= size && path[i+k][j] == 0)
+				{
+					temp[temp.length] = (i+k) + ", " + j + ", 1";
+				}
+				
+				for (var k = 1; k <= size && i-k >= 1 && path[i-k][j] != 0; k++)
+				{
+					if (path[i-k][j] != 0)
+					{
+						temp[temp.length] = (i-k) + ", " + j + ", 0";
+					}
+				}
+				
+				if (i-k >= 1 && path[i-k][j] == 0)
+				{
+					temp[temp.length] = (i-k) + ", " + j + ", 1";
+				}
+
+				if (temp.length > 0)
+				{
+					text += "sets[" + i + ", " + j + "] = " + temp + "<br>";
+				}
+			
+				var loc = sets.length;
+				sets[loc] = new Array();
+				for (var k = 0; k < temp.length; k++)
+				{
+					sets[loc][k] = new Object();
+					sets[loc][k].loc = i + ", " + j;
+					sets[loc][k].value = temp[k];
+				}
+			}
+		}
+	}
+	
+	return sets;
+}
+
+function sortDec(arr2d)
+{
+	var temp;
+	for (var i = 0; i < arr2d.length; i++)
+	{
+		for (var j = i+1; j < arr2d.length; j++)
+		{
+			if (arr2d[i][1] < arr2d[j][1])
+			{
+				temp = arr2d[i];
+				arr2d[i] = arr2d[j];
+				arr2d[j] = temp;
+			}
+		}
+	}
+	
+	return arr2d;
+}
+
+function greedy(prob)
+{
+	var rem = new Array();
+	for (var i = 0; i < prob[1].length; i++)
+	{
+		rem[i] = prob[1][i];
+	}
+		
+	var output = "";
+	
+	var show = true;
+	var itms = "";
+	var chosen = new Array();
+	
+	var numElim;
+	
+	do
+	{
+		numAdded = 0;
+		var ratios = new Array();
+		for (var i = 0; i < prob[0].length; i++)
+		{
+			var temp = new Array();
+			for (var j = 0; j < prob[0][i].length; j++)
+			{
+				for (var k = 0; k < rem.length; k++)
+				{
+					if (rem[k] == prob[0][i][j].value)
+					{
+						temp[temp.length] = rem[k];
+					}
+				}
+			}
+			
+			ratios[i] = new Array();
+			ratios[i][0] = i;
+			ratios[i][1] = temp.length;
+			ratios[i][2] = prob[0][i][0].loc;
+		}
+				
+		ratios = sortDec(ratios);
+				
+		if (chosen.indexOf(ratios[0][2]) == -1)
+		{
+			chosen[chosen.length] = ratios[0][2];
+			numAdded++;
+		}
+
+		for (var i = 0; i < prob[0][ratios[0][0]].length; i++)
+		{
+			var loc = -1;
+			for (var j = 0; j < rem.length && loc == -1; j++)
+			{
+				if (rem[j] == prob[0][ratios[0][0]][i].value)
+				{
+					loc = j;
+				}
+			}
+
+			if (loc != -1)
+			{
+				var temp = rem[loc];
+				rem[loc] = rem[rem.length-1];
+				rem[rem.length-1] = temp;
+				rem.length--;
+				numElim++;
+			}
+		}		
+	} while (numAdded != 0);
+	
+	if (rem.length != 0)
+	{
+		for (var i = 0; i < rem.length; i++)
+		{
+			var elt = rem[i].split(", ");
+			if (elt[2] == 0)
+			{
+				chosen[chosen.length] = elt[0] + ", " + elt[1];
+			}
+		}
+	}
+		
+	return chosen;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="corral, puzzle, grid, color, neighbor, count, cell, corral puzzle, math, javascript, script">
+<meta name="description" content="This page will randomly create a Corral Puzzle for the user. ">
+<title> at LEARNINGlover.com</title>
+<style type="text/css">
+.c {
+	width: 3.0em;
+	height: 3.0em;
+
+}
+</style>
+<script type="text/javascript">
+function generate2()
+{
+	var size = document.getElementById("dim").value;
+	
+	var ans = new Array();
+	var total = new Array();
+	
+	var bdr = new Array();
+	var prob = "<table border = '1'>";
+	
+	for (var i = 1; i <= size; i++)
+	{
+		ans[i] = new Array();
+		var k1 = 0;
+		prob += "<tr>";
+		for (var j = 1; j <= size; j++)
+		{
+			ans[i][j] = 0;
+			prob += "<td class='c' name='tdc" + i + j + "' id='tdc" + i + j + "' onclick=changecolor('tdc" + i + j + "')><p name='c" + i + j + "' id='c" + i + j + "'></p></td>";
+		}
+		prob += "</tr>";
+	}
+	document.getElementById("toSolve").innerHTML = prob;
+	
+	for (var i = 1; i <= size; i++)
+	{
+		bdr[bdr.length] = i + ", " + size;
+		if (i != size)
+		{
+			bdr[bdr.length] = size + ", " + i;
+		}
+		bdr[bdr.length] = i + ", 1";
+		if (i != 1)
+		{
+			bdr[bdr.length] = "1, " + i;
+		}
+	}
+		
+	var numShade = Math.floor(size*size/2);
+	var fpcount = 0;
+	
+	for (var i = 0; i < numShade; i++)
+	{
+		var pos = Math.floor(Math.random()*bdr.length);
+		var elt = bdr[pos].split(", ");
+		
+		bdr[pos] = bdr[bdr.length - 1];
+		bdr.length--;
+		
+		var incr = parseInt(elt[0])+1;
+		var incc = parseInt(elt[1])+1;
+		var decr = parseInt(elt[0])-1;
+		var decc = parseInt(elt[1])-1;
+		
+		if (elt[0] < size)
+		{
+			bdr[bdr.length] = incr + ", " + elt[1];
+		}
+		if (elt[0] > 1)
+		{
+			bdr[bdr.length] = decr + ", " + elt[1];
+		}
+		if (elt[1] < size)
+		{
+			bdr[bdr.length] = elt[0] + ", " + incc;
+		}
+		if (elt[1] > 1)
+		{
+			bdr[bdr.length] = elt[0] + ", " + decc;
+		}
+		
+		ans[elt[0]][elt[1]] = 1;
+		
+		if (label(ans)[1] > 1)
+		{
+			ans[elt[0]][elt[1]] = 0;
+			fpcount++;
+			
+			if (fpcount >= size*size)
+			{
+				break;
+			}
+		}
+	}
+	
+	var vis = visib(ans);
+
+	for (var i = 1; i <= size; i++)
+	{
+		for (var j = 1; j <= size; j++)
+		{
+			document.getElementById("tdc"+i+j).style.background = "#ffffff";
+		}
+	}
+	
+	for (var i = 1; i <= size; i++)
+	{
+		for (var j = 1; j <= size; j++)
+		{
+			if (ans[i][j] == "0")
+			{
+				total[total.length] = i + ", " + j + ", 0";
+			}
+			else if (ans[i][j] == "1")
+			{
+				total[total.length] = i + ", " + j + ", 1";
+			}
+		}
+	}
+	
+	var covers = getCovers(vis);
+	var prob = new Array();
+	prob[0] = covers;
+	prob[1] = total;
+	var elts = greedy(prob);
+	
+	for (var i = 0; i < elts.length; i++)
+	{
+		var loc = new Array();
+		if (i < elts.length)
+		{
+			loc = elts[i].split(", ");
+			document.getElementById("c" + loc[0] + loc[1]).innerHTML = vis[loc[0]][loc[1]];
+		}
+	}
+	
+	return ans;
+}
+
+function label(ans)
+{
+	var glabel = new Array();
+	var size = document.getElementById("dim").value;
+	
+	for (var i = 1; i <= size; i++)
+	{
+		glabel[i] = new Array();
+		for (var j = 1; j <= size; j++)
+		{
+			glabel[i][j] = -1;
+		}
+	}
+	
+	var loc = new Array();
+	for (var i = 1; i <= size && loc.length == 0; i++)
+	{
+		for (var j = 1; j <= size && loc.length == 0; j++)
+		{
+			if (ans[i][j] == 0)
+			{
+				loc[0] = i;
+				loc[1] = j;
+			}
+		}
+	}
+	
+	glabel[loc[0]][loc[1]] = 1;
+	
+	var count = 2;
+	for (var i = 1; i <= size; i++)
+	{
+		for (var j = 1; j <= size; j++)
+		{
+			if (ans[i][j] == 0 && glabel[i][j] != 1)
+			{
+				if (i > 1 && ans[i-1][j] == 0)
+					glabel[i][j] = glabel[i-1][j];
+				else if (j > 1 && ans[i][j-1] == 0)
+					glabel[i][j] = glabel[i][j-1];
+				else
+				{
+					glabel[i][j] = count;
+					count++;
+				}
+				
+				if (j > 1 && ans[i][j] == 0 && ans[i][j-1] == 0 && glabel[i][j] != glabel[i][j-1])
+				{
+					var temp1, temp2;
+					count--;
+					if (glabel[i][j-1] < glabel[i][j])
+					{
+						temp1 = glabel[i][j-1];
+						temp2 = glabel[i][j];
+					}
+					else
+					{
+						temp1 = glabel[i][j];
+						temp2 = glabel[i][j-1];
+					}
+						
+					for (var i1 = 1; i1 <= size; i1++)
+					for (var j1 = 1; j1 <= size; j1++)
+					{
+						if (glabel[i1][j1] == temp2)
+							glabel[i1][j1] = temp1;
+					}
+				}
+			}
+		}
+	}
+	
+	var toRet = new Array();
+	toRet[0] = glabel;
+	toRet[1] = count-1;
+	
+	return toRet;
+}
+
+function visib(ans)
+{
+	var size = document.getElementById("dim").value;
+	var vis = new Array();
+	
+	for (var i = 1; i <= size; i++)
+	{
+		vis[i] = new Array();
+		for (var j = 1; j <= size; j++)
+		{
+			if (ans[i][j] == 0)
+			{
+				var count = 0;
+				for (var r_up = i; r_up >= 1 && ans[r_up][j] == 0; r_up--)
+				{
+					count++;
+				}
+				count--;
+				for (var r_down = i; r_down <= size && ans[r_down][j] == 0; r_down++)
+				{
+					count++;
+				}
+				count--;
+				for (var c_left = j; c_left >= 1 && ans[i][c_left] == 0; c_left--)
+				{
+					count++;
+				}
+				count--;
+				for (var c_right = j; c_right <= size && ans[i][c_right] == 0; c_right++)
+				{
+					count++;
+				}
+				count--;
+			
+				count++;
+			
+				vis[i][j] = count;
+			}
+			else
+			{
+				vis[i][j] = 0;
+			}
+		}
+	}
+	
+	return vis;
+}
+
+function setDim()
+{
+	var sel = document.getElementById("dim");
+	for (i = 3; i <= 10; i++)
+		sel.options[sel.options.length] = new Option(i + " by " + i, i);
+	sel.options[1].selected = true;
+}
+
+
+function clearcells()
+{
+	var size = document.getElementById("dim").value;
+	var i, j;
+	for (i = 1; i <= size; i++)
+	for (j = 1; j <= size; j++)
+		document.getElementById('tdc'+i+j).style.background = "#ffffff";
+}
+
+function changecolor(id)
+{
+	if (document.getElementById(id).style.background == "#FF0000" || 
+		document.getElementById(id).style.background == "rgb(255, 0, 0)" || 
+		document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)" ||
+		document.getElementById(id).style.background == "rgb(255, 0, 0) none repeat scroll 0% 0%")
+		document.getElementById(id).style.background = "#FFFFFF";
+	else if (document.getElementById(id).style.background == "#00ffff" || 
+			document.getElementById(id).style.background == "rgb(0, 255, 255)" || 
+			document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 255, 255)" ||
+			document.getElementById(id).style.background == "rgb(0, 255, 255) none repeat scroll 0% 0%")
+		document.getElementById(id).style.background = "#FF0000";
+	else
+		document.getElementById(id).style.background = "#00ffff";
+
+}
+
+function disp(ans)
+{
+	var i, j;
+	var size = document.getElementById("dim").value;
+	
+	for (i = 1; i <= size; i++)
+	{
+		for (j = 1; j <= size; j++)
+		{
+			if (ans[i][j] == "1")
+				document.getElementById("tdc" + i + j).style.background = "#FF0000";
+			else
+				document.getElementById("tdc" + i + j).style.background = "#00FFFF";
+
+		}
+	}
+}
+
+function checkProg(ans)
+{
+	var i, j;
+	var userAns = new Array();
+	var size = document.getElementById("dim").value;
+	var retVal = true;
+	
+	for (i = 1; i <= size; i++)
+	{
+		userAns[i] = new Array();
+
+		for (j = 1; j <= size; j++)
+		{
+			if (document.getElementById("tdc"+i+j).style.background == "#FF0000" || 
+			document.getElementById("tdc"+i+j).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)" || 
+			document.getElementById("tdc"+i+j).style.background == "rgb(255, 0, 0) none repeat scroll 0% 0%" || 
+			document.getElementById("tdc"+i+j).style.background == "rgb(255, 0, 0)" )
+			{
+				userAns[i][j] = "1";
+			}
+			else if (document.getElementById("tdc"+i+j).style.background == "#00FFFF" || 
+					document.getElementById("tdc"+i+j).style.background == "none repeat scroll 0% 0% rgb(0, 255, 255)" || 
+					document.getElementById("tdc"+i+j).style.background == "rgb(0, 255, 255) none repeat scroll 0% 0%" || 
+					document.getElementById("tdc"+i+j).style.background == "rgb(0, 255, 255)" )
+
+				userAns[i][j] = "0";
+			else
+				userAns[i][j] = "";
+		}
+	}	
+	
+	var text = "user Ans = <table>";
+	for (var i = 1; i <= size; i++)
+	{
+		text += "<tr>";
+		for (var j = 1; j <= size; j++)
+		{
+			text += "<td>" + userAns[i][j] + "</td>";
+
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	var userVis = visib(userAns);
+	
+	text += "user Vis = <table>";
+	for (var i = 1; i <= size; i++)
+	{
+		text += "<tr>";
+		for (var j = 1; j <= size; j++)
+		{
+			text += "<td>" + userVis[i][j] + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	text += "ans Ans = <table>";
+
+	for (var i = 1; i <= size; i++)
+	{
+		text += "<tr>";
+		for (var j = 1; j <= size; j++)
+		{
+			text += "<td>" + ans[i][j] + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	var retVal = true;
+	
+	for (i = 1; i <= size && retVal; i++)
+	{
+		for (j = 1; j <= size && retVal; j++)
+		{
+			if (document.getElementById("c"+i+j).innerHTML != "" && document.getElementById("c"+i+j).innerHTML != userVis[i][j])
+			{
+				alert("Answer is incorrect :-(");
+				retVal = false;
+			}
+		}
+	}
+		
+	var count = 0;
+	
+	for (i = 1; i <= size; i++)
+	for (j = 1; j <= size; j++)
+	{
+		if (userAns[i][j] == "0" || userAns[i][j] == "1")
+		{
+			count++;
+		}
+	}
+	
+	if (retVal && count == (size)*(size))
+	{
+		alert("Answer is correct!");
+	}
+	else if (retVal && count != (size)*(size))
+	{
+		alert("Answer is correct, so far!");
+	}
+	else
+	{
+		alert("Answer is incorrect :-(");
+	}
+}
+
+function clearBoth()
+{
+	document.getElementById("toSolve").innerHTML = "";
+	document.getElementById("solved").innerHTML = "";
+}
+
+function getCovers(path)
+{
+	var sets = new Array();
+	var size = path.length-1;
+	var text = "";
+	text = "size = " + size + "<br>";
+	
+	for (var i = 1; i <= size; i++)
+	{
+		for (var j = 1; j <= size; j++)
+		{	
+			if (path[i][j] != 0)
+			{
+				var temp = new Array();
+				for (var k = 0; j+k <= size && path[i][j+k] != 0; k++)
+				{
+					if (path[i][j+k] != 0)
+					{
+						temp[temp.length] = i + ", " + (j+k) + ", 0";
+					}
+				}
+				
+				if (j+k <= size && path[i][j+k] == 0)
+				{
+					temp[temp.length] = i + ", " + (j+k) + ", 1";
+				}
+				
+				for (var k = 1; k <= size && j-k >= 1 && path[i][j-k] != 0; k++)
+				{
+					if (path[i][j-k] != 0)
+					{
+						temp[temp.length] = i + ", " + (j-k) + ", 0";
+					}
+				}
+				
+				if (j-k >= 1 && path[i][j-k] == 0)
+				{
+					temp[temp.length] = i + ", " + (j-k) + ", 1";
+				}
+				
+				for (var k = 1; i+k <= size && path[i+k][j] != 0; k++)
+				{
+					if (path[i+k][j] != 0)
+					{
+						temp[temp.length] = (i+k) + ", " + j + ", 0";
+					}
+				}
+				
+				if (i+k <= size && path[i+k][j] == 0)
+				{
+					temp[temp.length] = (i+k) + ", " + j + ", 1";
+				}
+				
+				for (var k = 1; k <= size && i-k >= 1 && path[i-k][j] != 0; k++)
+				{
+					if (path[i-k][j] != 0)
+					{
+						temp[temp.length] = (i-k) + ", " + j + ", 0";
+					}
+				}
+				
+				if (i-k >= 1 && path[i-k][j] == 0)
+				{
+					temp[temp.length] = (i-k) + ", " + j + ", 1";
+				}
+
+				if (temp.length > 0)
+				{
+					text += "sets[" + i + ", " + j + "] = " + temp + "<br>";
+				}
+			
+				var loc = sets.length;
+				sets[loc] = new Array();
+				for (var k = 0; k < temp.length; k++)
+				{
+					sets[loc][k] = new Object();
+					sets[loc][k].loc = i + ", " + j;
+					sets[loc][k].value = temp[k];
+				}
+			}
+		}
+	}
+	
+	return sets;
+}
+
+function sortDec(arr2d)
+{
+	var temp;
+	for (var i = 0; i < arr2d.length; i++)
+	{
+		for (var j = i+1; j < arr2d.length; j++)
+		{
+			if (arr2d[i][1] < arr2d[j][1])
+			{
+				temp = arr2d[i];
+				arr2d[i] = arr2d[j];
+				arr2d[j] = temp;
+			}
+		}
+	}
+	
+	return arr2d;
+}
+
+function greedy(prob)
+{
+	var rem = new Array();
+	for (var i = 0; i < prob[1].length; i++)
+	{
+		rem[i] = prob[1][i];
+	}
+		
+	var output = "";
+	
+	var show = true;
+	var itms = "";
+	var chosen = new Array();
+	
+	var numElim;
+	
+	do
+	{
+		numAdded = 0;
+		var ratios = new Array();
+		for (var i = 0; i < prob[0].length; i++)
+		{
+			var temp = new Array();
+			for (var j = 0; j < prob[0][i].length; j++)
+			{
+				for (var k = 0; k < rem.length; k++)
+				{
+					if (rem[k] == prob[0][i][j].value)
+					{
+						temp[temp.length] = rem[k];
+					}
+				}
+			}
+			
+			ratios[i] = new Array();
+			ratios[i][0] = i;
+			ratios[i][1] = temp.length;
+			ratios[i][2] = prob[0][i][0].loc;
+		}
+				
+		ratios = sortDec(ratios);
+				
+		if (chosen.indexOf(ratios[0][2]) == -1)
+		{
+			chosen[chosen.length] = ratios[0][2];
+			numAdded++;
+		}
+
+		for (var i = 0; i < prob[0][ratios[0][0]].length; i++)
+		{
+			var loc = -1;
+			for (var j = 0; j < rem.length && loc == -1; j++)
+			{
+				if (rem[j] == prob[0][ratios[0][0]][i].value)
+				{
+					loc = j;
+				}
+			}
+
+			if (loc != -1)
+			{
+				var temp = rem[loc];
+				rem[loc] = rem[rem.length-1];
+				rem[rem.length-1] = temp;
+				rem.length--;
+				numElim++;
+			}
+		}		
+	} while (numAdded != 0);
+	
+	if (rem.length != 0)
+	{
+		for (var i = 0; i < rem.length; i++)
+		{
+			var elt = rem[i].split(", ");
+			if (elt[2] == 0)
+			{
+				chosen[chosen.length] = elt[0] + ", " + elt[1];
+			}
+		}
+	}
+		
+	return chosen;
+}
+</script>
+<h3><center></center></h3>
+<p>In a Corral Puzzle, we are given a square grid and inside the grid some of the cells have a number inside of it. The object of the puzzle is for the user to draw a bag (also known as a corral) around the numbers inside the grid. The limitation is that the numbers tell how many neighboring cells can be "seen" from the given cell, looking only horizontally and vertically in both directions without reaching an endpoint of the bag. There are no restrictions on the shape of the bag except that it actually represents a closed loop inside the grid. </p>
+<center><form name="puzzle" id="puzzle">
+<select name="dim" id="dim"></select><br>
+<input type="button" onclick="clearBoth();ans = generate2();" value="New Puzzle"><br>
+<input type="button" onclick="clearcells()" value="Clear Cells"><br>
+<input type="button" onclick="disp(ans)" value="Solution">
+<table>
+<tr><td>
+<p id="toSolve"></p>
+<center><input type="button" onclick="checkProg(ans)" value="Check Progress"></center>
+</td></tr><tr><td>
+<p id="solved"></p>
+</td></tr></table>
+</form>
+</center>
+<script type="text/javascript">
+setDim();
+var size = document.getElementById("dim").value;
+var ans = generate2();
+</script>

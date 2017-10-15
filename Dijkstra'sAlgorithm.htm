@@ -1,0 +1,575 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+Dijkstra'sAlgorithm<script id="sc1" type="text/javascript">
+function Dijkstra(A, n, show)
+{
+	document.getElementById('output').innerHTML = "";
+	B = [];
+	M_VAL = 50000;
+	for (i = 0; i < n; i++)
+	{
+		B[i] = [];
+		for (j = 0; j < n; j++)
+			if (A[i][j] == 0)
+				B[i][j] = M_VAL;
+			else
+				B[i][j] = A[i][j];
+	}
+	T = [];
+	T[T.length] = 1;
+	E = [];
+	sum = 0;
+	k = 1;
+	w = [];
+	p = [];
+	for (i = 0; i < n; i++)
+	{
+		w[i] = M_VAL;
+		p[i] = -1;
+	}
+	w[1] = 0;
+
+	while (k < n)
+	{
+		if (show)
+		{
+			text = "<table>";
+			for (i = 0; i < n; i++)
+			{
+				text += "<tr>";
+				for (j = 0; j < n; j++)
+				{
+					count = 0;
+					for (k = 0; k < T.length; k++)
+						if (i == T[k] || j == T[k])
+							count++;
+					if (count)
+					{
+						bb = "<b>";
+						bbe = "</b>";
+					}
+					else
+					{
+						bb = "";
+						bbe = "";
+					}
+					if (B[i][j] == M_VAL)
+						text += "<td>" + bb + "-" + bbe + "</td>";
+					else
+						text += "<td>" + bb + B[i][j] + bbe + "</td>";
+				}
+				text += "</tr>";
+			}
+			text += "</table>";
+			document.getElementById('output').innerHTML += text;
+		}
+		m = M_VAL;
+
+		for (i = 0; i < T.length; i++)
+		for (j = 0; j < n; j++)
+		{
+			if (w[T[i]] + B[T[i]][j] < m)
+			{
+				m = w[T[i]] + B[T[i]][j];
+				u = T[i];
+				v = j;
+			}
+		}
+
+		if (m == M_VAL)
+			k = n;
+		else
+		{
+			T[T.length] = v;
+			E[E.length] = u;
+			E[E.length] = v;
+			w[v] = w[u] + B[u][v];
+			p[v] = u;
+			k++;
+			for (i = 0; i < T.length; i++)
+			for (j = 0; j < T.length; j++)
+				B[T[i]][T[j]] = M_VAL;
+		}
+		if (show)
+		{
+			document.getElementById('output').innerHTML += "w = " + disp(w) + "<BR>";
+			document.getElementById('output').innerHTML += "e = (" + u + ", " + v + ")<br>----------<br>";
+		}
+	}
+
+	return E;
+}
+function EucDist(point1_x, point1_y, point2_x, point2_y)
+{
+	var i, j, sumSq = 0;
+
+	sumSq += Math.pow(point1_x - point2_x, 2);
+	sumSq += Math.pow(point1_y - point2_y, 2);
+
+	return Math.sqrt(sumSq);
+}
+
+function disp(set)
+{
+	var text = "";
+	text += "<table><tr><td>node </td>";
+	for (var i = 0; i < set.length; i++)
+		text += "<td>" + i + "</td>";
+	text += "</tr><tr><td>path length</td>";
+	for (var i = 0; i < set.length; i++)
+	{
+		text += "<td>" + set[i] + "</td>";
+	}
+	text += "</tr></table>";
+
+	return text;
+}
+
+function used(list, num1, num2)
+{
+	var i, ans = false;
+	for (i = 0; i < list.length && ans == false; i++)
+	{
+		if (EucDist(list[i][0], list[i][1], num1, num2) < 5)
+			ans = true;
+	}
+
+	return ans;
+}
+
+function drawGraph(A)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect(0, 0, c.width, c.height);
+	var points = new Array();
+	ctx.lineWidth = 1;
+	ctx.strokeStyle="#000000";
+
+	var theta = new Array();
+
+	for (var i = 0; i < A.length; i++)
+	{
+		theta[i] = (2 * Math.PI * i) / A.length;
+
+		points[i] = new Array();
+		points[i][0] = 255 * Math.cos(theta[i]) + 275;
+		points[i][1] = 255 * Math.sin(theta[i]) + 275;
+	}
+
+	for (var i = 0; i < A.length; i++)
+	{
+		for (var j = 0; j < A[i].length; j++)
+		{
+			if (A[i][j] != 0)
+			{
+				ctx.beginPath();
+				ctx.moveTo(points[i][0], points[i][1]);
+				ctx.lineTo(points[j][0], points[j][1]);
+				ctx.stroke();
+				ctx.fillText(A[i][j], (points[i][0] + points[j][0])/2, (points[i][1] + points[j][1])/2);
+			}
+		}
+	}
+
+	for (var i = 0; i < A.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(i,points[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1),points[i][1]+4);
+	}
+
+	return points;
+}
+
+function drawNodes(A, points)
+{
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	ctx.lineWidth = 1;
+	for (var i = 0; i < A.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(i,points[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1),points[i][1]+4);
+	}
+}
+
+function drawLines(A, points)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect (0, 0, c.width, c.height);
+
+	for (var i = 0; i < A.length; i++)
+	{
+		for (var j = 0; j < A[0].length; j++)
+		{
+			if (A[i][j] != 0)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#000000";
+				ctx.beginPath();
+				ctx.moveTo(points[i][0], points[i][1]);
+				ctx.lineTo(points[j][0], points[j][1]);
+				ctx.stroke();
+				ctx.fillText(A[i][j], (points[i][0] + points[j][0])/2, (points[i][1] + points[j][1])/2);
+			}
+		}
+	}
+}
+
+function drawAns(A, points, ans, start)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.strokeStyle="#00FF00";
+	ctx.lineWidth = 2;
+	ctx.beginPath();
+	ctx.moveTo(points[ans[start]][0], points[ans[start]][1]);
+	ctx.lineTo(points[ans[start+1]][0], points[ans[start+1]][1]);
+	ctx.stroke();
+	drawNodes(A, points);
+	if ((start + 2) >= ans.length-1)
+	{
+		start = 0;
+	}
+	else
+		start += 2;
+	var f = function(){if (start == 0)drawLines(A, points);t = drawAns(A, points, ans, start);drawNodes(A, points);};
+	t = setTimeout(f, 2000);
+
+	return t;
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" /><meta name="keywords" content="algorithm, computer science, Dijkstra's algorithm, dynamic programming. math, graph, greedy, JavaScript, mathematics, script, shortest path, single node shortest path problem, tree, weight" /> 
+<meta name="description" content="This page contains a script I've written to help understand Dijkstra's Algorithm." />
+<title> at LEARNINGlover.com</title>
+<script id="sc1" type="text/javascript">
+function Dijkstra(A, n, show)
+{
+	document.getElementById('output').innerHTML = "";
+	B = [];
+	M_VAL = 50000;
+	for (i = 0; i < n; i++)
+	{
+		B[i] = [];
+		for (j = 0; j < n; j++)
+			if (A[i][j] == 0)
+				B[i][j] = M_VAL;
+			else
+				B[i][j] = A[i][j];
+	}
+	T = [];
+	T[T.length] = 1;
+	E = [];
+	sum = 0;
+	k = 1;
+	w = [];
+	p = [];
+	for (i = 0; i < n; i++)
+	{
+		w[i] = M_VAL;
+		p[i] = -1;
+	}
+	w[1] = 0;
+
+	while (k < n)
+	{
+		if (show)
+		{
+			text = "<table>";
+			for (i = 0; i < n; i++)
+			{
+				text += "<tr>";
+				for (j = 0; j < n; j++)
+				{
+					count = 0;
+					for (k = 0; k < T.length; k++)
+						if (i == T[k] || j == T[k])
+							count++;
+					if (count)
+					{
+						bb = "<b>";
+						bbe = "</b>";
+					}
+					else
+					{
+						bb = "";
+						bbe = "";
+					}
+					if (B[i][j] == M_VAL)
+						text += "<td>" + bb + "-" + bbe + "</td>";
+					else
+						text += "<td>" + bb + B[i][j] + bbe + "</td>";
+				}
+				text += "</tr>";
+			}
+			text += "</table>";
+			document.getElementById('output').innerHTML += text;
+		}
+		m = M_VAL;
+
+		for (i = 0; i < T.length; i++)
+		for (j = 0; j < n; j++)
+		{
+			if (w[T[i]] + B[T[i]][j] < m)
+			{
+				m = w[T[i]] + B[T[i]][j];
+				u = T[i];
+				v = j;
+			}
+		}
+
+		if (m == M_VAL)
+			k = n;
+		else
+		{
+			T[T.length] = v;
+			E[E.length] = u;
+			E[E.length] = v;
+			w[v] = w[u] + B[u][v];
+			p[v] = u;
+			k++;
+			for (i = 0; i < T.length; i++)
+			for (j = 0; j < T.length; j++)
+				B[T[i]][T[j]] = M_VAL;
+		}
+		if (show)
+		{
+			document.getElementById('output').innerHTML += "w = " + disp(w) + "<BR>";
+			document.getElementById('output').innerHTML += "e = (" + u + ", " + v + ")<br>----------<br>";
+		}
+	}
+
+	return E;
+}
+function EucDist(point1_x, point1_y, point2_x, point2_y)
+{
+	var i, j, sumSq = 0;
+
+	sumSq += Math.pow(point1_x - point2_x, 2);
+	sumSq += Math.pow(point1_y - point2_y, 2);
+
+	return Math.sqrt(sumSq);
+}
+
+function disp(set)
+{
+	var text = "";
+	text += "<table><tr><td>node </td>";
+	for (var i = 0; i < set.length; i++)
+		text += "<td>" + i + "</td>";
+	text += "</tr><tr><td>path length</td>";
+	for (var i = 0; i < set.length; i++)
+	{
+		text += "<td>" + set[i] + "</td>";
+	}
+	text += "</tr></table>";
+
+	return text;
+}
+
+function used(list, num1, num2)
+{
+	var i, ans = false;
+	for (i = 0; i < list.length && ans == false; i++)
+	{
+		if (EucDist(list[i][0], list[i][1], num1, num2) < 5)
+			ans = true;
+	}
+
+	return ans;
+}
+
+function drawGraph(A)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect(0, 0, c.width, c.height);
+	var points = new Array();
+	ctx.lineWidth = 1;
+	ctx.strokeStyle="#000000";
+
+	var theta = new Array();
+
+	for (var i = 0; i < A.length; i++)
+	{
+		theta[i] = (2 * Math.PI * i) / A.length;
+
+		points[i] = new Array();
+		points[i][0] = 255 * Math.cos(theta[i]) + 275;
+		points[i][1] = 255 * Math.sin(theta[i]) + 275;
+	}
+
+	for (var i = 0; i < A.length; i++)
+	{
+		for (var j = 0; j < A[i].length; j++)
+		{
+			if (A[i][j] != 0)
+			{
+				ctx.beginPath();
+				ctx.moveTo(points[i][0], points[i][1]);
+				ctx.lineTo(points[j][0], points[j][1]);
+				ctx.stroke();
+				ctx.fillText(A[i][j], (points[i][0] + points[j][0])/2, (points[i][1] + points[j][1])/2);
+			}
+		}
+	}
+
+	for (var i = 0; i < A.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(i,points[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1),points[i][1]+4);
+	}
+
+	return points;
+}
+
+function drawNodes(A, points)
+{
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	ctx.lineWidth = 1;
+	for (var i = 0; i < A.length; i++)
+	{
+		ctx.strokeStyle="#000000";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle="#00FFFF";
+		ctx.beginPath();
+		ctx.arc(points[i][0],points[i][1],10,0*Math.PI,2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle="#000000";
+		ctx.font="10px Arial";
+		ctx.fillText(i,points[i][0]-3*(Math.floor(Math.log(i+1)/Math.log(10))+1),points[i][1]+4);
+	}
+}
+
+function drawLines(A, points)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect (0, 0, c.width, c.height);
+
+	for (var i = 0; i < A.length; i++)
+	{
+		for (var j = 0; j < A[0].length; j++)
+		{
+			if (A[i][j] != 0)
+			{
+				ctx.lineWidth = 1;
+				ctx.strokeStyle="#000000";
+				ctx.beginPath();
+				ctx.moveTo(points[i][0], points[i][1]);
+				ctx.lineTo(points[j][0], points[j][1]);
+				ctx.stroke();
+				ctx.fillText(A[i][j], (points[i][0] + points[j][0])/2, (points[i][1] + points[j][1])/2);
+			}
+		}
+	}
+}
+
+function drawAns(A, points, ans, start)
+{
+	var c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	ctx.strokeStyle="#00FF00";
+	ctx.lineWidth = 2;
+	ctx.beginPath();
+	ctx.moveTo(points[ans[start]][0], points[ans[start]][1]);
+	ctx.lineTo(points[ans[start+1]][0], points[ans[start+1]][1]);
+	ctx.stroke();
+	drawNodes(A, points);
+	if ((start + 2) >= ans.length-1)
+	{
+		start = 0;
+	}
+	else
+		start += 2;
+	var f = function(){if (start == 0)drawLines(A, points);t = drawAns(A, points, ans, start);drawNodes(A, points);};
+	t = setTimeout(f, 2000);
+
+	return t;
+}
+</script>
+<h3><center></center></h3>
+<p><p>Given a weighted graph G and a pair of vertices (s and d), the shortest path problem seeks to find a path from s to d in this graph such that the sum of the weights of the edges along this path is minimized. One famous algorithm for this problem is Dijkstra's Algorithm, which not only finds the shortest path from an origin (s) to a destination (d), but finds the shortest path from (s) to all other vertices (v) in the graph G. The algorithm proceeds as follows: </p> <p>Dijkstra's Algorithm</p> <li>Initially we have an empty path tree T, and assume that the distance to every vertex in the graph has some maximum cost, say infinity, i.e. w(v) = infinity for all v in V.  <li>Add the node s to the tree, and give the associated path cost a value of zero, i.e. w(s) = 0.  <li>Find the edge which is adjacent to T that adds the vertex whose cost is minimum, i.e. we look for an e = (u, v) such that u is in T, and v is not in T and w(u) + cost(u, v) < w(v) is minimum. If no such edge exists go to 5.   <li>Add the corresponding edge and vertex to the tree, and update the weight vector of the vertex v. Go to 3.  <li>The path tree T now represents the shortest path from the vertex s to all other vertices reachable in the graph G. The weight vector w represents the costs of these paths. 0 </p> </p>
+<script id="sc2" type="text/javascript">
+n = Math.floor(Math.random()*20)+5;
+A = RandGraph(n);
+text = "<table>";
+for (i = 0; i < n; i++)
+{
+	text += "<tr>";
+	for (j = 0; j < n; j++)
+	{
+		 if (A[i][j] != 0)
+			  text += "<td>" + A[i][j] + "</td>";
+		 else
+			  text += "<td>-</td>";
+	}
+	text += "</tr>";
+}
+text += "</table>";
+document.write(text);
+var t;
+</script>
+<form name=data id=data>
+<input type=button onclick="javascript:location.reload(true)"
+value="New Problem"><br>
+<input type="checkbox" name="show" id="show"> Show Work?
+<input type="button" value="Solve" onclick="text2 ='<table><tr><td>Path Tree = ';sol = Dijkstra(A, n, document.getElementById('show').checked);for (i = 0; i < 2*(n-1);i+=2)
+
+text2 += '(' + sol[i] + ', ' + sol[i+1] + '), ';text2 += '</td></tr></table>'; document.getElementById('output').innerHTML += text2;t = 
+
+drawAns(A, pts, sol, 0);">
+<input type=button onclick="t=clearTimeout(t);pts = drawGraph(A)" value="Redraw Graph">
+</form>
+
+<canvas id="myCanvas" width="550" height="550" style="border:1px solid
+#d3d3d3;">
+your browser does not support the canvas tag
+</canvas>
+<script type="text/javascript">
+var pts = drawGraph(A);
+</script>
+<P name=output id=output>&nbsp;</P>

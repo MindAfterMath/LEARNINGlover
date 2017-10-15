@@ -1,0 +1,689 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+EulerianTouronaGraph<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+	display: inline;
+}
+</style>
+<script type="text/javascript">
+function generate()
+{
+	var numNodes = Math.floor(Math.random()*20)+5;
+	var numArcs = Math.floor(Math.random()*((numNodes*(numNodes-1)/4) - numNodes)) + numNodes;
+	var graph = new Array(numNodes);
+	var tree = new Array();
+	var otherNodes = new Array();
+	var count = 0;
+	
+	for (var i = 0; i < numNodes; i++)
+	{
+		graph[i] = new Array(numNodes);
+		for (var j = 0; j < numNodes; j++)
+		{
+			graph[i][j] = Number.MAX_VALUE;
+		}
+	}
+	
+	tree[0] = 0;
+	for (var i = 1; i < numNodes; i++)
+	{
+		otherNodes[i-1] = i;
+	}
+	
+	while(tree.length < numNodes)
+	{
+		var inside = tree.length - 1;
+		var outside = Math.floor(Math.random()*otherNodes.length);
+		
+		graph[tree[inside]][otherNodes[outside]] = 1;
+		graph[otherNodes[outside]][tree[inside]] = 1;
+		
+		tree[tree.length] = otherNodes[outside];
+	
+		otherNodes[outside] = otherNodes[otherNodes.length-1];
+		otherNodes.length--;
+	
+		count++;
+	}
+		
+	while (count < numArcs)
+	{
+		var loc1, loc2;
+	
+		do
+		{
+			var loc1 = Math.floor(Math.random()*numNodes);
+			var loc2;
+			var poss = new Array();
+			for (var i = 0; i < graph.length; i++)
+			{
+				if (graph[loc1][i] == Number.MAX_VALUE && i != loc1)
+				{
+					poss[poss.length] = i;
+				}
+			}
+
+			loc2 = Math.floor(Math.random()*poss.length);
+		}
+		while (poss.length == 0);
+		
+		graph[loc1][poss[loc2]] = 1;
+		graph[poss[loc2]][loc1] = 1;
+		count++;
+	}
+	
+	var odds = [];
+	for (var i = 0; i < graph.length; i++)
+	{
+		var deg = 0;
+		for (var j = 0; j < graph[i].length; j++)
+		{
+			if (graph[i][j] == 1)
+			{
+				deg++;
+			}
+		}
+		if (deg % 2 == 1)
+		{
+			odds.push(i);
+		}
+	}
+	
+	while (odds.length > 0)
+	{
+		var loc1 = Math.floor(Math.random() * odds.length);
+		elt1 = odds[loc1];
+		odds.splice(loc1, 1);
+		
+		var loc2 = Math.floor(Math.random() * odds.length);
+		elt2 = odds[loc2];
+		odds.splice(loc2, 1);
+		
+		if (graph[elt1][elt2] != 1)
+		{
+			graph[elt1][elt2] = 1;
+			graph[elt2][elt1] = 1;
+		}
+		else
+		{
+			var loc3 = -1;
+			for (var i = 0; i < graph.length; i++)
+			{
+				if (graph[i][elt1] != 1 && graph[i][elt2] != 1 && i != elt1 && i != elt2)
+				{
+					loc3 = i;
+					break;
+				}
+			}
+			graph[loc3][elt1] = 1;
+			graph[elt1][loc3] = 1;
+			
+			graph[loc3][elt2] = 1;
+			graph[elt2][loc3] = 1;
+		}
+	}
+	
+	return graph;
+}
+
+function drawGraph(graph)
+{
+	var c = document.getElementById ('myCanvas');
+	var ctx = c.getContext('2d');
+
+	ctx.clearRect(0, 0, c.width, c.height);
+	
+	for (var i = 0; i < graph.edges.length; i++)
+	{
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = '#000000';
+		ctx.beginPath();
+		ctx.moveTo(graph.nodes[graph.edges[i][0]].xVal, graph.nodes[graph.edges[i][0]].yVal);
+		ctx.lineTo(graph.nodes[graph.edges[i][1]].xVal, graph.nodes[graph.edges[i][1]].yVal);
+		ctx.stroke();
+	}
+	
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		ctx.strokeStyle='#000000';
+		ctx.beginPath();
+		ctx.arc(graph.nodes[i].xVal, graph.nodes[i].yVal, 20, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle = '#c9c900';
+		
+		ctx.beginPath();
+		ctx.arc(graph.nodes[i].xVal, graph.nodes[i].yVal, 20, 0*Math.PI, 2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle='#000000';
+		ctx.font='10px Arial';
+		if (graph.nodes[i].value == 0)
+		{
+			ctx.fillText(graph.nodes[i].value, graph.nodes[i].xVal-3*(Math.floor(Math.log(graph.nodes[i].value+1)/Math.log(20))+1), graph.nodes[i].yVal+2);
+		}
+		else
+		{
+			ctx.fillText(graph.nodes[i].value, graph.nodes[i].xVal-3*(Math.floor(Math.log(graph.nodes[i].value)/Math.log(20))+1), graph.nodes[i].yVal+2);
+		}
+	}
+}
+
+function init(A)
+{
+	var graph = new Object();
+	graph.edges = new Array();
+	graph.nodes = new Array();
+	
+	var theta = new Array();
+	var x = new Array();
+	var y = new Array();
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		theta[i] = (2*Math.PI*i) / A.length;
+		
+		graph.nodes[i] = new Object;
+		graph.nodes[i].value = i;
+		graph.nodes[i].xVal = 255*Math.cos(theta[i]) + 275;
+		graph.nodes[i].yVal = 255*Math.sin(theta[i]) + 275;
+		
+		for (var j = 0; j < A[i].length; j++)
+		{
+			if (A[i][j] != Number.MAX_VALUE)
+			{
+				var len = graph.edges.length;
+				graph.edges[len] = new Array();
+				graph.edges[len][0] = i;
+				graph.edges[len][1] = j;
+			}
+		}		
+	}
+	
+	drawGraph(graph);
+	
+	return graph;
+}
+
+function hierAlg(graph)
+{
+//This algorithm is by Hierholzer. It finds a Eulerian path by starting at a random vertex
+// then continuously selecting a random edge from the current vertex until we arrive back 
+// at that vertex. While there are unused vertices that have unused edges, start at that 
+// vertex and repeat this process. 
+	var curr = Math.floor(Math.random() * graph.nodes.length);
+	var adjLists = [];
+	var odds = [];
+	
+	for (var i = 0; i < graph.nodes.length ; i++)
+	{
+		adjLists[i] = [];
+	}
+	
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		for (var j = 0; j < graph.edges.length; j++)
+		{
+			if (graph.edges[j][0] == graph.nodes[i].value)
+			{
+				adjLists[i].push(graph.edges[j]);
+			}
+		}
+	}
+	
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		document.getElementById('output').innerHTML += i + " - " + adjLists[i];
+		if (adjLists[i].length % 2 == 0)
+		{
+			document.getElementById('output').innerHTML += " - even " + "<br>";
+		}
+		else
+		{
+			document.getElementById('output').innerHTML += " - odd " + "<br>";
+		}
+	}
+	
+	var tour = [];
+	
+	while (adjLists[curr].length != 0)
+	{
+		document.getElementById('output').innerHTML += "curr = " + curr + "<br>";
+		document.getElementById('output').innerHTML += "tour = " + tour + "<br>";
+		for (var i = 0; i < tour.length; i++)
+		{
+			for (var j = 0; j < adjLists[curr].length; j++)
+			{
+				if ((adjLists[curr][j][0] == tour[i][1] && adjLists[curr][j][1] == tour[i][0]) || (adjLists[curr][j][0] == tour[i][0] && adjLists[curr][j][1] == tour[i][1]))
+				{
+					document.getElementById('output').innerHTML += "found " + tour[i] + "<br>";
+					adjLists[curr][j] = adjLists[curr][adjLists[curr].length - 1];
+					adjLists[curr].length--;
+					continue;
+				}
+			}
+		}
+		
+//		if (adjLists[curr].length == 0)
+//		{
+//			break;
+//		}
+		
+		if (adjLists[curr].length == 0 && tour.length < graph.edges.length / 2)
+		{
+			curr = -1;
+			for (var i = 0; i < adjLists.length && curr == -1; i++)
+			{
+				if (adjLists[i].length > 0)
+				{
+					curr = i;
+				}
+			}
+		}
+		else if (adjLists[curr].length == 0 && tour.length == graph.edges.length / 2)
+		{
+			return tour;
+		}
+		
+		document.getElementById('output').innerHTML += curr + " - " + adjLists[curr] + "<br>";
+		
+		var loc = Math.floor(Math.random() * adjLists[curr].length);
+		tour.push(adjLists[curr][loc]);
+		var next = adjLists[curr][loc][1];
+		adjLists[curr].splice(loc, 1);
+		curr = next;
+		document.getElementById('output').innerHTML += curr + " - " + adjLists[curr] + "<br>";
+	}
+}
+
+function postProcess()
+{
+
+}
+</script><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta name="author" content="AfterMath" /><link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+
+<title> at LEARNINGlover.com</title>
+<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+	display: inline;
+}
+</style>
+<script type="text/javascript">
+function generate()
+{
+	var numNodes = Math.floor(Math.random()*20)+5;
+	var numArcs = Math.floor(Math.random()*((numNodes*(numNodes-1)/4) - numNodes)) + numNodes;
+	var graph = new Array(numNodes);
+	var tree = new Array();
+	var otherNodes = new Array();
+	var count = 0;
+	
+	for (var i = 0; i < numNodes; i++)
+	{
+		graph[i] = new Array(numNodes);
+		for (var j = 0; j < numNodes; j++)
+		{
+			graph[i][j] = Number.MAX_VALUE;
+		}
+	}
+	
+	tree[0] = 0;
+	for (var i = 1; i < numNodes; i++)
+	{
+		otherNodes[i-1] = i;
+	}
+	
+	while(tree.length < numNodes)
+	{
+		var inside = tree.length - 1;
+		var outside = Math.floor(Math.random()*otherNodes.length);
+		
+		graph[tree[inside]][otherNodes[outside]] = 1;
+		graph[otherNodes[outside]][tree[inside]] = 1;
+		
+		tree[tree.length] = otherNodes[outside];
+	
+		otherNodes[outside] = otherNodes[otherNodes.length-1];
+		otherNodes.length--;
+	
+		count++;
+	}
+		
+	while (count < numArcs)
+	{
+		var loc1, loc2;
+	
+		do
+		{
+			var loc1 = Math.floor(Math.random()*numNodes);
+			var loc2;
+			var poss = new Array();
+			for (var i = 0; i < graph.length; i++)
+			{
+				if (graph[loc1][i] == Number.MAX_VALUE && i != loc1)
+				{
+					poss[poss.length] = i;
+				}
+			}
+
+			loc2 = Math.floor(Math.random()*poss.length);
+		}
+		while (poss.length == 0);
+		
+		graph[loc1][poss[loc2]] = 1;
+		graph[poss[loc2]][loc1] = 1;
+		count++;
+	}
+	
+	var odds = [];
+	for (var i = 0; i < graph.length; i++)
+	{
+		var deg = 0;
+		for (var j = 0; j < graph[i].length; j++)
+		{
+			if (graph[i][j] == 1)
+			{
+				deg++;
+			}
+		}
+		if (deg % 2 == 1)
+		{
+			odds.push(i);
+		}
+	}
+	
+	while (odds.length > 0)
+	{
+		var loc1 = Math.floor(Math.random() * odds.length);
+		elt1 = odds[loc1];
+		odds.splice(loc1, 1);
+		
+		var loc2 = Math.floor(Math.random() * odds.length);
+		elt2 = odds[loc2];
+		odds.splice(loc2, 1);
+		
+		if (graph[elt1][elt2] != 1)
+		{
+			graph[elt1][elt2] = 1;
+			graph[elt2][elt1] = 1;
+		}
+		else
+		{
+			var loc3 = -1;
+			for (var i = 0; i < graph.length; i++)
+			{
+				if (graph[i][elt1] != 1 && graph[i][elt2] != 1 && i != elt1 && i != elt2)
+				{
+					loc3 = i;
+					break;
+				}
+			}
+			graph[loc3][elt1] = 1;
+			graph[elt1][loc3] = 1;
+			
+			graph[loc3][elt2] = 1;
+			graph[elt2][loc3] = 1;
+		}
+	}
+	
+	return graph;
+}
+
+function drawGraph(graph)
+{
+	var c = document.getElementById ('myCanvas');
+	var ctx = c.getContext('2d');
+
+	ctx.clearRect(0, 0, c.width, c.height);
+	
+	for (var i = 0; i < graph.edges.length; i++)
+	{
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = '#000000';
+		ctx.beginPath();
+		ctx.moveTo(graph.nodes[graph.edges[i][0]].xVal, graph.nodes[graph.edges[i][0]].yVal);
+		ctx.lineTo(graph.nodes[graph.edges[i][1]].xVal, graph.nodes[graph.edges[i][1]].yVal);
+		ctx.stroke();
+	}
+	
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		ctx.strokeStyle='#000000';
+		ctx.beginPath();
+		ctx.arc(graph.nodes[i].xVal, graph.nodes[i].yVal, 20, 0*Math.PI, 2*Math.PI);
+		ctx.stroke();
+
+		ctx.fillStyle = '#c9c900';
+		
+		ctx.beginPath();
+		ctx.arc(graph.nodes[i].xVal, graph.nodes[i].yVal, 20, 0*Math.PI, 2*Math.PI);
+		ctx.fill();
+
+		ctx.fillStyle='#000000';
+		ctx.font='10px Arial';
+		if (graph.nodes[i].value == 0)
+		{
+			ctx.fillText(graph.nodes[i].value, graph.nodes[i].xVal-3*(Math.floor(Math.log(graph.nodes[i].value+1)/Math.log(20))+1), graph.nodes[i].yVal+2);
+		}
+		else
+		{
+			ctx.fillText(graph.nodes[i].value, graph.nodes[i].xVal-3*(Math.floor(Math.log(graph.nodes[i].value)/Math.log(20))+1), graph.nodes[i].yVal+2);
+		}
+	}
+}
+
+function init(A)
+{
+	var graph = new Object();
+	graph.edges = new Array();
+	graph.nodes = new Array();
+	
+	var theta = new Array();
+	var x = new Array();
+	var y = new Array();
+	
+	for (var i = 0; i < A.length; i++)
+	{
+		theta[i] = (2*Math.PI*i) / A.length;
+		
+		graph.nodes[i] = new Object;
+		graph.nodes[i].value = i;
+		graph.nodes[i].xVal = 255*Math.cos(theta[i]) + 275;
+		graph.nodes[i].yVal = 255*Math.sin(theta[i]) + 275;
+		
+		for (var j = 0; j < A[i].length; j++)
+		{
+			if (A[i][j] != Number.MAX_VALUE)
+			{
+				var len = graph.edges.length;
+				graph.edges[len] = new Array();
+				graph.edges[len][0] = i;
+				graph.edges[len][1] = j;
+			}
+		}		
+	}
+	
+	drawGraph(graph);
+	
+	return graph;
+}
+
+function hierAlg(graph)
+{
+//This algorithm is by Hierholzer. It finds a Eulerian path by starting at a random vertex
+// then continuously selecting a random edge from the current vertex until we arrive back 
+// at that vertex. While there are unused vertices that have unused edges, start at that 
+// vertex and repeat this process. 
+	var curr = Math.floor(Math.random() * graph.nodes.length);
+	var adjLists = [];
+	var odds = [];
+	
+	for (var i = 0; i < graph.nodes.length ; i++)
+	{
+		adjLists[i] = [];
+	}
+	
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		for (var j = 0; j < graph.edges.length; j++)
+		{
+			if (graph.edges[j][0] == graph.nodes[i].value)
+			{
+				adjLists[i].push(graph.edges[j]);
+			}
+		}
+	}
+	
+	for (var i = 0; i < graph.nodes.length; i++)
+	{
+		document.getElementById('output').innerHTML += i + " - " + adjLists[i];
+		if (adjLists[i].length % 2 == 0)
+		{
+			document.getElementById('output').innerHTML += " - even " + "<br>";
+		}
+		else
+		{
+			document.getElementById('output').innerHTML += " - odd " + "<br>";
+		}
+	}
+	
+	var tour = [];
+	
+	while (adjLists[curr].length != 0)
+	{
+		document.getElementById('output').innerHTML += "curr = " + curr + "<br>";
+		document.getElementById('output').innerHTML += "tour = " + tour + "<br>";
+		for (var i = 0; i < tour.length; i++)
+		{
+			for (var j = 0; j < adjLists[curr].length; j++)
+			{
+				if ((adjLists[curr][j][0] == tour[i][1] && adjLists[curr][j][1] == tour[i][0]) || (adjLists[curr][j][0] == tour[i][0] && adjLists[curr][j][1] == tour[i][1]))
+				{
+					document.getElementById('output').innerHTML += "found " + tour[i] + "<br>";
+					adjLists[curr][j] = adjLists[curr][adjLists[curr].length - 1];
+					adjLists[curr].length--;
+					continue;
+				}
+			}
+		}
+		
+//		if (adjLists[curr].length == 0)
+//		{
+//			break;
+//		}
+		
+		if (adjLists[curr].length == 0 && tour.length < graph.edges.length / 2)
+		{
+			curr = -1;
+			for (var i = 0; i < adjLists.length && curr == -1; i++)
+			{
+				if (adjLists[i].length > 0)
+				{
+					curr = i;
+				}
+			}
+		}
+		else if (adjLists[curr].length == 0 && tour.length == graph.edges.length / 2)
+		{
+			return tour;
+		}
+		
+		document.getElementById('output').innerHTML += curr + " - " + adjLists[curr] + "<br>";
+		
+		var loc = Math.floor(Math.random() * adjLists[curr].length);
+		tour.push(adjLists[curr][loc]);
+		var next = adjLists[curr][loc][1];
+		adjLists[curr].splice(loc, 1);
+		curr = next;
+		document.getElementById('output').innerHTML += curr + " - " + adjLists[curr] + "<br>";
+	}
+}
+
+function postProcess()
+{
+
+}
+</script>
+<h3><center></center></h3>
+<p>This is a simulation of the Koinsberg Bridges Problem. In that problem, the origin of Graph Theory, Euler was asked whether there existed a path through the city of Koinsberg that traversed each bridge exactly once. Euler was able to solve the problem by saying that since the graph had odd degree vertices, the answer was not true. Graphs that have all nodes of even degree are then called Eulerian. 
+
+This still leaves the question of how to traverse the edges on a Eulerian graph. This page will give an algorithm that shows how to construct such a tour. </p>
+<p name="input" id="input"></p>
+<canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas>
+<script type="text/javascript">
+var colors = new Array();
+colors[0] = "#0000FF";
+colors[1] = "#00FF00";
+colors[2] = "#FF0000";
+colors[3] = "#00AAFF";
+colors[4] = "#005555";
+colors[5] = "#AA00AA";
+colors[6] = "#00AAAA";
+colors[7] = "#AAAA00";
+colors[8] = "#AA00FF";
+colors[9] = "#00FFFF";
+colors[10] = "#FFAA00";
+colors[11] = "#FF00FF";
+colors[12] = "#AAAAFF";
+colors[13] = "#D2691E";
+colors[14] = "#FFAAAA";
+colors[15] = "#4682BD";
+colors[16] = "#FFFF00";
+colors[17] = "#FFFFAA";
+colors[18] = "#0000AA";
+colors[19] = "#00AA00";
+colors[20] = "#AA0000";
+colors[21] = "#F0F8FF";
+colors[22] = "#F0F8FF";
+colors[23] = "#FAEBD7";
+colors[24] = "#DEB887";
+
+var A = generate();
+var graph = init(A);
+
+</script><br><input type="button" value="New Graph" onclick="document.getElementById('output').innerHTML = ''; A = generate(); graph = init(A);">
+<input type="button" value="Eulerian Tour" onclick="var tour = hierAlg(graph); document.getElementById('output').innerHTML = tour + '<br>' + tour.length + '<br>' + graph.edges.length;"><br>
+<p name="output"  id="output"></p>
