@@ -1,0 +1,2641 @@
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<html>
+<head>
+<title>LDA Algorithm</title>
+<meta name="author" content="AfterMath" />
+<script type="text/javascript">
+var M = 1000000;
+
+/*
+ * (C) Copyright 2005, Gregor Heinrich (gregor :: arbylon : net) (This file is
+ * part of the org.knowceans experimental software packages.)
+ */
+/*
+ * LdaGibbsSampler is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option) any
+ * later version.
+ */
+/*
+ * LdaGibbsSampler is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ */
+/*
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
+/*
+ * Created on Mar 6, 2005
+ */
+/**
+ * Gibbs sampler for estimating the best assignments of topics for words and
+ * documents in a corpus. The algorithm is introduced in Tom Griffiths' paper
+ * "Gibbs sampling in the generative model of Latent Dirichlet Allocation"
+ * (2002).
+ * 
+ * @author heinrich
+ */
+
+/**
+ * Initialisation: Must start with an assignment of observations to topics ?
+ * Many alternatives are possible, I chose to perform random assignments
+ * with equal probabilities
+ * 
+ * @param K
+ *            number of topics
+ * @return z assignment of topics to words
+ */
+function initialState(LdaGibbs) 
+{
+	var i;
+
+//	var M = LdaGibbs.documents.length;
+
+	// initialise count variables.
+	LdaGibbs.nw = new Array(LdaGibbs.vocab.length);
+	for (var zen = 0; zen < LdaGibbs.vocab.length; zen++)
+	{
+		//nw is a numWords by numTopics matrix. 
+		LdaGibbs.nw[LdaGibbs.vocab[zen]] = new Array(LdaGibbs.numTopics);
+		for (var yoga = 0; yoga < LdaGibbs.nw[LdaGibbs.vocab[zen]].length; yoga++)
+		{
+			LdaGibbs.nw[LdaGibbs.vocab[zen]][yoga] = 0;
+		}
+	}
+	
+	LdaGibbs.nd = new Array(LdaGibbs.documents.length);
+	for (var zen = 0; zen < LdaGibbs.nd.length; zen++)
+	{
+		LdaGibbs.nd[zen] = new Array(LdaGibbs.numTopics);
+		for (var yoga = 0; yoga < LdaGibbs.nd[zen].length; yoga++)
+		{
+			LdaGibbs.nd[zen][yoga] = 0;
+		}
+	}
+	
+	LdaGibbs.nwsum = new Array(LdaGibbs.numTopics);
+	for (var zen = 0; zen < LdaGibbs.nwsum.length; zen++)
+	{
+		LdaGibbs.nwsum[zen] = 0;
+	}
+	
+	LdaGibbs.ndsum = new Array(LdaGibbs.documents.length);
+	for (var zen = 0; zen < LdaGibbs.ndsum.length; zen++)
+	{
+		LdaGibbs.ndsum[zen] = 0;
+	}
+
+	// The z_i are are initialised to values in [1,K] to determine the
+	// initial state of the Markov chain.
+
+	LdaGibbs.z = new Array(LdaGibbs.documents.length);
+	for (var zen = 0; zen < LdaGibbs.z.length; zen++)
+	{
+		LdaGibbs.z[zen] = new Array();
+	}
+	
+	for (var m = 0; m < LdaGibbs.documents.length; m++)
+	{
+		var docLen = LdaGibbs.documents[m].length;
+		LdaGibbs.z[m] = new Array(docLen);
+		
+		for (var n = 0; n < docLen; n++)
+		{
+			var topic = Math.floor(Math.random() * LdaGibbs.numTopics);
+			LdaGibbs.z[m][n] = topic;
+			// number of instances of word i assigned to topic j
+			LdaGibbs.nw[LdaGibbs.documents[m][n]][topic]++;
+			// number of words in document i assigned to topic j.
+			LdaGibbs.nd[m][topic]++;
+			// total number of words assigned to topic j.
+			LdaGibbs.nwsum[topic]++;
+		}
+		// total number of words in document i
+		LdaGibbs.ndsum[m] = docLen;
+	}
+	
+	return LdaGibbs;
+}
+
+/**
+ * Main method: Select initial state ? Repeat a large number of times: 1.
+ * Select an element 2. Update conditional on other elements. If
+ * appropriate, output summary for each run.
+ * 
+ * @param K
+ *            number of topics
+ * @param alpha
+ *            symmetric prior parameter on document--topic associations
+ * @param beta
+ *            symmetric prior parameter on topic--term associations
+ */
+function gibbs(LdaGibbs) 
+{
+//	var text = "";
+
+        // init sampler statistics
+	if (LdaGibbs.SAMPLE_LAG > 0) 
+	{
+		LdaGibbs.thetasum = new Array(LdaGibbs.documents.length);
+		for (var zen = 0; zen < LdaGibbs.thetasum.length; zen++)
+		{
+			LdaGibbs.thetasum[zen] = new Array(LdaGibbs.numTopics);
+			for (var yoga = 0; yoga < LdaGibbs.thetasum[zen].length; yoga++)
+			{
+				LdaGibbs.thetasum[zen][yoga] = 0;
+			}
+		}
+
+		LdaGibbs.phisum = new Array(LdaGibbs.numTopics);
+		for (var zen = 0; zen < LdaGibbs.phisum.length; zen++)
+		{
+			LdaGibbs.phisum[zen] = new Array(LdaGibbs.vocab.length);
+			for (var yoga = 0; yoga < LdaGibbs.phisum[zen].length; yoga++)
+			{
+				LdaGibbs.phisum[zen][yoga] = 0;
+			}
+		}
+		LdaGibbs.numstats = 0;
+	}
+
+	// initial state of the Markov chain:
+	LdaGibbs = initialState(LdaGibbs);
+
+	document.getElementById("output").innerHTML += "Sampling " + LdaGibbs.ITERATIONS + " iterations with alpha = " + LdaGibbs.alpha + " and beta = " + LdaGibbs.beta + ".<br>";
+
+	for (var i = 0; i < LdaGibbs.ITERATIONS; i++) 
+	{
+		// for all z_i
+		for (var m = 0; m < LdaGibbs.z.length; m++) 
+		{
+			for (var n = 0; n < LdaGibbs.z[m].length; n++) 
+			{
+				// (z_i = z[m][n])
+				// sample from p(z_i|z_-i, w)
+				var topic = sampleFullConditional(LdaGibbs, m, n);
+				LdaGibbs.z[m][n] = topic;
+			}
+		}
+
+		if ((i < LdaGibbs.BURN_IN) && (i % LdaGibbs.THIN_INTERVAL == 0)) 
+		{
+//			text += "B";
+			LdaGibbs.dispcol++;
+		}
+		// display progress
+		if ((i > LdaGibbs.BURN_IN) && (i % LdaGibbs.THIN_INTERVAL == 0)) 
+		{
+//			text += "S";
+			LdaGibbs.dispcol++;
+		}
+		// get statistics after burn-in
+		if ((i > LdaGibbs.BURN_IN) && (LdaGibbs.SAMPLE_LAG > 0) && (i % LdaGibbs.SAMPLE_LAG == 0)) 
+		{
+			updateParams(LdaGibbs);
+//			text += "|";
+			if (i % LdaGibbs.THIN_INTERVAL != 0)
+			{
+				LdaGibbs.dispcol++;
+			}
+		}
+		
+		if (LdaGibbs.dispcol >= 100) 
+		{
+//			text += "<br>";
+			LdaGibbs.dispcol = 0;
+		}
+	}
+	
+//	text += "<br>";
+	
+//	document.getElementById("output").innerHTML += text;
+	
+	return LdaGibbs;
+}
+
+/**
+ * Sample a topic z_i from the full conditional distribution: p(z_i = j |
+ * z_-i, w) = (n_-i,j(w_i) + beta)/(n_-i,j(.) + W * beta) * (n_-i,j(d_i) +
+ * alpha)/(n_-i,.(d_i) + K * alpha)
+ * 
+ * @param m
+ *            document
+ * @param n
+ *            word
+ */
+function sampleFullConditional(LdaGibbs, m, n) 
+{
+	// remove z_i from the count variables
+	var topic = LdaGibbs.z[m][n];
+//	var text = "";
+	
+//	text += "LdaGibbs.documents[m][n] = " + LdaGibbs.documents[m][n] + "<br>";
+//	text += "topic = " + topic + "<br>";
+//	text += "m = " + m + "<br>";
+//	text += "n = " + n + "<br>";
+//	text += "LdaGibbs.nw[LdaGibbs.documents[m][n]][topic] = " + LdaGibbs.nw[LdaGibbs.documents[m][n]][topic] + "<br>";
+//	text += "LdaGibbs.nd[m][topic] = " + LdaGibbs.nd[m][topic] + "<br>";
+//	text += "LdaGibbs.nwsum[topic] = " + LdaGibbs.nwsum[topic] + "<br>";
+//	text += "LdaGibbs.ndsum[m] = " + LdaGibbs.ndsum[m] + "<br>";
+	
+	LdaGibbs.nw[LdaGibbs.documents[m][n]][topic]--;
+	LdaGibbs.nd[m][topic]--;
+	LdaGibbs.nwsum[topic]--;
+	LdaGibbs.ndsum[m]--;
+
+	// do multinomial sampling via cumulative method:
+	var p = new Array(LdaGibbs.numTopics);
+	for (var k = 0; k < LdaGibbs.numTopics; k++) 
+	{
+		p[k] = (LdaGibbs.nw[LdaGibbs.documents[m][n]][k] + LdaGibbs.beta) / (LdaGibbs.nwsum[k] + LdaGibbs.vocab.length * LdaGibbs.beta) * (LdaGibbs.nd[m][k] + LdaGibbs.alpha) / (LdaGibbs.ndsum[m] + LdaGibbs.numTopics * LdaGibbs.alpha);
+	}
+	
+//	text += "p = " + p + "<br>";
+	
+	// cumulate multinomial parameters
+	for (var k = 1; k < p.length; k++) 
+	{
+		p[k] += p[k - 1];
+	}
+	
+//	text += "p = " + p + "<br>";
+	
+	// scaled sample because of unnormalised p[]
+	var u = Math.random() * p[LdaGibbs.numTopics - 1];
+	for (topic = 0; topic < p.length; topic++) 
+	{
+		if (u < p[topic])
+			break;
+	}
+
+	// add newly estimated z_i to count variables
+	LdaGibbs.nw[LdaGibbs.documents[m][n]][topic]++;
+	LdaGibbs.nd[m][topic]++;
+	LdaGibbs.nwsum[topic]++;
+	LdaGibbs.ndsum[m]++;
+
+//	document.getElementById("output").innerHTML += text;
+	
+	return topic;
+}
+
+/**
+ * Add to the statistics the values of theta and phi for the current state.
+ */
+function updateParams(LdaGibbs) 
+{
+	for (var m = 0; m < LdaGibbs.documents.length; m++) 
+	{
+		for (var k = 0; k < LdaGibbs.numTopics; k++) 
+		{
+			LdaGibbs.thetasum[m][k] += (LdaGibbs.nd[m][k] + LdaGibbs.alpha) / (LdaGibbs.ndsum[m] + LdaGibbs.numTopics * LdaGibbs.alpha);
+		}
+	}
+	
+	for (var k = 0; k < LdaGibbs.numTopics; k++) 
+	{
+		for (var w = 0; w < LdaGibbs.vocab.length; w++) 
+		{
+			LdaGibbs.phisum[k][w] += (LdaGibbs.nw[LdaGibbs.vocab[w]][k] + LdaGibbs.beta) / (LdaGibbs.nwsum[k] + LdaGibbs.vocab.length * LdaGibbs.beta);
+		}
+	}
+	LdaGibbs.numstats++;
+}
+
+/**
+ * Retrieve estimated document--topic associations. If sample lag > 0 then
+ * the mean value of all sampled statistics for theta[][] is taken.
+ * 
+ * @return theta multinomial mixture of document topics (M x K)
+ */
+function getTheta(LdaGibbs) 
+{
+	var theta = new Array(LdaGibbs.documents.length);
+	for (var zen = 0; zen < theta.length; zen++)
+	{
+		theta[zen] = new Array(LdaGibbs.numTopics);
+		for (var yoga = 0; yoga < theta[zen].length; yoga++)
+		{
+			theta[zen][yoga] = 0;
+		}
+	}
+
+	if (LdaGibbs.SAMPLE_LAG > 0) 
+	{
+		for (var m = 0; m < LdaGibbs.documents.length; m++) 
+		{
+			for (var k = 0; k < LdaGibbs.numTopics; k++) 
+			{
+				theta[m][k] = LdaGibbs.thetasum[m][k] / LdaGibbs.numstats;
+			}
+		}
+
+	} 
+	else 
+	{
+		for (var m = 0; m < LdaGibbs.documents.length; m++) 
+		{
+			for (var k = 0; k < LdaGibbs.numTopics; k++) 
+			{
+				theta[m][k] = (LdaGibbs.nd[m][k] + LdaGibbs.alpha) / (LdaGibbs.ndsum[m] + LdaGibbs.numTopics * LdaGibbs.alpha);
+			}
+		}
+	}
+
+	return theta;
+}
+
+/**
+ * Retrieve estimated topic--word associations. If sample lag > 0 then the
+ * mean value of all sampled statistics for phi[][] is taken.
+ * 
+ * @return phi multinomial mixture of topic words (K x V)
+ */
+function getPhi(LdaGibbs) 
+{
+	var phi = new Array(LdaGibbs.numTopics);
+	for (var zen = 0; zen < phi.length; zen++)
+	{
+		phi[zen] = new Array(LdaGibbs.vocab.length);
+		for (var yoga = 0; yoga < phi[zen].length; yoga++)
+		{
+			phi[zen][yoga] = 0;
+		}
+	}
+
+	if (LdaGibbs.SAMPLE_LAG > 0) 
+	{
+		for (var k = 0; k < LdaGibbs.numTopics; k++) 
+		{
+			for (var w = 0; w < LdaGibbs.vocab.length; w++) 
+			{
+				phi[k][w] = LdaGibbs.phisum[k][w] / LdaGibbs.numstats;
+			}
+		}
+	} 
+	else 
+	{
+		for (var k = 0; k < LdaGibbs.numTopics; k++) 
+		{
+			for (var w = 0; w < LdaGibbs.vocab.length; w++) 
+			{
+				phi[k][w] = (LdaGibbs.nw[LdaGibbs.vocab[w]][k] + LdaGibbs.beta) / (LdaGibbs.nwsum[k] + LdaGibbs.vocab.length * LdaGibbs.beta);
+			}
+		}
+	}
+	
+	return phi;
+}
+
+/**
+ * Print table of multinomial data
+ * 
+ * @param data
+ *            vector of evidence
+ * @param fmax
+ *            max frequency in display
+ * @return the scaled histogram bin values
+ */
+function hist(data, fmax) 
+{
+	var hist = new Array(data.length);
+	var text = "";
+	
+	// scale maximum
+	var hmax = 0;
+	for (var i = 0; i < data.length; i++) 
+	{
+		hmax = Math.max(data[i], hmax);
+	}
+	var shrink = fmax / hmax;
+	for (var i = 0; i < data.length; i++) 
+	{
+		hist[i] = shrink * data[i];
+	}
+
+//	NumberFormat nf = new DecimalFormat("00");
+	var scale = "";
+	for (var i = 1; i < fmax / 10 + 1; i++) 
+	{
+		scale += "    .    " + i % 10;
+	}
+
+	text += "x" + nf.format(hmax / fmax) + " 0" + scale + "<br>";
+	for (var i = 0; i < hist.length; i++) 
+	{
+		text += i + " |";
+		for (var j = 0; j < Math.round(hist[i]); j++) 
+		{
+			if ((j + 1) % 10 == 0)
+			{
+				text += "]";
+			}
+			else
+			{
+				text += "|";
+			}
+		}
+		text += "<br>";
+	}
+	
+	text += "<br>";
+	
+	document.getElementById("output").innerHTML += text;
+}
+
+/**
+ * Configure the gibbs sampler
+ * 
+ * @param iterations
+ *            number of total iterations
+ * @param burnIn
+ *            number of burn-in iterations
+ * @param thinInterval
+ *            update statistics interval
+ * @param sampleLag
+ *            sample interval (-1 for just one sample at the end)
+ */
+function configure(iterations, burnIn, thinInterval, sampleLag)
+{
+	LdaGibbs.ITERATIONS = iterations;
+	LdaGibbs.BURN_IN = burnIn;
+	LdaGibbs.THIN_INTERVAL = thinInterval;
+	LdaGibbs.SAMPLE_LAG = sampleLag;
+	
+	return LdaGibbs;
+}
+
+/**
+ * Driver with example data.
+ * 
+ * @param args
+ */
+function main(LdaGibbs) 
+{
+	LdaGibbs = new Object();
+	document.getElementById("output").innerHTML = "";
+	LdaGibbs.documents = new Array();
+	LdaGibbs.stopwords = "";
+	LdaGibbs.stopwords = "a,about,am,an,and,any,all,are,as,at,";
+	LdaGibbs.stopwords += "b,back,be,been,being,but,by,";
+	LdaGibbs.stopwords += "c,can,could,";
+	LdaGibbs.stopwords += "d,did,do,does,doing,done,dont,";
+	LdaGibbs.stopwords += "e,";
+	LdaGibbs.stopwords += "f,for,from,";
+	LdaGibbs.stopwords += "g,get,going,got,";
+	LdaGibbs.stopwords += "h,had,has,have,having,he,her,hes,him,his,how,";
+	LdaGibbs.stopwords += "i,if,in,into,is,it,its,";
+	LdaGibbs.stopwords += "j,";
+	LdaGibbs.stopwords += "k,";
+	LdaGibbs.stopwords += "l,";
+	LdaGibbs.stopwords += "m,me,my,";
+	LdaGibbs.stopwords += "n,";
+	LdaGibbs.stopwords += "o,of,on,or,our,";
+	LdaGibbs.stopwords += "p,";
+	LdaGibbs.stopwords += "q,";
+	LdaGibbs.stopwords += "r,";
+	LdaGibbs.stopwords += "s,said,say,saying,she,so,";
+	LdaGibbs.stopwords += "t,than,that,thats,the,their,there,theres,them,they,thing,this,to,";
+	LdaGibbs.stopwords += "u,";
+	LdaGibbs.stopwords += "v,";
+	LdaGibbs.stopwords += "w,was,we,well,were,what,whats,when,where,which,who,whos,why,will,with,would,";
+	LdaGibbs.stopwords += "x,";
+	LdaGibbs.stopwords += "y,you,youd,your,youve,";
+	LdaGibbs.stopwords += "z,";
+	
+	LdaGibbs.stopwords = LdaGibbs.stopwords.split(",");
+	
+	LdaGibbs.vocab = new Array();
+	LdaGibbs.documents2 = document.getElementById("input").value.split("\n");
+	LdaGibbs.documents = document.getElementById("input").value.split("\n");
+	
+	
+	for (var zen = 0; zen < LdaGibbs.documents.length; zen++)
+	{
+		LdaGibbs.documents[zen] = LdaGibbs.documents[zen].replace(/[^A-Za-z ]/g, "").toLowerCase();
+				
+		LdaGibbs.documents[zen] = LdaGibbs.documents[zen].split(" ");
+		
+		while (LdaGibbs.documents[zen].indexOf("") != -1)
+		{
+			var loc = LdaGibbs.documents[zen].indexOf("");
+			LdaGibbs.documents[zen].splice(loc, 1);
+		}
+		
+		for (var j = 0; j < LdaGibbs.documents[zen].length; j++)
+		{
+			if (LdaGibbs.stopwords.indexOf(LdaGibbs.documents[zen][j]) != -1)
+			{
+				LdaGibbs.documents[zen][j] = LdaGibbs.documents[zen][LdaGibbs.documents[zen].length - 1];
+				LdaGibbs.documents[zen].length--;
+				j--;
+			}
+		}
+		
+		for (var yin = 0; yin < LdaGibbs.documents[zen].length; yin++)
+		{
+			var temp = LdaGibbs.documents[zen][yin];
+			
+			if (LdaGibbs.vocab.indexOf(temp) == -1 && temp != "")
+			{
+				LdaGibbs.vocab[LdaGibbs.vocab.length] = temp;
+			}
+		}
+	}
+	
+	LdaGibbs.numTopics = parseInt(document.getElementById("numTopics").value);
+	LdaGibbs.alpha = 50 / LdaGibbs.numTopics;
+	LdaGibbs.beta = 0.01;
+
+	var text = "Latent Dirichlet Allocation using Gibbs Sampling.<br>";
+
+	LdaGibbs.ITERATIONS = parseInt(document.getElementById("iterations").value);
+	LdaGibbs = gibbs(LdaGibbs);
+
+	theta = getTheta(LdaGibbs);
+	var theta2 = new Array();
+	phi = getPhi(LdaGibbs);
+	
+	var clusters = new Array();
+	var clusters2 = new Array();
+	
+	for (var i = 0; i < theta[0].length; i++)
+	{
+		clusters[i] = new Array();
+		clusters2[i] = new Array();
+	}
+	
+	for (var i = 0; i < theta.length; i++)
+	{
+		var locs = argmax(theta[i]);
+		theta2[i] = argSort(theta[i]);
+		
+		for (var j = 0; j < locs.length; j++)
+		{
+			clusters[locs[j]][clusters[locs[j]].length] = i;
+			clusters2[locs[j]][clusters2[locs[j]].length] = LdaGibbs.documents[i];
+		}
+	}
+
+	for (var i = 0; i < clusters.length; i++)
+	{
+		text += "Topic " + i + "<br>";
+		var list = argSort(phi[i]);
+		
+		text += "<div style='width:600px;'>";
+		for (var j = 0; j < list.length; j++)
+		{
+			if (Math.floor(phi[i][list[j]]*1000) > 2)
+			{
+				text += "<div style='font-size : " + Math.floor(phi[i][list[j]]*1000 + 6) + "px; float:left;'>" + LdaGibbs.vocab[list[j]] + "&nbsp;</div>";
+			}
+		}
+		text += "</div><div style='clear:both'></div";
+		text += "<p>";
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			text += clusters[i][j] + ") " + LdaGibbs.documents2[clusters[i][j]] + "<br>";
+		}
+		text += "</p>";
+		var rules = apriori(clusters2[i], LdaGibbs.stopwords, 2 / clusters2[i].length);
+		rules = getRules(rules, clusters2[i].length);
+		
+		text += "<table>";
+		
+		
+		
+		for (var j = 0; j < rules.length; j++)
+		{
+			text += "<tr><td>" + rules[j][0] + "</td><td>|</td><td>" + rules[j][1].toFixed(4) + "</td><td>" + rules[j][2].toFixed(4) + "</td>";
+			/*<td>" + rules[j][3].toFixed(4) + "</td><td>" + rules[j][4].toFixed(4) + "</td>*/
+			text += "<td>" + rules[j][5].toFixed(0) + "</td><td>" + rules[j][6].toFixed(0) + "</td>";
+			/*<td>" + rules[j][7].toFixed(0) + "</td>*/
+			text += "</tr>";
+//			text += "<tr><td>" + rules[j][0] + "</td><td>|</td><td>" + rules[j][1].toFixed(4) + "</td><td>" + rules[j][2].toFixed(4) + "</td><td>" + rules[j][3].toFixed(4) + "</td><td>" + rules[j][4].toFixed(4) + "</td><td>" + rules[j][5].toFixed(0) + "</td><td>" + rules[j][6].toFixed(0) + "</td><td>" + rules[j][7].toFixed(0) + "</td></tr>";
+		}
+		
+		text += "</table>";
+	}
+	
+	rules = apriori(LdaGibbs.documents, LdaGibbs.stopwords, 2 / LdaGibbs.documents.length);
+	rules = getRules(rules, LdaGibbs.documents.length);
+	
+	text += "<table>";
+	for (var j = 0; j < rules.length; j++)
+	{
+		text += "<tr><td>" + rules[j][0] + "</td><td>|</td><td>" + rules[j][1].toFixed(4) + "</td><td>" + rules[j][2].toFixed(4) + "</td>";
+		/*<td>" + rules[j][3].toFixed(4) + "</td><td>" + rules[j][4].toFixed(4) + "</td>*/
+		text += "<td>" + rules[j][5].toFixed(0) + "</td><td>" + rules[j][6].toFixed(0) + "</td>";
+		/*<td>" + rules[j][7].toFixed(0) + "</td>*/
+		text += "</tr>";
+	}
+	text += "</table>";
+		
+	document.getElementById("output").innerHTML += text;
+}
+
+function apriori(documents, stopwords, minSup)
+{
+	var poss = new Array();
+	var vocab = new Array();
+	
+	for (var i = 0; i < documents.length; i++)
+	{
+		for (var j = 0; j < documents[i].length; j++)
+		{
+			var temp = documents[i][j];
+			
+			if (vocab.indexOf(temp) == -1 && temp != "")
+			{
+				vocab[vocab.length] = temp;
+			}
+		}
+	}
+	
+	var setSize = 0;
+	var tree = new Array();
+	var ans;
+
+	var text = "";
+	var rules = new Array();
+	
+	do
+	{
+		setSize++;
+		ans = getPoss(setSize, vocab, poss, tree);
+		poss = ans[0];		
+		tree = ans[1];
+		
+		ans = getFreq(setSize, vocab, documents, poss, tree, minSup);
+		poss = ans[0];
+		
+		tree = ans[1];
+	}
+	while(poss.length > 1);	
+	
+	return tree;
+}
+
+function getPoss(n, items, poss, tree)
+{
+	var tempPoss = new Array();
+	var ans = new Array();
+	var str1, str2; 
+	var st1, st2;
+
+	if (n == 1)
+	{
+		for (var i = 0; i < items.length; i++)
+		{
+			tempPoss[i] = items[i];
+			tree[i] = initTree(tempPoss[i], 0);
+		}
+	}
+	else if (n == 2)
+	{
+		for (var i = 0; i < poss.length; i++)
+		{
+			str1 = poss[i]
+			for (var j = i + 1; j < poss.length; j++)
+			{
+				str2 = poss[j];
+				tempPoss[tempPoss.length] = str1 + ", " + str2;
+				tree[tree.length] = joinBinTree(tree[i], tree[j], tempPoss[tempPoss.length-1], n-1);
+			}
+		}
+	}
+	else
+	{
+		for (var i = 0; i < poss.length; i++)
+		{
+			for(var j = i + 1; j < poss.length; j++)
+			{
+				str1 = "";
+				str2 = "";
+				st1 = poss[i].split(", ");
+				st2 = poss[j].split(", ");
+				
+				for(var s = 0; s < n - 2; s++)
+				{
+					if (str1 == "")
+					{
+						str1 = st1[s];
+					}
+					else
+					{
+						str1 = str1 + ", " + st1[s];
+					}
+					
+					if (str2 == "")
+					{
+						str2 = st2[s];
+					}
+					else
+					{
+						str2 = str2 + ", " + st2[s];
+					}
+
+				}
+				
+				if (str2 == str1)
+				{
+					tempPoss[tempPoss.length] = str1 + ", " + st1[s] + ", " + st2[s];
+				}
+
+				while (tempPoss.length > 0 && tempPoss[tempPoss.length-1].substring(0,1) == ", ")
+				{
+					tempPoss[tempPoss.length-1] = tempPoss[tempPoss.length-1].substring(2, tempPoss[tempPoss.length-1].length);	
+				}
+					
+				if (str1 == str2)
+				{
+					tree[tree.length] = joinBinTree(tree[linsear(tree, poss[i])], tree[linsear(tree, poss[j])], tempPoss[tempPoss.length-1], n-1);
+				}
+			}
+		}
+	}
+
+	poss = tempPoss;
+	ans[0] = poss;
+	ans[1] = tree;
+
+	return ans;
+}
+
+function linsear(sets, elmnt)
+{
+	var ans = -1;
+
+	for (var i = 0; i < sets.length && ans == -1; i++)
+	{
+		var set = sets[i].value.split(", ");
+		var found = true;
+		
+		for (var j = 0; j < elmnt.length && found; j++)
+		{
+			if (set.indexOf(elmnt[j]) == -1)
+			{
+				found = false;
+			}
+		}
+		
+		if (found && set.length == elmnt.length)
+		{
+			ans = i;
+		}
+	}
+
+	return ans;
+}
+
+function remove (set, loc)
+{
+	var i, len = set.length;
+
+	for (i = loc; i < len; i++)
+		set[i] = set[i+1];
+
+	set.length--;
+
+	return set;
+}
+
+function getFreq(n, items, trans, poss, tree, minSup)
+{
+	var possFreq = new Array(); 
+	var input;
+	var ans = new Array(); 
+	var count = new Array(poss.length); 
+	var toOutput = "", bld1 = "", bld2 = "";
+	for (var i = 0; i < count.length; i++)
+	{
+		count[i] = 0;
+	}
+
+	for (var i = 0; i < trans.length; i++)
+	{
+		for(var c = 0; c < poss.length; c++)
+		{
+			var found = 0;
+			var st = poss[c].split(", ");
+			
+			for (var d = 0; d < st.length; d++)
+			{
+				if (trans[i].indexOf(st[d]) != -1)
+				{
+					found++;
+				}
+			}
+
+			if (found == st.length)
+			{
+				count[c]++;
+			}
+		}
+	}
+	
+	toOutput += "-----<table>"
+	for(var i = 0; i < poss.length; i++)
+	{
+		if( (count[i] / trans.length) >= minSup)
+		{
+			possFreq[possFreq.length] = poss[i];
+			tree[linsear(tree, poss[i].split(", "))].prob = count[i] / trans.length;
+			bld1 = "<b>";
+			bld2 = "</b>";
+			toOutput += "<tr><td>" + bld1 + poss[i] + bld2 + "</td><td>|</td><td>" + bld1 + (count[i] / trans.length).toFixed(4) + bld2 + "</td></tr>";
+		}
+		else
+		{
+			remove(tree, linsear(tree, poss[i].split(", ")));
+		}
+	}
+	toOutput += "</table>";
+	
+	poss = possFreq;
+	ans[0] = poss;
+	ans[1] = tree;
+
+	return ans;
+}
+
+function getRules(itemsets, numTrans)
+{
+	var rules = new Array();
+	for (var i = 0; i < itemsets.length; i++)
+	{
+		var candSubs = getSubs(itemsets[i].value.split(", "));
+		for (var j = 0; j < candSubs.length; j++)
+		{
+			var comp = getComp(itemsets[i].value.split(", "), candSubs[j]);
+			var len = rules.length;
+			var loc1 = linsear(itemsets, candSubs[j]);
+			var loc2 = linsear(itemsets, comp);
+			if (loc1 == -1 || loc2 == -1)
+			{
+				break;
+			}
+			temp = new Array();
+			temp[0] = itemsets[loc1].value + " => " + itemsets[loc2].value;
+			temp[1] = itemsets[i].prob / itemsets[loc1].prob; 
+			temp[2] = itemsets[i].prob / (itemsets[loc1].prob * itemsets[loc2].prob); 
+			temp[3] = (1 - itemsets[loc2].prob) / (1 - temp[1]); 
+			temp[4] = temp[1] * itemsets[loc1].prob; 
+			temp[5] = itemsets[loc1].prob * numTrans; 
+			temp[6] = itemsets[loc2].prob * numTrans; 
+			temp[7] = itemsets[loc2].value.split(", ").length; 
+			rules[rules.length] = temp;
+		}
+	}
+	
+	for (var i = 0; i < rules.length; i++)
+	{
+		var temp1 = rules[i][0].split(" => ");
+		var concl1 = temp1[1].split(", ");
+		var found = false;
+		for (var j = i + 1; j < rules.length && !found; j++)
+		{
+			var temp2 = rules[j][0].split(" => ");
+			var concl2 = temp2[1].split(", ");
+			
+			if (temp1[0] == temp2[0])
+			{
+				found = true;
+	
+				for (var k = 0; k < concl1.length && found; k++)
+				{
+					if (concl2.indexOf(concl1[k]) == -1)
+					{
+						found = false;
+					}
+				}
+			}
+		}
+		
+		if (found)
+		{
+			rules[i] = rules[rules.length-1];
+			rules.length --;
+			i--;
+		}
+	}
+
+	for (var j1 = 0; j1 < rules.length; j1++)
+	{
+		for (var j2 = j1 + 1; j2 < rules.length; j2++)
+		{
+			if (rules[j1][5] < rules[j2][5])
+			{
+				var temp = rules[j1];
+				rules[j1] = rules[j2];
+				rules[j2] = temp;
+			}
+			else if (rules[j1][5] == rules[j2][5] && rules[j1][1] < rules[j2][1])
+			{
+				var temp = rules[j1];
+				rules[j1] = rules[j2];
+				rules[j2] = temp;
+			}
+			else if (rules[j1][5] == rules[j2][5] && rules[j1][1] == rules[j2][1] && rules[j1][2] > rules[j2][2])
+			{
+				var temp = rules[j1];
+				rules[j1] = rules[j2];
+				rules[j2] = temp;
+			}
+		}
+	}
+
+	return rules;
+}
+
+function initTree(val, prob)
+{
+	var tree = new Object();
+	tree.value = val;
+	tree.prob = prob;
+
+	return tree;
+}
+
+function joinBinTree(tree1, tree2, val, order)
+{
+	var tree3 = new Object();
+	tree3.value = val;
+	tree3.prob = -1;
+
+	return tree3;
+}
+
+function getSubs(list)
+{
+//	{}, 0, 1, 2, 3, 01, 02, 03, 12, 13, 23, 012, 013, 123, 0123
+    var subs = new Array();
+	var powSize;
+	
+	if (Array.isArray(list))
+	{
+		powSize = Math.pow(2, list.length);
+		var digits = Math.log(powSize) / Math.log(2);
+		for (var i = 1; i < powSize-1; i++)
+		{
+			var binRep = i.toString(2);
+			while (binRep.length < digits)
+			{
+				binRep = "0" + binRep;
+			}
+			subs[i-1] = new Array();
+			for (var j = 0; j < binRep.length; j++)
+			{
+				if (binRep[j] == 1)
+				{
+					subs[i-1][subs[i-1].length] = list[j];
+				}
+			}
+		}
+	}
+	else
+	{
+		powSize = 1;
+		subs[0] = list;
+	}
+	
+	return subs;
+}
+
+function getComp(larger, sub)
+{
+	var comp = new Array();
+	
+//	document.getElementById("output").innerHTML += "finding compliment of " + sub + " in " + larger + "<br>";
+	
+	for (var i = 0; i < larger.length; i++)
+	{
+		if (sub.indexOf(larger[i]) == -1)
+		{
+			comp[comp.length] = larger[i];
+		}
+	}
+	
+	return comp;
+}
+
+//function word_cloud_txt(phi, vocab)
+//{
+//	var cloud = "<div style='width: 600px' class='mytagcloud'>";
+//	var fmax = 80;
+//	var fmin = 8;
+//	
+//	var wds = new Array();
+//	var wts = new Array();
+//	
+//	for (var i = 0; i < phi.length; i++)
+//	{
+//		var nrm = phi[i] * fmax + fmin;
+//		if (nrm < 10)
+//		{
+//			continue;
+//		}
+//		
+//		wds[wds.length] = vocab[i];
+//		wts[wts.length] = nrm;
+//	}
+//	
+//	return [wds, wts];
+//}
+
+function topW(list, vocab)
+{
+	var list2 = argSort(list);
+	var list3 = new Array();
+	
+	for (var i = 0; i < list2.length; i++)
+	{
+		list3[list3.length] = vocab[list2[i]];
+	}
+	
+	return list3;
+}
+
+function argmax(list)
+{
+	var locs = new Array();
+	for (var i = 0; i < list.length; i++)
+	{
+		if (locs.length == 0)
+		{
+			locs[0] = i;
+		}
+		else if (list[i] > list[locs[0]])
+		{
+			locs = new Array();
+			locs[0] = i;
+		}
+		else if (list[i] == list[locs[0]])
+		{
+			locs[locs.length] = i;
+		}
+	}
+
+	return locs;
+}
+
+function cosSim(doc1, doc2)
+{
+	var num = 0;
+	var den1 = 0;
+	var den2 = 0;
+	
+	for (var i = 0; i < doc1.length; i++)
+	{
+		num += doc1[i]*doc2[i];
+		den1 += doc1[i] * doc1[i];
+		den2 += doc2[i] * doc2[i];
+	}
+	
+	den1 = Math.sqrt(den1);
+	den2 = Math.sqrt(den2)
+	
+	var ans = num / (den1 * den2);
+	
+//	if (ans < 0.96)
+//	{
+//		ans = 0;
+//	}
+	
+	return ans;
+}
+
+function jacc(doc1, doc2)
+{
+	var num = 0;
+	
+	for (var i = 0; i < doc1.length; i++)
+	{
+		if (Math.abs(doc1[i] - doc2[i]) <= 5)
+		{
+			num++;
+		}
+	}
+	
+	return num / doc1.length;
+}
+
+/**
+ * create a string representation whose gray value appears as an indicator
+ * of magnitude, cf. Hinton diagrams in statistics.
+ * 
+ * @param d
+ *            value
+ * @param max
+ *            maximum value
+ * @return
+ */
+function shadeDouble(d, max) 
+{
+	var a = Math.floor(d * 10 / max + 0.5);
+	if (a > 10 || a < 0) 
+	{
+		var x = d.toExponential(2) + "";
+		a = 5 - x.length();
+		
+		for (var i = 0; i < a; i++) 
+		{
+			x += " ";
+		}
+		
+		return "<" + x + ">";
+	}
+	
+	return "[0." + LdaGibbs.shades[a] + "]";
+}
+
+function EucDist(point1, point2)
+{
+	var i, j, sumSq = 0;
+
+	if (point1.length != point2.length)
+	{
+		return M;
+	}
+
+	for (i = 0; i < point1.length; i++)
+	{
+		sumSq += Math.pow(Math.abs(point1[i] - point2[i]), 2);
+	}
+
+	return Math.sqrt(sumSq);
+}
+
+function argSort(list)
+{
+	var temp = new Array();
+	var locs = new Array();
+	for (var i = 0; i < list.length; i++)
+	{
+		temp[i] = list[i];
+		locs[i] = i;
+	}
+	
+	for (var i = 0; i < temp.length; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			if (temp[i] > temp[j])
+			{
+				var temp2 = temp[i];
+				temp[i] = temp[j];
+				temp[j] = temp2;
+				
+				temp2 = locs[i];
+				locs[i] = locs[j];
+				locs[j] = temp2;
+			}
+		}
+	}
+	
+	return locs;
+}
+
+function kmeans(distMtrx, k, maxno)
+{
+	var minDist;
+	var changed;
+	var iter;
+	var pos;
+	var chosen = new Array();
+	var maxDist = new Array();
+	var labels = new Array(distMtrx.length);
+	var clusters = new Array(k);
+	var centers = new Array(k);
+	text = "";
+
+	for (var i = 0; i < distMtrx.length; i++)
+	{
+		chosen[i] = 0;
+	}
+
+	for(var i = 0; i < k; i++)
+	{
+		do
+		{
+			pos = Math.floor(Math.random()*distMtrx.length);
+		}
+		while (chosen[pos] != 0);
+
+		centers[i] = pos;
+		clusters[i] = new Array();
+		chosen[pos] = 1;
+		maxDist[i] = 0;
+	}
+
+	for (var i = 0; i < distMtrx.length; i++)
+	{
+		pos = M;
+		posD = 0;
+		for (var j = 0; j < k; j++)
+		{
+			if (distMtrx[i][centers[j]] > posD)
+			{
+				posD = distMtrx[i][centers[j]];
+				pos = j;
+			}
+		}
+		labels[i] = pos;
+		clusters[pos][clusters[pos].length] = i;
+	}
+
+	changed = false;
+	iter = 0;
+
+	do
+	{
+		for (var i = 0; i < k; i++)
+		{
+			centers[i] = clusters[i][Math.floor(Math.random() * clusters[i].length)];
+			maxDist[i] = 0;
+			clusters[i] = new Array();
+//			clusters[i][0] = centers[i];
+			labels[centers[i]] = i;
+		}
+
+		for (var i = 0; i < distMtrx.length; i++)
+		{
+			pos = M;
+			posD = 0;
+
+			for (var j = 0; j < k; j++)
+			{
+				if (distMtrx[i][centers[j]] > posD)
+				{
+					posD = distMtrx[i][centers[j]];
+					pos = j;
+				}
+			}
+
+			labels[i] = pos;
+			clusters[pos][clusters[pos].length] = i;
+			changed = true;
+		}
+		iter++;
+	} while (changed == true && iter <= maxno);
+	
+	return clusters;
+}
+</script>
+</head>
+<body>
+<h3><center>The LDA Algorithm</center></h3>
+<table>
+<tr><td><label>Number of Topics: </label>
+<select name="numTopics" id="numTopics">
+  <option value=10>10</option>
+  <option value=20>20</option>
+  <option value=30>30</option>
+  <option value=40>40</option>
+  <option value=50>50</option>
+  <option value=60>60</option>
+  <option value=70>70</option>
+  <option value=80>80</option>
+  <option value=90>90</option>
+  <option value=100>100</option>
+</select>
+<label>Number of Iterations: </label>
+<select name="iterations" id="iterations">
+  <option value=100>100</option>
+  <option value=200>200</option>
+  <option value=300>300</option>
+  <option value=400>400</option>
+  <option value=500>500</option>
+  <option value=600>600</option>
+  <option value=700>700</option>
+  <option value=800>800</option>
+  <option value=900>900</option>
+  <option value=1000>1000</option>
+  <option value=1100>1100</option>
+  <option value=1200>1200</option>
+  <option value=1300>1300</option>
+  <option value=1400>1400</option>
+  <option value=1500>1500</option>
+</select>
+<!--<label>Minimum Support: </label>
+<select name="minSup" id="minSup">
+  <option value=0.01>0.01</option>
+  <option value=0.02>0.02</option>
+  <option value=0.03>0.03</option>
+  <option value=0.04>0.04</option>
+  <option value=0.05>0.05</option>
+  <option value=0.06>0.06</option>
+  <option value=0.07>0.07</option>
+  <option value=0.08>0.08</option>
+  <option value=0.09>0.08</option>
+  <option value=0.10>0.10</option>
+</select>
+<label>alpha: </label>
+<select name="alpha" id="alpha">
+  <option value=0.125>0.125</option>
+  <option value=0.25>0.25</option>
+  <option value=0.5>0.5</option>
+  <option value=1>1</option>
+  <option value=2>2</option>
+  <option value=4>4</option>
+  <option value=8>8</option>
+  <option value=16>16</option>
+  <option value=32>32</option>
+  <option value=64>64</option>
+</select>
+<label>beta: </label>
+<select name="beta" id="beta">
+  <option value=0.010>0.010</option>
+  <option value=0.020>0.020</option>
+  <option value=0.030>0.030</option>
+  <option value=0.040>0.040</option>
+  <option value=0.050>0.050</option>
+  <option value=0.060>0.060</option>
+  <option value=0.070>0.070</option>
+  <option value=0.080>0.080</option>
+  <option value=0.090>0.090</option>
+  <option value=0.100>0.100</option>
+</select>-->
+<input type="Button" onclick="main(LdaGibbs)" value="Submit">
+<!--<input type="Button" onclick="apriori(0.001)" value="Apriori Rules">-->
+</td></tr>
+<tr><td><textarea style='width: 600px; height: 300px;' name="input" id="input">Who has been the most important person in your life? Can you tell me about him or her?
+What was the happiest moment of your life? The saddest?
+Who has been the biggest influence on your life? What lessons did that person teach you?
+Who has been the kindest to you in your life?
+What are the most important lessons you’ve learned in life?
+What is your earliest memory?
+What is your favorite memory of me?
+Are there any funny stories your family tells about you that come to mind?
+Are there any funny stories or memories or characters from your life that you want to tell me about?
+What are you proudest of?
+When in life have you felt most alone?
+If you could hold on to one memory from your life forever, what would that be?
+How has your life been different than what you’d imagined?
+How would you like to be remembered?
+Do you have any regrets?
+What does your future hold?
+What are your hopes for what the future holds for me? For my children?
+If this was to be our very last conversation, is there anything you’d want to say to me
+For your great great grandchildren listening to this years from now: is there any wisdom you’d want to pass on to them? What would you want them to know?
+Is there anything that you’ve never told me but want to tell me now?
+Is there something about me that you’ve always wanted to know but have never asked?
+If you could interview anyone from your life living or dead, but not a celebrity, who would it be and why?
+What is your first memory of me?
+Was there a time when you didn’t like me?
+What makes us such good friends?
+How would you describe me? How would you describe yourself?
+Where will we be in 10 years? 20 years?
+Do you think we’ll ever lose touch with each other?
+Is there anything that you’ve always wanted to tell me but haven’t?
+Where did you grow up?
+What was your childhood like?
+Who were your favorite relatives?
+Do you remember any of the stories they used to tell you?
+How did you and grandma/grandpa meet?
+What was my mom/dad like growing up?
+Do you remember any songs that you used to sing to her/him? Can you sing them now?
+Was she/he well-behaved?
+What is the worst thing she/he ever did?
+What were your parents like?
+What were your grandparents like?
+How would you like to be remembered?
+Are you proud of me?
+When did you first find out that you’d be a parent? How did you feel?
+Can you describe the moment when you saw your child for the first time?
+How has being a parent changed you?
+What are your dreams for your children?
+Do you remember when your last child left home for good?
+Do you have any favorite stories about your kids?
+Do you remember what was going through your head when you first saw me?
+How did you choose my name?
+What was I like as a baby? As a young child?
+Do you remember any of the songs you used to sing to me? Can you sing them now?
+What were my siblings like?
+What were the hardest moments you had when I was growing up?
+If you could do everything again, would you raise me differently?
+What advice would you give me about raising my own kids?
+What are your dreams for me?
+How did you meet mom/dad?
+Are you proud of me?
+When and where were you born?
+Where did you grow up?
+What was it like?
+Who were your parents?
+What were your parents like?
+How was your relationship with your parents?
+Did you get into trouble? What was the worst thing you did?
+Do you have any siblings? What were they like growing up?
+What did you look like?
+How would you describe yourself as a child? Were you happy?
+What is your best memory of childhood? Worst?
+Did you have a nickname? How’d you get it?
+Who were your best friends? What were they like?
+How would you describe a perfect day when you were young?
+What did you think your life would be like when you were older?
+Do you have any favorite stories from your childhood?
+Did you enjoy school?
+What kind of student were you?
+What would you do for fun?
+How would your classmates remember you?
+Are you still friends with anyone from that time in your life?
+What are your best memories of grade school/high school/college/graduate school? Worst memories?
+Was there a teacher or teachers who had a particularly strong influence on your life? Tell me about them.
+Do you have any favorite stories from school?
+Do you have a love of your life?
+When did you first fall in love?
+Can you tell me about your first kiss?
+What was your first serious relationship?
+Do you believe in love at first sight?
+Do you ever think about previous lovers?
+What lessons have you learned from your relationships?
+How did you meet your husband/wife?
+How did you know he/she was “the one”?
+How did you propose?
+What were the best times? The most difficult times?
+Did you ever think of getting divorced?
+Did you ever get divorced? Can you tell me about it?
+What advice do you have for young couples?
+Do you have any favorite stories from your marriage or about your husband/wife?
+What do you do for a living?
+Tell me about how you got into your line of work.
+Do you like your job?
+What did you think you were going to be when you grew up?
+What did you want to be when you grew up?
+What lessons has your work life taught you?
+If you could do anything now, what would you do? Why?
+Do you plan on retiring? If so, when? How do you feel about it?
+Do you have any favorite stories from your work life?
+Can you tell me about your religious beliefs/spiritual beliefs? What is your religion?
+Have you experienced any miracles?
+What was the most profound spiritual moment of your life?
+Do you believe in God?
+Do you believe in the after-life? What do you think it will be like?
+When you meet God, what do you want to say to Him?
+Can you tell me about your illness?
+Do you think about dying? Are you scared?
+How do you imagine your death?
+Do you believe in an after-life?
+Do you regret anything?
+Do you look at your life differently now than before you were diagnosed?
+Do you have any last wishes?
+If you were to give advice to me or my children, or even children to come in our family, what would it be?
+What have you learned from life? The most important things?
+Has this illness changed you? What have you learned?
+How do you want to be remembered?
+What is your ethnic background?
+Where is your mom’s family from? Where is your dad’s family from?
+Have you ever been there? What was that experience like?
+What traditions have been passed down in your family?
+Who were your favorite relatives?
+Do you remember any of the stories they used to tell you?
+What are the classic family stories? Jokes? Songs?
+Were you in the military?
+Did you go to war? What was it like?
+How did war change you?
+During your service, can you recall times when you were afraid?
+What are your strongest memories from your time in the military?
+What lessons did you learn from this time in your life?
+What was your relationship to _____?
+Tell me about _____.
+What is your first memory of _____?
+What is your best memory of _____?
+What is your most vivid memory of _____?
+What did _____ mean to you?
+Are you comfortable/ can you talk about _____’s death? How did _____ die?
+What has been the hardest thing about losing _____?
+What would you ask _____ if _____ were here today?
+What do you miss most about _____?
+How do you think _____ would want to be remembered?
+Can you talk about the biggest obstacles _____ overcame in life?
+Was there anything you and _____ disagreed about, fought over, or experienced some conflict around?
+What about _____ makes you smile?
+What was your relationship like?
+What did _____ look like?
+Did you have any favorite jokes _____ used to tell?
+Do you have any stories you want to share about _____?
+What were _____’s hopes and dreams for the future?
+Is there something about _____ that you think no one else knows?
+How are you different now than you were before you lost _____?
+What is the image of _____ that persists?
+Do you have any traditions to honor _____?
+What has helped you the most in your grief?
+What are the hardest times?
+Given the choice of anyone in the world, whom would you want as a dinner guest?
+Would you like to be famous? In what way?
+Before making a telephone call, do you ever rehearse what you are going to say? Why?
+What would constitute a “perfect” day for you?
+When did you last sing to yourself? To someone else?
+If you were able to live to the age of 90 and retain either the mind or body of a 30-year-old for the last 60 years of your life, which would you want?
+Do you have a secret hunch about how you will die?
+Name three things you and your partner appear to have in common.
+For what in your life do you feel most grateful?
+If you could change anything about the way you were raised, what would it be?
+Take four minutes and tell your partner your life story in as much detail as possible.
+If you could wake up tomorrow having gained any one quality or ability, what would it be?
+Tell me about yourself.
+What are your strengths?
+What are your weaknesses?
+Why do you want this job?
+Where would you like to be in your career five years from now?
+What's your ideal company?
+What attracted you to this company?
+Why should we hire you?
+What did you like least about your last job?
+When were you most satisfied in your job?
+What can you do for us that other candidates can't? 
+What were the responsibilities of your last position?  
+Why are you leaving your present job?
+What do you know about this industry?  
+What do you know about our company? 
+Are you willing to relocate?  
+Do you have any questions for me?
+What was the last project you headed up, and what was its outcome? 
+Give me an example of a time that you felt you went above and beyond the call of duty at work. 
+Can you describe a time when your work was criticized? 
+Have you ever been on a team where someone was not pulling their own weight? How did you handle it? 
+Tell me about a time when you had to give someone difficult feedback. How did you handle it? 
+What is your greatest failure, and what did you learn from it? 
+What irritates you about other people, and how do you deal with it? 
+If I were your supervisor and asked you to do something that you disagreed with, what would you do?
+What was the most difficult period in your life, and how did you deal with it? 
+Give me an example of a time you did something wrong. How did you handle it? 
+What irritates you about other people, and how do you deal with it? 
+Tell me about a time where you had to deal with conflict on the job. 
+If you were at a business lunch and you ordered a rare steak and they brought it to you well done, what would you do? 
+If you found out your company was doing something against the law, like fraud, what would you do? 
+What assignment was too difficult for you, and how did you resolve the issue? 
+What's the most difficult decision you've made in the last two years and how did you come to that decision?
+Describe how you would handle a situation if you were required to finish multiple tasks by the end of the day, and there was no conceivable way that you could finish them. 
+What salary are you seeking?
+What's your salary history?
+If I were to give you this salary you requested but let you write your job description for the next year, what would it say?
+What are you looking for in terms of career development? 
+How do you want to improve yourself in the next year?
+What kind of goals would you have in mind if you got this job? 
+If I were to ask your last supervisor to provide you additional training or exposure, what would she suggest?
+How would you go about establishing your credibility quickly with the team?
+How long will it take for you to make a significant contribution?
+What do you see yourself doing within the first 30 days of this job?
+If selected for this position, can you describe your strategy for the first 90 days?
+How would you describe your work style? 
+What would be your ideal working environment? 
+What do you look for in terms of culture -- structured or entrepreneurial? 
+Give examples of ideas you've had or implemented.
+What techniques and tools do you use to keep yourself organized?   
+If you had to choose one, would you consider yourself a big-picture person or a detail-oriented person?  
+Tell me about your proudest achievement.  
+Who was your favorite manager and why?  
+What do you think of your previous boss? 
+Was there a person in your career who really made a difference? 
+What kind of personality do you work best with and why?  
+What are you most proud of? 
+What do you like to do?  
+What are your lifelong dreams?  
+What do you ultimately want to become? 
+What is your personal mission statement?   
+What are three positive things your last boss would say about you?  
+What negative thing would your last boss say about you? 
+What three character traits would your friends use to describe you? 
+What are three positive character traits you don't have?  
+If you were interviewing someone for this position, what traits would you look for?  
+List five words that describe your character.   
+Who has impacted you most in your career and how? 
+What is your greatest fear? 
+What is your biggest regret and why?   
+What's the most important thing you learned in school? 
+Why did you choose your major?  
+What will you miss about your present/last job?  
+What is your greatest achievement outside of work?  
+What are the qualities of a good leader? A bad leader?  
+Do you think a leader should be feared or liked?     
+How do you feel about taking no for an answer?  
+How would you feel about working for someone who knows less than you? 
+How do you think I rate as an interviewer? 
+Tell me one thing about yourself you wouldn't want me to know.  
+Tell me the difference between good and exceptional.  
+What kind of car do you drive? 
+There's no right or wrong answer, but if you could be anywhere in the world right now, where would you be? 
+What's the last book you read?  
+What magazines do you subscribe to? 
+What's the best movie you've seen in the last year?  
+What would you do if you won the lottery? 
+Who are your heroes?
+What do you like to do for fun? 
+What do you do in your spare time? 
+What is your favorite memory from childhood? 
+How many times do a clock's hands overlap in a day?
+How would you weigh a plane without scales?
+Tell me 10 ways to use a pencil other than writing.
+Sell me this pencil.
+If you were an animal, which one would you want to be?
+Why is there fuzz on a tennis ball?
+If you could choose one superhero power, what would it be and why? 
+If you could get rid of any one of the US states, which one would you get rid of and why? 
+With your eyes closed, tell me step-by-step how to tie my shoes.
+Whats your (full)	name?
+How old are you?
+Whats your Birthday?
+What starsign does that make it?
+Whats your favourite colour?
+Whats your lucky number?
+Do you have any pets?
+Where are you from?
+How tall are you?
+What shoe size are you?
+How many pairs of shoes do you own?
+If you were prime miniser/ruler of the world what laws would you make?
+If you were a super hero what powers would you have?
+and what would your hero name be?
+and what outfit would you wear?
+What was your last dream about?
+What would you do if you won the lottery?
+Would you like to build/design your own house?
+Which form of public transport do you prefer?
+What talents do you have?
+Can you juggle?
+Can you solve a rubix cube?
+Do you have a cherished childhood teddybear?
+Are you psychic in any way?
+Are you a good dancer?
+Are you a good singer?
+Are you a good cook?
+Are you a good artist?
+Are you a good listener?
+Are you a good public speaker?
+Are you a good babysitter?
+Are you a good mechanic?
+Are you a good diplomat?
+Are you a good employee?
+Are you a good dresser?
+Are you a good swimmer?
+Are you a good skier?
+Are you a good lover?
+Are you a good musician?
+Are you a good comedian?
+Are you a good cleaner?
+Are you a good actor?
+Are you a good writer?
+Have you ever been bungee jumping?
+Have you ever been canoeing/kayaking?
+What types of holidays do you prefer?
+Whats the furthest you've ever been on holiday?
+What was your favourite holiday?
+Where would your dream holiday be?
+Can you tap dance?
+Whats your favourite zoo animal?
+Whats your favourite sport?
+Whats your favourite food?
+Whats your favourite pizza topping?
+Whats your favourite film?
+Whats your favourite song?
+Whats your favourite alcoholic drink?
+Whats your favourite non-alcoholic drink?
+Whats your favourite TV program?
+Whats your favourite boyband?
+Whats your favourite girl group?
+What would be your ideal partner?
+Do you want children?
+Do you want a church wedding?
+Are you religious?
+Do you like reality TV programs?
+Do you like TV talent shows?
+If you were gay who would your life partner be?
+If you could go back in time to change one thing what would it be?
+How many hats do you own?
+Are you any good at pool?
+Whats the highest you've ever jumped into the water from?
+Have you ever been admitted to hospital?
+Have you ever had any brushes with the law?
+Have you ever been on TV?
+Have you ever met any celebrities?
+Have you ever been to Legoland?
+Have you ever done something heroic?
+Have you ever played a practical joke on anyone?
+Have you ever been the recipiant of a practical joke?
+What would be your best achievement to date?
+Do you prefer baths or showers?
+Do you prefer towel drying, blow drying or natural dryin your hair?
+Have you ever built a snowman?
+Have you ever been sledging?
+Have you ever flown a kite?
+What colour socks are you wearing?
+If you could live anywhere, where would that be?
+Have you ever been famous?
+Would you like to be a big celebrity?
+Would you ever go on Big Brother?
+How big is your TV?
+What is your most essential appliance?
+What type of music do you like?
+Have you ever been skinnydipping?
+How many Pillows do you sleep with?
+What position do you often sleep in?
+What do you wear to bed?
+How big is your house?
+Do you prefer sunrises or sunsets?
+What do you typically have for breakfast?
+Do you like scary movies?
+Whats your favourite Milkshake flavour?
+Have you ever been in a newspaper?
+How long can you balance on one foot?
+Have you ever fired a gun?
+Have you ever tried archery?
+Whats your favourite condement?
+Whats your favourite clean word?
+Whats your favourite swear word?
+Whats your least favourite word?
+What was the last film you saw?
+What football team do you support?
+Whats the longest you've gone without sleep?
+Whats the tallest building you've ever been up?
+Do you have any scars?
+Do you like marmite?
+Did you ever win any sportsday events?
+What did you want to be when you grew up?
+If you could change anything about yourself what would it be?
+Whats the longest you've ever grown your hair?
+Are you scared of flying?
+Would you rather trade some intelligence for looks or looks for intelligence?
+Have you ever tie-dyed your own clothes?
+How often do you buy new clothes?
+Are you reliable?
+Are you proud of yourself?
+Have you ever had a secret admirer
+If you could ask your future self one question what would it be?
+Do you hold grudges?
+If you could breed two animals together to defy the laws of nature what new animal would you create?
+Do you decorate the outside of your house for christmas?
+Can you solve sudoko puzzles?
+Have you ever played conkers?
+Whats the most unusual conversation you've ever had?
+Are you much of a gambler?
+Are you much of a daredevil?
+Are you a good liar?
+Are you a good judge of character?
+Are you any good at charades?
+How long could you go without talking?
+What has been your worst haircut/style?
+Can you iceskate?
+Can you summersault?
+Whats your favourite joke?
+Whats been your best present?
+Whats been your worst present?
+Have you ever sleepwalked?
+Can you build a house of cards?
+Whats your favourite TV advert?
+Can you play poker?
+If your parents hated your partner you currently loved would you ditch him or carry on with him despite the protests?
+Have you ever been professionally photographed?
+Have you ever baked your own cake?
+Whats your favourite fruit pastel colour?
+What traditionally adorns the top of your christmas tree?
+What would be your dream sandwich?
+Can you inpersonate anyone famous?
+Can you do any accents other than your own?
+Do you have a strong local accent?
+Whats your favourite accent?
+In O's and X's which do you normally pick?
+Do you prefer blue or black inked pens?
+What was the last thing you recorded off TV?
+What was the last thing you dressed up as for fancy dress?
+Do you prefer green or red grapes?
+What do you like on your toast?
+Do you prefer liquid soap or bars of soap?
+How do you have your eggs?
+Whats your favourite saying?
+Have you ever been in a tug of war?
+and did you win?
+Can you stand on your hands unassisted?
+What do you have on your fridge door?
+Do you love or hate myspace?
+Who was the last person to knock/ring at your door?
+How old were you when you last went trick or treating?
+Have you ever been bobbing for apples?
+Whats your most expensive piece of clothing?
+Whats the last thing you took a picture of?
+Whats the last thing you drew a picture of?
+Have you ever bought anything from ebay?
+Whats your favourite smell/scent?
+Can you blow bubbles with bubblegum?
+What was your favourite birthday?
+Can you curl your tounge?
+Is your bellybutton an innie or outie?
+What would be your dream car?
+Are you left or right handed?
+What was the last book you read?
+What was the last song you danced to?
+Have you ever owned a yo-yo?
+Have you ever been on a pogo stick?
+Have you ever been on a space hopper?
+Who was the last person to send you a text message?
+Have you ever accidentally injured anyone?
+Are you scared of spiders?
+Can you down a pint (of anything)
+Have you ever been banned from a public place?
+How much spam email do you tend to get a week?
+If you could learn any language fluently what would it be?
+What historical Figure would you love to see in 21st centuary life?
+As a kid were you ever frighted of a monster under the bed or in the cupboard?
+Do you like clowns?
+Do you prefer BBC or ITV?
+Have you ever been surfing?
+Have you ever been snowboarding?
+Who was better, the Beatles or Elvis Presley?
+Whats your favourite type of foreign food?
+Which Foreign country do you dislike the most?
+Do you like your music loud or easy listening?
+Whats your favourite animated or cartoon program?
+Do you sing in the shower?
+Are you a clean or messy person?
+Whats your prefered playing piece in monopoly?
+Can or Do you still play twister?
+Can you play chess?
+Do you know the dance steps to an annoying cheesey pop song?
+Do you prefer straight or bendy straws?
+Have you ever entered a talent contest?
+and did you win?
+Do you like poetry?
+Are you a bad loser?
+Which would you choose? Jelly or Ice Cream?
+Whats your favourite type of Pie?
+Whats your most used phrase?
+Whats your most used word?
+Who would you want to play you in a movie of your life?
+What would your dream job be?
+Which song do you hate the most?
+How long does it take you to get ready?
+What do you think the greatest invention has been?
+Whats your favourite feature on the opposite sex?
+Whats your least favourite feature on the opposite sex?
+Who's your favourite Comedian?
+What's your favourite board game?
+Do you have any lucky items, objects or traditions?
+Do you have any superstitions?
+Whats your favourite Movie quote?
+Who would win in a fight? Chuck Norris or Jack Bauer?
+Do you have much of an ego?
+Do you wear sunglasses indoors to look cool or stylish?
+Are you a hat person?
+Whats your favourite supermarket chain?
+Whats your favourite fastfood chain?
+Whats your first thought upon waking up?
+What animal would you most like to have as a pet?
+Whats your favourite type of tree?
+If you could bankrupt one person or company who would it be?
+If you could steal one thing without consequence what would it be?
+Who's your favourite celeb with the same first name or surname as you?
+If evil-doers invaded your country would you rush to the battlelines to defend the motherland or hide in a box?
+Whats your favourite flower?
+Do you believe in ghosts?
+Do you believe in the loch ness monster?
+Do you believe in Aliens?
+Do you believe the Governments hide technology and information from the public?
+Which is your favourite pokemon?
+What horror fiction character scares you the most?
+Can you do 10 revolutions of a hula hoop?
+Do you think Great Britain should have a National Day?
+Do you think Great Britain should be part of a United Europe?
+Would you want the Euro or keep the British Pound?
+Were you part of the Brownies/Cubs/Scouts/Guides etc
+Have you ever invented a fairly unique meal or drink?
+Do you have any secret family recipes?
+Do you have any family secrets? :o
+Are you good at keeping secrets?
+Have you ever been up in a hot air balloon?
+Whats your favourite Sci-fi film/program etc?
+When playing checkers or chess do you prefer to be black or white?
+Which is better, a Pastie or Sausage Roll?
+Do you prefer shopping on the high street or online?
+Would you ever want to learn to fly?
+Do you often read your horoscope?
+Have you ever had a proper Tarot reading?
+Whats your favourite brand of newspaper?
+Have you ever milked a cow?
+Have you ever used the phrase "back in my time" to someone younger than you?
+Do you love or hate rollercoasters?
+Which was the greatest Empire?
+Whats the cleverest word you know?
+Whats your favourite sportsware brand?
+Do you buy any weekly/monthly magazines?
+Who's your favourite Superhero?
+Who's your favourite Villain/Baddie?
+What was the last Album you purchased?
+What was the last DVD you purchased?
+What was the last piece of clothing you purchased?
+When pulling crackers does everyone get one each regardless or whoever gets the big ends keeps all the prizes
+Do you ever make your own greetings cards
+Do you have a swiss army knife?
+At what age did you twig onto the fact Santa wasnt real?
+Whats your favourite fruit?
+Have you ever done something really unbelivable, only to have no one around to see it?
+Do you buy from charity shops?
+Have you ever sold your services?
+Have you ever raised money for charity?
+Have you ever won a giant sized cuddly toy from a fair?
+Is the glass half full or half empty?
+Is the grass greener on the other side?
+If a tree falls in the forest and there's no one around to hear it does it make a noise?
+Why does it always rain on me?
+Have you ever sailed a boat?
+Do you love or loathe Harry Potter?
+Do you do your utmost for the environment?
+Do you love or loather Eurovison?
+Have you ever weilded a sword?
+If you were famous would you want a statue or a building names after you?
+Whats your favourite type of fish?
+Which do you prefer pony tails or pig tails?
+Whats the ultimate cake topping?
+Do you like marzipan?
+Whats better? Center Parks or Butlins?
+If you were in a band, what instrument/role would you play?
+Can you erect a tent?
+Do you suck or bite lollipops?
+Have you ever used the yellow pages?
+If you have an mp3 player what size is it?
+Do you still have any music on vinyl or casettes?
+Do you still have a camera that uses conventional film?
+Approximately how many DVD's do you have?
+Approximately how many Albums do you have?
+Do you talk to yourself?
+Do you sing to yourself?
+Do you know any identical twins?
+Have you ever given blood?
+Could you ever be a medical guineapig?
+Whats your favourite radio station?
+Whats your favourite letter of the Alphabet?
+Which is better? rollerblade or rollerskates?
+Have you ever written a love letter?
+How many valentines cards did you recieve this/last year?
+What are cooler? Dinosaurs or Dragons?
+Have you ever made your own ice lollies?
+Have you ever made your own Ice cream?
+Which forgeign language did you have to learn at school?
+and do you still remember enough to hold a conversation in that language?
+Do you know CPR?
+Do you have any swimming badges?
+Do you prefer digital or rotary/analogue clocks?
+How tall is the tallest person you know?
+Have you ever got lost in a maze?
+Have you ever been attacked by a wild animal?
+Have you ever ridden a camel?
+Whats your opinion on rats?
+Have you ever been to a gym?
+Have you ever been in a helicopter?
+Have you ever cheated at a test?
+Have you ever ridden a tractor?
+Are you a gossip?
+Have you ever cried at a film?
+When you're ill do you struggle on regardless or just curl up in bed as much as possible?
+Do you need to write down things to remember them?
+Do you keep a diary/journal?
+Are you scared of thunderstorms?
+Do you have any unusual fears or phobias?
+Whats your favourite disney movie?
+Have you ever slept in a caravan?
+Have you ever painted a house?
+Have you got green fingers?
+Whats the tallest tree you've ever climbed?
+Have you ever dialed the talking clock?
+Do you always wear identical socks?
+Do you live by any motto or philosophy?
+Do you lick the yoghurt or desert lid?
+Do you lick the spoon clean after making something sweet?
+Do you like the sound of music? (the musical/film)
+Have you ever made your own orangejuice?
+Have you ever sucked on a lemon?
+Have you ever licked a battery?
+Are you a good aim with a rubber band?
+Have you ever played golf?
+Whats the most unusual name you've ever come across?
+Do you prefer to wash in the mornings or evenings?
+Have you ever danced in the rain?
+Do you like long or short hair?
+Have you ever sworn at an authority figure?
+Have you ever walked into a wall?
+Whats your favourite precious metal?
+Whats your favourite precious stone?
+Could you ever hunt your own meal?
+Have you ever read any comics?
+Where do you like to go to on a first date?
+Do you prefer vertical or horizontal stripes?
+Have you ever baked your own bread?
+Can you believe I can't believe its not butter is in fact not actually butter?
+Can you name all 50 American states?
+Have you ever owned a goldfish?
+What was your favourite school subject?
+What was your least favourite school subject?
+Have you ever passed wind in an embarassing situation?
+Have you ever played the bongos?
+Have you ever handled a snake?
+Have you ever assembled furniture by yourself?
+When did you last go to the beach?
+When if ever did you last go to london?
+What do you do to cool down when its hot?
+Whats the most unusual thing you've ever eaten?
+Do you have a favourite mug?
+Do you know any self defence or martial arts?
+Who's your favourite movie action hero?
+Have you ever ridden a motorcycle?
+Do you collect anything?
+Is there anything you wished would come back into fashion?
+Do you stick to conventional fashions or like to try and be original?
+Have you ever given someone a handmade present?
+Are you introvert or extrovert?
+If you could have any feature from an animal what would you want?
+Whats your prefered swimming stroke?
+Have you ever been scuba diving?
+Have you ever had a disasterous interview?
+What makes you nervous?
+Which of the 5 senses would you say is your strongest?
+What colour are your eyes?
+Have you ever been to an Art gallery?
+Do you shout out the answers at the TV whilst watching quiz shows?
+Are you a valuable asset on a Pub Quiz team?
+Have you ever won any kind of quiz yourself?
+Do you get over-involved with TV or movie plots at times?
+Do you own any inflatable furniture?
+Whats the highest hill or mountain you've ever climbed?
+Do you have a piggy bank?
+Whats the fastest you've ever travelled in a car?
+Could you ever hand milk a cow?
+Do you have popcorn with a movie?
+Whats the futhest you've ever got a paper airplane to fly?
+Have you ever built an igloo?
+Can you play the harmonica?
+Have you ever made a ball of twine or rubberbands?
+If given the option of having a flake in your ice cream do you always take it?
+Could you ever be a living organ donor?
+Which was your favourite science? Biology, Physics or Chemistry?
+Could you ever go out with someone just cause they're rich?
+Have you ever contemplated sueing someone?
+Are you pretty devious?
+Have you ever had a surprise party? (that was an actual surprise)
+Are you any good at giving massages?
+Whats been your worst date ever?
+Have you ever slapped somoene in public?
+Have you ever drawn on a sleeping or inebriated person?
+Have you ever warn clothing with the labels/tags still attached?
+Have you ever slipped on a banana skin?
+Are you scared of the dark?
+Do you have a lawyer?
+Have you ever been wolf whistled in public?
+Whats the worst chatup line you've heard?
+Have you ever been water skiing?
+Have you ever hopelessly failed a test?
+If you had a year off, what would you want to do?
+How many sms/txt messages do you recieve on average a day?
+How long did you last phone call last?
+Do you go to car boot sales?
+If you saw someone drop a £10 note, would you claim it for your own or try to return it to them?
+Have you ever helped someone across the road?
+Have you ever been horseriding?
+Have you ever walked a tightrope?
+Have you ever demolished a wall or building?
+If you and a friend both wanted the same thing would you let the friend get it first?
+Have you ever argued over who should pay for something?
+Do you have any family heirlooms?
+Are you related or distantly related to anyone famous?
+Whats your favourite ocean?
+Do you correct peoples mistakes?
+Have you ever helped out an injured animal?
+Do you throw bread for the ducks?
+Do you think babies are little bundles of joy or smelly noisey things?
+Do you give money to buskers?
+Have you ever tossed your own pancake?
+Are you any good at egg and spoon races?
+Are you allergic to anything?
+Are you ticklish?
+Do you prefer tea,coffee or cocoa?
+Do you like Turkish Delight?
+Do you buy people presents to bring back when you go on holiday?
+Are you tired of answering questions yet?
+Have you ever been wheelbarrow racing?
+Do you ever forward or reply to chain mails?
+Do you often have a tune in your head you can't name?
+Has anyone ever approached you thinking you were someone else?
+Have you ever been approached by someone who knew you but you couldn't remember them for the life of you?
+What do you do to keep fit?
+Are you the sort to step in and try to break up a fight?
+Have you ever been in a fight?
+Have you ever started a rumour?
+Have you ever heard any outstanding rumours about yourself?
+Have you ever been in or had a food fight?
+When its your birthday do you always wear an age badge?
+Have you ever starred in an amateur or professional video?
+If you were comfortbly rich would you work hard for more or rest on your laurels?
+Have you ever been in a position of authority?
+Have you ever been caught in a comprimising position? even despite a valid explanation?
+Have you ever tried to make your own alcohol?
+If you were ruler of your own country what would you call it?
+And what title would you give yourself?
+If you invented a monster what would you call it?
+And what features would it have?
+Have you ever had a dream you chased only to be let down when you achived it?
+Is there anything about the opposite sex you just don't understand or comprehend?
+Who was your favourite teacher at school and why?
+Whats your favourite party game?
+Is it acceptable or unacceptable to smack a child as form of disapline?
+Can a hetrosexual male ever wear pink?
+Is it criminal to wear socks with sandals?
+If you were captain of a ship, what would you call it?
+If you were to join an emergency service which would it be?
+If you were to join one of the armed forced which would it be?
+Whats the worst thing about being your gender?
+Whats the best thing about being your gender?
+If you swapped genders for a day how would you spend it?
+If you were exiled what country would you choose as your new home?
+Have you ever made someone cry?
+Have you ever starred in a school play?
+Were you a member of any celebrity fanclub?
+Have you ever been a member of any other club?
+If you could have a full scholarship to any university what would you choose to study?
+Whats been your greatest ever day?
+What historical period would you like to live in if you could go back in time?
+What would you bring along to an idillic picnic?
+Whats your favourite childrens story?
+What movie ending really frustrated you? And how would you change it?
+What three things do you think of most each day?
+What do you call your evening meal? Dinner Tea or Supper?
+What do you call your after meal sweet? Pudding or Dessert?
+If you had a warning label, what would yours say?
+Have you ever got sweet revenge on anyone?
+Have you ever been to a live concert?
+Have you ever been to see stand up comedy?
+Have you ever needed stitches?
+If you could invent brand new baby names what would they be?
+Do your dreams ever tell you to do anything?
+Who's your favourite radio 1 DJ?
+Whats the best way to your heart?
+Do you know your own mobile phone number off by heart?
+If you were a fashion designer, what style of clothing or accessories would you design?
+Do you ever laugh at things you shouldn't?
+Have you ever been in a submarine?
+Have you ever walked out of a cinema before the film was done?
+What song would you say best sums you up?
+Do you have any old friends wou wish you could meet up with again?
+Whats your favourite Nursury Rhyme?
+Do you prefer metric or imperial measurements?
+Who's your favourite monarch of all time?
+What was the last thing you ate?
+Whats your favourite farmyard animal?
+If you could choose one celebrity to be the father/mother of your child who would it be?
+What would you do if someone proposed to you tomorrow?
+What are your 3 favourite internet sites?
+How high can you jump?
+Which fictional character do you wish was real?
+Who was your first crush?
+Whats the greatest thing about being your nationality?
+Whats the least greatest thing about being your nationality?
+Do you believe in destiny, fate or free will?
+If you could talk to one species of animal which would it be?
+If you had friends round what DVD's would you have to watch?
+Do you like vanilla or chocolate?
+Are you a giver or a receiver?
+Do you have any enemies?
+Are you scared of needles?
+How many piercings do you have? if any
+Have you ever got majorly lost trying to get somewhere?
+How fast can you say the alphabet?
+Do you say "Zee" or "Zed" to describe the letter Z?
+What was the last thing to make you feel happy?
+What was the last thing to make you feel angry?
+You are walking to work. There is a dog drowning in the canal on the side of the street. Your boss told you if you are late one more time you're fired. Do you save the dog?
+Are you the kind of friend you'd want to have as a friend yourself?
+Do you have any questions or queries about things you're just to scared or embarassed to ask anyone about?
+If you were a wrestler what would your stage name be?
+and what would your special move be called?
+Whats the most interesting thing you can see out of your nearest window?
+Do you think Barbie is a negative role model for young girls?
+Have you ever needed an eye test?
+Do you find yourself attractive?
+Can you roll your R's?
+What social class do you consider yourself or your family background to be in?
+Do you know any magic tricks?
+Whats the largest amount of money you've ever won?
+Whats the largest amount of money you've spent in one spree?
+Whats the largest amount of money you've had to borrow off of a friend or family member
+Have you ever been on a cable car?
+Do you prefer Honey or Jam?
+Do you prefer the French or Germans?
+How fast can you get changed?
+How fast do you type?
+How fast can you run?
+Which is better, Mario or Sonic?
+Whats your favourite biscuit to dunk?
+Which would you rather have if you had to, a broken leg or a broken arm?
+Do you read a daily newspaper?
+Do you watch the news on TV?
+Have you ever had anything published?
+Do you believe in love at first sight?
+How many remote controls do you have in your house?
+Have you ever been in a hot tub or sauna?
+Have you ever had chicken pox?
+Do you own a lava lamp?
+Are you glad these are almost over?
+On a scale of 1-10 how random would you say these are?
+What is your one major weekness?
+Whats been the best descision you've made in your life so far?
+Whats been the worst descision you've made in your life so far?
+What words do you always struggle to spell correctly?
+On a scale of 1-10 how happy would you say you are?
+On a scale of 1-10 how smart would you say you are?
+On a scale of 1-10 how funny would you say you are?
+On a scale of 1-10 how devious would you say you are?
+On a scale of 1-10 how awesome would you say you are?
+On a scale of 1-10 how devilsh would you say you are?
+On a scale of 1-10 how nice/caring would you say you are?
+On a scale of 1-10 how bitchy would you say you are?
+On a scale of 1-10 how polite would you say you are?
+On a scale of 1-10 how attractive would you say you are?
+If you could be any famous person who would you be and why?
+Whats your favourite animal beginning with the letter A?
+Whats your favourite item of clothing beginning with the letter B?
+Whats your favourite expleitive beginning with the letter C?
+Whats your favourite boys name beginning with the letter D?
+Whats your favourite girls name beginning with the letter E?
+Whats your favourite book beginning with the letter F?
+Whats your favourite bodypart beginning with the letter G?
+Whats your favourite musical instrument beginning with the letter H?
+Whats your favourite song beginning with the letter I?
+Whats your favourite actress beginning with the letter J?
+Whats your favourite actor beginning with the letter K?
+Whats your favourite film beginning with the letter L?
+Whats your favourite tv show beginning with the letter M?
+Whats your favourite game beginning with the letter N?
+Whats your favourite non alcoholic drink beginning with the letter O?
+Whats your favourite food beginning with the letter P?
+Whats your favourite band beginning with the letter Q?
+Whats your favourite author beginning with the letter R?
+Whats your favourite sport beginning with the letter S?
+Whats your favourite job beginning with the letter T?
+Whats your favourite mythical creature beginning with the letter U?
+Whats your favourite alcoholic drink beginning with the letter V?
+Whats your favourite cartoon character beginning with the letter W?
+Whats your favourite word beginning with the letter X?
+Whats your favourite city beginning with the letter Y?
+Whats your favourite country beginning with the letter Z?
+Do you get seasick?
+If you discovered a new species of dinosaur what would you call it?
+Do you own a paddling pool?
+What do you consider is the most important piece of furniture in a house?
+What do you consider is the most important appliance in a house?
+If you could have any celebritys hair whos would it be?
+Which Celebrity do you find the most annoying?
+What potential talents do you think you might have if you worked at them?
+Who was better, Flipper, Lassie or Skippy?
+If you could be trained up in any profession of your choice by top professionals what profession would you choose?
+If someone elses child was being an annoying little runt would you go tell them off or do something about it?
+Do you believe in kharma?
+Do you believe in revenge?
+Do you believe in fairies?
+Do you believe in a god?
+Do you believe there used to be dragons?
+Who would you want to be with on a desert island?
+What's the worst show on television?
+Who's your favourite god from ancient history?
+What one device would you want to see added to a mobile phone?
+Where do you see yourself in 1 months time?
+Where do you see yourself in 1 years time?
+Where do you see yourself in 10 years time?
+What was the best thing about your old school?
+What was the worst thing about your old school?
+If you could change your name to anything what would your new name be?
+Do you watch too much tv?
+Have you ever planted a tree?
+Whats the heaviest thing you can lift?
+What was the last present you recieved?
+Are your ears lobed or attached?
+How often do you wash your ears?
+Could you go out with someone who had a child from a previous relationship?
+What was your first alcoholic drink?
+What was your first job?
+What was your first car? (or what would you like it to be?)
+What was your first mobile phone?
+What is your first proper memory?
+Who was your first teacher?
+Where did you go on your first ride on an airplane?
+Who was your first best friend?
+What was your first detention for?
+Whats your strongest voluntary muscle?
+Who was your first kiss?
+What was the first film you remember seeing at the cinema?
+What thing that you've made are you most proud of?
+Could you ever be someones bodygaurd?
+Michelangelo's David... Masterpiece or filth?
+Do you like other people buying you clothes?
+Have you ever brought a present for someone that they hated/disliked?
+What nicknames do you have/have had?
+Did you have any pretend or imaginary friends?
+Have you ever seen a therapist/shrink?
+Have you ever carved a pumpkin?
+Would you say you are a good or bad influence to others?
+Do you prefer giving or recieving gifts/help etc
+If you were a member of the spice girls, what would your spice handle be?
+If you were to become a famous singer, what would your debut album be called?
+If you could join any music group which would you want to join?
+What do your parents do?
+If you were a giant mega monster what city would you rampage?
+Did you ever have a treehouse as a kid?
+Is your dad an embarassing dancer?
+Do you plan to vote in the next election?
+If you could replace one bodypart with a super bionic replacement what bodypart and what features would the new bionic replacement have?
+What if any unusual objects have you swallowed?
+When you buy something new do you get a desire to use/play with it even when they dont have any physical application yet?
+Did you understand the Matrix Trilogy?
+Would you rather be the fella in a movie who gets the girl or the baddie with all the good lines?
+If you were stinking rich, would you only go to places other rich people went?
+Would you rather have a mans top half and a womens bottom half or visa versa?
+Rebound relationships, good or bad?
+Have you ever owned a slinky?
+Teenage parents, good bad or indifferent?
+Whats the most expensive thing you've ever broken?
+Pirate downloads, good or bad?
+Democracy, good or bad?
+Communism, good or bad?
+Have you ever been electrocuted?
+Have you ever been attacked with a creamy bakery product?
+Have you ever shawn a sheep?
+Have you ever accidentally set fire to yourself?
+Have you ever eaten a whole tube of pringles by yourself?
+Have you ever been hit on by someone of the same gender?
+The war in Iraq, good or bad?
+The war in Afganistan, good or bad?
+Have you ever appeared on youtube?
+Have you ever performed in front of a large audience?
+Have you ever eaten anything prepared by a celebrity chef?
+Have you ever been on radio?
+Did your school make a teatowel that everyone submitted to?
+What colour/style was your school tie?
+Do you have to wear glasses?
+Do you bite your nails?
+Do you prefer male or female singers voices?
+Would you rather be the worlds greatest football player or lover?
+Do you get hayfever?
+Do you have a list of things to do before your 'x' years old?
+Do you like your age?
+Whats your favourite physical thing you like about yourself?
+Whats your least favourite physical thing you like about yourself?
+Are you proud, comfortable or ashamed of your body?
+Whats your favourite personality trait you like about yourself?
+Whats your least favourite personality trait you like about yourself?
+Do you know html?
+Have you ever flown first class?
+How many languages do you speak?
+What are better, violins or pianos?
+Whats the fastest you've ever driven? (as driver or passenger)
+What compulsions do you have?
+What makes you angry?
+If you could see any band, which would you like to see?
+Who would you say are more attractive, English or Europeans?
+What would you say is your favourite album of all time?
+Do you dislike hairy people?
+Are you much of an adventurer?
+Do you like your own name?
+Would you ever sign a Prenuptial agreement?
+How long has your longest ever phone call been?
+Have you ever stolen anything?
+Could you ever have an affair with a married person?
+Could you ever split up a couple for one reason or another?
+What is your family christmases like?
+Do you prefer sporty or academic members of the opposite sex?
+How much would it cost to buy your love?
+Who was your least favourite teacher at school and why?
+If you met a Genie who offered you three wishes, what would you wish for? (more wishes does not count)
+Whats your current Mobile phone model and do you like it?
+Have you already thought about your babies names?
+Have you ever been fishing?
+Have you ever had your national flag painted on your face?
+Do you have any strange body things?
+What was the last social faux pas you made?
+What makes you nostalgic?
+Whats the scariest thing you've ever done?
+What fairy tale character would you most associate with?
+How much do you tend to swear in public?
+What are your strengths?
+What are your weaknesses?
+What brand are your trainers?
+If you ruled your own country, who would you get to writer your national anthem?
+Who is the most intelligent person you know?
+Whats the craziest thing you've ever done for someone?
+How did you get your name?
+Whats the best piece of advice anyone has ever given you?
+If you had to describe yourself as a flavour, what would it be?
+If you had to describe yourself as a car, what would it be?
+If you had to describe yourself as an animal, what would it be?
+Do you think laughing at someone elses misfortune is wrong?
+If a loved one was to serenade you, what song would you most like them to sing?
+Would you ever let your parents pick out a partner for you?
+Have you ever tried spam? (the meat product)
+Grab the book nearest to you, turn to page 18, and find line 4.
+Stretch your left arm out as far as you can, What can you touch?
+Before you started this survey, what were you doing?
+What is the last thing you watched on TV?
+Without looking, guess what time it is
+Now look at the clock. What is the actual time?
+With the exception of the computer, what can you hear?
+When did you last step outside? What were you doing?
+Did you dream last night?
+Do you remember your dreams?
+When did you last laugh?
+Do you remember why / at what?
+What is on the walls of the room you are in?
+Seen anything weird lately?
+What do you think of this quiz?
+What is the last film you saw?
+If you could live anywhere in the world, where would you live?
+If you became a multi-millionaire overnight, what would you buy?
+Tell me something about you that most people don't know.
+If you could change one thing about the world, regardless of guilt or politics, what would you do?
+Do you like to dance?
+Would you ever consider living abroad?
+Does your name make any interesting anagrams?
+Who made the last incoming call on your phone?
+What is the last thing you downloaded onto your computer?
+Last time you swam in a pool?
+Type of music you like most?
+Type of music you dislike most?
+Are you listening to music right now?
+What color is your bedroom carpet?
+If you could change something about your home, without worry about expense or mess, what would you do?
+What was the last thing you bought?
+Have you ever ridden on a motorbike?
+Would you go bungee jumping or sky diving?
+Do you have a garden?
+Do you really know all the words to your national anthem?
+What is the first thing you think of when you wake up in the morning?
+If you could eat lunch with one famous person, who would it be?
+Who sent the last text message you received?
+Which store would you choose to max out your credit card?
+What time is bed time?
+Have you ever been in a beauty pageant?
+How many tattoos do you have?
+If you don't have any, have you ever thought of getting one?
+What did you do for your last birthday?
+Do you carry a donor card?
+Who was the last person you ate dinner with?
+Is the glass half empty or half full?
+What's the farthest-away place you've been?
+When's the last time you ate a homegrown tomato?
+Have you ever won a trophy?
+Are you a good cook?
+Do you know how to pump your own gas?
+If you could meet any one person (from history or currently alive), who would it be?
+Have you ever had to wear a uniform to school?
+Do you touch-type?
+What's under your bed?
+Do you believe in love at first sight?
+Think fast, what do you like right now?
+Where were you on Valentine's day?
+What time do you get up?
+What was the name of your first pet?
+Who is the second to last person to call you?
+Is there anything going on this weekend?
+How are you feeling right now?
+What do you think about the most?
+What time do you get up in the morning?
+If you had A Big Win in the Lottery, how long would you wait to tell people?
+Who would you tell first?
+What is the last movie that you saw at the cinema?
+Do you sing in the shower?
+Which store would you choose to max out your credit card?
+What do you do most when you are bored?
+What do you do for a living?
+Do you love your job?
+What did you want to be when you grew up?
+If you could have any job, what would you want to do/be?
+Which came first the chicken or the egg?
+How many keys on your key ring?
+Where would you retire to?
+What kind of car do you drive?
+What are your best physical features?
+What are your best characteristics?
+If you could go anywhere in the world on vacation where would you go?
+What kind of books do you like to read?
+Where would you want to retire to?
+What is your favorite time of the day?
+Where did you grow up?
+How far away from your birthplace do you live now?
+What are you reading now?
+Are you a morning person or a night owl?
+Can you touch your nose with your tongue?
+Can you close your eyes and raise your eyebrows?
+Do you have pets?
+How many rings before you answer the phone?
+What is your best childhood memory?
+What are some of the different jobs that you have had in your life?
+Any new and exciting things that you would like to share?
+What is most important in life?
+What Inspires You? 
+How are you, really?
+How do you feel right now? What are you thinking about?
+What’s your favorite color?
+What’s your favorite food?
+What’s your favorite dessert?
+How old are you?
+What have you learned today?
+What was your favorite subject in school?
+What do you do?
+What are some of your favorite books?
+What are some of your favorite movies?
+What kind of music are you into?
+If you were going to write a book, what would you call it and what would it be about?
+What’s one of the scariest things you’ve ever done?
+What accomplishment are you most proud of?
+Are you married?
+How did you meet your spouse / girlfriend / boyfriend?
+Do you think it’s better to get married when you’re young or better to wait a while?
+Do you have any kids?
+Have you ever thought of adopting?
+When you were a kid, what did you want to be when you grew up?
+How did you get into [INSERT THEIR CAREER FIELD]?
+Would you recommend [INSERT THEIR CAREER] for other people? Why / Why not?
+What do you do for fun?
+Do you like traveling?
+If you could visit any country in the world, where would you go?
+Who are some people you’d like to meet someday?
+If someone asked you to give them a random piece of advice, what would you say?
+What’s one of your favorite habits you have?
+What are some things that make you really happy?
+What are some things that make you really sad?
+What are some things that scare you?
+Do you like to plan things out in detail or be spontaneous?
+Are you a religious person?
+If you could go back in history, who would you like to meet?
+Would you rather live in the country or in the city?
+What was your life like growing up?
+What were you like in high school?
+Do you have any brothers or sisters? How many?
+What’s your favorite part about today so far?
+Who in your life has influenced you the most? How did they do it?
+What’s your favorite joke?
+Have you ever tried sushi? (Did you like it?)
+Do you like spicy food?
+How do you like your steak cooked?
+Do you have a favorite number? Any particular reason why you like that number?
+If you were a type of animal, what would you be and why?
+What’s one of the strangest things you’ve ever done?
+What kind of vacations do you like?
+What are some of your major goals in life?
+What are some of your smaller goals in life?
+What do you like least about yourself?
+What embarrasses you?
+If you could try out any job for a day, what would you like to try?
+What’s your earliest memory?
+What’s the best decision you ever made?
+Who’s your best / closest friend?
+What do you think people think of you?
+What were your grades like in school?
+If you could learn one random skill, what would you learn?
+Are you an introvert or an extrovert?
+Have you ever taken a personality test? (How did the results turn out?)
+What’s the first thing you notice about people?
+Do you think people can control their own destiny?
+Do you think all people are equally valuable, or do you think some people in certain situations might be more valuable than others (say, a severely retarded patient vs. a doctor who could potentially save hundreds of lives)?
+Do you think people are basically bad or basically good?
+Do you think morals are universal or relative to the beliefs, traditions, and practices of individuals or groups?
+Do you think God exists?
+Do you think any kind of afterlife exists?
+Do you vote? Why / Why not? If you do vote, how do you usually vote?
+Do you think gay people choose to be gay? Do you think straight people choose to be straight?
+Is torture ever a good option? If no, why not? If yes, when?
+Would you kill an innocent person if you thought it might mean saving a dozen other people?
+What’s the most money you’ve ever given away?
+What’s the biggest personal change you’ve ever made?
+What’s the stupidest thing you’ve ever done?
+What do you think would be one of the best steps we could take toward ending poverty around the world?
+What do you think we could do to best improve the education system?
+In general, what do you think about art?
+What are some of your favorite websites?
+What’s the biggest turnoff in a man/woman?
+What’s the biggest lie you’ve ever told?
+What’s something most people don’t know about you?
+What’s something you wish everyone knew about you?
+What are some of the first things you do in the morning?
+What’s the worst thing that’s ever happened to you?
+Do you cry easily?
+How do you feel about public speaking?
+Do you like to talk on the phone?
+How many emails do you get each week, roughly?
+If someone were to make a movie about your life, who would you hope would play you?
+What’s one of your favorite questions to ask new friends or to get a conversation going?
+Would you ever sky dive or bungee jump?
+Have you ever been in a fist fight?
+What’s the best prank you’ve ever pulled?
+What did you do on your 16th birthday?
+What do you think is one of the most undervalued professions right now?
+How would you explain your basic life philosophy?
+Would you rather be hated or forgotten?
+If you knew you would die tomorrow, would you feel cheated today?</textarea></td></tr>
+</table>
+<p id="output" name="output"></p>
+<script type="text/javascript">
+var LdaGibbs = new Object();
+</script>
+</body>
+</html>
+
