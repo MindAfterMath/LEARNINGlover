@@ -151,20 +151,20 @@ function generate_candidate(best, tabu_list, cities)
 		edges = arr[1];
 	}
 	while (is_tabu(perm, tabu_list));
-	candidate = {:vector=>perm}
+	var candidate = {:vector=>perm}
 	candidate[:cost] = cost(candidate[:vector], cities)
 	return candidate, edges
 }
 
 function search(cities, tabu_list_size, candidate_list_size, max_iter)
 {
-  current = {:vector=>random_permutation(cities)}
-  current[:cost] = cost(current[:vector], cities)
-  best = current
-  tabu_list = Array.new(tabu_list_size)
-  max_iter.times do |iter|
-    candidates = Array.new(candidate_list_size) do |i|
-      generate_candidate(current, tabu_list, cities)
+	var current = {:vector=>random_permutation(cities)}
+  	current[:cost] = cost(current[:vector], cities)
+  	var best = current
+  	var tabu_list = Array.new(tabu_list_size)
+  	max_iter.times do |iter|
+    	var candidates = Array.new(candidate_list_size) do |i|
+      	generate_candidate(current, tabu_list, cities)
     end
     candidates.sort! {|x,y| x.first[:cost] <=> y.first[:cost]}
     best_candidate = candidates.first[0]
