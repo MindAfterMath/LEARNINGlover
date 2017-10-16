@@ -1,0 +1,470 @@
+<html>
+<head>
+<style>
+textarea {
+  width: 300px;
+  height: 150px;
+}
+span 
+{
+	cursor:pointer;
+	color:blue;
+	text-decoration:underline;
+}
+</style>
+<script type="text/javascript">
+function indexOf(larger, smaller, start=0)
+{
+	var loc = -1;
+	var found = false;
+	
+	for (var i = start; i < larger.length && !found; i++)
+	{
+		if (larger[i] == smaller[0])
+		{
+			found = true;
+			for (var j = 1; j < smaller.length && found; j++)
+			{
+				if (larger[i+j] != smaller[j])
+				{
+					found = false;
+				}
+			}
+		}
+		
+		if (found)
+		{
+			loc = i;
+		}
+	}	
+	
+	return loc;
+}
+
+function ngrams()
+{
+	var inp = document.getElementById("input").value.split("\n");
+	for (var i = 0; i < inp.length; i++)
+	{
+		var x = document.createElement("option");
+		x.text = parseInt(i);
+		x.value = parseInt(i);
+		document.getElementById("lineNum").add(x);
+	}
+	var docs = document.getElementById("input").value;
+	docs = docs.replace(/[^A-Za-z]/g, "");
+//	docs = docs.replace(/\s/g, " ");
+
+	var queue = [];
+	var ratios = {};
+	var counts = {};
+	var maxVal = 0;
+
+	var splChar;
+	if (document.getElementById('parse').value == 1)
+	{
+		splChar = " ";
+	}
+	else if (document.getElementById('parse').value == 2)
+	{
+		splChar = "";
+	}
+	
+//	for (var i = 0; i < docs.length; i++)
+//	{
+//		docs[i] = docs[i].replace(/\\n/g, "\n");
+//		docs[i] = docs[i].replace(/\\r/g, "\r");
+//		docs[i] = "[ " + docs[i] + " ]";
+		var wds = docs.split(splChar);
+		for (var j = 0; j < wds.length; j++)
+		{
+			if (queue.indexOf(wds[j]) == -1 && wds[j].trim() != "")
+			{
+				queue.push(wds[j]);
+			}
+		}
+//	}
+		
+	while (queue.length > 0)
+	{
+		for (var curr = 0; curr < queue.length; curr++)
+		{
+			if (!(queue[curr] in ratios))
+			{
+				ratios[queue[curr]] = {};
+				counts[queue[curr]] = 0;
+				ratios[queue[curr]]["___finished___"] = false;
+			}
+			var wdLen = queue[curr].split(splChar).length;
+			
+//			for (var i = 0; i < docs.length; i++)
+//			{
+				var wds = docs.split(splChar);
+				var locs = [];
+				var last = 0;
+
+				while (indexOf(wds, queue[curr].split(splChar), last) != -1)
+//				while (last < wds.length)
+				{
+					var idx = indexOf(wds, queue[curr].split(splChar), last);
+					locs.push(idx);
+					last = idx + 1;
+				}
+				
+				for (var loc = 0; loc < locs.length; loc++)
+				{
+					if (locs[loc] + wdLen < wds.length)
+					{
+						if (!(wds[locs[loc] + wdLen] in ratios[queue[curr]]))
+						{
+							ratios[queue[curr]][wds[locs[loc] + wdLen]] = 1.0;
+							counts[queue[curr]] += 1;
+						}
+						else
+						{
+							ratios[queue[curr]][wds[locs[loc] + wdLen]] += 1.0;
+							counts[queue[curr]] += 1;
+						}
+					}
+					if (counts[queue[curr]] > maxVal)
+					{
+						maxVal = counts[queue[curr]];
+					}
+				}
+//			}
+		}
+		
+		queue = [];
+		
+		for (var word1 in ratios)
+		{
+			for (var word2 in ratios[word1])
+			{
+				if (ratios[word1]["___finished___"] == false)
+				{
+					ratios[word1][word2] = ratios[word1][word2] / counts[word1];
+				}
+				
+				if (ratios[word1][word2] >= parseFloat(document.getElementById('thresh').value) && !(word1 + splChar + word2 in ratios))
+				{
+					var len1 = word1.split(splChar).length;
+					var len2 = word2.split(splChar).length;
+					if (len1 + len2 <= parseInt(document.getElementById('maxNum').value))
+					{
+						queue.push(word1 + splChar + word2);
+					}
+				}
+			}
+			ratios[word1]["___finished___"] = true;
+		}
+	}
+	
+	var out = "<table>";
+	var count1 = 0;
+	var count2 = 0;
+	wordFreqs = {};	
+	indeg = {};
+	outdeg = {};
+	
+//	out += "<table>";
+	
+	for (var word1 in ratios)
+	{
+		for (var word2 in ratios[word1])
+		{
+			var word4 = (word1 + splChar + word2).trim();
+			indeg[word4] = 0;
+			outdeg[word4] = 0;
+			var pre = [];
+			var pre2 = [];
+			var suff = [];
+			var suff2 = [];
+			for (var word3 in ratios)
+			{
+				if (word3.length == word4.length + 1 && word3.substring(1, word3.length) == word4 && !(word3[0] in pre))
+				{
+					indeg[word4]++;
+					pre.push(word3[0]);
+					pre2.push(word3);
+				}
+				
+				if (word3.length == word4.length + 1 && word3.substring(0, word3.length-1) == word4 && !(word3[word3.length-1] in suff))
+				{
+					outdeg[word4]++;
+					suff.push(word3[word3.length-1]);
+					suff2.push(word3);
+				}
+			}
+//			out += "<tr><td>" + pre + "</td>";
+//			out += "<td>" + pre2 + "</td>";
+//			out += "<td>" + word4 + "</td>";
+//			out += "<td>" + suff + "</td>";
+//			out += "<td>" + suff2 + "</td>";
+//			out += "</tr>";
+		}
+	}
+//	out += "<table>";
+	
+	out += "<tr><td>n-Gram</td><td>Next Likelihood</td><td>First Count</td><td>Next Count</td><td>MaxVal</td><td>Probability 1</td><td>OutDegree</td><td>InDegree</td><td>Probability 2</td><td>Total Words</td></tr>";
+
+	for (var word1 in ratios)
+	{
+		for (var word2 in ratios[word1])
+		{
+			count1++;
+			if (word2 != "___finished___")
+			{
+				wordFreqs[(word1 + splChar + word2).trim()] = ((counts[word1] * ratios[word1][word2]) / maxVal) * ((outdeg[(word1 + splChar + word2).trim()] + indeg[(word1 + splChar + word2).trim()]) / (Object.keys(ratios).length - 1));
+				out += "<tr style='background-color:rgba(255, 0, 0, " + 100*wordFreqs[(word1 + splChar + word2).trim()].toFixed(4) + ");'><td>" + word1 + splChar + word2 + "</td><td>" + ratios[word1][word2].toFixed(4) + "</td><td>" + counts[word1] + "</td><td>" + Math.round(counts[word1] * ratios[word1][word2]) + "</td><td>" + maxVal + "</td><td>" + ((counts[word1] * ratios[word1][word2]) / maxVal).toFixed(4) + "</td>";
+				out += "<td>" + outdeg[(word1 + splChar + word2).trim()] + "</td>";
+				out += "<td>" + indeg[(word1 + splChar + word2).trim()] + "</td>";
+				out += "<td>" + wordFreqs[(word1 + splChar + word2).trim()] + "</td><td>" + Object.keys(ratios).length + "</td>";
+				out += "</tr>";
+				if (ratios[word1][word2] >= document.getElementById("thresh").value)
+				{
+					count2++;
+				}
+			}
+		}
+		
+//		if (!(word1 in wordFreqs) && word1.indexOf("__finished__") == -1)
+//		{
+//			wordFreqs[word1] = (counts[word1] / maxVal);
+//			out += "<tr style='background-color:rgba(255, 0, 0, " + (counts[word1] / maxVal).toFixed(4) + ");'><td>" + word1 + "</td><td></td><td>" + counts[word1] + "</td><td></td><td>" + maxVal + "</td><td>" + ((counts[word1]) / maxVal).toFixed(4) + "</td></tr>";
+//		}
+	}
+	
+//	for (var word1 in ratios)
+//	{
+//		for (var word2 in ratios[word1])
+//		{
+//			wordFreqs[(word1 + splChar + word2).trim()] = ((counts[word1] * ratios[word1][word2]) / maxVal) * (counts[word1] / (Object.keys(ratios).length - 1));
+//			out += "<td>" + wordFreqs[(word1 + splChar + word2).trim()] + "</td><td>" + Object.keys(ratios).length + "</td>";
+//		}
+//	}
+
+	out += "</table>";
+	out = "<div>Total Number of Words: " + count1 + "</div><div>Number Above Threshold: " + count2 + "</div>" + out;
+	document.getElementById("table").innerHTML = out;
+}
+
+wordFreqs = {};
+wordFreqs['file'] = 0.00123;
+wordFreqs['files'] = 0.00124;
+wordFreqs['save'] = 0.002;
+wordFreqs['ave'] = 0.00001;
+wordFreqs['as'] = 0.00555;
+var out2 = "";
+
+function splitText(text, wordFreqs, cache, nest)
+{
+//	for (var ct = 0; ct < nest; ct++)
+//	{
+//		out2 += "&nbsp;";
+//	}
+//	out2 += cache + "<br>";
+//	out2 += text + "<br>";
+	if (text in cache)
+	{
+		return cache[text];
+	}
+	
+	if (text.length == 0)
+	{
+//		for (var ct = 0; ct < nest; ct++)
+//		{
+//			out2 += "&nbsp;";
+//		}
+//		out2 += "text.length is zero<br>";
+		return [1, []];
+	}
+	
+	var best_freq = 0;
+	var best_split = [];
+	for (var i = 1; i < text.length + 1; i++)
+	{
+		var word = text.substring(0, i);
+		var remainder = text.substring(i, text.length);
+//		for (var ct = 0; ct < nest; ct++)
+//		{
+//			out2 += "&nbsp;";
+//		}
+//		out2 += "word = " + word + "<br>";
+//		for (var ct = 0; ct < nest; ct++)
+//		{
+//			out2 += "&nbsp;";
+//		}
+//		out2 += "remainder = " + remainder + "<br>";
+
+		var freq;
+		if (word in wordFreqs && wordFreqs[word] > 0)
+		{
+//			for (var ct = 0; ct < nest; ct++)
+//			{
+//				out2 += "&nbsp;";
+//			}
+//			out2 += word + " is in wordFreqs, so freq is " + Math.log(wordFreqs[word]) + ". <br>";
+			freq = -Math.log(wordFreqs[word]);
+		}
+		else
+		{
+//			out2 += word + " is not in wordFreqs. <br>";
+			freq = 0;
+		}
+		
+//		out2 += i + " - " + word + ", " + remainder + " - " + best_freq + " - " + best_split + "<br>";
+		
+		if (freq > 0)
+		{
+//			for (var ct = 0; ct < nest; ct++)
+//			{
+//				out2 += "&nbsp;";
+//			}
+//			out2 += "calling splitText with " + remainder + "<br>";
+			var rem = splitText(remainder, wordFreqs, cache, nest + 1);
+			remainder = rem[1];
+			freq -= rem[0];
+			if (freq > best_freq)
+			{
+				best_freq = freq;
+//				best_split = [];
+				best_split.push(word);
+				for (var j = 0; j < rem[1].length; j++)
+				{
+					best_split.push(rem[1][j]);
+				}
+			}
+//			for (var ct = 0; ct < nest; ct++)
+//			{
+//				out2 += "&nbsp;";
+//			}
+			out2 += i + ", " + text + ", " + word + ", rem[0] = " + rem[0] + ", best_freq = " + best_freq + ", remainder = " + rem[1] + "<br>";
+//			for (var ct = 0; ct < nest; ct++)
+//			{
+//				out2 += "&nbsp;";
+//			}
+//			out2 += best_split + "<br>";
+//			for (var ct = 0; ct < nest; ct++)
+//			{
+//				out2 += "&nbsp;";
+//			}
+//			out2 += rem[1] + "<br>";
+		}
+	}
+//	
+//	out2 += "<b>ans</b> = " + text + " - " + best_freq + " - " + best_split + "<br>";
+	cache[text] = [best_freq, best_split];
+//	for (var ct = 0; ct < nest; ct++)
+//	{
+//		out2 += "&nbsp;";
+//	}
+	out2 += "returning " + cache[text] + "<br>";
+	return cache[text];
+}
+
+function showHideDiv(id)
+{
+	var val = document.getElementById(id).style.display;
+	if (val == "none")
+	{
+		document.getElementById(id).style.display = "block";
+	}
+	else
+	{
+		document.getElementById(id).style.display = "none";
+	}
+}
+</script>
+</head>
+<body>
+<textarea id="input">(SITTIN' ON) THE DOCK OF THE BAY
+- written by Otis Redding and Steve Cropper
+- lyrics as recorded by Otis Redding December 7, 1967, just three
+days before his death in a plane crash outside Madison, Wisconsin
+- #1 for 4 weeks in 1968
+
+Sittin' in the mornin' sun
+I'll be sittin' when the evenin' come
+Watching the ships roll in
+And then I watch 'em roll away again, yeah
+
+I'm sittin' on the dock of the bay
+Watching the tide roll away
+Ooo, I'm just sittin' on the dock of the bay
+Wastin' time
+
+I left my home in Georgia
+Headed for the 'Frisco bay
+'Cause I've had nothing to live for
+And look like nothin's gonna come my way
+
+So I'm just gonna sit on the dock of the bay
+Watching the tide roll away
+Ooo, I'm sittin' on the dock of the bay
+Wastin' time
+
+Look like nothing's gonna change
+Everything still remains the same
+I can't do what ten people tell me to do
+So I guess I'll remain the same, yes
+
+Sittin' here resting my bones
+And this loneliness won't leave me alone
+It's two thousand miles I roamed
+Just to make this dock my home
+
+Now, I'm just gonna sit at the dock of the bay
+Watching the tide roll away
+Oooo-wee, sittin' on the dock of the bay
+Wastin' time
+
+(whistle) </textarea><br>
+<input type="button" value="Calculate Word Probabilities" onclick="ngrams()"><br>
+<span>Threshold: </span><select id="thresh">
+	<option value="0.01">0.01</option>
+	<option value="0.1">0.1</option>
+	<option value="0.2">0.2</option>
+	<option value="0.3">0.3</option>
+	<option value="0.4">0.4</option>
+	<option value="0.5" selected>0.5</option>
+	<option value="0.6">0.6</option>
+	<option value="0.7">0.7</option>
+	<option value="0.8">0.8</option>
+	<option value="0.9">0.9</option>
+</select>
+<span>Parse by What: </span><select id="parse">
+	<option value="1" selected>by Word</option>
+	<option value="2">by Character</option>
+</select>
+<span>Max Length: </span><select id="maxNum">
+	<option value="1">1</option>
+	<option value="2">2</option>
+	<option value="3">3</option>
+	<option value="4" selected>4</option>
+	<option value="5">5</option>
+	<option value="6">6</option>
+	<option value="7">7</option>
+	<option value="8">8</option>
+	<option value="9">9</option>
+	<option value="10">10</option>
+	<option value="11">11</option>
+	<option value="12">12</option>
+	<option value="13">13</option>
+	<option value="14">14</option>
+	<option value="15">15</option>
+	<option value="16">16</option>
+	<option value="17">17</option>
+	<option value="18">18</option>
+	<option value="19">19</option>
+	<option value="20">20</option>
+</select><br>
+<span onclick=showHideDiv('table')>View Word Probablity Table</span>
+<div id="table" style="display:none"></div><br>
+<!--<input type="button" value="Calculate" onclick="document.getElementById('parsed').innerHTML += splitText(document.getElementById('input').value.replace(/[^A-Za-z]/g, ''), wordFreqs, {})[1]"><br>-->
+<select id="lineNum"></select>
+<input type="button" value="Parse Text" onclick="document.getElementById('parsed').innerHTML='';out2='';splitText(document.getElementById('input').value.split('\n')[document.getElementById('lineNum').value].replace(/[^A-Za-z]/g, ''), wordFreqs, {});document.getElementById('parsed').innerHTML += out2 + '<br>'"><br>
+<!--<input type="button" value="Parse Text" onclick="splitText('filesaveas', wordFreqs, {}, 0);document.getElementById('parsed').innerHTML += out"><br>-->
+<span onclick=showHideDiv('parsed')>View Parsed Text</span>
+<div id="parsed" style="display:none"></div>
+</body>
+</html>

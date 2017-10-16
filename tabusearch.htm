@@ -1,0 +1,206 @@
+<html>
+<head>
+<style>
+textarea {
+  width: 300px;
+  height: 150px;
+}
+span 
+{
+	cursor:pointer;
+	color:blue;
+	text-decoration:underline;
+}
+</style>
+<script type="text/javascript">
+function euc_2d(c1, c2)
+{
+	return Math.sqrt((c1[0] - c2[0])*(c1[0] - c2[0]) + (c1[1] - c2[1])*(c1[1] - c2[1]));
+}
+
+function cost(perm, cities)
+{
+	var distance = 0
+	for (var i = 0; i < perm.length; i++)
+	{
+		var c1 = perm[i];
+		var c2;
+		if (i == perm.length - 1)
+		{
+			c2 = perm[0];
+		}
+		else
+		{
+			c2 = perm[i+1];
+		}
+		distance += euc_2d(cities[c1], cities[c2]);
+	}
+  
+	return distance;
+}
+
+function random_permutation(cities)
+{
+//	perm = Array.new(cities.size){|i| i}
+	var perm = [];
+	for (var i = 0; i < cities.length; i++)
+	{
+		perm[i] = i;
+	}
+//	perm.each_index do |i|
+	for (var i = 0; i < perm.length; i++)
+	{
+		var r = Math.floor(Math.random() * perm.length - i) + i;
+		var temp = perm[r];
+		perm[r] = perm[i];
+		perm[i] = temp;
+//		perm[r], perm[i] = perm[i], perm[r]
+	}
+	return perm
+}
+
+function stochastic_two_opt(parent)
+{
+	perm = [];
+	for (var i = 0; i < parent.length; i++)
+	{
+		perm[i] = parent[i];
+	}
+	
+	var c1 = Math.floor(Math.random() * perm.length);
+	var c2 = Math.floor(Math.random() * perm.length);
+	var exclude = [c1];
+	if (c1 == 0)
+	{
+		exclude.push(perm.lenght-1);
+	}
+	else
+	{
+		exclude.push(c1 - 1);
+	}
+	
+	if (c1 == perm.length - 1)
+	{
+		exclude.push(0);
+	}
+	else
+	{
+		exclude.push(c1 + 1);
+	}
+	
+	do
+	{
+		c2 = Math.floor(Math.random() * perm.length);
+	}
+	while(c2 in exclude);
+	
+	if (c2 < c1)
+	{
+		var temp = c1;
+		c1 = c2;
+		c2 = temp;
+	}
+	
+	for (var i = 0; i < c2 - c1; i++)
+	{
+		var temp = perm[c1 + i];
+		perm[c1 + i] = perm[c2 - i];
+		perm[c2 - i] = temp;
+	}
+//	perm[c1...c2] = perm[c1...c2].reverse
+	edges = [];
+	edges[0] = [parent[c1-1], parent[c1]];
+	edges[1] = [parent[c2-1], parent[c2]];
+	return [perm, edges];
+}
+
+function is_tabu(permutation, tabu_list)
+{
+//	permutation.each_with_index do |c1, i|
+	for (var i = 0; i < permutation.length; i++)
+	{
+		var c1 = permutation[i];
+		var c2;
+		if (i == permutation.length - 1)
+		{
+			c2 = permutation[0];
+		}
+		else
+		{
+			c2 = permutation[i+1];
+		}
+//		c2 = (i==permutation.size-1) ? permutation[0] : permutation[i+1]
+//		tabu_list.each do |forbidden_edge|
+		for (var j = 0; j < tabu_list.length; i++)
+		{
+			if (tabu_list[j][0] == c1 && tabu_list[j][1] == c2)
+				return true;
+		}
+	}
+	return false
+}
+
+function generate_candidate(best, tabu_list, cities)
+{
+	var perm;
+	var edges;
+	do
+	{
+		var arr = stochastic_two_opt(best[:vector]);
+		perm = arr[0];
+		edges = arr[1];
+	}
+	while (is_tabu(perm, tabu_list));
+	candidate = {:vector=>perm}
+	candidate[:cost] = cost(candidate[:vector], cities)
+	return candidate, edges
+}
+
+function search(cities, tabu_list_size, candidate_list_size, max_iter)
+{
+  current = {:vector=>random_permutation(cities)}
+  current[:cost] = cost(current[:vector], cities)
+  best = current
+  tabu_list = Array.new(tabu_list_size)
+  max_iter.times do |iter|
+    candidates = Array.new(candidate_list_size) do |i|
+      generate_candidate(current, tabu_list, cities)
+    end
+    candidates.sort! {|x,y| x.first[:cost] <=> y.first[:cost]}
+    best_candidate = candidates.first[0]
+    best_candidate_edges = candidates.first[1]
+    if best_candidate[:cost] < current[:cost]
+      current = best_candidate
+      best = best_candidate if best_candidate[:cost] < best[:cost]
+      best_candidate_edges.each {|edge| tabu_list.push(edge)}
+      tabu_list.pop while tabu_list.size > tabu_list_size
+    end
+    puts " > iteration #{(iter+1)}, best=#{best[:cost]}"
+  end
+  return best
+}
+
+if __FILE__ == $0
+  # problem configuration
+  berlin52 = [[565,575],[25,185],[345,750],[945,685],[845,655],
+   [880,660],[25,230],[525,1000],[580,1175],[650,1130],[1605,620],
+   [1220,580],[1465,200],[1530,5],[845,680],[725,370],[145,665],
+   [415,635],[510,875],[560,365],[300,465],[520,585],[480,415],
+   [835,625],[975,580],[1215,245],[1320,315],[1250,400],[660,180],
+   [410,250],[420,555],[575,665],[1150,1160],[700,580],[685,595],
+   [685,610],[770,610],[795,645],[720,635],[760,650],[475,960],
+   [95,260],[875,920],[700,500],[555,815],[830,485],[1170,65],
+   [830,610],[605,625],[595,360],[1340,725],[1740,245]]
+  # algorithm configuration
+  max_iter = 100
+  tabu_list_size = 15
+  max_candidates = 50
+  # execute the algorithm
+  best = search(berlin52, tabu_list_size, max_candidates, max_iter)
+  puts "Done. Best Solution: c=#{best[:cost]}, v=#{best[:vector].inspect}"
+end
+</script>
+</head>
+<body>
+</body>
+</html>

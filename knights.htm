@@ -1,0 +1,152 @@
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<html>
+<head>
+<style type="text/css">
+span 
+{
+	cursor:pointer;
+	color:blue;
+	text-decoration:underline;
+}
+
+.hntl 
+{
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+	background-color: #ffffff;
+}
+
+.hntd 
+{
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+	background-color: #dcdcdc;
+}
+</style>
+<title>Knights Tour</title>
+<meta name="author" content="AfterMath" />
+<script type="text/javascript">
+var N = 8;
+var soln = [];
+
+function init()
+{
+//	soln = new int[N][N];
+	for (var i = 0; i < N; i++)
+	{
+		soln[i] = [];
+		for (var j = 0; j < N; j++)
+		{
+			soln[i][j] = [];
+		}
+	}
+}
+
+function isSafe(x, y)
+{
+	if (x >= 0 && x < N && y >= 0 && y < N && soln[x][y] == -1)
+	{
+		return true;
+	}
+	
+	return false;
+}
+
+function printSolution()
+{
+	var out = "<table>";
+	for (var x = 0; x < N; x++)
+	{
+		out += "<tr>";
+		for (var y = 0; y < N; y++)
+		{
+//			System.out.print("  " + soln[x][y]);
+//			out += "  " + soln[x][y];
+			if ((x + y) % 2 == 0)
+			{
+				out += "<td class=hntl>" + soln[x][y] + "</td>";
+			}
+			else
+			{
+				out += "<td class=hntd>" + soln[x][y] + "</td>";
+			}
+		}
+//		System.out.println();
+		out += "</tr>";
+	}
+	
+	document.getElementById('output').innerHTML += out;
+}
+
+function solveKTUtil(x, y, movei, xMove, yMove)
+{
+	var k, next_x, next_y;
+	if (movei == N * N)
+	{
+		return true;
+	}
+
+	for (k = 0; k < N; k++)
+	{
+		next_x = x + xMove[k];
+		next_y = y + yMove[k];
+
+		if (isSafe(next_x, next_y))
+		{
+			soln[next_x][next_y] = movei;
+			if (solveKTUtil(next_x, next_y, movei + 1, xMove, yMove))
+			{
+				return true;
+			}
+			else
+			{
+				soln[next_x][next_y] = -1;
+			}
+		}
+	}
+
+	return false;
+}
+
+function solveKnightTour()
+{
+	for (var x = 0; x < N; x++)
+	{
+		for (var y = 0; y < N; y++)
+		{
+			soln[x][y] = -1;
+		}
+	}
+
+	var xMove = [ 2, 1, -1, -2, -2, -1, 1, 2];
+	var yMove = [ 1, 2, 2, 1, -1, -2, -2, -1];
+	soln[0][0] = 0;
+
+	if (!solveKTUtil(0, 0, 1, xMove, yMove))
+	{
+//		System.out.println("the solution does not exist");
+		document.getElementById('output').innerHTML += "the solution does not exist"
+		return false;
+	}
+	else
+	{
+		printSolution();
+	}
+
+	return true;
+}
+</script>
+</head>
+<body>
+<h3><center>The Knights Tour Problem</center></h3>
+<p id="output" name="output"></p>
+<script type="text/javascript">
+	document.getElementById('output').innerHTML = "the solution is";
+	init();
+	solveKnightTour();
+</script>
+</body>
+</html>

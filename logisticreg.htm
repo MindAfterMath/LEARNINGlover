@@ -1,0 +1,349 @@
+<html>
+<head>
+<title>Logistic Regression at LEARNINGlover.com</title>
+<script type='text/javascript'>
+function init()
+{
+	var dataSet = new Array();	
+	var numInst = document.getElementById("numberInst").value;
+	weights = new Array(2);
+
+	for (var zen = 0; zen < numInst; zen++)
+	{
+		dataSet[zen] = new Object();
+		dataSet[zen].eval = Math.random();
+		dataSet[zen].label = Math.round(Math.random()*dataSet[zen].eval + dataSet[zen].eval);
+	}
+
+	var text = new Array();
+/*	text[0] = "<table>";
+	text[1] = "<table>";
+
+	for (var i = 0; i < dataSet.length; i++)
+	{
+		text[dataSet[i].label] += "<tr><td>" + dataSet[i].eval + "</td><td>" + dataSet[i].label + "</td></tr>";
+	}
+	
+	text[0] += "</table>";
+	text[1] += "</table>";
+	
+	document.getElementById("output").innerHTML += "<table><tr><td>" + text[0] + "</td><td>" + text[1] + "</td></tr></table>";*/
+
+	dispPts(dataSet);
+	return dataSet;
+}
+
+function dispPts(dataset)
+{
+	var i, c = document.getElementById("myCanvas");
+	var ctx = c.getContext("2d");
+
+	var yIncr = c.height / 4;
+//	var xIncr = c.height / 
+	var max = -1;
+	var min = c.width;
+
+	for (i = 0; i < dataset.length; i++)
+	{
+		if (dataset[i].eval > max)
+		{
+			max = dataset[i].eval;
+		}
+		if (dataset[i].eval < min)
+		{
+			min = dataset[i].eval;
+		}
+	}
+
+	xIncr = c.width / (max - min);
+	ctx.clearRect(0, 0, 500, 600);
+	var offset = 0;
+	if (min < 0)
+	{
+		offset = -1*min * xIncr;
+	}
+	else if (max > c.width)
+	{
+		offset = c.width - max * xIncr;
+	}
+
+	for (i = 0; i < dataset.length; i++)
+	{
+		if (dataset[i].label == 0)
+		{
+			ctx.fillStyle="#FF0000";
+		}
+		else
+		{
+			ctx.fillStyle="#0000FF";
+		}
+		ctx.beginPath();
+		ctx.arc(dataset[i].eval * xIncr + offset, c.height - yIncr - 2*dataset[i].label*yIncr, 5, 0, Math.PI*2, true);
+		ctx.closePath();
+		ctx.fill();
+	}
+}
+
+function sigmoid(z) 
+{
+	return 1.0 / (1.0 + Math.pow(Math.E, -z));
+}
+
+function train(instances, iter, rate) 
+{
+//	document.getElementById("output").innerHTML += instances;
+	var text = "<table>";
+	for (i = 0; i < weights.length; i++)
+	{
+		weights[i] = 0;
+	}
+	weights[1] = 1;
+	
+	for (var n = 0; n < iter; n++) 
+	{
+		var lik = 0.0;
+
+		for (var i = 0; i < instances.length; i++)
+		{
+			var predicted = classify(weights, instances[i]);
+//			text += "predicted = " + predicted + "<br>";
+			var label = instances[i].label;
+//			text += "label = " + label + "<br>";
+			for (var j = 0; j < weights.length; j++) 
+			{
+				weights[j] = weights[j] + rate * (label - predicted) * label;
+//				text += "eval1 is " + eval(rate * (label - predicted) * label) + "<br>";
+//				text += "eval2 is " + eval((label - predicted) * label) + "<br>";
+//				text += "rate = " + rate + "<br>";
+			}
+//			text += "weights = " + weights + "<br>";
+			
+			lik += label * Math.log(classify(weights, instances[i])) + (1 - label) * Math.log(1 - classify(weights, instances[i]));
+		}
+
+		text += "<tr><td>iteration: " + n + "</td><td>" + weights + "</td><td>mle: " + lik + "</td><td></tr>";
+	}
+	
+	text += "</table>";
+	document.getElementById("output").innerHTML += text;
+	
+	return weights;
+}
+
+function classify(weights, point) 
+{
+	var logit = weights[0] + weights[1] * point.eval;
+//	for (var i = 0; i < weights.length; i++)  
+//	{
+//		logit += weights[i] * point[i];
+//	}
+
+	return sigmoid(logit);
+}
+
+function maximum(data, clmn)
+{
+	var mxm = Number.MIN_VALUE;
+	for (var i = 0; i < data.length;  i++)
+	{
+		if (parseFloat(data[i][clmn]) > mxm)
+		{
+			mxm = parseFloat(data[i][clmn]);
+		}
+	}
+	
+	return mxm;
+}
+
+function minimum(data, clmn)
+{
+	var mnm = Number.MAX_VALUE;
+	for (var i = 0; i < data.length;  i++)
+	{
+		if (parseFloat(data[i][clmn]) < mnm)
+		{
+			mnm = parseFloat(data[i][clmn]);
+		}
+	}
+	
+	return mnm;
+}
+
+function evalReg(beta, xVal)
+{
+	return (beta[0] + beta[1]*xVal);
+}
+
+function drawLine(data, beta)
+{
+	var mxm_y = maximum(data, 1);
+	var mnm_y = minimum(data, 1);
+	var mxm_x = maximum(data, 0)+1;
+	var mnm_x = 0;
+	var c = document.getElementById ("myCanvas");
+	var ctx = c.getContext("2d");
+	var vpp_y;
+	var vpp_x;
+	var numRows;
+	var loc_y;
+	var loc_x = 0;
+	
+	if (mnm_y < 0)
+	{
+		vpp_y = (mxm_y - mnm_y) / c.height;
+		numRows = Math.ceil(mxm_y - mnm_y);
+		loc_y = c.height - (mxm_y) / vpp_y;
+	}
+	else
+	{
+		vpp_y = (mxm_y) / c.height;
+		numRows = Math.ceil (mxm_y);
+		loc_y = 0;
+	}
+	
+	vpp_x = (mxm_x - mnm_x) / c.width;
+	
+//	ctx.fillStyle = "#ffffff";
+//	ctx.fillRect (0, 0, c.width, c.height);
+	
+	numClms = Math.ceil(mxm_x - mnm_x);
+	var xWidth = c.width / numClms;
+	var yHeight = c.height / numRows;
+	
+	//Draw the axes
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(loc_x, 0);
+	ctx.lineTo(loc_x, c.height);
+	ctx.stroke();
+	
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000000";
+	ctx.beginPath();
+	ctx.moveTo(0, c.height - loc_y);
+	ctx.lineTo(c.width, c.height - loc_y);
+	ctx.stroke();
+	
+	//Draw the notches
+	for (var i = 0; i < c.height; i += yHeight)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(loc_x    , c.height - loc_y - i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y - i);
+		
+		ctx.moveTo(loc_x    , c.height - loc_y + i);
+		ctx.lineTo(loc_x + 5, c.height - loc_y + i);
+		ctx.stroke();
+	}
+	
+	for (var i = 0; i < c.width; i += xWidth)
+	{
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.beginPath();
+		ctx.moveTo(i, c.height - loc_y + 5);
+		ctx.lineTo(i, c.height - loc_y - 5);
+		ctx.stroke();
+	}	
+	
+	for (var i = 0; i < data.length;  i++)
+	{
+		ctx.beginPath();
+		ctx.arc((data[i][0])*xWidth,c.height - data[i][1]*yHeight - loc_y,3,0,2*Math.PI);
+		ctx.stroke();
+	}
+	
+	var pt0x = 0;
+	var pt0y = evalReg(beta, pt0x);
+	
+	var pt1x = numClms;
+	var pt1y = evalReg(beta, pt1x);
+
+	ctx.strokeStyle = "#3333ff";
+	ctx.beginPath();
+	ctx.moveTo(pt0x*xWidth, c.height - pt0y*yHeight - loc_y);
+	ctx.lineTo(pt1x*xWidth, c.height - pt1y*yHeight - loc_y);
+	ctx.stroke();
+
+	for (var i = 0; i < data.length;  i++)
+	{
+		ctx.strokeStyle = "#FFFF00";
+		ctx.beginPath();
+		ctx.moveTo(data[i][0]*xWidth, c.height - evalReg(beta, data[i][0])*yHeight-loc_y);
+		ctx.lineTo(data[i][0]*xWidth, c.height - data[i][1]*yHeight - loc_y)
+		ctx.stroke();
+	}	
+}
+
+function postProcess(data, iter, rate)
+{
+	sol = train(data, iter, rate) 
+	
+	text = "The logistic regression for this model is <br>" + "<table><tr><td>y = </td><td><table><tr><td>1</td></tr><tr><td><hr></td></tr><tr><td>1 + e<sup>";
+	text += sol[0].toFixed(4) + " + " + sol[1].toFixed(4) + " * x";
+	text += "</sup></td></tr></table></td></tr></table><br><br>";
+
+	document.getElementById("output").innerHTML += text;
+
+	drawLine(data, sol);	
+}
+</script>
+</head>
+<body>
+<h3><center>Logistic Regression</center></h3>
+<p></p>
+<center>
+<input type="button" value="New Problem" id=button1 name=button1 onclick="dataSet = init(); document.getElementById('output').innerHTML = '';"><br>
+Max Number of Iterations:
+<select name="iterations" id="iterations">
+<option selected=true value="500">500</option>
+<option value="1000">1000</option>
+<option value="2000">2000</option>
+<option value="5000">5000</option>
+</select><br>
+Number of Points:
+<select name="numberInst" id="numberInst">
+<option selected=true value="25">25</option>
+<option value="50">50</option>
+<option value="100">100</option>
+<option value="200">200</option>
+</select><br>
+Learning Rate:
+<select name="lrnRate" id="lrnRate">
+<option selected=true value="0.0001">0.0001</option>
+<option value="0.001">0.001</option>
+<option value="0.01">0.01</option>
+<option value="0.1">0.1</option>
+</select><br>
+<canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas><br>
+<input type="button" value="Solve" id=button2 name=button2 onclick="postProcess(dataSet, iter, rate)">
+<p name="output" id="output"></p>
+</center>
+<script type="text/javascript">
+var rate = parseFloat(document.getElementById("lrnRate").value);
+var weights = new Array(2);
+var iter = document.getElementById("iterations").value;
+var dataSet = init();
+/*
+TreeMap<String, Integer> instances = genData(100);
+LogReg logistic = new LogReg(4);
+
+logistic.train(instances);
+//        int[] x = {2, 1, 1, 0, 1};
+
+for (int j = 0; j < 10; j++)
+{
+	String newData = "";
+	for (int i = 0; i < 4; i++)
+	{
+		newData += (int) Math.floor(Math.random() * 3) + "";
+	}
+	System.out.println(newData + "\tprob(1|x) = " + logistic.classify(newData));
+}
+*/
+</script>
+</body>
+</html>

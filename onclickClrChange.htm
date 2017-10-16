@@ -1,0 +1,56 @@
+<html>
+<head>
+<script type="text/javascript">
+function process()
+{
+	var nClr = document.getElementById("newClr").value;
+	document.bgColor=nClr;
+}
+
+/* A function to return random number from min to max */
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+var myVar = setInterval(function() 
+{
+    var element = document.getElementById("box");
+    //generate random red, green and blue intensity
+    var r = getRandomInt(0, 255);
+    var g = getRandomInt(0, 255);
+    var b = getRandomInt(0, 255);
+    
+    element.style.backgroundColor = "rgb(" + r + "," + g + "," + b + ")";
+    element.value = r + " " + g + " " + b;
+}, 1500);
+</script>
+</head>
+<body>
+Try it now: 
+
+<select id="newClr" onChange="process()">
+  <option value="choose">set background color</option>
+  <option value="#FF0000">Red</option>
+  <option value="#0000FF">Blue</option>
+  <option value="#FFFF00">Yellow</option>
+  <option value="#008000">Green</option>
+  <option value="#FFA500">Orange</option>
+  <option value="#800080">Purple</option>
+  <option value="#A52A2A">Brown</option>
+  <option value="#000000">Black</option>
+  <option value="#FFFFFF">White</option>
+  <option value="#00FFFF">Aqua</option>
+  <option value="#006400">Dark Green</option>
+  <option value="#8B0000">Dark Red</option>
+  <option value="#FA8072">Salmon</option>
+  <option value="#D2B48C">Tan</option>
+  <option value="#C0C0C0">Silver</option>
+  <option value="#DA70D6">Orchid</option>
+  <option value="#FF4500">OrangeRed</option>
+  <option value="#C71585">MediumVioletRed</option>
+  <option value="#483D8B">DarkStlateBlue</option>
+</select>
+
+<textarea id='box' onclick="clearTimeout(myVar)"></textarea>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<html>
+<head>
+<script type="text/javascript">
+function randomByte() 
+{
+	return Math.round(Math.random()*256);
+}
+
+function randomIp() 
+{
+	var ip = randomByte() +'.' +
+			randomByte() +'.' +
+			randomByte() +'.' +
+			randomByte();
+	if (isPrivate(ip)) 
+		return randomIp();
+	return ip;
+}
+
+function isPrivate(ip) 
+{
+	if (ip.startsWith("10.") || 
+	ip.startsWith("192.168.") || 
+	ip.startsWith("172.16.") || 
+	ip.startsWith("172.17.") || 
+	ip.startsWith("172.18.") || 
+	ip.startsWith("172.19.") || 
+	ip.startsWith("172.20.") || 
+	ip.startsWith("172.21.") || 
+	ip.startsWith("172.22.") || 
+	ip.startsWith("172.23.") || 
+	ip.startsWith("172.24.") || 
+	ip.startsWith("172.25.") || 
+	ip.startsWith("172.26.") || 
+	ip.startsWith("172.27.") || 
+	ip.startsWith("172.28.") || 
+	ip.startsWith("172.29.") || 
+	ip.startsWith("172.30.") || 
+	ip.startsWith("172.31."))
+		return true;
+	else
+		return false;
+//	return /^10\.|^192\.168\.|^172\.16\.|^172\.17\.|^172\.18\.|^172\.19\.|^172\.20\.|^172\.21\.|^172\.22\.|^172\.23\.|^172\.24\.|^172\.25\.|^172\.26\.|^172\.27\.|^172\.28\.|^172\.29\.|^172\.30\.|^172\.31\./.test(ip);
+}
+
+
+//privateIps = [
+//  '10.0.0.0',
+//  '10.255.255.255',
+//  '172.16.0.0',
+//  '172.31.255.255',
+//  '192.168.0.0',
+//  '192.168.255.255'
+//];
+
+//publicIps = [
+//  '0.0.0.0',
+//  '255.255.255.255',
+//];
+
+
+//for (var i = 0; i < privateIps.length; i++) {
+//  assert(isPrivate(privateIps[i]), privateIps[i] + ' should be private, but is considered public!');
+//}
+
+//for (var i = 0; i < publicIps.length; i++) {
+//  assert(!isPrivate(publicIps[i]), privateIps[i] + ' should be public, but was considered private!');
+//}
+
+function makeID()
+{
+	var text = "";
+	var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+//	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	var len = Math.floor(Math.random() * 3) + 5;
+
+	for( var i=0; i < len; i++ )
+	{
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
+	}
+
+	return text;
+}
+
+var titles = []
+titles[0]= "A boy's best friend is his mother."
+titles[1]= "A census taker once tried to test me. I ate his liver with some fava beans and a nice Chianti."
+titles[2]= "A martini. Shaken, not stirred."
+titles[3]= "After all, tomorrow is another day!"
+titles[4]= "All right, Mr. DeMille, I'm ready for my close-up."
+titles[5]= "As God is my witness, I'll never be hungry again."
+titles[6]= "Attica! Attica!"
+titles[7]= "Badges? We ain't got no badges! We don't need no badges! I don't have to show you any stinking badges!"
+titles[8]= "Bond. James Bond."
+titles[9]= "Carpe diem. Seize the day, boys. Make your lives extraordinary."
+titles[10]= "Cinderella story. Outta nowhere. A former greenskeeper, now, about to become the Masters champion. It looks like a mirac...It's in the hole! It's in the hole! It's in the hole!"
+titles[11]= "E.T. phone home."
+titles[12]= "Elementary, my dear Watson."
+titles[13]= "Fasten your seatbelts. It's going to be a bumpy night."
+titles[14]= "Forget it, Jake, it's Chinatown."
+titles[15]= "Frankly, my dear, I don't give a damn."
+titles[16]= "Gentlemen, you can't fight in here! This is the War Room!"
+titles[17]= "Get your stinking paws off me, you damned dirty ape."
+titles[18]= "Go ahead, make my day."
+titles[19]= "Greed, for lack of a better word, is good."
+titles[20]= "Hasta la vista, baby."
+titles[21]= "Hello, gorgeous."
+titles[22]= "Here's Johnny!"
+titles[23]= "Here's looking at you, kid."
+titles[24]= "Houston, we have a problem."
+titles[25]= "I am big! It's the pictures that got small."
+titles[26]= "I feel the need—the need for speed!"
+titles[27]= "I have always depended on the kindness of strangers."
+titles[28]= "I love the smell of napalm in the morning."
+titles[29]= "I see dead people."
+titles[30]= "I want to be alone."
+titles[31]= "If you build it, he will come."
+titles[32]= "I'll be back."
+titles[33]= "I'll get you, my pretty, and your little dog too!"
+titles[34]= "I'll have what she's having."
+titles[35]= "I'm as mad as hell, and I'm not going to take this anymore!"
+titles[36]= "I'm going to make him an offer he can't refuse."
+titles[37]= "I'm the king of the world!"
+titles[38]= "I'm walking here! I'm walking here!"
+titles[39]= "Is it safe?"
+titles[40]= "It's alive! It's alive!"
+titles[41]= "Keep your friends close, but your enemies closer."
+titles[42]= "La-dee-da, la-dee-da."
+titles[43]= "Life is a banquet, and most poor suckers are starving to death!"
+titles[44]= "Listen to me, mister. You're my knight in shining armor. Don't you forget it. You're going to get back on that horse, and I'm going to be right behind you, holding on tight, and away we're gonna go, go, go!"
+titles[45]= "Listen to them. Children of the night. What music they make."
+titles[46]= "Louis, I think this is the beginning of a beautiful friendship."
+titles[47]= "Love means never having to say you're sorry."
+titles[48]= "Made it, Ma! Top of the world!"
+titles[49]= "Mama always said life was like a box of chocolates. You never know what you're gonna get."
+titles[50]= "May the Force be with you."
+titles[51]= "Mother of mercy, is this the end of Rico?"
+titles[52]= "Mrs. Robinson, you're trying to seduce me. Aren't you?"
+titles[53]= "My mother thanks you. My father thanks you. My sister thanks you. And I thank you."
+titles[54]= "My precious."
+titles[55]= "No wire hangers, ever!"
+titles[56]= "Nobody puts Baby in a corner."
+titles[57]= "Of all the gin joints in all the towns in all the world, she walks into mine."
+titles[58]= "Oh, Jerry, don't let's ask for the moon. We have the stars."
+titles[59]= "Oh, no, it wasn't the airplanes. It was Beauty killed the Beast."
+titles[60]= "One morning I shot an elephant in my pajamas. How he got in my pajamas, I don't know."
+titles[61]= "Open the pod bay doors please, HAL."
+titles[62]= "Plastics."
+titles[63]= "Play it, Sam. Play 'As Time Goes By.'"
+titles[64]= "Rosebud."
+titles[65]= "Round up the usual suspects."
+titles[66]= "Sawyer, you're going out a youngster, but you've got to come back a star!"
+titles[67]= "Say 'hello' to my little friend!"
+titles[68]= "Shane. Shane. Come back!"
+titles[69]= "Show me the money!"
+titles[70]= "Snap out of it!"
+titles[71]= "Soylent Green is people!"
+titles[72]= "Stella! Hey, Stella!"
+titles[73]= "Tell 'em to go out there with all they got and win just one for the Gipper."
+titles[74]= "The stuff that dreams are made of."
+titles[75]= "There's no crying in baseball!"
+titles[76]= "There's no place like home."
+titles[77]= "They call me Mister Tibbs!"
+titles[78]= "They're here!"
+titles[79]= "Today, I consider myself the luckiest man on the face of the Earth."
+titles[80]= "Toga! Toga!"
+titles[81]= "Toto, I've got a feeling we're not in Kansas anymore."
+titles[82]= "Wait a minute, wait a minute. You ain't heard nothin' yet!"
+titles[83]= "We rob banks."
+titles[84]= "We'll always have Paris."
+titles[85]= "Well, here's another nice mess you've gotten me into!"
+titles[86]= "Well, nobody's perfect."
+titles[87]= "What a dump."
+titles[88]= "What we've got here is failure to communicate."
+titles[89]= "Who's on first?"
+titles[90]= "Why don't you come up sometime and see me?"
+titles[91]= "Yo, Adrian!"
+titles[92]= "You can't handle the truth!"
+titles[93]= "You don't understand! I coulda had class. I coulda been a contender. I could've been somebody, instead of a bum, which is what I am."
+titles[94]= "You had me at 'hello.'"
+titles[95]= "You know how to whistle, don't you, Steve? You just put your lips together and blow."
+titles[96]= "You talkin' to me?"
+titles[97]= "You're gonna need a bigger boat."
+titles[98]= "You've got to ask yourself one question: 'Do I feel lucky?' Well, do ya, punk?"
+titles[99]= "Surely you can't be serious. I am serious...and don't call me Shirley."
+
+var terminals = {};
+var startwords = [];
+var wordstats = {};
+
+for (var i = 0; i < titles.length; i++) {
+    var words = titles[i].split(' ');
+    terminals[words[words.length-1]] = true;
+    startwords.push(words[0]);
+    for (var j = 0; j < words.length - 1; j++) {
+        if (wordstats.hasOwnProperty(words[j])) {
+            wordstats[words[j]].push(words[j+1]);
+        } else {
+            wordstats[words[j]] = [words[j+1]];
+        }
+    }
+}
+
+var choice = function (a) {
+    var i = Math.floor(a.length * Math.random());
+    return a[i];
+};
+
+var make_title = function (min_length) {
+    word = choice(startwords);
+    var title = [word];
+    while (wordstats.hasOwnProperty(word)) {
+        var next_words = wordstats[word];
+        word = choice(next_words);
+        title.push(word);
+        if (title.length > min_length && terminals.hasOwnProperty(word)) break;
+    }
+    if (title.length < min_length) return make_title(min_length);
+    return title.join(' ');
+};
+
+//$('#generate').on('click', function () {
+//    var title = make_title(3 + Math.floor(45 * Math.random()));
+//    $('#generated_title').html(title);
+//}
+//);
+</script>
+</head>
+<body>
+<table>
+<tr><td><input type="button" value="generate IP" onclick="document.getElementById('output1').innerHTML = randomIp() + '<br>'"></td><td><p id="output1"></p></td></tr>
+<tr><td><input type="button" value="generate User Name" onclick="document.getElementById('output2').innerHTML = makeID() + '<br>'"></td><td><p id="output2"></p></td></tr>
+<tr><td><input type="button" value="Generate Text" onclick="document.getElementById('output3').innerHTML = make_title(3 + Math.floor(3 * Math.random())) + '<br>'"></td><td><p id="output3"></p></td></tr>
+
+</body>
+</html>
