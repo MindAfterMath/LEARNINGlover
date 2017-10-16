@@ -4,6 +4,42 @@
 <head>
 <title>LDA Algorithm</title>
 <meta name="author" content="AfterMath" />
+<style type="text/css">
+span
+{
+	cursor: pointer; 
+	color: blue;
+	text-decoration: underline;
+}
+	
+.mytagcloud
+{
+	float: left;
+	margin: 5px;
+	font-family: 'Reenie Beanie', arial, serif;
+}
+	
+.content
+{
+	max-width: 500px;	
+}
+	
+th
+{
+	cursor: pointer;
+}
+
+tr
+{
+	display:table-row;
+}
+	
+li
+{
+	width: 100%;
+	float: left;
+}
+</style>
 <script type="text/javascript">
 var M = 1000000;
 
@@ -50,170 +86,88 @@ var M = 1000000;
  *            number of topics
  * @return z assignment of topics to words
  */
-function initialState(LdaGibbs) 
+function gibbs(LdaGibbs) 
 {
-	var i;
+	// initial state of the Markov chain:
+	document.getElementById("output").innerHTML += "Sampling " + LdaGibbs.ITERATIONS + " iterations with alpha = " + LdaGibbs.alpha + " and beta = " + LdaGibbs.beta + ".<br>";
+	LdaGibbs = resetCounts(LdaGibbs);
+	LdaGibbs = firstState(LdaGibbs);
 
-//	var M = LdaGibbs.documents.length;
-
+	for (var iter = 0; iter < LdaGibbs.ITERATIONS; iter++) 
+	{
+		// for all z_{iter}
+		for (var doc = 0; doc < LdaGibbs.docWdTopAsmt.length; doc++) 
+		{
+			for (var word = 0; word < LdaGibbs.docWdTopAsmt[doc].length; word++) 
+			{
+				// (z_{iter} = z[doc][word])
+				// sample from p(z_{iter}|z_-{iter}, w)
+				LdaGibbs.docWdTopAsmt[doc][word] = sampleFullConditional(LdaGibbs, doc, word);
+			}
+		}
+	}
+	return LdaGibbs;
+}
+ 
+function resetCounts(LdaGibbs) 
+{
 	// initialise count variables.
-	LdaGibbs.nw = new Array(LdaGibbs.vocab.length);
-	for (var zen = 0; zen < LdaGibbs.vocab.length; zen++)
+	LdaGibbs.wdTopCnt = {};
+	for (var wd = 0; wd < LdaGibbs.vocab.length; wd++)
 	{
-		//nw is a numWords by numTopics matrix. 
-		LdaGibbs.nw[LdaGibbs.vocab[zen]] = new Array(LdaGibbs.numTopics);
-		for (var yoga = 0; yoga < LdaGibbs.nw[LdaGibbs.vocab[zen]].length; yoga++)
+		LdaGibbs.wdTopCnt[LdaGibbs.vocab[wd]] = [];
+		for (var top = 0; top < LdaGibbs.numTopics; top++)
 		{
-			LdaGibbs.nw[LdaGibbs.vocab[zen]][yoga] = 0;
+			LdaGibbs.wdTopCnt[LdaGibbs.vocab[wd]][top] = 0;
 		}
-	}
-	
-	LdaGibbs.nd = new Array(LdaGibbs.documents.length);
-	for (var zen = 0; zen < LdaGibbs.nd.length; zen++)
-	{
-		LdaGibbs.nd[zen] = new Array(LdaGibbs.numTopics);
-		for (var yoga = 0; yoga < LdaGibbs.nd[zen].length; yoga++)
-		{
-			LdaGibbs.nd[zen][yoga] = 0;
-		}
-	}
-	
-	LdaGibbs.nwsum = new Array(LdaGibbs.numTopics);
-	for (var zen = 0; zen < LdaGibbs.nwsum.length; zen++)
-	{
-		LdaGibbs.nwsum[zen] = 0;
-	}
-	
-	LdaGibbs.ndsum = new Array(LdaGibbs.documents.length);
-	for (var zen = 0; zen < LdaGibbs.ndsum.length; zen++)
-	{
-		LdaGibbs.ndsum[zen] = 0;
 	}
 
-	// The z_i are are initialised to values in [1,K] to determine the
-	// initial state of the Markov chain.
-
-	LdaGibbs.z = new Array(LdaGibbs.documents.length);
-	for (var zen = 0; zen < LdaGibbs.z.length; zen++)
+	LdaGibbs.docTopCnt = [];
+	for (var doc = 0; doc < LdaGibbs.documents.length; doc++)
 	{
-		LdaGibbs.z[zen] = new Array();
+		LdaGibbs.docTopCnt[doc] = [];
+		for (var top = 0; top < LdaGibbs.numTopics; top++)
+		{
+			LdaGibbs.docTopCnt[doc][top] = 0;
+		}
 	}
 	
-	for (var m = 0; m < LdaGibbs.documents.length; m++)
+	LdaGibbs.numWdsTopic = [];
+	for (var top = 0; top < LdaGibbs.numTopics; top++)
 	{
-		var docLen = LdaGibbs.documents[m].length;
-		LdaGibbs.z[m] = new Array(docLen);
-		
-		for (var n = 0; n < docLen; n++)
-		{
-			var topic = Math.floor(Math.random() * LdaGibbs.numTopics);
-			LdaGibbs.z[m][n] = topic;
-			// number of instances of word i assigned to topic j
-			LdaGibbs.nw[LdaGibbs.documents[m][n]][topic]++;
-			// number of words in document i assigned to topic j.
-			LdaGibbs.nd[m][topic]++;
-			// total number of words assigned to topic j.
-			LdaGibbs.nwsum[topic]++;
-		}
-		// total number of words in document i
-		LdaGibbs.ndsum[m] = docLen;
+		LdaGibbs.numWdsTopic[top] = 0;
+	}
+	
+	LdaGibbs.numDocsTopic = [];
+	for (var doc = 0; doc < LdaGibbs.documents.length; doc++)
+	{
+		LdaGibbs.numDocsTopic[doc] = 0;
+	}
+
+	LdaGibbs.docWdTopAsmt = [];
+	for (var doc = 0; doc < LdaGibbs.documents.length; doc++)
+	{
+		LdaGibbs.docWdTopAsmt[doc] = [];
 	}
 	
 	return LdaGibbs;
 }
 
-/**
- * Main method: Select initial state ? Repeat a large number of times: 1.
- * Select an element 2. Update conditional on other elements. If
- * appropriate, output summary for each run.
- * 
- * @param K
- *            number of topics
- * @param alpha
- *            symmetric prior parameter on document--topic associations
- * @param beta
- *            symmetric prior parameter on topic--term associations
- */
-function gibbs(LdaGibbs) 
+function firstState(LdaGibbs) 
 {
-//	var text = "";
-
-        // init sampler statistics
-	if (LdaGibbs.SAMPLE_LAG > 0) 
+	for (var doc = 0; doc < LdaGibbs.documents.length; doc++)
 	{
-		LdaGibbs.thetasum = new Array(LdaGibbs.documents.length);
-		for (var zen = 0; zen < LdaGibbs.thetasum.length; zen++)
+		LdaGibbs.docWdTopAsmt[doc] = [];
+		for (var wd = 0; wd < LdaGibbs.documents[doc].length; wd++)
 		{
-			LdaGibbs.thetasum[zen] = new Array(LdaGibbs.numTopics);
-			for (var yoga = 0; yoga < LdaGibbs.thetasum[zen].length; yoga++)
-			{
-				LdaGibbs.thetasum[zen][yoga] = 0;
-			}
+			var topic = Math.floor(Math.random() * LdaGibbs.numTopics);
+			LdaGibbs.docWdTopAsmt[doc][wd] = topic;
+			LdaGibbs.wdTopCnt[LdaGibbs.documents[doc][wd]][topic]++;
+			LdaGibbs.docTopCnt[doc][topic]++;
+			LdaGibbs.numWdsTopic[topic]++;
 		}
-
-		LdaGibbs.phisum = new Array(LdaGibbs.numTopics);
-		for (var zen = 0; zen < LdaGibbs.phisum.length; zen++)
-		{
-			LdaGibbs.phisum[zen] = new Array(LdaGibbs.vocab.length);
-			for (var yoga = 0; yoga < LdaGibbs.phisum[zen].length; yoga++)
-			{
-				LdaGibbs.phisum[zen][yoga] = 0;
-			}
-		}
-		LdaGibbs.numstats = 0;
+		LdaGibbs.numDocsTopic[doc] = LdaGibbs.documents[doc].length;
 	}
-
-	// initial state of the Markov chain:
-	LdaGibbs = initialState(LdaGibbs);
-
-	document.getElementById("output").innerHTML += "Sampling " + LdaGibbs.ITERATIONS + " iterations with alpha = " + LdaGibbs.alpha + " and beta = " + LdaGibbs.beta + ".<br>";
-
-	for (var i = 0; i < LdaGibbs.ITERATIONS; i++) 
-	{
-		// for all z_i
-		for (var m = 0; m < LdaGibbs.z.length; m++) 
-		{
-			for (var n = 0; n < LdaGibbs.z[m].length; n++) 
-			{
-				// (z_i = z[m][n])
-				// sample from p(z_i|z_-i, w)
-				var topic = sampleFullConditional(LdaGibbs, m, n);
-				LdaGibbs.z[m][n] = topic;
-			}
-		}
-
-		if ((i < LdaGibbs.BURN_IN) && (i % LdaGibbs.THIN_INTERVAL == 0)) 
-		{
-//			text += "B";
-			LdaGibbs.dispcol++;
-		}
-		// display progress
-		if ((i > LdaGibbs.BURN_IN) && (i % LdaGibbs.THIN_INTERVAL == 0)) 
-		{
-//			text += "S";
-			LdaGibbs.dispcol++;
-		}
-		// get statistics after burn-in
-		if ((i > LdaGibbs.BURN_IN) && (LdaGibbs.SAMPLE_LAG > 0) && (i % LdaGibbs.SAMPLE_LAG == 0)) 
-		{
-			updateParams(LdaGibbs);
-//			text += "|";
-			if (i % LdaGibbs.THIN_INTERVAL != 0)
-			{
-				LdaGibbs.dispcol++;
-			}
-		}
-		
-		if (LdaGibbs.dispcol >= 100) 
-		{
-//			text += "<br>";
-			LdaGibbs.dispcol = 0;
-		}
-	}
-	
-//	text += "<br>";
-	
-//	document.getElementById("output").innerHTML += text;
 	
 	return LdaGibbs;
 }
@@ -224,87 +178,50 @@ function gibbs(LdaGibbs)
  * alpha)/(n_-i,.(d_i) + K * alpha)
  * 
  * @param m
- *            document
+ *	document
  * @param n
- *            word
+ *	word
  */
-function sampleFullConditional(LdaGibbs, m, n) 
+function sampleFullConditional(LdaGibbs, doc, wd) 
 {
 	// remove z_i from the count variables
-	var topic = LdaGibbs.z[m][n];
-//	var text = "";
+	var topic = LdaGibbs.docWdTopAsmt[doc][wd];
 	
-//	text += "LdaGibbs.documents[m][n] = " + LdaGibbs.documents[m][n] + "<br>";
-//	text += "topic = " + topic + "<br>";
-//	text += "m = " + m + "<br>";
-//	text += "n = " + n + "<br>";
-//	text += "LdaGibbs.nw[LdaGibbs.documents[m][n]][topic] = " + LdaGibbs.nw[LdaGibbs.documents[m][n]][topic] + "<br>";
-//	text += "LdaGibbs.nd[m][topic] = " + LdaGibbs.nd[m][topic] + "<br>";
-//	text += "LdaGibbs.nwsum[topic] = " + LdaGibbs.nwsum[topic] + "<br>";
-//	text += "LdaGibbs.ndsum[m] = " + LdaGibbs.ndsum[m] + "<br>";
+	LdaGibbs.wdTopCnt[LdaGibbs.documents[doc][wd]][topic]--;
+	LdaGibbs.docTopCnt[doc][topic]--;
+	LdaGibbs.numWdsTopic[topic]--;
+	LdaGibbs.numDocsTopic[doc]--;
 	
-	LdaGibbs.nw[LdaGibbs.documents[m][n]][topic]--;
-	LdaGibbs.nd[m][topic]--;
-	LdaGibbs.nwsum[topic]--;
-	LdaGibbs.ndsum[m]--;
-
 	// do multinomial sampling via cumulative method:
-	var p = new Array(LdaGibbs.numTopics);
-	for (var k = 0; k < LdaGibbs.numTopics; k++) 
+	var prob = [];
+	for (var top = 0; top < LdaGibbs.numTopics; top++) 
 	{
-		p[k] = (LdaGibbs.nw[LdaGibbs.documents[m][n]][k] + LdaGibbs.beta) / (LdaGibbs.nwsum[k] + LdaGibbs.vocab.length * LdaGibbs.beta) * (LdaGibbs.nd[m][k] + LdaGibbs.alpha) / (LdaGibbs.ndsum[m] + LdaGibbs.numTopics * LdaGibbs.alpha);
+		var num1 = (LdaGibbs.wdTopCnt[LdaGibbs.documents[doc][wd]][top] + LdaGibbs.beta);
+		var num2 = (LdaGibbs.docTopCnt[doc][top] + LdaGibbs.alpha);
+		var den1 = (LdaGibbs.numWdsTopic[top] + LdaGibbs.vocab.length * LdaGibbs.beta);
+		var den2 = (LdaGibbs.numDocsTopic[doc] + LdaGibbs.numTopics * LdaGibbs.alpha);
+		prob[top] =  (num1 / den1) * (num2 / den2);
 	}
-	
-//	text += "p = " + p + "<br>";
-	
 	// cumulate multinomial parameters
-	for (var k = 1; k < p.length; k++) 
+	for (var top = 1; top < prob.length; top++) 
 	{
-		p[k] += p[k - 1];
+		prob[top] += prob[top - 1];
 	}
-	
-//	text += "p = " + p + "<br>";
-	
 	// scaled sample because of unnormalised p[]
-	var u = Math.random() * p[LdaGibbs.numTopics - 1];
-	for (topic = 0; topic < p.length; topic++) 
+	var u = Math.random() * prob[LdaGibbs.numTopics - 1];
+	for (topic = 0; topic < prob.length; topic++) 
 	{
-		if (u < p[topic])
+		if (u < prob[topic])
 			break;
 	}
 
 	// add newly estimated z_i to count variables
-	LdaGibbs.nw[LdaGibbs.documents[m][n]][topic]++;
-	LdaGibbs.nd[m][topic]++;
-	LdaGibbs.nwsum[topic]++;
-	LdaGibbs.ndsum[m]++;
-
-//	document.getElementById("output").innerHTML += text;
+	LdaGibbs.wdTopCnt[LdaGibbs.documents[doc][wd]][topic]++;
+	LdaGibbs.docTopCnt[doc][topic]++;
+	LdaGibbs.numWdsTopic[topic]++;
+	LdaGibbs.numDocsTopic[doc]++;
 	
 	return topic;
-}
-
-/**
- * Add to the statistics the values of theta and phi for the current state.
- */
-function updateParams(LdaGibbs) 
-{
-	for (var m = 0; m < LdaGibbs.documents.length; m++) 
-	{
-		for (var k = 0; k < LdaGibbs.numTopics; k++) 
-		{
-			LdaGibbs.thetasum[m][k] += (LdaGibbs.nd[m][k] + LdaGibbs.alpha) / (LdaGibbs.ndsum[m] + LdaGibbs.numTopics * LdaGibbs.alpha);
-		}
-	}
-	
-	for (var k = 0; k < LdaGibbs.numTopics; k++) 
-	{
-		for (var w = 0; w < LdaGibbs.vocab.length; w++) 
-		{
-			LdaGibbs.phisum[k][w] += (LdaGibbs.nw[LdaGibbs.vocab[w]][k] + LdaGibbs.beta) / (LdaGibbs.nwsum[k] + LdaGibbs.vocab.length * LdaGibbs.beta);
-		}
-	}
-	LdaGibbs.numstats++;
 }
 
 /**
@@ -315,35 +232,21 @@ function updateParams(LdaGibbs)
  */
 function getTheta(LdaGibbs) 
 {
-	var theta = new Array(LdaGibbs.documents.length);
-	for (var zen = 0; zen < theta.length; zen++)
+	var theta = [];
+	for (var doc = 0; doc < LdaGibbs.documents.length; doc++)
 	{
-		theta[zen] = new Array(LdaGibbs.numTopics);
-		for (var yoga = 0; yoga < theta[zen].length; yoga++)
+		theta[doc] = [];
+		for (var top = 0; top < LdaGibbs.numTopics; top++)
 		{
-			theta[zen][yoga] = 0;
+			theta[doc][top] = 0;
 		}
 	}
 
-	if (LdaGibbs.SAMPLE_LAG > 0) 
+	for (var doc = 0; doc < LdaGibbs.documents.length; doc++) 
 	{
-		for (var m = 0; m < LdaGibbs.documents.length; m++) 
+		for (var top = 0; top < LdaGibbs.numTopics; top++) 
 		{
-			for (var k = 0; k < LdaGibbs.numTopics; k++) 
-			{
-				theta[m][k] = LdaGibbs.thetasum[m][k] / LdaGibbs.numstats;
-			}
-		}
-
-	} 
-	else 
-	{
-		for (var m = 0; m < LdaGibbs.documents.length; m++) 
-		{
-			for (var k = 0; k < LdaGibbs.numTopics; k++) 
-			{
-				theta[m][k] = (LdaGibbs.nd[m][k] + LdaGibbs.alpha) / (LdaGibbs.ndsum[m] + LdaGibbs.numTopics * LdaGibbs.alpha);
-			}
+			theta[doc][top] = (LdaGibbs.docTopCnt[doc][top] + LdaGibbs.alpha) / (LdaGibbs.numDocsTopic[doc] + LdaGibbs.numTopics * LdaGibbs.alpha);
 		}
 	}
 
@@ -358,37 +261,23 @@ function getTheta(LdaGibbs)
  */
 function getPhi(LdaGibbs) 
 {
-	var phi = new Array(LdaGibbs.numTopics);
-	for (var zen = 0; zen < phi.length; zen++)
+	var phi = [];
+	for (var top = 0; top < LdaGibbs.numTopics; top++)
 	{
-		phi[zen] = new Array(LdaGibbs.vocab.length);
-		for (var yoga = 0; yoga < phi[zen].length; yoga++)
+		phi[top] = [];
+		for (var wd = 0; wd < LdaGibbs.vocab.length; wd++)
 		{
-			phi[zen][yoga] = 0;
+			phi[top][wd] = 0;
 		}
 	}
 
-	if (LdaGibbs.SAMPLE_LAG > 0) 
+	for (var top = 0; top < LdaGibbs.numTopics; top++) 
 	{
-		for (var k = 0; k < LdaGibbs.numTopics; k++) 
+		for (var wd = 0; wd < LdaGibbs.vocab.length; wd++) 
 		{
-			for (var w = 0; w < LdaGibbs.vocab.length; w++) 
-			{
-				phi[k][w] = LdaGibbs.phisum[k][w] / LdaGibbs.numstats;
-			}
-		}
-	} 
-	else 
-	{
-		for (var k = 0; k < LdaGibbs.numTopics; k++) 
-		{
-			for (var w = 0; w < LdaGibbs.vocab.length; w++) 
-			{
-				phi[k][w] = (LdaGibbs.nw[LdaGibbs.vocab[w]][k] + LdaGibbs.beta) / (LdaGibbs.nwsum[k] + LdaGibbs.vocab.length * LdaGibbs.beta);
-			}
+			phi[top][wd] = (LdaGibbs.wdTopCnt[LdaGibbs.vocab[wd]][top] + LdaGibbs.beta) / (LdaGibbs.numWdsTopic[top] + LdaGibbs.vocab.length * LdaGibbs.beta);
 		}
 	}
-	
 	return phi;
 }
 
@@ -396,17 +285,15 @@ function getPhi(LdaGibbs)
  * Print table of multinomial data
  * 
  * @param data
- *            vector of evidence
+ *	vector of evidence
  * @param fmax
- *            max frequency in display
+ *	max frequency in display
  * @return the scaled histogram bin values
  */
-function hist(data, fmax) 
+/*function hist(data, fmax) 
 {
 	var hist = new Array(data.length);
 	var text = "";
-	
-	// scale maximum
 	var hmax = 0;
 	for (var i = 0; i < data.length; i++) 
 	{
@@ -418,11 +305,10 @@ function hist(data, fmax)
 		hist[i] = shrink * data[i];
 	}
 
-//	NumberFormat nf = new DecimalFormat("00");
 	var scale = "";
 	for (var i = 1; i < fmax / 10 + 1; i++) 
 	{
-		scale += "    .    " + i % 10;
+		scale += "	.	" + i % 10;
 	}
 
 	text += "x" + nf.format(hmax / fmax) + " 0" + scale + "<br>";
@@ -442,246 +328,1129 @@ function hist(data, fmax)
 		}
 		text += "<br>";
 	}
-	
 	text += "<br>";
-	
 	document.getElementById("output").innerHTML += text;
-}
-
-/**
- * Configure the gibbs sampler
- * 
- * @param iterations
- *            number of total iterations
- * @param burnIn
- *            number of burn-in iterations
- * @param thinInterval
- *            update statistics interval
- * @param sampleLag
- *            sample interval (-1 for just one sample at the end)
- */
-function configure(iterations, burnIn, thinInterval, sampleLag)
-{
-	LdaGibbs.ITERATIONS = iterations;
-	LdaGibbs.BURN_IN = burnIn;
-	LdaGibbs.THIN_INTERVAL = thinInterval;
-	LdaGibbs.SAMPLE_LAG = sampleLag;
-	
-	return LdaGibbs;
-}
+}*/
 
 /**
  * Driver with example data.
  * 
  * @param args
  */
-function main(LdaGibbs) 
+function main(divLoc, corpus1, corpus2) 
 {
 	LdaGibbs = new Object();
-	document.getElementById("output").innerHTML = "";
-	LdaGibbs.documents = new Array();
-	LdaGibbs.stopwords = "";
-	LdaGibbs.stopwords = "a,about,am,an,and,any,all,are,as,at,";
-	LdaGibbs.stopwords += "b,back,be,been,being,but,by,";
-	LdaGibbs.stopwords += "c,can,could,";
-	LdaGibbs.stopwords += "d,did,do,does,doing,done,dont,";
-	LdaGibbs.stopwords += "e,";
-	LdaGibbs.stopwords += "f,for,from,";
-	LdaGibbs.stopwords += "g,get,going,got,";
-	LdaGibbs.stopwords += "h,had,has,have,having,he,her,hes,him,his,how,";
-	LdaGibbs.stopwords += "i,if,in,into,is,it,its,";
-	LdaGibbs.stopwords += "j,";
-	LdaGibbs.stopwords += "k,";
-	LdaGibbs.stopwords += "l,";
-	LdaGibbs.stopwords += "m,me,my,";
-	LdaGibbs.stopwords += "n,";
-	LdaGibbs.stopwords += "o,of,on,or,our,";
-	LdaGibbs.stopwords += "p,";
-	LdaGibbs.stopwords += "q,";
-	LdaGibbs.stopwords += "r,";
-	LdaGibbs.stopwords += "s,said,say,saying,she,so,";
-	LdaGibbs.stopwords += "t,than,that,thats,the,their,there,theres,them,they,thing,this,to,";
-	LdaGibbs.stopwords += "u,";
-	LdaGibbs.stopwords += "v,";
-	LdaGibbs.stopwords += "w,was,we,well,were,what,whats,when,where,which,who,whos,why,will,with,would,";
-	LdaGibbs.stopwords += "x,";
-	LdaGibbs.stopwords += "y,you,youd,your,youve,";
-	LdaGibbs.stopwords += "z,";
-	
+	LdaGibbs.documents = []
+	LdaGibbs.documents2 = []
+	LdaGibbs.stopwords = document.getElementById("stopwds").value;
 	LdaGibbs.stopwords = LdaGibbs.stopwords.split(",");
 	
-	LdaGibbs.vocab = new Array();
-	LdaGibbs.documents2 = document.getElementById("input").value.split("\n");
-	LdaGibbs.documents = document.getElementById("input").value.split("\n");
+	LdaGibbs.vocab = [];
+	LdaGibbs.wdCts = {};
 	
-	
-	for (var zen = 0; zen < LdaGibbs.documents.length; zen++)
+	for (var i = 0; i < corpus1.length; i++)
 	{
-		LdaGibbs.documents[zen] = LdaGibbs.documents[zen].replace(/[^A-Za-z ]/g, "").toLowerCase();
-				
-		LdaGibbs.documents[zen] = LdaGibbs.documents[zen].split(" ");
+		LdaGibbs.documents2[i] = corpus2[i];
+		LdaGibbs.documents[i] = corpus1[i];
 		
-		while (LdaGibbs.documents[zen].indexOf("") != -1)
+		while (LdaGibbs.documents[i].indexOf("") != -1)
 		{
-			var loc = LdaGibbs.documents[zen].indexOf("");
-			LdaGibbs.documents[zen].splice(loc, 1);
+			var loc = LdaGibbs.documents[i].indexOf("");
+			LdaGibbs.documents[i].splice(loc, 1);
 		}
 		
-		for (var j = 0; j < LdaGibbs.documents[zen].length; j++)
+		for (var j = 0; j < LdaGibbs.documents[i].length; j++)
 		{
-			if (LdaGibbs.stopwords.indexOf(LdaGibbs.documents[zen][j]) != -1)
+			if (LdaGibbs.stopwords.indexOf(LdaGibbs.documents[i][j]) != -1)
 			{
-				LdaGibbs.documents[zen][j] = LdaGibbs.documents[zen][LdaGibbs.documents[zen].length - 1];
-				LdaGibbs.documents[zen].length--;
+				LdaGibbs.documents[i][j] = LdaGibbs.documents[i][LdaGibbs.documents[i].length - 1];
+				LdaGibbs.documents[i].length--;
 				j--;
 			}
 		}
 		
-		for (var yin = 0; yin < LdaGibbs.documents[zen].length; yin++)
+		for (var j = 0; j < LdaGibbs.documents[i].length; j++)
 		{
-			var temp = LdaGibbs.documents[zen][yin];
+			var temp = LdaGibbs.documents[i][j];
 			
-			if (LdaGibbs.vocab.indexOf(temp) == -1 && temp != "")
+			if (temp != "" && LdaGibbs.vocab.indexOf(temp) == -1)
 			{
-				LdaGibbs.vocab[LdaGibbs.vocab.length] = temp;
+				LdaGibbs.vocab.push(temp);
+				LdaGibbs.wdCts[temp] = 1;
+			}
+			else if (temp != "")
+			{
+				LdaGibbs.wdCts[temp]++;	
 			}
 		}
 	}
 	
 	LdaGibbs.numTopics = parseInt(document.getElementById("numTopics").value);
-	LdaGibbs.alpha = 50 / LdaGibbs.numTopics;
-	LdaGibbs.beta = 0.01;
+	LdaGibbs.alpha = 0.1
+	LdaGibbs.beta = 0.001;
 
 	var text = "Latent Dirichlet Allocation using Gibbs Sampling.<br>";
 
 	LdaGibbs.ITERATIONS = parseInt(document.getElementById("iterations").value);
 	LdaGibbs = gibbs(LdaGibbs);
 
-	theta = getTheta(LdaGibbs);
-	var theta2 = new Array();
-	phi = getPhi(LdaGibbs);
+	LdaGibbs.theta = getTheta(LdaGibbs);
+	LdaGibbs.phi = getPhi(LdaGibbs);
 	
-	var clusters = new Array();
-	var clusters2 = new Array();
-	
-	for (var i = 0; i < theta[0].length; i++)
+	var phi2 = [];
+	for (var wd = 0; wd < LdaGibbs.vocab.length; wd++)
 	{
-		clusters[i] = new Array();
-		clusters2[i] = new Array();
-	}
-	
-	for (var i = 0; i < theta.length; i++)
-	{
-		var locs = argmax(theta[i]);
-		theta2[i] = argSort(theta[i]);
-		
-		for (var j = 0; j < locs.length; j++)
+		phi2[wd] = [];
+		for (var top = 0; top < LdaGibbs.numTopics; top++)
 		{
-			clusters[locs[j]][clusters[locs[j]].length] = i;
-			clusters2[locs[j]][clusters2[locs[j]].length] = LdaGibbs.documents[i];
+			phi2[wd][top] = LdaGibbs.phi[top][wd];	
 		}
 	}
-
-	for (var i = 0; i < clusters.length; i++)
+	
+	text += "<span onclick=showHideDiv('ovrl');>Overall</span><br>";
+	text += "<div id='ovrl' style='display:none'>";
+	
+	text += "<span onclick=showHideDiv('wdCts');>Word Counts Matrix</span><br><input type='button' onclick=chColor('wdCts') value='Change Colors'<br>";
+	text += "<div id='wdCts' style='display:none;'>";
+	text += "<table><tr><td>Word</td><td>Count</td>";
+	for (var k = 0; k < LdaGibbs.numTopics; k++)
 	{
-		text += "Topic " + i + "<br>";
-		var list = argSort(phi[i]);
-		
-		text += "<div style='width:600px;'>";
-		for (var j = 0; j < list.length; j++)
+		text += "<td>" + k + "</td>";	
+	}
+	text += "<td>Entropy</td></tr><tr>";
+	
+	for (var j = 0; j < LdaGibbs.vocab.length; j++)
+	{
+		if (LdaGibbs.wdCts[LdaGibbs.vocab[j]] >= 25)
 		{
-			if (Math.floor(phi[i][list[j]]*1000) > 2)
+			var ent = 0;
+			text += "<tr><td>" + LdaGibbs.vocab[j] + "</td><td>" + LdaGibbs.wdCts[LdaGibbs.vocab[j]] + "</td>";
+			for (var k = 0; k < LdaGibbs.numTopics; k++)
 			{
-				text += "<div style='font-size : " + Math.floor(phi[i][list[j]]*1000 + 6) + "px; float:left;'>" + LdaGibbs.vocab[list[j]] + "&nbsp;</div>";
+				text += "<td style='background-color:rgba(255, 0, 0, " + (LdaGibbs.phi[k][j]*100).toFixed(4) + ")'>" + (LdaGibbs.phi[k][j]*100).toFixed(4) + "</td>";
+				ent += LdaGibbs.phi[k][j] * Math.log(LdaGibbs.phi[k][j]);
+			}
+			text += "<td>" + ent.toFixed(4) + "</td>";
+			text += "</tr>";
+		}
+	}
+	text += "</table>";
+	text += "</div>";
+	
+	text += "<span onclick=showHideDiv('wdDist');>Word Distance</span><input type='button' onclick=chColor('wdDist') value='Change Colors'><br>";
+	text += "<div id='wdDist' style='display:none;'>";
+	text += "<table>";
+	var wdSim = [];
+	for (var i = 0; i < LdaGibbs.vocab.length; i++)
+	{
+		wdSim[i] = [];
+		for (var j = 0; j < i; j++)
+		{
+			if (j < i)
+			{
+				wdSim[i][j] = cosSim(phi2[i], phi2[j]).toFixed(4);	
+			}
+			
+			if (j < i && LdaGibbs.wdCts[LdaGibbs.vocab[i]] > 2 && wdSim[i][j] >= 0.75)
+			{
+				text += "<tr><td>" + LdaGibbs.vocab[i] + "</td><td>" + LdaGibbs.vocab[j] + "</td><td>" + wdSim[i][j] + "</td></tr>";
 			}
 		}
-		text += "</div><div style='clear:both'></div";
-		text += "<p>";
-		for (var j = 0; j < clusters[i].length; j++)
+		
+		for (var k = 0; k < LdaGibbs.numTopics; k++)
 		{
-			text += clusters[i][j] + ") " + LdaGibbs.documents2[clusters[i][j]] + "<br>";
+			if (LdaGibbs.phi[k][i] >= LdaGibbs.beta)
+			{
+				text += "<tr><td>" + LdaGibbs.vocab[i] + "</td><td>Topic " + k + "</td><td>1</td></tr>";
+			}
 		}
-		text += "</p>";
-		var rules = apriori(clusters2[i], LdaGibbs.stopwords, 2 / clusters2[i].length);
-		rules = getRules(rules, clusters2[i].length);
-		
-		text += "<table>";
-		
-		
-		
-		for (var j = 0; j < rules.length; j++)
+	}
+	text += "</table>";
+	text += "</div>";
+	
+	for (var i = 0; i < LdaGibbs.vocab.length; i++)
+	{
+		for (var j = i; j < LdaGibbs.vocab.length; j++)
 		{
-			text += "<tr><td>" + rules[j][0] + "</td><td>|</td><td>" + rules[j][1].toFixed(4) + "</td><td>" + rules[j][2].toFixed(4) + "</td>";
-			/*<td>" + rules[j][3].toFixed(4) + "</td><td>" + rules[j][4].toFixed(4) + "</td>*/
-			text += "<td>" + rules[j][5].toFixed(0) + "</td><td>" + rules[j][6].toFixed(0) + "</td>";
-			/*<td>" + rules[j][7].toFixed(0) + "</td>*/
-			text += "</tr>";
-//			text += "<tr><td>" + rules[j][0] + "</td><td>|</td><td>" + rules[j][1].toFixed(4) + "</td><td>" + rules[j][2].toFixed(4) + "</td><td>" + rules[j][3].toFixed(4) + "</td><td>" + rules[j][4].toFixed(4) + "</td><td>" + rules[j][5].toFixed(0) + "</td><td>" + rules[j][6].toFixed(0) + "</td><td>" + rules[j][7].toFixed(0) + "</td></tr>";
+			if (j == i)
+			{
+				wdSim[i][j] = 1;
+			}
+			else
+			{
+				wdSim[i][j] = wdSim[j][i];
+			}
 		}
-		
-		text += "</table>";
 	}
 	
-	rules = apriori(LdaGibbs.documents, LdaGibbs.stopwords, 2 / LdaGibbs.documents.length);
-	rules = getRules(rules, LdaGibbs.documents.length);
-	
-	text += "<table>";
-	for (var j = 0; j < rules.length; j++)
+	text += "<span onclick=showHideDiv('docTopMtx');>Document Topic Matrix</span><input type='button' onclick=chColor('docTopMtx') value='Change Colors'><br>";
+	text += "<div id='docTopMtx' style='display:none;'>";
+	text += "<table><tr><td></td>";
+	for (var k = 0; k < LdaGibbs.numTopics; k++)
 	{
-		text += "<tr><td>" + rules[j][0] + "</td><td>|</td><td>" + rules[j][1].toFixed(4) + "</td><td>" + rules[j][2].toFixed(4) + "</td>";
-		/*<td>" + rules[j][3].toFixed(4) + "</td><td>" + rules[j][4].toFixed(4) + "</td>*/
-		text += "<td>" + rules[j][5].toFixed(0) + "</td><td>" + rules[j][6].toFixed(0) + "</td>";
-		/*<td>" + rules[j][7].toFixed(0) + "</td>*/
+		text += "<td>" + k + "</td>";
+	}
+	text += "</tr>";
+	
+	for (var i = 0; i < LdaGibbs.documents.length; i++)
+	{
+		text += "<tr><td>" + i + "</td>";
+		for (var j = 0; j < LdaGibbs.numTopics; j++)
+		{
+			text += "<td style='background-color:rgba(255, 0, 0, " + LdaGibbs.theta[i][j].toFixed(6) + "'>" + LdaGibbs.theta[i][j].toFixed(6) + "</td>";
+		}
 		text += "</tr>";
 	}
 	text += "</table>";
+	text += "</div>";
+	
+	text += "<span onclick=showHideDiv('stwdsTbl');>Stopwords Table</span><br>";
+	text += "<div id='stwdsTbl' style='height: 300px; width: 400px; font-size: 12px; overflow: auto;'>";
+	text += "<table>";
+	
+	var words = document.getElementById("input").value;
+	words = words.replace(/&nbsp;/g, " ");
+	words = words.replace(/\\r/g, " ");
+	words = words.replace(/\\n/g, " ");
+	words = words.replace(/(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|\"|'|<|>|,|\.|\?|\/|\\|\||-|_|\+|=)/g, " ");
+	words = words.replace(/\s/g, " ");
+	words = words.replace(/  /g, " ");	
+	words = words.split(" ");
+	
+	var ans = arrCntVals(words);
+	ans = arsort(ans);
+	
+	var ratios = [];
+	var added = [];
+	
+	for (var i = 0; i < ans.word.length; i++)
+	{
+		ratios[i] = 0;
+		for (var j = 0; j < LdaGibbs.documents.length; j++)
+		{
+			if (LdaGibbs.documents[j].indexOf(ans.words[i]) != -1)
+			{
+				ratios[i]++;
+			}
+		}
+		ratios[i] /= LdaGibbs.documents.length;
+		if (added.indexOf(ratios[i]) == -1 && ratios[i] != 0)
+		{
+			added.push(ratios[i]);
+		}
+	}
+	
+	added.sort(function(o1, o2) {return o1 < o2 ? -1 : o1 > o2 ? 1 : 1 : 0});
+	
+	for (var i = 0; i < added.length; i++)
+	{
+		var opt = document.createElement("option");
+		opt.text = parseFloat(added[i].toFixed(5));
+		opt.value = parseFloat(added[i]);
+		document.getElementById("minSup").add(opt);
+		if (opt.value < 0.09)
+		{
+			opt.selected = true;
+		}
+	}
+	
+	for (var i = 0; i < ans.words.length; i++)
+	{
+		if (LdaGibbs.stopwords.indexOf(ans.words[i]) == -1)
+		{
+			text += "<tr><td id='cell_" + i + "_0' value='" + ans.words[i] + "' style='width: 200px; max-width: 200px; font-size: 12px; overflow: auto;'>" + ans.words[i] + "</td>";
+			text += "<td> id='cell_" + i + "_1' onClick='process(\"cell_" + i + "_1\")'>true</td></tr>";
+		}
+		else
+		{
+			text += "<tr><td id='cell_" + i + "_0' value='" + ans.words[i] + "' style='width: 200px; max-width: 200px; font-size: 12px; overflow: auto;'>" + ans.words[i] + "</td>";
+			text += "<td> id='cell_" + i + "_1' onClick='process(\"cell_" + i + "_1\")'>false</td></tr>";
+		}
+	}
+	
+	text += "</table></div>";
+	
+	var docSim = [];
+	for (var i = 0; i < LdaGibbs.theta.length; i++)
+	{
+		docSim[i] = [];
+		for (var j = 0; j < LdaGibbs.theta.length; j++)
+		{
+			docSim[i][j] = cosSim(LdaGibbs.theta[i], LdaGibbs.theta[j]);
+		}
+	}
 		
+	text += "<span onclick=showHideDiv('docSimMtx');>Document-Document Matrix</span><input type='button' onclick=chColor('wdDist') value='Change Colors'><br>";
+	text += "<div id='docSimMtx' style='display:none;'>";
+	text += "<table>";	
+	for (var i = 0; i < LdaGibbs.theta.length; i++)
+	{
+		text += "<tr><td>" + i + "</td>";
+		for (var j = 0; j < LdaGibbs.theta.length; j++)
+		{
+			if (docSim[i][j] >= 0.9 && i != j)
+			{
+				text += "<td style='background-color:rgba(255, 0, 0, " + docSim[i][j].toFixed(6) + "'>" + j + ": " + docSim[i][j].toFixed(4) + "</td>";
+			}
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	text += "</div>";
+	
+	text += "</div>";	
+	
+	text += "<span onclick=showHideDiv('topics');>Topics</span><br>";
+	text += "<div id='topics' style='display:none;'>";
+	
+	LdaGibbs.data = [];
+	LdaGibbs.asc = [];
+	
+	for (var i = 0; i < LdaGibbs.numTopics; i++)
+	{
+		text += "<span onclick=showHideDiv('div" + i + "');>Topic " + i + "</span><br>";
+		text += "<div id='div" + i + "' style='display:block;'>";
+		
+		LdaGibbs.data[i] = "";
+		LdaGibbs.asc[i][0] = 1;
+		LdaGibbs.asc[i][1] = 1;
+		LdaGibbs.asc[i][2] = 1;
+		LdaGibbs.asc[i][3] = 1;
+		LdaGibbs.asc[i][4] = 1;
+		LdaGibbs.asc[i][5] = 1;
+		LdaGibbs.asc[i][6] = 1;
+		LdaGibbs.asc[i][7] = 1;
+		LdaGibbs.asc[i][8] = 1;
+		LdaGibbs.asc[i][9] = 1;
+		LdaGibbs.asc[i][10] = 1;
+
+		text += "<br>";
+		
+		text += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + i + "wc');>Word Cloud " + i + "</span><input type='button' onclick=chColor('div" + i + "wc') value='Change Colors'><br>";
+		text += "<div id='div" + i + "wc'>";
+		text += "</div><div style='clear:both'></div>";
+		
+		text += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + i + "kwds');>Topic " + i + " Keyword Ranking</span><input type='button' onclick=chColor('div" + i + "kwds') value='Change Colors'><br>";
+		text += "<div id='div" + i + "kwds' style='display:none;'>";
+		text += "</div>";
+		
+		text += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + i + "asmt');>Document Assignment Matrix " + i + "</span><input type='button' onclick=chColor('div" + i + "asmt') value='Change Colors'><br>";
+		text += "<div id='div" + i + "asmt' style='display:none;'>";
+		text += "<table>";
+		
+		text += "<tr><td></td>";
+		for (var j = 0; j < LdaGibbs.numTopics; j++)
+		{
+			text += "<td>Topic " + j + "</td>";
+		}
+		text += "</tr>";
+		
+		for (var j = 0; j < LdaGibbs.documents.length; j++)
+		{
+			if (LdaGibbs.theta[j][i] >= (1 / LdaGibbs.numTopics))
+			{
+				text += "<tr><td>" + i + "</td>";
+				for (var k = 0; k < LdaGibbs.numTopics; k++)
+				{
+					text += "<td style='background-color:rgba(0, 0, 255, " + LdaGibbs.theta[j][k].toFixed(6) + ")'>" + LdaGibbs.theta[j][k].toFixed(6) + "</td>";
+				}
+			}
+			text += "</tr>";
+		}
+		text += "</table>";
+		text += "</div>";
+		
+		text += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + i + "asmtWd');>Word Assignment Matrix " + i + "</span><input type='button' onclick=chColor('div" + i + "asmtWd') value='Change Colors'><br>";
+		text += "<div id='div" + i + "asmtWd' style='display:none;'>";
+		text += "<table>";
+				
+		text += "<tr><td></td>";
+		for (var j = 0; j < LdaGibbs.numTopics; j++)
+		{
+			text += "<td>Topic " + j + "</td>";
+		}
+		text += "</tr>";
+		
+		for (var j = 0; j < LdaGibbs.vocab.length; j++)
+		{
+			if (LdaGibbs.phi[i][j] >= LdaGibbs.beta)
+			{
+				text += "<tr><td>" + LdaGibbs.vocab[j] + "</td>";
+				for (var k = 0; k < LdaGibbs.numTopics; k++)
+				{
+					text += "<td style='background-color:rgba(0, 0,255, " + LdaGibbs.phi[k][j].toFixed(6) + ")'>" + LdaGibbs.phi[k][j].toFixed(6) + "</td>";
+				}
+			}
+			text += "</tr>";
+		}
+		text += "</table>";
+		text += "</div>";
+		
+		text += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + i + "docs');>Topic " + i + " Docs</span><input type='button' onclick=chColor('div" + i + "docs') value='Change Colors'><br>";
+		text += "<div id='div" + i + "docs' style='display:none;'>";
+		text += "<ul>";
+		
+		for (var j = 0; j < LdaGibbs.documents.length; j++)
+		{
+			if (LdaGibbs.theta[j][i] >= LdaGibbs.alpha)
+			{
+				var tmpDoc = LdaGibbs.documents2[j];
+				tmpDoc = tmpDoc.replace(/&nbsp;/g, " ");
+				tmpDoc = tmpDoc.replace(/\\r/g, " ");
+				tmpDoc = tmpDoc.replace(/\\n/g, " ");
+				tmpDoc = tmpDoc.replace(/(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|\"|'|<|>|,|\.|\?|\/|\\|\||-|_|\+|=)/g, " ");
+				tmpDoc = tmpDoc.replace(/\s/g, " ");
+				tmpDoc = tmpDoc.replace(/  /g, " ");	
+				text += "<li>";
+				
+				for (var wd = 0; wd < tmpDoc.length; wd++)
+				{
+					var locWd = LdaGibbs.vocab.indexOf(tmpDoc[wd]);
+					if (LdaGibbs.phi[i][locWd] >= LdaGibbs.beta)
+					{
+						text += "<div style='background-color:rgb(0, 255, 0); float:left'>" + tmpDoc[wd] + "&nbsp;</div>";
+					}
+					else
+					{
+						text += "<div style='float:left'>" + tmpDoc[wd] + "&nbsp;</div>";
+					}
+				}
+			}
+		}
+		text += "</ul>";
+		text += "</div>";
+		
+		text += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('wdDist" + i + "');>Word Distance for Topic " + i + "</span><input type='button' onclick=chColor('wdDist" + i + "') value='Change Colors'><br>";
+		text += "<div id='wdDist" + i + "' style='display:none;'>";
+		text += "<table width='100%'>";
+		
+		for (var j1 = 0; j1 < LdaGibbs.vocab.length; j1++)
+		{
+			if (LdaGibbs.phi[i][j1] < LdaGibbs.beta || LdaGibbs.wdCts[LdaGibbs.vocab[j1]] < 2)
+			{
+				continue;
+			}
+			for (var j2 = 0; j2 < LdaGibbs.vocab.length; j2++)
+			{
+				if (LdaGibbs.phi[i][j2] < LdaGibbs.beta || LdaGibbs.wdCts[LdaGibbs.vocab[j2]] < 2)
+				{
+					continue;
+				}
+				var sim = cosSim(phi2[j1], phi2[j2]);
+				
+				if (sim >= 0.75)
+				{
+					text += "<tr><td style='background-color:rgba(0, 0, 255, " + sim + ")'>" + LdaGibbs.vocab[j1] + "</td><td>" + LdaGibbs.vocab[j2] + "</td><td>" + sim.toFixed(6) + "</td></tr>";
+				}
+			}
+		}
+		text += "</table>";
+		text += "</div>";
+		
+		text += "</div>";
+	}
+	text += "<br><input type=button value='Output Words to CSV' onclick=wdsToCSV(LdaGibbs)><br>";
+	text += "<input type=button value='Output Markov to CSV' onclick=wdsToCSV(LdaGibbs)><br>";
+	
+	document.getElementById(divLoc).innerHtml += text;
+	
+	for (var i = 0; i < LdaGibbs.numTopics; i++)
+	{
+		writeWC(LdaGibbs, i);
+		writeKwds(LdaGibbs, i);
+		markov(LdaGibbs, i);
+	}
+	
+	return LdaGibbs;
+}
+
+function writeWC(LdaGibbs, i)
+{
+	var elt = document.getElementById("div" + i + "wc");
+	var text = "";
+	if (elt == null)
+	{
+		text = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + i + "wc');>Word Cloud " + i + "</span><br>";
+		text += "<div id='div" + i + "wc' style='display:block; width:1000px;'>";
+		text += "</div><div style='clear:both'></div>";
+		elt = document.getElementById("div" + i + "wc");
+	}
+	var text2 = "";
+
+	var wdSize = [];
+	for (var wd = 0; wd < LdaGibbs.phi[i].length; wd++)
+	{
+		if (LdaGibbs.phi[i][wd] >= LdaGibbs.beta && LdaGibbs.stopwords.indexOf(LdaGibbs.vocab[wd]) == -1)
+		{
+			wdSize[wd] = LdaGibbs.phi[i][wd];
+		}
+		else
+		{
+			wdSize[wd] = -1;
+		}	
+	}
+	
+	var ratio = 1;
+	var list = argSort(wdSize);
+	while (wdSize[list[0]] > 0 && wdSize[list[0]] * 1000 * ratio < 500)
+	{
+		ratio++;
+	}
+	
+	var wcCnt = 0;
+	for (var j = 0; j < list.length; j++)
+	{
+		if (Math.floor(1000*wdSize[list[j]]*ratio) > 5 && LdaGibbs.stopwords.indexOf(LdaGibbs.vocab[list[j]].toLowerCase()) == -1)
+		{
+			wcCnt ++;
+			text += "<div style='font-size : " + Math.floor(1000*wdSize[list[j]] + 6).toFixed(0) + "px; float:left;'>" + LdaGibbs.vocab[list[j]] + "&nbsp;</div>";
+		}
+		if (wcCnt > 100)
+		{
+			break;
+		}
+	}
+	
+	elt.innerHTML = text2;
+}
+
+function chColor(div)
+{
+	var r, g, b;
+	do
+	{
+		r = Math.floor(Math.random() * 256);
+		g = Math.floor(Math.random() * 256);
+		b = Math.floor(Math.random() * 256);
+	}
+	while ((r == 0 && g == 0 && b == 0) || (r == 255 && g == 255 && b == 255));
+	
+	var cdrn = document.getElementById(div).getElementsByTagName("td");
+	for (var i = 0; i < cdrn.length; i++)
+	{
+		if (cdrn[i].style.backgroundColor.length > 0)
+		{
+			var val = cdrn[i].style.backgroundColor.split(", ")[3];
+			if (typeof val == 'undefined')
+			{
+				val = "1.0)";
+			}
+			val = val.substring(0, val.length-1);
+			cdrn[i].style.backgroundColor = "rgba(" + r + ", " + g + ", " + b + ", " + val + ")";
+		}
+	}
+}
+		
+		text += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + i + "asmt');>Assignment Matrix " + i + "</span><br>";
+		text += "<div id='div" + i + "asmt' style='display:none;'>";
+		text += "<table>";
+		
+		
+		text += "</div>";
+		
+		text += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + i + "docs');>Topic " + i + " Docs</span><br>";
+		text += "<div id='div" + i + "docs' style='display:none;'>";
+
+		for (var j = 0; j < LdaGibbs.documents.length; j++)
+		{
+			if (LdaGibbs.theta[j][i] >= 0.1)
+			{
+				var tmpDoc = LdaGibbs.documents2[j];
+				tmpDoc = tmpDoc.replace(/&nbsp;/g, " ");
+				tmpDoc = tmpDoc.replace(/\?/g, " ");
+				tmpDoc = tmpDoc.replace(/,/g, " ");
+				tmpDoc = tmpDoc.replace(/\sg, " ");
+				tmpDoc = tmpDoc.replace(/  /g, " ");
+				tmpDoc = tmpDoc.split(" ");
+				
+				for (var wd = 0; wd < tmpDoc.length; wd++)
+				{
+					var locWd = LdaGibbs.vocab.indexOf(tmpDoc[wd]);
+					var tpVtr = [];
+					var sum = 0;
+					for (var k = 0; k < LdaGibbs.numTopics; k++)
+					{
+						tpVtr[k] = LdaGibbs.phi[k][locWd];
+						sum += LdaGibbs.phi[k][locWd] * LdaGibbs.phi[k][locWd];
+					}
+					sum = Math.sqrt(sum);
+					
+					for (var k = 0; k < LdaGibbs.numTopics; k++)
+					{
+						tpVtr[k] = tpVtr[k] / sum;
+					}
+					
+					if (locWd != -1)
+					{
+						text += "<div style='background-color:rgba(0, 255, 0, " + tpVtr[i] + "); float:left'>" + tmpDoc[wd] + "&nbsp;</div>";
+					}
+					else
+					{
+						text += "<div style='float:left'>" + tmpDoc[wd] + "&nbsp</div>";
+					}
+				}
+				text += "<br>";
+			}
+		}
+		text += "</div>";
+		text += "</div>";
+	}
+	
+	document.getElementById("aprBtns").style.display = "block";
+	document.getElementById("ngramBtns").style.display = "block";
+	document.getElementById("output").innerHTML += text;
+	
+	for (var i = 0; i < LdaGibbs.numTopics; i++)
+	{
+		drawCloud(i);
+		markov(LdaGibbs, i);
+	}
+	
+	return LdaGibbs;
+}
+
+function showHideDiv(id)
+{
+	var val = document.getElementById(id).style.display;
+	if (val == "none")
+	{
+		document.getElementById(id).style.display = "block";
+	}
+	else
+	{
+		document.getElementById(id).style.display = "none";
+	}
+}
+
+function getMean(list)
+{
+	var argVal = 0;
+	for (var i = 0; i < list.length; i++)
+	{
+		argVal += list[i];
+	}
+	
+	argVal = argVal / list.length;
+	
+	return argVal;
+}
+
+function getStdDev(list)
+{
+	var dev = 0;
+	var mean = getMean(list);
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		dev += (list[i] - mean) * (list[i] - mean);
+	}
+	
+	dev = dev / list.length;
+	dev = Math.sqrt(dev);
+	
+	return dev;
+}
+
+function sort_table(tbody, col, asc)
+{
+	var rows = tbody.rows;
+	rlen = rows.length; 
+	var arr = new Array(), i, j, cells, clen;
+	for (i = 0; i < rlen; i++)
+	{
+		cells = rows[i].cells;
+		clen = cells.length;
+		arr[i] = new Array();
+		for (j = 0; j < clen; j++)
+		{
+			if (!isNaN(parseInt(cells[j].innerHTML)))
+			{
+				arr[i][j] = parseFloat(cells[j].innerHTML);
+			}
+			else
+			{
+				arr[i][j] = cells[j].innerHTML;
+			}
+		}
+	}
+	
+	arr.sort(function(a, b) { return (a[col] == b[col]) ? 0 : ((a[col] > b[col]) ? asc : -1 * asc); });
+	
+	for (i = 0; i < rlen; i++)
+	{
+		rows[i].innerHTML = '<td>' + arr[i][0] + '</td>';
+		rows[i].innerHTML += '<td class="content">' + arr[i][1] + '</td>';
+		rows[i].innerHTML += '<td class="content">' + arr[i][2] + '</td>';
+		rows[i].innerHTML += '<td>' + arr[i][3] + '</td>';
+		rows[i].innerHTML += '<td>' + arr[i][4] + '</td>';
+		rows[i].innerHTML += '<td>' + arr[i][5].toFixed(3) + '</td>';
+		rows[i].innerHTML += '<td>' + arr[i][6].toFixed(3) + '</td>';
+		rows[i].innerHTML += '<td>' + arr[i][7].toFixed(3) + '</td>';
+		rows[i].innerHTML += '<td>' + arr[i][8].toFixed(3) + '</td>';
+		rows[i].innerHTML += '<td>' + arr[i][9].toFixed(3) + '</td>';
+		rows[i].innerHTML += '<td>' + arr[i][10].toFixed(3) + '</td>';
+		rows[i].innerHTML += '<td>' + arr[i][11] + '</td>';
+		rows[i].innerHTML += '<td>' + arr[i][12] + '</td>';
+		var c = rows[i].cells[11].children[0];
+		var c2 = rows[i].cells[12].children[0];
+		var list = arr[i][1].substring(42, arr[i][1].length - 6).split(',');
+		plotHist1(c, list, numWds);
+		plotHist2(c2, list, numWds);
+	}
+}
+function sort(list)
+{
+	var temp = new Array();
+	for (var i = 0; i < list.length; i++)
+	{
+		temp[i] = list[i];
+	}
+
+	for (var i = 0; i < list.length; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			if (temp[i] < temp[j])
+			{
+				var temp2 = temp[i];
+				temp[i] = temp[j];
+				temp[j] = temp2;
+			}
+		}
+	}
+
+	return temp;
+}
+
+	
+function getMax(list)
+{
+	var maxLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (maxLoc == -1 || list[i] > list[maxLoc])
+		{
+			maxLoc = i;
+		}
+	}
+	
+	return list[maxLoc];
+}
+
+function plotHist1(c, list, docLen)
+{
+	var temp = sort(list);
+	var ctx = c.getContext('2d');
+	ctx.fillStyle = '#FFFFFF';
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	var xAxis = new Array();
+	var yAxis = new Array();
+	
+	var pxlVal = Math.floor(docLen / c.width);
+	for (var i = 0; i < c.width; i++)
+	{
+		xAxis[i] = i * pxlVal;
+		yAxis[i] = 0;
+	}
+	
+	for (var i in temp)
+	{
+		var found = false;
+		for (var j = 0; j < xAxis.length - 1 && !found; j++)
+		{
+			if (xAxis[j] <= temp[i] && temp[i] <= xAxis[j+1])			{
+				found = true;
+				yAxis[j]++;
+			}
+		}
+	}
+	
+	var barWidth = 1;
+	var unitHght = Math.floor(c.height / getMax(yAxis));
+	
+	for (var i = 0; i < xAxis.length; i++)
+	{
+		ctx.fillStyle = '#0033FF';
+		ctx.fillRect(i*barWidth, c.height - unitHght * yAxis[i], barWidth, unitHght * yAxis[i]);
+		ctx.fill();
+	}
+}
+
+function plotHist2(c, list, docLen)
+{
+	var temp = sort(list);
+	var ctx = c.getContext('2d');
+	ctx.fillStyle = '#FFFFFF';
+	ctx.fillRect(0, 0, c.width, c.height);
+	ctx.fill();
+	
+	var xAxis = new Array();
+	var yAxis = new Array();
+	
+	var pxlVal = Math.floor(docLen / c.width);
+	for (var i = 0; i < c.width; i++)
+	{
+		xAxis[i] = i * pxlVal;
+		yAxis[i] = 0;
+	}
+	
+	for (var i in temp)
+	{
+		var found = false;
+		for (var j = 0; j < xAxis.length - 1 && !found; j++)
+		{
+			if (xAxis[j] <= temp[i] && temp[i] <= xAxis[j+1])			{
+				found = true;
+				yAxis[j] = 1;
+			}
+		}
+	}
+	
+	var barWidth = 1;
+	var unitHght = c.height;
+	
+	for (var i = 0; i < xAxis.length; i++)
+	{
+		ctx.fillStyle = '#0033FF';
+		ctx.fillRect(i*barWidth, c.height - unitHght * yAxis[i], barWidth, unitHght * yAxis[i]);
+		ctx.fill();
+	}
+}
+
+function writeKwds(LdaGibbs, i)
+{
+	var doc = "";
+	for (var j = 0; j < LdaGibbs.documents.length; j++)
+	{
+		if (LdaGibbs.theta[j][i] >= LdaGibbs.alpha)
+		{
+			continue;
+		}
+		
+		var tmpDoc = LdaGibbs.documents2[j];
+		tmpDoc = tmpDoc.replace(/&nbsp;/g, " ");
+		tmpDoc = tmpDoc.replace(/\\r/g, " ");
+		tmpDoc = tmpDoc.replace(/\\n/g, " ");
+		tmpDoc = tmpDoc.replace(/(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|\"|'|<|>|,|\.|\?|\/|\\|\||-|_|\+|=)/g, " ");
+		tmpDoc = tmpDoc.replace(/\s/g, " ");
+		tmpDoc = tmpDoc.replace(/  /g, " ");	
+		
+		doc += tmpDoc;
+	}
+	
+	var wds = doc.split(" ");
+	var locs = {};
+	var diffs = {};
+	var cnt = 0;
+	var out = "";
+	
+	for (var i2 = 0; i2 < wds.length; i2++)
+	{
+		if (wds[i2].length > 0)
+		{
+			var idx = LdaGibbs.vocab.indexOf(wds[i2]);
+			if (LdaGibbs.phi[i][idx] >= LdaGibbs.beta)
+			{
+				cnt++;
+				if (!(wds[i2] in locs)
+				{
+					locs[wds[i2]] = [];
+					locs[wds[i2]].push(i2);
+					diffs[wds[i2]] = [];
+				}
+				else
+				{
+					locs[wds[i2]].push(i2);
+				}
+			}
+		}
+	}
+	
+	var maxGp = {};
+	var avgLoc = {};
+	var first = {};
+	var last = {};
+	var dnsty = {};
+	for (var i2 in locs)
+	{
+		avgLoc[i2] = 0;
+		first[i2] = locs[i2][0];
+		last[i2] = locs[i2][locs[i2].length-1];
+		dnsty[i2] = (last[i2] - first[i2]) / locs[i2].length;
+		for (var j = 0; j < locs[i2].length - 1; j++)
+		{
+			diffs[i2].push(locs[i2][j+1] - locs[i2][j]);
+			avgLoc[i2] += locs[i2][j];
+		}
+		
+		avgLoc[i2] += locs[i2][locs[i2].length-1];
+		avgLoc[i2] /= locs[i2].length;
+	}
+	
+	var avgGp = {};
+	var dev = {};
+	var avg = (Object.keys(locs).length * Object.keys(locs).length + Object.keys(locs).length) / 2;
+	avg /= Object.keys(locs).length;
+	
+	for (var i2 in diffs)
+	{
+		maxGp[i2] = -1;
+		avgGp[i2] = 0;
+		for (var j = 0; j < diffs[i2].length; j++)
+		{
+			avgGp[i2] += diffs[i2][j];
+			if (diffs[i2][j] > maxGp[i2])
+			{
+				maxGp[i2] = diffs[i2][j];
+			}
+		}
+		avgGp[i2] /= diffs[i2].length;
+	}
+	
+	var sigma = {};
+	var sigma2 = {};
+	var sigma3 = {};
+	var p = {};
+	var normDiffs = {};
+	var cScore = {};
+	var sig3Len = 0;
+	
+	for (var i2 in diffs)
+	{
+		normDiffs[i2] = [];
+		for (var j = 0; j < diffs[i2].length; j++)
+		{
+			normDiffs[i2][j] = diffs[i2][j] / avgGp[i];
+		}
+
+		if (diffs[i2].length > 0)
+		{
+			sig3Len++;
+			sigma[i2] = getStdDev(normDiffs[i2]);
+			p[i2] = (locs[i2].length / cnt);
+			sigma2[i2] = Math.sqrt(1 - p[i2]);
+			sigma3[i2] = sigma[i2] / sigma2[i2];
+		}
+	}
+	
+	var sigMean = 0
+	for (var i2 in sigma3)
+	{
+		sigMean += sigma3[i2];
+	}
+
+	sigMean = sigMean / sig3Len;
+
+	var sigDev = 0;
+	
+	for (var i2 in sigma3)
+	{
+		brackNor = (2*locs[i2].length - 1) / (2*locs[i2].length + 2);
+		sdNor = 1 / (Math.sqrt(locs[i2].length) * (1 + 2.8 * Math.pow(locs[i2].length, -0.865)));
+		cScore[i2] = (sigma3[i2] - brackNor) / (sdNor);
+	}
+	
+	var out = "<table>\n<thead>\n";
+	out += "<tr>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  0,  LdaGibbs.asc[" + i + "][0]); for (var i = 0; i < 16; i++) if (i != 0) ascArr[i] = 1; ascArr[0] *= -1; \">Word</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  1,  LdaGibbs.asc[" + i + "][1]); for (var i = 0; i < 16; i++) if (i != 1) ascArr[i] = 1; ascArr[1] *= -1;\">Energy</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  2,  LdaGibbs.asc[" + i + "][2]); for (var i = 0; i < 16; i++) if (i != 2) ascArr[i] = 1; ascArr[2] *= -1;\">Differences</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  3,  LdaGibbs.asc[" + i + "][3]); for (var i = 0; i < 16; i++) if (i != 3) ascArr[i] = 1; ascArr[3] *= -1;\">Appearances</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  4,  LdaGibbs.asc[" + i + "][4]); for (var i = 0; i < 16; i++) if (i != 4) ascArr[i] = 1; ascArr[4] *= -1;\">Max Gap</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  5,  LdaGibbs.asc[" + i + "][5]); for (var i = 0; i < 16; i++) if (i != 5) ascArr[i] = 1; ascArr[5] *= -1;\">Avg Gap</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  6,  LdaGibbs.asc[" + i + "][6]); for (var i = 0; i < 16; i++) if (i != 6) ascArr[i] = 1; ascArr[6] *= -1;\">Sigma</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  7,  LdaGibbs.asc[" + i + "][7]); for (var i = 0; i < 16; i++) if (i != 7) ascArr[i] = 1; ascArr[7] *= -1;\">p</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  8,  LdaGibbs.asc[" + i + "][8]); for (var i = 0; i < 16; i++) if (i != 8) ascArr[i] = 1; ascArr[8] *= -1;\">Sigma<sub>geo</sub></th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  9,  LdaGibbs.asc[" + i + "][9]); for (var i = 0; i < 16; i++) if (i != 9) ascArr[i] = 1; ascArr[9] *= -1;\">Sigma<sub>nor</sub></th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  10,  LdaGibbs.asc[" + i + "][10]); for (var i = 0; i < 16; i++) if (i != 10) ascArr[i] = 1; ascArr[10] *= -1;\">Z-Score</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  11,  LdaGibbs.asc[" + i + "][11]); for (var i = 0; i < 16; i++) if (i != 11) ascArr[i] = 1; ascArr[11] *= -1;\">Density</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  12,  LdaGibbs.asc[" + i + "][12]); for (var i = 0; i < 16; i++) if (i != 12) ascArr[i] = 1; ascArr[12] *= -1;\">Avg Loc / Avg Gap</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  13,  LdaGibbs.asc[" + i + "][13]); for (var i = 0; i < 16; i++) if (i != 13) ascArr[i] = 1; ascArr[13] *= -1;\">Slope</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  14,  LdaGibbs.asc[" + i + "][14]); for (var i = 0; i < 16; i++) if (i != 14) ascArr[i] = 1; ascArr[14] *= -1;\">Y-Int</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data" + i + "'),  15,  LdaGibbs.asc[" + i + "][15]); for (var i = 0; i < 16; i++) if (i != 15) ascArr[i] = 1; ascArr[15] *= -1;\">Area</th>\n";
+	out += "<th>Graph 1</th>\n";
+	out += "<th>Graph 2</th>\n";
+	out += "</tr>\n</thead>\n<tbody id='data" + i + "'>\n";
+	
+	var count = 0;
+	for (var i2 in locs)
+	{
+		if (locs[i2].length > 1 && LdaGibbs.stopwords.indexOf(i2.toLowerCase()) == -1)
+		{
+			out += "<tr><td>" + i2.toLowerCase() + "</td>";
+			out += "<td><div style='overflow-x:auto; width:300px'>" + locs[i2] + "</div></td>";
+			out += "<td><div style='overflow-x:auto; width:300px'>" + diffs[i2] + "</div></td>";
+			out += "<td>" + locs[i2].length + "</td>";
+			out += "<td>" + maxGp[i2] + "</td>";
+			out += "<td>" + avgGp[i2].toFixed(3) + "</td>";
+			out += "<td>" + sigma[i2].toFixed(3) + "</td>";
+			out += "<td>" + p[i2].toFixed(3) + "</td>";
+			out += "<td>" + sigma2[i2].toFixed(3) + "</td>";
+			out += "<td>" + sigma3[i2].toFixed(3) + "</td>";
+			out += "<td>" + cScore[i2].toFixed(3) + "</td>";
+			out += "<td>" + dnsty[i2].toFixed(0) + "</td>";
+			out += "<td>" + (avgLoc[i2] / avgGp[i2]).toFixed(3) + "</td>";
+			out += "<td></td>";
+			out += "<td></td>";
+			out += "<td></td>";
+			out += "<td><canvas id=cnvs1" + count + " width='200' height='100'></canvas></td>";
+			out += "<td><canvas id=cnvs2" + count + " width='200' height='100'></canvas></td>";
+			out += "<td>" + hierClust(locs[i2], document.getElementById('getDist').value) + "</td></tr>";
+			out += "<scr" + "ipt>";
+			out += "var c1 = document.getElementById ('cnvs1" + count + "');";
+			out += "var c2 = document.getElementById ('cnvs2" + count + "');";
+			out += "var c3 = document.getElementById ('cnvs3" + count + "');";
+			out += "var locs = [" + locs[i2] + "];";
+			out += "plotHist1(c1, locs, numWds);";
+			out += "plotHist2(c2, locs, numWds);";
+			out += "</scr" + "ipt>\n";
+			count++;
+		}
+	}
+}
+
+
+function writeAprRes(LdaGibbs)
+{		
+	for (var top = 0; top < LdaGibbs.numTopics; top++)
+	{	
+		var apr = new Apriori();
+		var thresh1 = parseFloat(document.getElementById('minSup').value);
+		var thresh2 = parseInt(document.getElementById('maxItmSize').value);
+		apr.getItems(LdaGibbs.clusters2[top], thresh1);
+		apr.apriori(LdaGibbs.clusters2[top], thresh1, [], [], thresh2);
+		apr.makeRules(LdaGibbs.clusters2[top].length);
+		
+		var text = "";
+		var parent = document.getElementById('div' + top);
+		var child = document.getElementById("div" + top + "rules");
+		if (child != null)
+		{
+			parent.removeChild(child);
+		}
+		else
+		{
+			text += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=showHideDiv('div" + top + "rules');>Topic " + top + " Association Rules</span><br>";
+		}	
+		text += "<div id='div" + top + "rules' style='display:none;'>";
+		text += "<table>";
+		text += "<tr><td>Rule</td><td>|</td><td>Confidence</td><td>Lift</td><td>Conviction</td><td>Support</td><td>Head Support</td><td>Tail Support</td><td>Tail Length</td></tr>";
+		for (var j = 0; j < apr.rules.length; j++)
+		{
+			text += "<tr><td>" + apr.rules[j].head + "->" + apr.rules[j].tail + "</td><td>|</td><td>" + rules[j].support.toFixed(4) + "</td><td>" + rules[j].confidence.toFixed(4) + "</td><td>" + rules[j].lift.toFixed(4) + "</td><td>" + rules[j].conviction.toFixed(4) + "</td><td>" + rules[j]headCount.toFixed(0) + "</td><td>" + rules[j]tailCount.toFixed(0) + "</td><td>" + rules[j]tailSize.toFixed(0) + "</td></tr>";
+		}
+			
+		text += "</table>";
+		text += "</div>";
+		document.getElementById('div' + top).innerHTML += text;
+	}
+	
+	var apr = new Apriori();
+	var thresh1 = parseFloat(document.getElementById('minSup').value);
+	var thresh2 = parseInt(document.getElementById('maxItmSize').value);
+	apr.getItems(LdaGibbs.documents, thresh1);
+	apr.apriori(LdaGibbs.documents, thresh1, [], [], thresh2);
+	apr.makeRules(LdaGibbs.documents.length);
+	
+	var parent = document.getElementById('output');
+	var child = document.getElementById("ovrRules");
+	var text = "";
+	if (child != null)
+	{
+		parent.removeChild(child);
+	}
+	else
+	{
+		text = "<span onclick=showHideDiv('ovrRules');>Overall Association Rules</span><br>";
+	}
+	text += "<div id='ovrRules' style='display:none;'>";
+	text += "<table>";
+	text += "<tr><td>Rule</td><td>|</td><td>Confidence</td><td>Lift</td><td>Conviction</td><td>Support</td><td>Head Support</td><td>Tail Support</td><td>Tail Length</td></tr>";
+	for (var j = 0; j < rules.length; j++)
+	{
+		text += "<tr><td>" + apr.rules[j].head + "->" + apr.rules[j].tail + "</td><td>|</td><td>" + rules[j].support.toFixed(4) + "</td><td>" + rules[j].confidence.toFixed(4) + "</td><td>" + rules[j].lift.toFixed(4) + "</td><td>" + rules[j].conviction.toFixed(4) + "</td><td>" + rules[j]headCount.toFixed(0) + "</td><td>" + rules[j]tailCount.toFixed(0) + "</td><td>" + rules[j]tailSize.toFixed(0) + "</td></tr>";
+	}
+	text += "</table>";
+	text += "</div>";
 	document.getElementById("output").innerHTML += text;
 }
 
-function apriori(documents, stopwords, minSup)
+function getMax(list)
+{
+	var maxLoc = -1;
+	for (var i = 0; i < list.length; i++)
+	{
+		if (maxLoc == -1 || list[i] > list[maxLoc])
+		{
+			maxLoc = i;
+		}
+	}
+	
+	return list[maxLoc];
+}
+
+function sort(list)
+{
+	var temp = new Array();
+	for (var i = 0; i < list.length; i++)
+	{
+		temp[i] = list[i];
+	}
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			if (temp[i] < temp[j])
+			{
+				var temp2 = temp[i];
+				temp[i] = temp[j];
+				temp[j] = temp2;
+			}
+		}
+	}
+	
+	return temp;
+}
+
+/*function apriori(documents, stopwords, minSup)
 {
 	var poss = new Array();
 	var vocab = new Array();
-	
 	for (var i = 0; i < documents.length; i++)
 	{
 		for (var j = 0; j < documents[i].length; j++)
 		{
 			var temp = documents[i][j];
-			
 			if (vocab.indexOf(temp) == -1 && temp != "")
 			{
 				vocab[vocab.length] = temp;
 			}
 		}
 	}
-	
 	var setSize = 0;
 	var tree = new Array();
 	var ans;
 
 	var text = "";
 	var rules = new Array();
-	
 	do
 	{
 		setSize++;
 		ans = getPoss(setSize, vocab, poss, tree);
-		poss = ans[0];		
+		poss = ans[0];	
 		tree = ans[1];
-		
 		ans = getFreq(setSize, vocab, documents, poss, tree, minSup);
 		poss = ans[0];
-		
 		tree = ans[1];
 	}
 	while(poss.length > 1);	
-	
 	return tree;
-}
+}*/
 
-function getPoss(n, items, poss, tree)
+/*function getPoss(n, items, poss, tree)
 {
 	var tempPoss = new Array();
 	var ans = new Array();
@@ -719,7 +1488,6 @@ function getPoss(n, items, poss, tree)
 				str2 = "";
 				st1 = poss[i].split(", ");
 				st2 = poss[j].split(", ");
-				
 				for(var s = 0; s < n - 2; s++)
 				{
 					if (str1 == "")
@@ -730,7 +1498,6 @@ function getPoss(n, items, poss, tree)
 					{
 						str1 = str1 + ", " + st1[s];
 					}
-					
 					if (str2 == "")
 					{
 						str2 = st2[s];
@@ -741,7 +1508,6 @@ function getPoss(n, items, poss, tree)
 					}
 
 				}
-				
 				if (str2 == str1)
 				{
 					tempPoss[tempPoss.length] = str1 + ", " + st1[s] + ", " + st2[s];
@@ -751,7 +1517,6 @@ function getPoss(n, items, poss, tree)
 				{
 					tempPoss[tempPoss.length-1] = tempPoss[tempPoss.length-1].substring(2, tempPoss[tempPoss.length-1].length);	
 				}
-					
 				if (str1 == str2)
 				{
 					tree[tree.length] = joinBinTree(tree[linsear(tree, poss[i])], tree[linsear(tree, poss[j])], tempPoss[tempPoss.length-1], n-1);
@@ -765,7 +1530,7 @@ function getPoss(n, items, poss, tree)
 	ans[1] = tree;
 
 	return ans;
-}
+}*/
 
 function linsear(sets, elmnt)
 {
@@ -775,7 +1540,6 @@ function linsear(sets, elmnt)
 	{
 		var set = sets[i].value.split(", ");
 		var found = true;
-		
 		for (var j = 0; j < elmnt.length && found; j++)
 		{
 			if (set.indexOf(elmnt[j]) == -1)
@@ -783,7 +1547,6 @@ function linsear(sets, elmnt)
 				found = false;
 			}
 		}
-		
 		if (found && set.length == elmnt.length)
 		{
 			ans = i;
@@ -823,7 +1586,6 @@ function getFreq(n, items, trans, poss, tree, minSup)
 		{
 			var found = 0;
 			var st = poss[c].split(", ");
-			
 			for (var d = 0; d < st.length; d++)
 			{
 				if (trans[i].indexOf(st[d]) != -1)
@@ -838,7 +1600,6 @@ function getFreq(n, items, trans, poss, tree, minSup)
 			}
 		}
 	}
-	
 	toOutput += "-----<table>"
 	for(var i = 0; i < poss.length; i++)
 	{
@@ -856,7 +1617,6 @@ function getFreq(n, items, trans, poss, tree, minSup)
 		}
 	}
 	toOutput += "</table>";
-	
 	poss = possFreq;
 	ans[0] = poss;
 	ans[1] = tree;
@@ -881,32 +1641,29 @@ function getRules(itemsets, numTrans)
 				break;
 			}
 			temp = new Array();
-			temp[0] = itemsets[loc1].value + " => " + itemsets[loc2].value;
+			temp[0] = itemsets[loc1].value + " -> " + itemsets[loc2].value;
 			temp[1] = itemsets[i].prob / itemsets[loc1].prob; 
 			temp[2] = itemsets[i].prob / (itemsets[loc1].prob * itemsets[loc2].prob); 
 			temp[3] = (1 - itemsets[loc2].prob) / (1 - temp[1]); 
-			temp[4] = temp[1] * itemsets[loc1].prob; 
+			temp[4] = itemsets[i].prob; 
 			temp[5] = itemsets[loc1].prob * numTrans; 
 			temp[6] = itemsets[loc2].prob * numTrans; 
 			temp[7] = itemsets[loc2].value.split(", ").length; 
 			rules[rules.length] = temp;
 		}
 	}
-	
 	for (var i = 0; i < rules.length; i++)
 	{
-		var temp1 = rules[i][0].split(" => ");
+		var temp1 = rules[i][0].split(" -> ");
 		var concl1 = temp1[1].split(", ");
 		var found = false;
 		for (var j = i + 1; j < rules.length && !found; j++)
 		{
-			var temp2 = rules[j][0].split(" => ");
+			var temp2 = rules[j][0].split(" -> ");
 			var concl2 = temp2[1].split(", ");
-			
 			if (temp1[0] == temp2[0])
 			{
 				found = true;
-	
 				for (var k = 0; k < concl1.length && found; k++)
 				{
 					if (concl2.indexOf(concl1[k]) == -1)
@@ -916,7 +1673,6 @@ function getRules(itemsets, numTrans)
 				}
 			}
 		}
-		
 		if (found)
 		{
 			rules[i] = rules[rules.length-1];
@@ -973,10 +1729,9 @@ function joinBinTree(tree1, tree2, val, order)
 
 function getSubs(list)
 {
-//	{}, 0, 1, 2, 3, 01, 02, 03, 12, 13, 23, 012, 013, 123, 0123
-    var subs = new Array();
+	//	{}, 0, 1, 2, 3, 01, 02, 03, 12, 13, 23, 012, 013, 123, 0123
+	var subs = new Array();
 	var powSize;
-	
 	if (Array.isArray(list))
 	{
 		powSize = Math.pow(2, list.length);
@@ -1003,16 +1758,13 @@ function getSubs(list)
 		powSize = 1;
 		subs[0] = list;
 	}
-	
 	return subs;
 }
 
 function getComp(larger, sub)
 {
 	var comp = new Array();
-	
-//	document.getElementById("output").innerHTML += "finding compliment of " + sub + " in " + larger + "<br>";
-	
+	//	document.getElementById("output").innerHTML += "finding compliment of " + sub + " in " + larger + "<br>";
 	for (var i = 0; i < larger.length; i++)
 	{
 		if (sub.indexOf(larger[i]) == -1)
@@ -1020,7 +1772,6 @@ function getComp(larger, sub)
 			comp[comp.length] = larger[i];
 		}
 	}
-	
 	return comp;
 }
 
@@ -1035,14 +1786,14 @@ function getComp(larger, sub)
 //	
 //	for (var i = 0; i < phi.length; i++)
 //	{
-//		var nrm = phi[i] * fmax + fmin;
-//		if (nrm < 10)
-//		{
-//			continue;
-//		}
-//		
-//		wds[wds.length] = vocab[i];
-//		wts[wts.length] = nrm;
+//	var nrm = phi[i] * fmax + fmin;
+//	if (nrm < 10)
+//	{
+//	continue;
+//	}
+//	
+//	wds[wds.length] = vocab[i];
+//	wts[wts.length] = nrm;
 //	}
 //	
 //	return [wds, wts];
@@ -1052,12 +1803,10 @@ function topW(list, vocab)
 {
 	var list2 = argSort(list);
 	var list3 = new Array();
-	
 	for (var i = 0; i < list2.length; i++)
 	{
 		list3[list3.length] = vocab[list2[i]];
 	}
-	
 	return list3;
 }
 
@@ -1089,31 +1838,25 @@ function cosSim(doc1, doc2)
 	var num = 0;
 	var den1 = 0;
 	var den2 = 0;
-	
 	for (var i = 0; i < doc1.length; i++)
 	{
 		num += doc1[i]*doc2[i];
 		den1 += doc1[i] * doc1[i];
 		den2 += doc2[i] * doc2[i];
 	}
-	
 	den1 = Math.sqrt(den1);
 	den2 = Math.sqrt(den2)
-	
 	var ans = num / (den1 * den2);
-	
-//	if (ans < 0.96)
-//	{
-//		ans = 0;
-//	}
-	
+	//	if (ans < 0.96)
+	//	{
+	//	ans = 0;
+	//	}
 	return ans;
 }
 
 function jacc(doc1, doc2)
 {
 	var num = 0;
-	
 	for (var i = 0; i < doc1.length; i++)
 	{
 		if (Math.abs(doc1[i] - doc2[i]) <= 5)
@@ -1121,7 +1864,6 @@ function jacc(doc1, doc2)
 			num++;
 		}
 	}
-	
 	return num / doc1.length;
 }
 
@@ -1130,9 +1872,9 @@ function jacc(doc1, doc2)
  * of magnitude, cf. Hinton diagrams in statistics.
  * 
  * @param d
- *            value
+ *	value
  * @param max
- *            maximum value
+ *	maximum value
  * @return
  */
 function shadeDouble(d, max) 
@@ -1142,15 +1884,12 @@ function shadeDouble(d, max)
 	{
 		var x = d.toExponential(2) + "";
 		a = 5 - x.length();
-		
 		for (var i = 0; i < a; i++) 
 		{
 			x += " ";
 		}
-		
 		return "<" + x + ">";
 	}
-	
 	return "[0." + LdaGibbs.shades[a] + "]";
 }
 
@@ -1160,7 +1899,7 @@ function EucDist(point1, point2)
 
 	if (point1.length != point2.length)
 	{
-		return M;
+		return Number.MAX_VALUE;
 	}
 
 	for (i = 0; i < point1.length; i++)
@@ -1180,7 +1919,6 @@ function argSort(list)
 		temp[i] = list[i];
 		locs[i] = i;
 	}
-	
 	for (var i = 0; i < temp.length; i++)
 	{
 		for (var j = 0; j < i; j++)
@@ -1190,65 +1928,94 @@ function argSort(list)
 				var temp2 = temp[i];
 				temp[i] = temp[j];
 				temp[j] = temp2;
-				
 				temp2 = locs[i];
 				locs[i] = locs[j];
 				locs[j] = temp2;
 			}
 		}
 	}
-	
 	return locs;
 }
 
-function kmeans(distMtrx, k, maxno)
+function kmeans(data, k, maxno)
 {
 	var minDist;
 	var changed;
 	var iter;
-	var pos;
-	var chosen = new Array();
-	var maxDist = new Array();
-	var labels = new Array(distMtrx.length);
+	var chosen = new Array(data.length);
+	var labels = new Array(data.length);
 	var clusters = new Array(k);
 	var centers = new Array(k);
 	text = "";
+//	var arrSize = Math.floor(Math.sqrt(k*2));
 
-	for (var i = 0; i < distMtrx.length; i++)
+//	for (var i = 0; i < data.length; i++)
+//	{
+//		chosen[i] = 0;
+//	}
+
+	for (var i = 0; i < k; i++)
 	{
-		chosen[i] = 0;
-	}
-
-	for(var i = 0; i < k; i++)
-	{
-		do
-		{
-			pos = Math.floor(Math.random()*distMtrx.length);
-		}
-		while (chosen[pos] != 0);
-
-		centers[i] = pos;
+//		var pos;
+//
+//		do
+//		{
+//			pos = Math.floor(Math.random()*data.length);
+//		}
+//		while (chosen[pos] != 0);
+//
+//		centers[i] = data[pos];
 		clusters[i] = new Array();
-		chosen[pos] = 1;
-		maxDist[i] = 0;
+//		chosen[pos] = 1;
 	}
 
-	for (var i = 0; i < distMtrx.length; i++)
+	for (var i = 0; i < k; i++)
 	{
-		pos = M;
-		posD = 0;
+		centers[i] = new Array();
 		for (var j = 0; j < k; j++)
 		{
-			if (distMtrx[i][centers[j]] > posD)
-			{
-				posD = distMtrx[i][centers[j]];
-				pos = j;
-			}
+			centers[i][j] = 0;
 		}
-		labels[i] = pos;
-		clusters[pos][clusters[pos].length] = i;
 	}
 
+	for (var i = 0; i < k; i++)
+	{
+		centers[i][i] = 1.0;
+	}
+	
+//	var count = 0;
+//	
+//	for (var i = 0; i < arrSize; i++)
+//	{
+//		for (var j = i + 1; j < arrSize; j++)
+//		{
+//			centers[arrSize + count][i] = 0.5;
+//			centers[arrSize + count][j] = 0.5;
+//			count++;
+//		}
+//	}
+
+	for (var i = 0; i < data.length; i++)
+	{
+		newLbl = Number.MAX_VALUE;
+		newLblDist = Number.MAX_VALUE;
+		for (var j = 0; j < k; j++)
+		{
+			var dist_curr = EucDist(data[i], centers[j]);
+			if (dist_curr < newLblDist)
+			{
+				newLblDist = dist_curr;
+				newLbl = j;
+			}
+		}
+		labels[i] = newLbl;
+		clusters[newLbl][clusters[newLbl].length] = i;
+	}
+	for (var i = 0; i < centers.length; i++)
+	{
+		text += "centers " + i + " = " + centers[i] + "\n";
+	}
+	//	alert(text);
 	changed = false;
 	iter = 0;
 
@@ -1256,35 +2023,357 @@ function kmeans(distMtrx, k, maxno)
 	{
 		for (var i = 0; i < k; i++)
 		{
-			centers[i] = clusters[i][Math.floor(Math.random() * clusters[i].length)];
-			maxDist[i] = 0;
-			clusters[i] = new Array();
-//			clusters[i][0] = centers[i];
-			labels[centers[i]] = i;
+			var sum = new Array();
+			for (var m = 0; m < centers[0].length; m++)
+			{
+				sum[m] = 0;
+			}
+			count = 0;
+			for (var j = 0; j < data.length; j++)
+			{
+				if (labels[j] == i)
+				{
+					for (var m = 0; m < data[j].length; m++)
+					{
+						sum[m] += data[j][m];
+					}
+					count++;
+				}
+			}
+			for (m = 0; m < centers[i].length; m++)
+			{
+				if (count != 0)
+				{
+					centers[i][m] = sum[m] / count;
+				}
+				else
+				{
+					centers[i][m] = 0;
+				}
+			}
 		}
-
-		for (var i = 0; i < distMtrx.length; i++)
+		text = "";
+		for (var cen = 0; cen < centers.length; cen++)
 		{
-			pos = M;
-			posD = 0;
+			text += "centers " + cen + " = " + centers[cen] + "\n";
+		}
+		//	alert(text);
+		for (var i = 0; i < data.length; i++)
+		{
+			var pos = Number.MAX_VALUE;
+			var posD = Number.MAX_VALUE;
 
 			for (var j = 0; j < k; j++)
 			{
-				if (distMtrx[i][centers[j]] > posD)
+				dist_curr = EucDist(data[i], centers[j]);
+				if (dist_curr < posD)
 				{
-					posD = distMtrx[i][centers[j]];
+					posD = dist_curr;
 					pos = j;
 				}
 			}
-
-			labels[i] = pos;
-			clusters[pos][clusters[pos].length] = i;
-			changed = true;
+			if (pos != labels[i])
+			{
+				labels[i] = pos;
+				changed = true;
+				clusters[pos][clusters[pos].length] = i;
+			}
 		}
 		iter++;
 	} while (changed == true && iter <= maxno);
-	
+//	for (var i = 0; i < k; i++)
+//	{
+//		document.getElementById("output").innerHTML += "center[" + i + "] = ";
+//		for (var j = 0; j < centers[i].length; j++)
+//		{
+//			document.getElementById("output").innerHTML += centers[i][j].toFixed(4) + ", ";
+//		}
+//		document.getElementById("output").innerHTML += "<br>";
+//	}
+
 	return clusters;
+}
+
+function getCenter(clusters, k, data)
+{
+	var centers = new Array();
+	
+	for (var i = 0; i < k; i++)
+	{
+		centers[i] = new Array();
+		var sum = new Array();
+		for (var m = 0; m < data[0].length; m++)
+		{
+			sum[m] = 0;
+		}
+		count = 0;
+		
+		for (var j = 0; j < clusters[i].length; j++)
+		{
+			var loc = clusters[i][j];
+			for (var m = 0; m < data[loc].length; m++)
+			{
+				sum[m] += data[loc][m];
+			}
+			count++;
+		}
+		
+		for (m = 0; m < sum.length; m++)
+		{
+			if (count != 0)
+			{
+				centers[i][m] = sum[m] / count;
+			}
+			else
+			{
+				centers[i][m] = 0;
+			}
+		}
+	}
+	
+	return centers;
+}
+
+function drawCloud(divNum)
+{
+	wdCld = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span onclick=\"showHideDiv('div" + divNum + "cnv');drawIt('" + divNum + "');\">WordCloud " + divNum + " Canvas</span><br>";
+	wdCld += "<canvas id='div" + divNum + "cnv' width='600' height='300' style='border:1px solid #000000; display:none;'></canvas>":
+	
+	document.getElementById("div" + divNum).innerHTML += wdCld;
+}
+
+function arrCntVals(words)
+{
+	var ans = new Object();
+	ans.words = new Array();
+	ans.counts = new Array();
+	
+	for (var i = 0; i < words.length; i++)
+	{
+		if (words[i].indexOf("-" != -1)
+		{
+			continue;
+		}
+		
+		if (ans.words.indexOf(words[i].trim().toLowerCase()) == -1)
+		{
+			var pos = ans.words.length;
+			ans.words[pos] = words[i].trim().toLowerCase();
+			ans.counts[pos] = 1;
+		}
+		else
+		{
+			var pos = ans.words.indexOf(words[i].trim().toLowerCase());
+			ans.counts[pos]++;
+		}
+	}
+	
+	return ans;
+}
+
+function arsort(arr)
+{
+	for (var i = 0; i < arr.words.length; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			if (arr.counts[i] > arr.counts[j])
+			{
+				var temp = arr.words[i];
+				arr.words[i] = arr.words[j];
+				arr.words[j] = temp;
+				
+				temp = arr.counts[i];
+				arr.counts[i] = arr.counts[j];
+				arr.counts[j] = temp;
+			}
+		}
+	}
+	
+	return arr;
+}
+
+function filter_stopwords(arr, stopwords)
+{
+	var filtered = new Object();
+	filtered.words = [];
+	filtered.counts = [];
+	
+	for (var i = 0; i < arr.words.length; i++)
+	{
+		if (stopwords.indexOf(arr.words[i].toLowerCase()) == -1)
+		{
+			var pos = filtered.words.length;
+			filtered.words[pos] = arr.words[i].toLowerCase();
+			filtered.counts[pos] = arr.counts[i];
+		}
+	}
+	
+	return filtered;
+}
+
+function drawIt(fivNum)
+{
+	var words = document.getElementById("div" + divNum + "docs").innerHTML;
+	words = words.replace(/[\s]/g, " ");
+	do
+	{
+		words = words.replace("  ", " ");
+	}
+	while (words.indexOf("  ") != -1);
+	words = words.split(" ");
+	
+	var ans = arrCntVals(words);
+	ans = arsort(ans);
+	
+	var stopwords = document.getElementById("stopwds").valuel
+	stopwords = stopwords.split(",");
+	
+	ans = filter_stopwords(ans, stopwords);
+	
+	var temp = word_cloud_wts(ans);
+	ans.words = temp[0];
+	ans.counts = temp[1];
+	
+	var words = ans.words;
+	var counts = ans.counts;
+	
+	var c = document.getElementById("div" + divNum + "cnv");
+	var ctx = c.getContext("2d");
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, c.width, c.height);
+	var draw = [];
+	var out = "";
+	
+	for (var i = 0 i < words.length; i++)
+	{
+		var imgData = ctx.getImageData(0, 0, c.width, c.height).data;
+		draw[i] = true;
+		var count = 0;
+		ctx.font = counts[i] + "px Arial";
+		var r, g, b;
+		do
+		{
+			r = Math.floor(Math.random() * 256);
+			g = Math.floor(Math.random() * 256);
+			b = Math.floor(Math.random() * 256);
+		}
+		while((r == 0 && g == 9 && b == 0) || (r == 255 && g = 255 && b == 255));
+		
+		ctx.fillStyle = "#" + r.toString(16) + g.toString(16) + b.toString(16);
+		var txt = words[i];
+		var xLoc = -1;
+		var yLoc = -1;
+		var feas = true;
+		var width = ctx.measureText(txt).width;
+		
+		do
+		{
+			count++;
+			if (count > 50)
+			{
+				draw[i] = false;
+				break;
+			}
+			
+			feas = true;
+			xLoc = Math.floor(Math.random() * c.width);
+			yLoc = Math.floor(Math.random() * c.height);
+			if (eval(xLoc + width) <= c.width && eval(yLoc + counts[i]/4 + counts[i]) <= c.height)
+			{
+				for (var j = 0; j < width; j++)
+				{
+					var x = XLoc + j;
+					var y = yLoc + k;
+					if ((imgData[4*eval(x + y*c.width)] !=   0 || imgData[4*eval(x + y*c.width) + 1] !=   0 || imgData[4*eval(x + y*c.width) + 2] !=   0)) && 
+					    (imgData[4*eval(x + y*c.width)] != 255 || imgData[4*eval(x + y*c.width) + 1] != 255 || imgData[4*eval(x + y*c.width) + 2] != 255))
+					{
+						feas = false;
+					}
+				}
+			}
+		}
+		while (eval(xLoc + width) > c.width || eval(yLoc + counts[i]) + counts[i] / 4 > c.height || !feas);
+		
+		if (draw[i] && feas)
+		{
+			ctx.fillText(txt, xLoc, eval(yLoc + counts[i]));
+			ctx.rect(xLoc, yLoc + counts[i]/4, width, counts[i]);
+			ctx.strokeStyle = "#000000";
+		}
+	}
+}
+
+function process(LdaGibbs, cell)
+{
+	var sel = document.getElementById(cell).innerHTML;
+	var stops = document.getElementById("stopwds").value.split(",");
+	
+	if (sel == "true")
+	{
+		sel = "false";
+	}
+	else if (sel == "false")
+	{
+		sel = "true";
+	}
+	
+	document.getElementById(cell).innerHTML = sel;
+	
+	var loc = cell.split("_");
+	var cellVal = document.getElementById(loc[0] + "_" + loc[1] + "_0").innerHTML;
+	
+	loc = stops.indexOf(cellVal);
+	if (loc == -1)
+	{
+		stops.push(cellVal);
+	}
+	else
+	{
+		stops[loc] = stops[stops.length-1];
+		stops.length--;
+	}
+	
+	LdaGibbs.stopwords = stops;
+	var out = "";
+	for (var i = 0; i < stops.length; i++)
+	{
+		out += stops[i] + ",";
+	}
+	
+	out = out.substring(0, out.length-1);
+	
+	document.getElementById("stopwds").value = out;
+	
+	for (var i = 0; i < LdaGibbs.numTopics; i++)
+	{
+		writeWC(LdaGibbs, i);
+		writeKwds(LdaGibbs, i);
+	}
+}
+
+function preProcess()
+{
+	var corpus = document.getElementById('input').value;
+	var tmp = corpus.split('\n');
+	var corpus1 = [];
+	var corpus2 = [];
+	var skip = 0;
+	for (var i = 0; i < tmp.length; i++)
+	{
+		if (tmp[i].trim() == "")
+		{
+			skip++;
+			continue;
+		}
+		
+		corpus2[i-1-skip] = tmp[i];
+		corpus1[i-1-skip] = tmp[i];
+	}
+	
+	LdaGibbs = main('output', corpus1, corps2);
+	
+	return LdaGibbs;
 }
 </script>
 </head>
@@ -1361,7 +2450,7 @@ function kmeans(distMtrx, k, maxno)
   <option value=0.090>0.090</option>
   <option value=0.100>0.100</option>
 </select>-->
-<input type="Button" onclick="main(LdaGibbs)" value="Submit">
+<input type="Button" onclick="preProcess()" value="LDA Algorithm">
 <!--<input type="Button" onclick="apriori(0.001)" value="Apriori Rules">-->
 </td></tr>
 <tr><td><textarea style='width: 600px; height: 300px;' name="input" id="input">Who has been the most important person in your life? Can you tell me about him or her?
@@ -2632,7 +3721,8 @@ How would you explain your basic life philosophy?
 Would you rather be hated or forgotten?
 If you knew you would die tomorrow, would you feel cheated today?</textarea></td></tr>
 </table>
-<p id="output" name="output"></p>
+<p id="output"></p>
+<div id="csvlink"></div>
 <script type="text/javascript">
 var LdaGibbs = new Object();
 </script>
