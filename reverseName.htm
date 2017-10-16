@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC -//W3C//DTD XHTML 1.0 Strict//EN http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd>
+<html>
+<head>
+<title>Reverse Name</title>
+</head>
+<body>
+<label>Please Enter a name</label>
+<input id="inputName">
+<input type="button" onclick="convert()" value="Submit">
+<p id="output"></p>
+<script type="text/javascript">
+function convert()
+{
+	var name = document.getElementById("inputName").value;
+	var nameRev = "";
+	
+	//We're going to go through the name in reverse order, so this for loop looks different than ones we've done previously. 
+	//The reason for this is that we need to start at the end now instead of the beginning. 
+	//And for an array, the last element of an array is in position name.length-1
+	//So if the name is Corey, then the name variable is 
+	//name[0] = 'C'
+	//name[1] = 'o'
+	//name[2] = 'r'
+	//name[3] = 'e'
+	//name[4] = 'y'
+	//and name.length = 5 because there are 5 elements in the string. 
+	for (var i = name.length-1; i >= 0; i--)
+	{
+		nameRev += name[i];
+	}
+	
+	document.getElementById("output").innerHTML = "The Reversal of this name is  " + nameRev + "<br>";
+}
+</script>
+</body>
+</html>

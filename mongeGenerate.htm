@@ -1,0 +1,89 @@
+<html>
+<head>
+<script type="text/javascript">
+function isMonge(mtrx)
+{
+	var ans = true;
+	var text = "";
+	for (var i1 = 0; i1 < mtrx.length && ans; i1++)
+	{
+//		for (var i2 = i1 + 1; i2 < mtrx.length && ans; i2++)
+//		{
+			for (var j1 = 0; j1 < mtrx[i1].length && ans; j1++)
+			{
+//				for (var j2 = j1+1; j2 < mtrx[i1].length && ans; j2++)
+//				{
+					if (mtrx[i1][j1] + mtrx[i1+1][j1+1] > mtrx[i1][j1+1] + mtrx[i1+1][j1])
+						ans = false;
+			}
+	}
+	
+	document.write("i1 = " + i1 + ", j1 = " + j1 + "<br>");
+	
+	return ans;
+}
+
+</script>
+<body>
+<script type="text/javascript">
+var mtrx = new Array();
+var text = "";
+for (var i = 0; i < 5; i++)
+{
+	mtrx[i] = new Array(5);
+
+	for (var j = 0; j < 5; j++)
+	{
+		var upper = 0;
+		if (i > 0 && j > 0)
+		{
+			upper = mtrx[i-1][j] + mtrx[i][j-1] - mtrx[i-1][j-1];
+			if (upper < 0)
+				text += i + ", " + j + ") upper = " + upper + "<br>";
+//			do 
+//			{
+				mtrx[i][j] = Math.floor(Math.random()*upper);
+//			}
+//			while (mtrx[i-1][j] + mtrx[i][j-1] > mtrx[i][j] + mtrx[i-1][j-1]);
+		}
+		else
+		{
+			mtrx[i][j] = Math.floor(Math.random()*100);
+		}
+	}
+}
+
+text += "<table>";
+for (var i = 0; i < mtrx.length; i++)
+{
+	text += "<tr>";
+	for (var j = 0; j < mtrx[i].length; j++)
+	{
+		text += "<td>" + mtrx[i][j] + "</td>";
+	}
+	text += "</tr>";
+}
+text += "</table>";
+
+
+for (var i = 0; i < mtrx.length; i++)
+{
+	for (var j = 0; j < mtrx[i].length; j++)
+	{
+		text += "x<sub>" + i + ", " + j + "</sub> + x <sub>" + eval(i+1) + ", " + eval(j+1) + "</sub> <= x<sub>" + i + ", " + eval(j+1) + "</sub> + x<sub>" + eval(i+1) + ", " + j + "</sub><br>";
+	}
+}
+
+if (isMonge(mtrx))
+{
+	text += "This matrix is Monge<br>";
+}
+else
+{
+	text += "This matrix is NOT Monge<br>";
+}
+
+document.write(text);
+</script>
+</body>
+</html>

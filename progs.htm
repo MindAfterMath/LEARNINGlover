@@ -1,0 +1,1278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+<META http-equiv=Content-Type content="text/html; charset=windows-1252">
+<META content="MSHTML 6.00.2900.2627" name=GENERATOR></HEAD>
+<BODY>
+<FORM id=FORM1 name=FORM1 action="" method=post>
+<select>
+<option selected>Display Array</option>
+<option>Factorial</option>
+<option>Binary Tree</option>
+<option>Bubble Sort</option>
+<option>Character To Integer</option>
+<option>Infix / Postfix</option>
+<option>Insertion Sort</option>
+<option>QuickSort</option>
+<option>Matrix Class</option>
+<option>Job Program (useful functions)</option>
+<option>Large Number Multiplication</option>
+<option>Queue Class</option>
+<option>Stack Class</option>
+<option>Binary Tree Class</option>
+</select>
+
+</FORM>
+
+<P>// Function that simply displays each element of input_array.<BR>void 
+display_array(int input_array[], int 
+input_size)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+i;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (i = 
+0; i &lt; input_size; 
+i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+cout &lt;&lt; input_array[i] &lt;&lt; ' 
+';<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\n\n";<BR>} // Recursive function that calculates factorial.</P>
+<P>long factorial(long n)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; long fact; // Local 
+variable returned by function.<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; if(n &gt; 
+1)<BR>&nbsp;&nbsp;&nbsp;&nbsp; { // If n is not one, make another recursive 
+call.<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fact = n * 
+factorial(n - 1);<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+else<BR>&nbsp;&nbsp;&nbsp;&nbsp; { // Exit 
+condition<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fact = 1; // 
+If n is one, recursion stops and flow of logic<BR>&nbsp;&nbsp;&nbsp;&nbsp; } // 
+begins "backing out" of recursive calls.<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+return(fact); // Return fact to the next level of recursion.<BR>} </P>
+<P>btree.cpp: #include &lt;iostream.h&gt;<BR>#include 
+&lt;string.h&gt;<BR><BR>const int MAT_STRING = 300;<BR>typedef char TreeArry 
+[MAT_STRING + 1];<BR><BR>typedef int Boolean;<BR>const TRUE =       1;<BR>const FALSE 
+= 0;<BR><BR>struct BTreeNode<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char 
+element;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BTreeNode* 
+left;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BTreeNode* right;<BR>};<BR>typedef 
+BTreeNode* BT;<BR>struct Queue<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BT 
+Ptr;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Queue* next;<BR>};<BR>struct 
+QueueNode<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+size;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Queue* 
+front;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Queue* rear;<BR>};<BR>void 
+InOrder(BT);<BR>void PreOrder(BT);<BR>void PostOrder(BT);<BR>void 
+LevelOrder(BT);<BR>int NumOfTs(BT);<BR>int Height(BT);<BR>void 
+CreateT(BT&amp;);<BR>void GetTree(BT&amp;, char[], int&amp;);<BR>void 
+DisplayA(BT, int);<BR>Boolean IsBST(BT);<BR>Boolean IsBT(BT);<BR>Boolean 
+IsPoss(char[]);<BR>void Enqueue(QueueNode&amp;, BT);<BR>BT 
+Dequeue(QueueNode&amp;);<BR><BR>void main 
+()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TreeArry 
+TArray;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BT 
+T;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T = new 
+BTreeNode;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T = 
+NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char 
+elem;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int count = 
+0;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt;"Enter a string of elements in preorder to be represented in a Binary 
+Tree." &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin.get(TArray, 
+MAT_STRING+1);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin.ignore(80, 
+'\n');<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(IsPoss(TArray))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GetTree(T, 
+TArray, 
+count);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\n\nAn inorder traversal of the tree 
+yields:\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InOrder(T);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\n\nA preorder traversal of the tree 
+yields:\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PreOrder(T);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\n\nA postorder traversal of the tree 
+yields:\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PostOrder(T);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\n\nA levelorder traversal of the tree yields: 
+\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LevelOrder(T);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(IsBST(T))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt;"\n\nThis tree is a binary search tree."&lt;&lt; 
+endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt;"\n\nThis tree is not a binary search tree."&lt;&lt; 
+endl;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt;"Press Enter key to continue."&lt;&lt; 
+endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin.get(elem);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt;" A horizonal representation of the tree without arcs is:"&lt;&lt; 
+endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DisplayA(T, 
+0);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "A binary tree cannot be built." &lt;&lt; endl;<BR>}<BR>void InOrder(BT 
+T)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (T == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout&lt;&lt;".";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else 
+if (T != NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InOrder(T-&gt;left);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; 
+T-&gt;element;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InOrder(T-&gt;right);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR>void 
+PreOrder(BT T)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (T == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt;".";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (T != 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; 
+T-&gt;element;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PreOrder(T-&gt;left);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PreOrder(T-&gt;right);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR>void 
+PostOrder(BT T)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (T == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt;".";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (T != 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PostOrder(T-&gt;left);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PostOrder(T-&gt;right);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; T-&gt;element;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR>void 
+LevelOrder(BT T)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;QueueNode 
+Q;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.front = 
+NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.rear = 
+NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.size = 
+0;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BT 
+N;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enqueue(Q,T);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while((Q.front 
+!= NULL) &amp;&amp; (Q.rear != 
+NULL))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N 
+= 
+Dequeue(Q);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(N == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; ".";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else if 
+(N != NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {&nbsp; 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+cout &lt;&lt; 
+N-&gt;element;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enqueue(Q, 
+N-&gt;left);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enqueue(Q, 
+N-&gt;right);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR>void 
+Enqueue(QueueNode&amp; Q, BT T)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Queue* 
+temp = new Queue;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp-&gt;Ptr = 
+T;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp-&gt;next = 
+NULL;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ((Q.front == NULL) &amp;&amp; 
+(Q.rear == 
+NULL))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.front 
+= Q.rear = 
+temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.size++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.rear-&gt;next 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.rear = 
+temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>BT Dequeue(QueueNode&amp; 
+Q)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Queue* 
+temp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ((Q.front == NULL) &amp;&amp; 
+(Q.rear == 
+NULL))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= 
+Q.front;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.front 
+= 
+Q.front-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(Q.front == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.rear 
+= 
+Q.front;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+temp-&gt;Ptr;<BR>}<BR><BR>int NumOfTs(BT 
+T)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (T == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+0;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+(NumOfTs(T-&gt;left) + NumOfTs(T-&gt;right)+ 
+1);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>}<BR>int Height(BT 
+T)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(T==NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+0;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return(Height(T-&gt;left) 
+&gt; Height(T-&gt;right) ? Height(T-&gt;left)+1: Height(T-&gt;right) + 
+1);<BR>}<BR>void GetTree(BT&amp; T, char TArray[],int&amp; 
+count)<BR>{<BR><BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(TArray[count] == 
+'\0')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T 
+= new 
+BTreeNode;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T-&gt;element 
+= 
+TArray[count];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count++;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(TArray[count] 
+== 
+'.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T-&gt;left 
+= 
+NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count++;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(TArray[count] 
+== 
+'.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T-&gt;right 
+= 
+NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GetTree(T-&gt;right,TArray,count);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GetTree(T-&gt;left,TArray,count);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(TArray[count] 
+== 
+'.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T-&gt;right 
+= 
+NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GetTree(T-&gt;right,TArray,count);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+DisplayA(BT T, int tabs)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (T!= 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tabs++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DisplayA(T-&gt;right, 
+tabs);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i 
+= 0; i &lt;= tabs; 
+i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt;'\t';<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; T-&gt;element &lt;&lt; endl &lt;&lt; 
+endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DisplayA(T-&gt;left, 
+tabs);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR>Boolean IsBT(BT T)<BR>{<BR>if 
+(T == NULL)<BR>{<BR>return TRUE; <BR>}<BR>else if (IsBST(T-&gt;left) &amp;&amp; 
+IsBST(T-&gt;right))<BR>{<BR>return TRUE;<BR>}<BR>else<BR>{<BR>return 
+FALSE;<BR>}<BR>}<BR>Boolean IsBST(BT T) 
+<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (T == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+TRUE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (T-&gt;left == NULL &amp;&amp; 
+T-&gt;right == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return 
+TRUE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (T-&gt;left == NULL &amp;&amp; 
+T-&gt;element &lt;= 
+T-&gt;right-&gt;element)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+return IsBST(T-&gt;right);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else if 
+(T-&gt;right == NULL &amp;&amp; T-&gt;element &gt; = 
+T-&gt;left-&gt;element)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+return IsBST(T-&gt;left);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (T-&gt;element &lt;=  
+  T-&gt;right-&gt;element &amp;&amp; T-&gt;element &gt;= 
+T-&gt;left-&gt;element)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+return IsBST(T-&gt;left) &amp;&amp; 
+IsBST(T-&gt;right);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+FALSE;<BR>} <BR>Boolean IsPoss(char 
+TArray[])<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Boolean 
+Poss;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int dot = 0, ch = 0, i = 
+0;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (TArray[0] == 
+'.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Poss = 
+FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (TArray[strlen(TArray) -1] != 
+'.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Poss = 
+FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(TArray[i] != 
+'.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(TArray[i] == 
+'.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dot++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ch++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(dot &gt; 
+ch)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(dot != ch + 
+1)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Poss 
+= 
+FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Poss 
+= 
+TRUE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Poss 
+= 
+FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+Poss;<BR>} </P>
+<hr>
+<P>bubsort.cpp: // BUBSORT.CPP<BR>// An implementation of a bubble sort 
+algorithm.<BR><BR>// compiler directives<BR>#include&lt;iostream.h&gt;<BR><BR>// 
+function prototypes<BR>void bubble_sort(int array[], int arrayLength);<BR>void 
+display_array(int input_array[], int input_size);<BR><BR>int main()<BR>{<BR>int 
+nums[5] = {20, 31, 17, 47, 14};<BR>int nums_length = 5;<BR><BR>cout &lt;&lt; 
+"Unsorted Array:\n";<BR>display_array(nums, 
+nums_length);<BR><BR>bubble_sort(nums, nums_length);<BR><BR>cout &lt;&lt; 
+"Sorted Array:\n";<BR>display_array(nums, nums_length);<BR>return 
+0;<BR>}<BR><BR>// Bubble sort function. Sorts an array of ints in descending 
+order.<BR>void bubble_sort(int array[], int arrayLength)<BR>{<BR>int i, j, flag 
+= 1;<BR>int temp;<BR><BR>for(i = 1; (i &lt;= arrayLength) &amp;&amp; flag; 
+i++)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; flag =  0;<BR>&nbsp;&nbsp;&nbsp;&nbsp; for(j = 0; j &lt; (arrayLength - i); 
+j++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if 
+(array[j + 1] &gt; array[j])<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; temp = array[j + 
+1];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; array[j + 1] = 
+array[j];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; array[j] = 
+temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; flag = 
+1;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>} </P>
+<P>int cToI(char number)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return((number) - 48);<BR>} </P>
+<hr>
+<P>infixp~1.cpp: /*<BR>Charles N. 
+Glover<BR>3-Apr-00<BR>Dr. Ng<BR>Data Structures<BR>*/<BR><BR><BR>#include 
+&lt;iostream.h&gt;<BR>#include &lt;string.h&gt;<BR>#include &lt;stdlib.h&gt;<BR><BR>const int MAX_STRING = 256;<BR>typedef 
+char expresson[MAX_STRING+1];<BR><BR>typedef int Boolean;<BR><BR>const TRUE = 1;<BR>const FALSE = 0;<BR><BR>enum category {Operand, Operator, 
+OpenParen, CloseParen};<BR><BR>struct 
+Operators<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char Op;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Operators* next;<BR>};<BR><BR>struct 
+Terms<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int val;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Terms* next;<BR>};<BR>typedef Terms* TermsPtr;<BR>typedef Operators* OperatorsPtr;<BR><BR>void PopO(OperatorsPtr&amp;);<BR>Boolean IsFullO(const OperatorsPtr);<BR>Boolean IsEmptyO(const OperatorsPtr);<BR>void CreateO(OperatorsPtr&amp;);<BR>void PushO(OperatorsPtr&amp;, char);<BR>void PopO(OperatorsPtr&amp;);<BR>void 
+TopO(const OperatorsPtr, char&amp;);<BR>category 
+TypeOfChar(char);<BR>void ProcessOperand(char, char[]);<BR>void ProcessCloseParen(OperatorsPtr&amp;, char[]);<BR>void ProcessOperator(OperatorsPtr&amp;, char, char[]);<BR>int Prec(char);<BR>void 
+ReadExpr(char[], int);<BR>void ConvToPost(const char[], 
+char[]);<BR>int Eval(int, int, char);<BR>int EvPost(char[]);<BR>Boolean 
+IsOperator(char);<BR>int CToI(char);<BR>void PopT(TermsPtr&amp;);<BR>Boolean 
+IsFullT(const TermsPtr);<BR>Boolean IsEmptyT(const 
+TermsPtr);<BR>void CreateT(TermsPtr&amp;);<BR>void PushT(TermsPtr&amp;, int);<BR>void PopT(TermsPtr&amp;);<BR>void 
+TopT(const TermsPtr, int&amp;);<BR><BR>void main()<BR>{<BR>expresson IEin;<BR>expresson PEout;<BR>char answer;<BR><BR>do{<BR><BR>cout 
+&lt;&lt; "What do you want to do? " &lt;&lt; endl<BR>&lt;&lt; "\t1)Convert from Infix to Postfix" &lt;&lt; 
+endl<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt; 
+"\t2)Evaluate Postfix Expression" &lt;&lt; endl<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt; 
+"\t3)Convert from Infix to Postfix and Evaluate" &lt;&lt; endl;<BR><BR>cin &gt;&gt; answer;<BR>}<BR>while ((answer != '1') &amp;&amp; 
+(answer != '2') &amp;&amp; (answer != '3'));<BR><BR>switch (answer)<BR>{<BR>case '1':<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ReadExpr(IEin, 
+MAX_STRING);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+cin.getline(IEin, MAX_STRING);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cout &lt;&lt; "got 
+expression" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ConvToPost(IEin, PEout);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cout &lt;&lt; PEout &lt;&lt; 
+endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<BR>case '2':<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ReadExpr(PEout, 
+MAX_STRING);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+cin.getline(PEout, MAX_STRING);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cout &lt;&lt; "The result of 
+the postfix expression is " &lt;&lt; EvPost(PEout) &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<BR>case '3':<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ReadExpr(IEin, 
+MAX_STRING);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+cin.getline(IEin, MAX_STRING);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ConvToPost(IEin, PEout);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cout &lt;&lt; "The postfix 
+expression is : " &lt;&lt; PEout &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cout &lt;&lt; "The result of 
+the postfix expression is " &lt;&lt; EvPost(PEout) &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<BR>}<BR><BR>return;<BR>}<BR>int CToI(char num)<BR>// 
+--------------------------------------------------------<BR>// Converts from a numeric character to an integer.<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return (num - 48);<BR>}<BR><BR>Boolean 
+IsOperator(char test)<BR>// 
+--------------------------------------------------------<BR>// Tests to see if a given character is an operator.<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return ((test == '+') || 
+(test == '-') || (test == '*') || (test == '/'));<BR>}<BR><BR>int EvPost(char PEout[])<BR>// 
+--------------------------------------------------------<BR>// Evaluates a Postfix expression. <BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+i = 0, term1, term2, ans;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TermsPtr T;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CreateT(T);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while ((PEout[i] != '\0') 
+&amp;&amp; (i &lt; MAX_STRING))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(!IsOperator(PEout[i]))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PushT(T, 
+CToI(PEout[i]));<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TopT(T, 
+term1);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PopT(T);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TopT(T, 
+term2);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PopT(T);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ans 
+= Eval(term1, term2, PEout[i]);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PushT(T, 
+ans);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TopT(T, ans);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return (ans);<BR>}<BR><BR>int 
+Eval(int val1, int val2, char oper)<BR>// 
+--------------------------------------------------------<BR>// Performs a given operation on two given values. <BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+answer;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch (oper)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case '+':<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;answer 
+= val1 + val2;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case '-':<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;answer 
+= val1 - val2;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case '*':<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;answer 
+= val1 * val2;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case '/':<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;answer 
+= val1 / val2;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return answer;<BR>}<BR><BR>void 
+ConvToPost(const char IEin[], char PEout[])<BR>// 
+--------------------------------------------------------<BR>// Converts an Infix expression to a Postfix expression.<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+OperatorsPtr S;<BR>&nbsp;&nbsp;&nbsp;&nbsp; char Ch, T;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+strcpy(PEout,"");<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; for (int i = 0; i &lt; 
+strlen(IEin); ++i)<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ch 
+= IEin[i];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+switch (TypeOfChar(Ch))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+case Operand:&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+ProcessOperand(Ch, PEout);&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+break;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+case OpenParen:&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+PushO(S, Ch);&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+break;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+case CloseParen:&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+ProcessCloseParen(S, PEout);&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+break;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+case Operator:&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+ProcessOperator(S, Ch, PEout);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; while (!IsEmptyO(S))<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TopO(S, 
+T);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+PopO(S);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+strncat(PEout, &amp;T, 1);<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>}<BR><BR>int 
+Prec(char Op)<BR>// 
+--------------------------------------------------------<BR>// Computes the precedence of an operator.<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; enum 
+precedence {LOWEST, MID, HIGHEST};<BR>&nbsp;&nbsp;&nbsp;&nbsp; switch (Op)<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 
+'+': case '-' :&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+return MID;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 
+'*': case '/' :&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+return HIGHEST;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+default :&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+return LOWEST;<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>}<BR><BR>category 
+TypeOfChar(char Ch)<BR>// 
+--------------------------------------------------------<BR>// Categorizes a character.<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; switch 
+(Ch)<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 
+'+': case '-': case '*': case '/' :<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+return Operator;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 
+'(':<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+return OpenParen;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 
+')':<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+return CloseParen;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+default :<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+return Operand;<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>}<BR><BR>void 
+ProcessOperand(char Ch, char PEout[])<BR>// 
+--------------------------------------------------------<BR>// Processes operands.<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;strncat(PEout, &amp;Ch, 
+1);<BR>}<BR><BR>void ProcessCloseParen(OperatorsPtr&amp; S, char 
+PEout[])<BR>// 
+--------------------------------------------------------<BR>// Processes right parentheses.<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; char 
+T;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+TopO(S, T);<BR>&nbsp;&nbsp;&nbsp;&nbsp; while (T != '(')<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+strncat(PEout, &amp;T, 1);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+PopO(S);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+TopO(S, T);<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+PopO(S);<BR>}<BR><BR>void ProcessOperator(OperatorsPtr&amp; S, char Ch, char 
+PEout[])<BR>// 
+--------------------------------------------------------<BR>// Processes operators.<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; char 
+T;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+Boolean Done = FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp; while 
+(!IsEmptyO(S) &amp;&amp; !Done)<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+TopO(S, T);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( 
+(T != '(') &amp;&amp; (Prec(T) &gt;= Prec(Ch)) )<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+strncat(PEout, &amp;T, 1);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+PopO(S);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+else&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+Done = TRUE;<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; PushO(S, 
+Ch);<BR>}<BR><BR>void ReadExpr(char IEin[], int ExprLength)<BR>// 
+--------------------------------------------------------<BR>// Reads an expression from standard input.<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; cout 
+&lt;&lt; "Enter infix expression of no more than " &lt;&lt; ExprLength &lt;&lt; 
+" characters:\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp; cin.get(IEin, 
+ExprLength+1);<BR>&nbsp;&nbsp;&nbsp;&nbsp; cin.ignore(80, 
+'\n');<BR>}<BR><BR>void PopO(OperatorsPtr&amp; S)<BR>// 
+--------------------------------------------------------<BR>// S is PopOped. The value at the TopO of the stack is <BR>// removed. <BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(S)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S 
+= S -&gt; next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<BR>}<BR><BR>void 
+PushO(OperatorsPtr&amp; S, char New)<BR>// 
+--------------------------------------------------------<BR>// temp is PushOed onto the TopO of the stack, S<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OperatorsPtr temp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= new Operators;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+-&gt; Op = New;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (IsEmptyO(S))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S 
+-&gt; next = NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+-&gt; next = S;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>Boolean 
+IsEmptyO(const OperatorsPtr S)<BR>// 
+--------------------------------------------------------<BR>// variable is tested to see wether or not it is empty<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return (S == NULL);<BR>}<BR><BR>void 
+CreateO(OperatorsPtr&amp; S)<BR>// 
+--------------------------------------------------------<BR>// an initialized list is retruned that will points to <BR>// null<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S = 
+NULL;<BR>}<BR><BR>Boolean IsFullO(const OperatorsPtr S)<BR>// 
+--------------------------------------------------------<BR>// List is tested to see wether or not it is full. <BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return FALSE;<BR>}<BR><BR>void 
+TopO(const OperatorsPtr S, char&amp; T)<BR>// 
+--------------------------------------------------------<BR>// Returns the value at the TopO of a stack. <BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(!IsEmptyO(S))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "S is not empty" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "this is S-&gt;Op" &lt;&lt; S-&gt;Op &lt;&lt;endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T 
+= S -&gt; Op;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>//<BR><BR>void PopT(TermsPtr&amp; S)<BR>// 
+--------------------------------------------------------<BR>// S is PopOped. The value at the TopO of the stack is <BR>// removed. <BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(S)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S 
+= S -&gt; next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<BR>}<BR><BR>void 
+PushT(TermsPtr&amp; S, int New)<BR>// 
+--------------------------------------------------------<BR>// temp is PushOed onto the TopO of the stack, S<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TermsPtr temp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= new Terms;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp -&gt; 
+val = New;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (IsEmptyT(S))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S 
+-&gt; next = NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+-&gt; next = S;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>Boolean 
+IsEmptyT(const TermsPtr S)<BR>// 
+--------------------------------------------------------<BR>// variable is tested to see wether or not it is empty<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return (S == NULL);<BR>}<BR><BR>void 
+CreateT(TermsPtr&amp; S)<BR>// 
+--------------------------------------------------------<BR>// an initialized list is retruned that will points to <BR>// null<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S = 
+NULL;<BR>}<BR><BR>Boolean IsFullT(const TermsPtr S)<BR>// 
+--------------------------------------------------------<BR>// List is tested to see wether or not it is full. <BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return FALSE;<BR>}<BR><BR>void 
+TopT(const TermsPtr S, int&amp; T)<BR>// 
+--------------------------------------------------------<BR>// Returns the value at the TopO of a stack. <BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(!IsEmptyT(S))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T 
+= S -&gt; val;<BR>}<BR><BR>// Insertion sort function. Sorts an array of ints in 
+descending order.<BR>void insertion_sort(int array[], int 
+array_length)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; int j, i, key;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; for (j = 
+1; j &lt; array_length; j++)<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+key = array[j];<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 
+Move all values smaller then key up one position.<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for 
+(i = j - 1; (i &gt;= 0) &amp;&amp; (array[i] &lt; key); i--)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+array[i + 1] = array[i];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+array[i + 1] = key; // insert key into proper position<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>}<BR><BR>// Quicksort procedure. Sorts an 
+array of ints in descending order.<BR>void quicksort(int 
+input_array[], int top, int bottom)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; int middle;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; if (top 
+&lt; bottom)<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+middle = partition(input_array, top, bottom);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+quicksort(input_array, top, middle);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// sort top 
+partition<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+quicksort(input_array, middle + 1, bottom); // sort bottom partition<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>}<BR><BR>// partitions input_array, 
+returning middle index. Used by procedure quicksort.<BR>int 
+partition(int input_array[], int top, int bottom)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; int x = input_array[top];<BR>&nbsp;&nbsp;&nbsp;&nbsp; int i = top - 1;<BR>&nbsp;&nbsp;&nbsp;&nbsp; int j = bottom + 1;<BR>&nbsp;&nbsp;&nbsp;&nbsp; int temp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; do<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 
+move j towards top to the next element less than or equal to x.<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+do<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+j--;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+while(x &gt; input_array[j]);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 
+move j towards bottom to the next element greater than or equal to x.<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+do<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+i++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+while(x &lt; input_array[i]);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if 
+(i &lt; j)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+// switch elements at positions i and j.<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+temp = input_array[i];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+input_array[i] = input_array[j];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+input_array[j] = temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp; } while(i &lt; 
+j);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// loop ends when i and j have met in the 
+middle.<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; return 
+j;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// j and above represents top partition, below j 
+is bottom partition.<BR>}<BR><BR>// Function that simply displays each element of 
+input_array.<BR>void display_array(int input_array[], int 
+input_size)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; int i;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; input_size; 
+i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cout 
+&lt;&lt; input_array[i] &lt;&lt; ' ';<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp; cout &lt;&lt; "\n\n";<BR>}</P>
+<P>&nbsp;int primeTest(double num)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double addsqr; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool ans = 1; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 3; i &lt;= 
+int(sqrt(num)) &amp;&amp; ans == 1; i+=2) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(int((num - i*i) / (2*i)) == (num - i*i) / (2*i)) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ans 
+= 0; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return ans; <BR>}</P>
+<P>&nbsp;int primeTest(int num)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+ans = 0;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 2; i 
+&lt;= sqrt(num) &amp;&amp; ans == 0; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(num % i == 0)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; i &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ans++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return ans;<BR>}</P>
+<P>matrix.h: #ifndef _MATRIX_H<BR>#define _MATRIX_H<BR><BR>#include "vector.h"<BR>#include &lt;stdlib.h&gt;<BR>#include 
+&lt;iostream.h&gt;<BR><BR>template 
+&lt;class itemType&gt;<BR>class matrix<BR>{<BR>public:&nbsp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; // 
+constructors/destructor<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+matrix(); // default size 0 x 0<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+matrix(int rows, int cols);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// size rows x cols<BR>&nbsp;&nbsp;&nbsp;&nbsp; matrix(int rows, int cols, const 
+itemType &amp; fillValue); // set fill value<BR>&nbsp;&nbsp;&nbsp;&nbsp; matrix(const matrix &amp; 
+mat);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// copy constructor<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+~matrix();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// destructor<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; // 
+operator overloads<BR>&nbsp;&nbsp;&nbsp;&nbsp; matrix &amp; 
+operator = (matrix &amp; rhs);<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+vector &lt;itemType&gt; &amp; operator [] (int k); // range-checked indexing<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; // member 
+functions<BR>&nbsp;&nbsp;&nbsp;&nbsp; int numrows() const; 
+// number of rows<BR>&nbsp;&nbsp;&nbsp;&nbsp; int numcols() 
+const; // number of columns<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+void resize( int newRows, int newCols ); // resizes matrix to newRows x 
+newCols<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+// (can result in losing values)<BR>private:<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; int 
+myRows; // # of rows (capacity)<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+int myCols; // # of cols (capacity)<BR>&nbsp;&nbsp;&nbsp;&nbsp; vector &lt; vector 
+&lt;itemType&gt; &gt; myMatrix; // the matrix of items<BR>};<BR><BR>template &lt;class itemType&gt;<BR>matrix&lt;itemType&gt;::matrix() : myRows(0), myCols(0), 
+myMatrix(0)<BR>{<BR>}<BR><BR>template &lt;class itemType&gt;<BR>matrix&lt;itemType&gt;::matrix(int rows,int cols) : 
+myRows(rows), myCols(cols), myMatrix(rows)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; for(int k=0; k &lt; rows; k++)<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myMatrix[k].resize(cols);<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>matrix&lt;itemType&gt;::matrix(int rows, int cols, const 
+itemType &amp; fillValue) : myRows(rows), myCols(cols), myMatrix(rows)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; int 
+j,k;<BR>&nbsp;&nbsp;&nbsp;&nbsp; for(j=0; j &lt; rows; 
+j++)<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myMatrix[j].resize(cols);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+for(k=0; k &lt; cols; k++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myMatrix[j][k] = fillValue;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>}<BR><BR>template &lt;class itemType&gt;<BR>matrix&lt;itemType&gt;::matrix(const matrix&lt;itemType&gt; 
+&amp; mat) : myRows(mat.myRows), myCols(mat.myCols), myMatrix(mat.myRows)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; for(int 
+k = 0; k &lt; myRows; k++) // copy elements<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 
+cast to avoid const problems (const -&gt; non-const)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myMatrix[k] = (vector &lt;itemType&gt; &amp;) mat.myMatrix[k];<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>}<BR><BR>template &lt;class itemType&gt;<BR>matrix&lt;itemType&gt;::~matrix()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; // 
+vector destructor frees everything<BR>}<BR><BR>template &lt;class itemType&gt;<BR>matrix&lt;itemType&gt; &amp;<BR>matrix&lt;itemType&gt;::operator = (matrix&lt;itemType&gt; 
+&amp; rhs)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; if (this != &amp;rhs) // don't 
+assign to self!<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myMatrix.resize(rhs.myRows); // resize to proper # of rows<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myRows = rhs.myRows; // set dimensions<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myCols = rhs.myCols;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 
+copy rhs<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+for(int k=0; k &lt; myRows; k++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myMatrix[k] = rhs.myMatrix[k];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp; return *this;<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>int 
+matrix&lt;itemType&gt;::numrows() const<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; return myRows;<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>int 
+matrix&lt;itemType&gt;::numcols() const<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; return myCols;<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>void 
+matrix&lt;itemType&gt;::resize(int newRows, int newCols)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+myMatrix.resize(newRows);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; for(int k=0; k &lt; newRows; 
+k++)<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myMatrix[k].resize(newCols);<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+}<BR>&nbsp;&nbsp;&nbsp;&nbsp; myRows = newRows;<BR>&nbsp;&nbsp;&nbsp;&nbsp; myCols = newCols;<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>vector&lt;itemType&gt; &amp;<BR>matrix&lt;itemType&gt;::operator [] (int k)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; if (k 
+&lt; 0 || myRows &lt;= k)<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cerr 
+&lt;&lt; "Illegal matrix index: " &lt;&lt; k &lt;&lt; " max index = "<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+&lt;&lt; myRows-1 &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+abort();<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp; return myMatrix[k];<BR>}<BR><BR>#endif 
+<hr>
+memory.cpp: class Job<BR>{<BR>public: 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int prognum; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int progtime; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int segments; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int size[4]; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int start[4]; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int end[4]; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int inMem[4]; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clock_t stime; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void readline(ifstream&amp; 
+fin) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fin 
+&gt;&gt; prognum <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt; 
+progtime <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt; 
+segments <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt; 
+size[0] <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt; 
+size[1] <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt; 
+size[2] <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt; 
+size[3]; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stime 
+= clock();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Job()<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prognum 
+= 0; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;progtime 
+= 0; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;segments 
+= 0; <BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(int i = 0; i &lt; 4; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size[i] 
+= 0; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start[i] 
+= -1; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end[i] 
+= -1; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inMem[i] 
+= 0; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <BR>};<BR><BR>void 
+allocate(int* [], Job&amp;, void*);<BR>void dealloc(int* 
+[], Job&amp;);<BR>void writeMem(int* [], ofstream&amp;);<BR>int checkJob(int* [], Job); <BR>int 
+numCells(int* [], int); <BR>int find(int* [], int); <BR>int min(int* [], int); <BR>int 
+max(int* []);<BR><BR>void 
+allocate(int* p[], Job&amp; which, void* a) <BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; 
+which.segments; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(which.inMem[i] == 0) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;which.start[i] 
+= find(p, which.size[i]); <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(which.start[i] &gt;= 0) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;which.end[i] 
+= which.start[i] + (which.size[i])/4; <BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(int j = which.start[i]; j &lt; which.end[i]; j++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(j == 0) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p[0] 
+= (int*) a; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p[j] 
+= p[j-1] + 1; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;which.inMem[i] 
+= 1; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;which.start[i] 
+= -1; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+state = checkJob(p, which); <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(state == which.segments) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;which.stime 
+= clock();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <BR>}<BR><BR>int 
+checkJob(int* p[], Job which) <BR>/* counts the number of 
+job segments <BR>in memory or that have been processed*/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+count = 0; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int j = 
+0; j &lt; which.segments; j++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (which.inMem[j] == 1) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return count; <BR>}<BR><BR>void 
+dealloc(int* p[], Job&amp; which) <BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while ((clock() - 
+which.stime) &lt; which.progtime) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; 
+which.segments; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(which.inMem[i] == 1) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(int j = which.start[i]; j &lt; which.end[i]; j++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p[j] 
+= 0; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;which.start[i] 
+= 0; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;which.end[i] 
+= 0; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;which.inMem[i] 
+= 2; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <BR>}<BR><BR>int 
+find(int* p[], int size) <BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int loc = -1, start, end; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; 
+256-(size/4) &amp;&amp; loc == -1; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start 
+= min(p, i); <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end 
+= start + (size/4); <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(p[end-1] == 0) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loc 
+= start; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return loc; <BR>}<BR><BR>void 
+writeMem(int* p[], ofstream&amp; fout) <BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; 256; 
+i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fout 
+&lt;&lt; p[i]; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(i % 8 == 7) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fout 
+&lt;&lt; endl; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fout 
+&lt;&lt; '\t'; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fout &lt;&lt; endl; <BR>}<BR><BR>int 
+min(int* p[], int start) <BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int min = -1; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = start; i &lt; 
+256 &amp;&amp; min == -1; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(p[i] == 0) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min 
+= i; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return min; <BR>}
+<hr>
+<BR>multiply.cpp: /* <BR>Charles N. Glover<BR>14-Feb-00<BR>Data Structures<BR>Assignment #1<BR>Dr. Ng<BR>*/<BR><BR>/**************************************************************************************<BR><BR>The purpose of this program is to 
+calculare the product of any two given numbers, whose<BR>size can be anything leading up to, but not exceeding 
+twenty (20) digits. <BR><BR>**************************************************************************************/<BR><BR><BR>#include 
+&lt;iostream.h&gt;<BR>#include &lt;string.h&gt;<BR><BR>typedef int Boolean;<BR><BR>const TRUE = 1;<BR>const FALSE = 0;<BR><BR>struct Number<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int number[41];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char num[41];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int len;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Boolean isNegative;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int arrLen;<BR>};<BR><BR>int 
+CToI(char);<BR>char IToC(int);<BR>void 
+FillArr(int[], int);<BR>Boolean negTest (Number&amp;);<BR>void deleteFirst(Number&amp;);<BR>void 
+delFirst(Number&amp;);<BR>void getNum(Number&amp;, 
+int&amp;);<BR>void multiply(Number, Number, 
+Number&amp;);<BR>void insertIntAt(Number&amp;, int, 
+int);<BR>void placeCom(Number&amp;);<BR>void insertCharAt(Number&amp;, char, int);<BR>void FillCharArr(char [], int);<BR>void DrawLine(Number);<BR><BR>void main()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number num1,<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num2, 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num3;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num1.isNegative = FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num2.isNegative = FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int i;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i = 0; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getNum(num1, i); <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getNum(num2, i); <BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FillArr(num3.number, 40);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;multiply(num1, num2, 
+num3);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ((num1.isNegative != 
+num2.isNegative))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num3.num[0] 
+= '-';<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (; num3.number[0] == 0 
+&amp;&amp; num3.len &gt; 0;)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delFirst(num3);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (num3.len == 0)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num3.len 
+= 1; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num3.number[0] 
+= 0;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(i = 0; i &lt; num3.len; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num3.num[i] 
+= IToC(num3.number[i]);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;placeCom(num1);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;placeCom(num2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;placeCom(num3);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ((num1.isNegative != 
+num2.isNegative))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;insertCharAt(num3, 
+'-', 0);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (num1.isNegative)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;insertCharAt(num1, 
+'-', 0);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (num2.isNegative)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;insertCharAt(num2, 
+'-', 0);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; '\t'; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (i = 0; i &lt; 
+num1.arrLen-1; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; num1.num[i];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; endl;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; "* )\t";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (i = 0; i &lt; 
+num2.arrLen-1; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; num2.num[i];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DrawLine(num3); <BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(i = 0; i &lt; num3.arrLen-1; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; num3.num[i]; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<BR>}<BR><BR>void 
+FillArr(int number[], int length)<BR>/**************************************************************************************<BR>This function is used to initialize an integer array. <BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+i; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (i = 0; i &lt;= 
+length; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number[i] 
+= 0;<BR>}<BR><BR><BR>int CToI(char num)<BR>/**************************************************************************************<BR>This function is used to convert between characters and 
+integers.<BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return (num - 48);<BR>}<BR><BR>char 
+IToC(int number)<BR>/**************************************************************************************<BR>This function is used to convert between integers and 
+characters.<BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return (number + 48);<BR>}<BR><BR>Boolean 
+negTest (Number&amp; number)<BR>/**************************************************************************************<BR>This function is used to test a number for its 
+negativity<BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(number.num[0] == '-')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.isNegative 
+= !number.isNegative; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deleteFirst(number);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+(number.isNegative);<BR>}<BR><BR>void deleteFirst (Number&amp; number)<BR>/**************************************************************************************<BR>This functiion deletes the first character of a character 
+array<BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(int i = 1; i &lt; number.len; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.num[i 
+- 1] = number.num[i];<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.len -= 1;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.arrLen-= 1;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>}<BR><BR>void delFirst (Number&amp; 
+number)<BR>/**************************************************************************************<BR>This function deletes the first character of an integer 
+array<BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(int i = 1; i &lt; number.len; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.number[i 
+- 1] = number.number[i];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.len -= 1;<BR>}<BR><BR>void 
+getNum(Number&amp; number, int&amp; j)<BR>/**************************************************************************************<BR>This function gets a number as a character, test its 
+negativity, and converts it to <BR>an integer<BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; "Input the 
+";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (j == 0)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{cout 
+&lt;&lt; "first ";}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{cout 
+&lt;&lt; "second ";}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "number\t --&gt; ";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin &gt;&gt; number.num;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.len = 
+strlen(number.num);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.arrLen = number.len + 
+1;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.isNegative = 
+negTest(number);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; 
+number.len; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.number[i] 
+= CToI(number.num[i]);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j++;<BR>}<BR><BR>void 
+multiply(Number number1, Number number2, Number&amp; number3)<BR>/**************************************************************************************<BR>This functin multiplys number1 and number2, and stores the 
+result in number3<BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+i, j;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (i = 0; i &lt; 
+number1.len; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(j = 0; j &lt; number2.len; j++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number3.number[i 
++ j] = number1.number[i] * number2.number[j] + number3.number[i + j];<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number3.len = number1.len + 
+number2.len; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;insertIntAt(number3, 0, 
+0);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (i = number3.len - 1; i 
+&gt; 0; i--)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(number3.number[i] &gt;= 10)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number3.number[i 
+- 1] += number3.number[i] / 10;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number3.number[i] 
+= number3.number[i] % 10;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number3.arrLen = 
+number3.len;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<BR>}<BR><BR>void 
+insertIntAt(Number &amp;number, int c, int pos)<BR>/**************************************************************************************<BR>This function inserts an integer at a selected position in 
+an integer array. <BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+i;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (i = number.len - 1; i 
+&gt; pos; i --)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.number[i] 
+= number.number[i - 1];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.number[pos] = c;<BR>}<BR><BR>void 
+insertCharAt(Number &amp;number, char c, int pos)<BR>/**************************************************************************************<BR>This function inserts a character at a selected position in 
+an character array. <BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+i;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (i = number.arrLen; i 
+&gt; pos; i --)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.num[i] 
+= number.num[i - 1];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.num[pos] = c;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number.arrLen++;<BR><BR>}<BR><BR>void placeCom (Number &amp;number)<BR>/**************************************************************************************<BR>This function places commas into a number stored as a 
+character<BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(int i = number.arrLen - 4; i &gt; 0; i = i - 3)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;insertCharAt(number, 
+',', i);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+DrawLine(Number number)<BR>/**************************************************************************************<BR>this dunction draws a line. <BR>**************************************************************************************/<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(int i = 0; i &lt;= number.arrLen; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; '-'; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; endl;<BR>} </P>
+<P>queue.h: #ifndef _QUEUE_H<BR>#define _QUEUE_H<BR><BR>// uncomment line below if bool 
+not built-in type<BR>#include "bool.h"<BR><BR>#include "vector.h" // used to 
+implement queue<BR>#include &lt;stdlib.h&gt;<BR><BR>const int QDEFAULT_SIZE = 10; // 
+default initial queue size<BR><BR>template &lt;class itemType&gt;<BR>class queue<BR>{<BR>public:<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; // constructors/destructor<BR>&nbsp;&nbsp;&nbsp;&nbsp; queue(); // construct empty 
+queue<BR>&nbsp;&nbsp;&nbsp;&nbsp; queue(const queue &amp; 
+q); // copy constructor<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+~queue(); // destructor<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; // operator overloads<BR>&nbsp;&nbsp;&nbsp;&nbsp; const queue &amp; operator = 
+(queue &amp; rhs);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; // member functions<BR>&nbsp;&nbsp;&nbsp;&nbsp; const itemType &amp; front(); // 
+return front (no dequeue)<BR>&nbsp;&nbsp;&nbsp;&nbsp; const 
+itemType &amp; dequeue(); // return the front element<BR>&nbsp;&nbsp;&nbsp;&nbsp; bool isEmpty() const; // return 
+true if empty else false<BR>&nbsp;&nbsp;&nbsp;&nbsp; int 
+length() const; // return number of elements in queue<BR>&nbsp;&nbsp;&nbsp;&nbsp; void enqueue(const itemType &amp; 
+item); // insert item (at rear)<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+void flush(); // empty the queue<BR><BR>private:<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; int mySize; // # of elts currently 
+in queue<BR>&nbsp;&nbsp;&nbsp;&nbsp; int myFront; // index 
+of first element<BR>&nbsp;&nbsp;&nbsp;&nbsp; int myBack; // 
+index of last element<BR>&nbsp;&nbsp;&nbsp;&nbsp; vector 
+&lt;itemType&gt; myElements; // internal storage for elements<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; // 
+private helper functions<BR>&nbsp;&nbsp;&nbsp;&nbsp; void 
+DoubleQueue(); // double storage for myElements<BR>&nbsp;&nbsp;&nbsp;&nbsp; void Increment(int &amp; val) 
+const; // add one with wraparound<BR>};<BR><BR>template &lt;class itemType&gt;<BR>queue &lt;itemType&gt;::queue()<BR>: 
+mySize(0), myFront(0), myBack( -1 ), myElements(QDEFAULT_SIZE)<BR>{<BR>}<BR><BR>template &lt;class itemType&gt;<BR>queue &lt;itemType&gt;::queue(const queue &lt;itemType&gt; 
+&amp; q)<BR>: mySize(q.mySize), myFront(q.myFront), 
+myBack(q.myBack), myElements(q.myElements)<BR>{<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>queue 
+&lt;itemType&gt;::~queue()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; // vector destructor takes care of 
+memory<BR>}<BR><BR>template &lt;class itemType&gt;<BR>const queue &lt;itemType&gt; &amp; queue 
+&lt;itemType&gt;::operator = (queue &lt;itemType&gt; &amp; rhs)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; if( this 
+!= &amp;rhs)<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+mySize = rhs.mySize; // copy all fields of rhs<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myElements.resize(rhs.myElements.length()); // resize storage<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myFront = 0;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myBack = mySize - 1; // index from 0 .. mySize - 1<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int 
+k;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int 
+rhsk = rhs.myFront;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+for(k=0; k &lt; mySize; k++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+myElements[k] = rhs.myElements[rhsk];<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+Increment(rhsk);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp; return *this;<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>const itemType &amp; queue 
+&lt;itemType&gt;::front()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; return myElements[myFront];<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>bool queue 
+&lt;itemType&gt;::isEmpty() const<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; return mySize == 0;<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>int queue 
+&lt;itemType&gt;::length() const<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; return mySize;<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>void queue 
+&lt;itemType&gt;::enqueue(const itemType &amp; item)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+if(mySize &gt;= myElements.length()) // grow if necessary to add element<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+DoubleQueue();<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+Increment(myBack); // add element at back of queue<BR>&nbsp;&nbsp;&nbsp;&nbsp; myElements[myBack] = item;<BR>&nbsp;&nbsp;&nbsp;&nbsp; mySize++;<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>const itemType &amp; queue 
+&lt;itemType&gt;::dequeue()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; int oldFront;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+if(isEmpty())<BR>&nbsp;&nbsp;&nbsp;&nbsp; {<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cerr 
+&lt;&lt; "dequeue from empty queue" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+abort();<BR>&nbsp;&nbsp;&nbsp;&nbsp; }<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; mySize--; 
+// one fewer element<BR>&nbsp;&nbsp;&nbsp;&nbsp; oldFront = 
+myFront;<BR>&nbsp;&nbsp;&nbsp;&nbsp; Increment(myFront);<BR>&nbsp;&nbsp;&nbsp;&nbsp; return myElements[oldFront];<BR>}<BR><BR>template 
+&lt;class itemType&gt;<BR>void queue 
+&lt;itemType&gt;::flush()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; mySize = 0;<BR>&nbsp;&nbsp;&nbsp;&nbsp; myFront = 0;<BR>&nbsp;&nbsp;&nbsp;&nbsp; myBack = -1;<BR>}<BR><BR><BR>template &lt;class itemType&gt;<BR>void queue &lt;itemType&gt;::Increment(int &amp; val) 
+const<BR>{<BR>val++;<BR>if(val &gt;= myElements.length() )<BR>{<BR>val = 0;<BR>}<BR>}<BR><BR>template &lt;class itemType&gt;<BR>void queue &lt;itemType&gt;::DoubleQueue()<BR>{<BR>vector&lt;itemType&gt; 
+temp(myElements.length()*2); // new storage<BR>int j, 
+k=myFront; // copy to 0..<BR>for(j=0; j &lt; mySize; 
+j++)<BR>{<BR>temp[j] = 
+myElements[k];<BR>Increment(k);<BR>}<BR>myElements = temp; // reset 
+private vars to mirror new storage<BR>myFront = 0;<BR>myBack = mySize-1;<BR>}<BR><BR>#endif 
+<hr>
+stack.cpp: #include 
+&lt;iostream.h&gt;<BR>#include &lt;string.h&gt;<BR><BR>struct Stack <BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* next;<BR>};<BR><BR>void 
+dispStack(Stack*);<BR>void push(Stack*&amp;, int);<BR>void sortLowHigh(Stack*);<BR>void 
+pop(Stack*&amp;);<BR>void pop(Stack*&amp;, int&amp;);<BR>void sortHighLow(Stack*);<BR>void 
+concat(Stack*&amp;, Stack*&amp;);<BR>int 
+getLength(Stack*);<BR>//int operator[](Stack*, int);<BR>//Stack* operator+ (Stack*, Stack*);<BR>//Stack* operator+ (int);<BR><BR>void main()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack *first = NULL, *second 
+= NULL, *third = NULL, *temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int value, loc;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int option;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(first, 1);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(first, 2);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(first, 3);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(second, 4);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(second, 5);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(second, 6);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(third, 7);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(third, 8);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(third, 9);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;do<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "What do you want to do? " &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"1)Push 
+1\t" &lt;&lt; "Push 2\t" &lt;&lt; "Push 3\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"2)SortHighLow\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"3)SortLowHigh\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"4)DispStack\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"5)Pop\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"6)Quit\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"7)Access\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"8)Length\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"9)Concatenate\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"10)Pop 
+to Seperate Stack\n";<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; option;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch 
+(option) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+5:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pop(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+1:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "Enter a value to be stored in the Stack. "&lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(first, 
+value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+3:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sortLowHigh(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+2:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sortHighLow(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+4:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(second);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(third);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+break;<BR>/*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+7:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "first[" &lt;&lt; value &lt;&lt; "] = " &lt;&lt; first[value] &lt;&lt; 
+endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;*/<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+8:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "Length = " &lt;&lt; getLength(first) &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+9:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "what do you want me to add it to?" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\t1)first\n\t2)second\n\t3)third\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch 
+(value)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+1:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;concat(first, 
+first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+2:<BR>//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;concat(first, 
+second);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= second;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(temp)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pop(temp, 
+value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(first, 
+value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(second);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+3:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;concat(first, 
+third);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(third);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "try again" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+10:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pop(first, 
+value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(second, 
+value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dispStack(second);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "You entered a bad letter, try again" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} while (option != 6);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<BR>}<BR><BR>void 
+push(Stack*&amp; curr, int value)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* newItem;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newItem = new Stack;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newItem-&gt;value = value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (curr == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newItem-&gt;next 
+= NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newItem-&gt;next 
+= curr;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;curr = newItem;<BR>}<BR><BR>int 
+getLength(Stack* curr)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* temp = curr;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; temp != NULL; 
+i++, temp = temp-&gt;next)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return i;<BR>}<BR><BR>/*int 
+StackNode::operator[](int value)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp = list;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (value &gt;= length)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value 
+= value % length;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; value 
+&amp;&amp; temp != NULL; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= temp-&gt; next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return temp-&gt;value;<BR>}*/<BR><BR>/*StackNode StackNode::operator+(StackNode temp)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+val;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;StackNode temp2;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (temp.length != 0)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp.pop(val);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp2.push(val);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return temp2;<BR>}*/<BR><BR>void 
+concat(Stack*&amp; curr, Stack*&amp; add)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* temp = add;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int val;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (add)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; getLength(add) &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pop(add, 
+val);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(curr, 
+val);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; getLength(temp) 
+&lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add = 
+temp;<BR>}<BR><BR><BR>/*StackNode 
+StackNode::operator+(int number)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(number);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return *this;<BR>}*/<BR><BR>void 
+dispStack(Stack* curr)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int val;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(curr == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "There are no items in this Stack" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= curr;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+i = 1;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "{";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(temp)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; temp-&gt;value &lt;&lt; " ";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= temp-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "}" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+sortLowHigh(Stack* curr)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* test1;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* test2;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int temp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(curr == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "The Stack cannot be sorted because there are no Items in the 
+Stack"&lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (curr-&gt;next == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; curr-&gt;value &lt;&lt; endl; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1 
+= curr; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= curr-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(test1-&gt;next)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(test2)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(test2-&gt;value &lt; test1-&gt;value)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= test1-&gt;value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1-&gt;value 
+= test2-&gt;value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2-&gt;value 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= test2-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1 
+= test1-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= test1-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+sortHighLow(Stack* curr)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* test1;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* test2;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int temp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(curr == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "The Stack cannot be sorted because there are no Items in the 
+Stack"&lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (curr-&gt;next == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; curr-&gt;value &lt;&lt; endl; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1 
+= curr; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= curr-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(test1-&gt;next)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(test2)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(test2-&gt;value &gt; test1-&gt;value)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= test1-&gt;value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1-&gt;value 
+= test2-&gt;value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2-&gt;value 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= test2-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1 
+= test1-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= test1-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+pop(Stack*&amp; curr)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (curr)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* 
+temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= curr-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete 
+curr;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;curr 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>void pop(Stack*&amp; curr, int&amp; value)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(curr)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* 
+temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value 
+= curr-&gt;value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= curr-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete 
+curr;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;curr 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>int 
+stringlength(char *string_in)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp; int countlength = 0;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+while(string_in[countlength] != '\0')<BR>&nbsp;&nbsp;&nbsp;&nbsp; countlength++;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp; 
+return(countlength);<BR>} </P>
+<hr>
+<P>stack2.cpp: #include &lt;iostream.h&gt;<BR><BR>class Stack<BR>{<BR>public:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack(int max);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;~Stack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void push(int v);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int pop();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int empty();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void dispStack();<BR>private:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct node<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ int key; struct node *next; 
+};<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct node *head, 
+*z;<BR>};<BR><BR>Stack::Stack(int max)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;head = new node;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;z = new node;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;head -&gt; next = z;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;z -&gt; next = z;<BR>}<BR><BR>Stack::~Stack()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct node *t = head;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (t != z)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;head 
+= t;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t 
+= t -&gt; next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete 
+head;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+Stack::push(int v)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct node *t = new node;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t-&gt;key = v;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t -&gt; next = head -&gt; 
+next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;head -&gt; next = 
+t;<BR>}<BR><BR>int Stack::pop()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int x;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct node *t = head -&gt; 
+next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;head -&gt; next = t 
+-&gt; next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x = t -&gt; 
+key;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete t;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return x;<BR>}<BR><BR>int 
+Stack::empty()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return head -&gt; next == 
+z;<BR>}<BR><BR>void Stack::dispStack()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct node *temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int val;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(empty())<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "There are no items in this Stack" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= head;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+i = 1;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "{";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(!empty())<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; temp-&gt;key &lt;&lt; " ";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= temp-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(i % 20 == 0)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; val;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; val;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "}" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+main()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack first(0);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack second(0);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack third(0);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int value, loc;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int option;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.push(1);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.push(2);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.push(3);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.push(4);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.push(5);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.push(6);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;third.push(7);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;third.push(8);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;third.push(9);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;do<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "What do you want to do? " &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"1)Push 
+1\t" &lt;&lt; "Push 2\t" &lt;&lt; "Push 3\t\n"<BR>//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"2)SortHighLow\n"<BR>//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"3)SortLowHigh\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"4)DispStack\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"5)Pop\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"6)Quit\n";<BR>//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"7)Access\n"<BR>//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"8)Length\n"<BR>//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"9)Concatenate\n"<BR>//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"10)Pop 
+to Seperate Stack\n";<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; option;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch 
+(option) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+5:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.pop();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+1:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "Enter a value to be stored in the Stack. "&lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "what do you want me to add it to?" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\t1)first\n\t2)second\n\t3)third\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; loc;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch 
+(loc)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+1:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.push(value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+2:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.push(value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+3:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;third.push(value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "try again" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>/*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+3:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.sortLowHigh();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break; 
+*/<BR>/*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+2:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.sortHighLow();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break; 
+*/<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+4:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;third.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+break;<BR>/*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+7:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "first[" &lt;&lt; value &lt;&lt; "] = " &lt;&lt; first[value] &lt;&lt; 
+endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;*/<BR>/*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+8:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "Length = " &lt;&lt; first.getLength() &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break; 
+*/<BR>/*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+9:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "what do you want me to add it to?" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\t1)first\n\t2)second\n\t3)third\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch 
+(value)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+1:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.concat(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+2:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.concat(second);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+3:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.concat(third);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "try again" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break; 
+*/<BR>/*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+10:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.pop(value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.push(value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break; 
+*/<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "You entered a bad letter, try again" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} while (option != 6);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<BR>} </P>
+<hr>
+<P>stack3.cpp: #include &lt;iostream.h&gt;<BR>#include 
+&lt;string.h&gt;<BR><BR>struct Stack 
+<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* next;<BR>};<BR><BR>void 
+dispStack(Stack*);<BR>void push(Stack*, int);<BR>void sortLowHigh(Stack*);<BR>void 
+pop(Stack*);<BR>void pop(Stack*, int&amp;);<BR>void sortHighLow(Stack*);<BR>void 
+concat(Stack*, Stack*);<BR>int getLength(Stack*);<BR>int operator[](Stack*, int);<BR>Stack* 
+operator+ (Stack*, Stack*);<BR>Stack* operator+ (int);<BR><BR>void main()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;StackNode first, second, 
+third;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int value, loc;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int option;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.push(1);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.push(2);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.push(3);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.push(4);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.push(5);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.push(6);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;third.push(7);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;third.push(8);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;third.push(9);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;do<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "What do you want to do? " &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"1)Push 
+1\t" &lt;&lt; "Push 2\t" &lt;&lt; "Push 3\t\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"2)SortHighLow\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"3)SortLowHigh\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"4)DispStack\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"5)Pop\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"6)Quit\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"7)Access\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"8)Length\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"9)Concatenate\n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt;"10)Pop 
+to Seperate Stack\n";<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; option;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch 
+(option) <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+5:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.pop();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+1:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "Enter a value to be stored in the Stack. "&lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "what do you want me to add it to?" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\t1)first\n\t2)second\n\t3)third\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; loc;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch 
+(loc)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+1:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.push(value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+2:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.push(value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+3:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;third.push(value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "try again" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+3:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.sortLowHigh();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+2:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.sortHighLow();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+4:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;third.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+7:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "first[" &lt;&lt; value &lt;&lt; "] = " &lt;&lt; first[value] &lt;&lt; 
+endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+8:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "Length = " &lt;&lt; first.getLength() &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+9:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "what do you want me to add it to?" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\t1)first\n\t2)second\n\t3)third\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch 
+(value)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+1:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.concat(first);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+2:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.concat(second);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+3:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.concat(third);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "try again" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 
+10:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.pop(value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.push(value);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;first.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "You entered a bad letter, try again" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} while (option != 6);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<BR>}<BR><BR>StackNode::StackNode()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list = NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;length = 0;<BR>}<BR><BR>StackNode::StackNode(int value)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(int i = 0; i &lt; value; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(0);<BR>}<BR><BR>void 
+StackNode::push(int value)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* newItem;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newItem = new Stack;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newItem-&gt;value = value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(list == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newItem-&gt;next 
+= NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newItem-&gt;next 
+= list;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list = newItem;<BR>}<BR><BR>int 
+StackNode::getLength()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return length;<BR>}<BR><BR>int 
+StackNode::operator[](int value)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp = list;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (value &gt;= length)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value 
+= value % length;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; value 
+&amp;&amp; temp != NULL; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= temp-&gt; next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return temp-&gt;value;<BR>}<BR><BR>StackNode StackNode::operator+(StackNode temp)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+val;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;StackNode temp2;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (temp.length != 0)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp.pop(val);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp2.push(val);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp.dispStack();<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return temp2;<BR>}<BR><BR>void 
+StackNode::concat(StackNode add)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int val;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (add.list)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add.pop(val);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(val);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR><BR>StackNode StackNode::operator+(int number)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(number);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return *this;<BR>}<BR><BR>void 
+StackNode::dispStack()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;StackNode temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int val;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(list == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "There are no items in this Stack" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp.list 
+= list;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+i = 1;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "{";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(temp.list)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; temp.list-&gt;value &lt;&lt; " ";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp.list 
+= temp.list-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(i % 20 == 0)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin 
+&gt;&gt; val;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "}" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+StackNode::sortLowHigh()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* test1;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* test2;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int temp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(list == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "The Stack cannot be sorted because there are no Items in the 
+Stack"&lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (list-&gt;next == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; list-&gt;value &lt;&lt; endl; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1 
+= list; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= list-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(test1-&gt;next)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(test2)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(test2-&gt;value &lt; test1-&gt;value)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= test1-&gt;value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1-&gt;value 
+= test2-&gt;value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2-&gt;value 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= test2-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1 
+= test1-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= test1-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+StackNode::sortHighLow()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* test1;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* test2;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int temp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(list == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "The Stack cannot be sorted because there are no Items in the 
+Stack"&lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (list-&gt;next == 
+NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; list-&gt;value &lt;&lt; endl; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1 
+= list; <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= list-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(test1-&gt;next)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(test2)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(test2-&gt;value &gt; test1-&gt;value)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= test1-&gt;value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1-&gt;value 
+= test2-&gt;value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2-&gt;value 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= test2-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test1 
+= test1-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test2 
+= test1-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+StackNode::pop()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (!list)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "popvalThere are no items in the Stack." &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* 
+temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= list-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete 
+list;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;length--;<BR>}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>void StackNode::pop(int&amp; value)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(!list)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "There are no items in the Stack." &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack* 
+temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= list;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list 
+= list-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value 
+= temp-&gt;value;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete 
+temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;length--;<BR>} </P>
+<hr>
+<P>tree2.cpp: #include&lt;iostream.h&gt;<BR>#include&lt;math.h&gt;<BR><BR>struct treeNode<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char element;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;treeNode* left;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;treeNode* right;<BR>};<BR><BR>const 
+int MAX_NUM = 99;<BR><BR>typedef 
+treeNode* treeNodePtr;<BR>typedef int Boolean;<BR><BR>struct Queue<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;treeNodePtr Ptr;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Queue* next;<BR>};<BR><BR>struct 
+QueueNode<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int size;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Queue* front;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Queue* rear;<BR>};<BR><BR>typedef 
+Queue* QueuePtr;<BR>const TRUE = 1;<BR>const FALSE = 0;<BR><BR>void AddToTree(treeNodePtr&amp;);<BR>void InOrder(treeNodePtr);<BR>void 
+PreOrder(treeNodePtr);<BR>void PostOrder(treeNodePtr);<BR>void Enqueue(treeNodePtr&amp;, char);<BR>Boolean IsBST(treeNodePtr);<BR>void 
+RightLeftDisp(treeNodePtr, int);<BR>void 
+LeftRightDisp(treeNodePtr, int);<BR>Boolean 
+TestInput(treeNodePtr);<BR>void EnqueueQ(QueueNode&amp;, 
+treeNodePtr);<BR>treeNodePtr DequeueQ(QueueNode&amp;);<BR>void LevelOrder(treeNodePtr);<BR><BR>void main()<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;treeNodePtr root;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Boolean BST, test;<BR><BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root = NULL;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char 
+elem;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; "Enter a string 
+of elements in pseudo level order \n"<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt; 
+"to be represented in a Binary Tree" &lt;&lt; endl;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;do<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin.get(elem);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enqueue(root, 
+elem);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (int(elem) != 10);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;test 
+= TestInput(root);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (test != TRUE)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AddToTree(root);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\nAn in-order traversal of the tree yields:\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InOrder(root);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; endl;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\nA preorder traversal of the tree yields:\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PreOrder(root);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; endl;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\nA postorder traversal of the tree yields:\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PostOrder(root);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; endl;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\nA level-order traversal of the tree yields:\n";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LevelOrder(root);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; endl;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BST 
+= IsBST(root);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (BST)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\nThis tree would make a binary search tree" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "\nThis tree would not make a binary search tree" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; "Press Enter 
+key to continue" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin.get(elem);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt;"\nA Right to Left display of the tree looks like " &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RightLeftDisp(root, 0);<BR><BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; "Press Enter 
+key to continue" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cin.get(elem);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt;"\nA Left to Right display of the tree looks like " &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LeftRightDisp(root, 0);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<BR>}<BR><BR>void 
+EnqueueQ(QueueNode&amp; Q, treeNodePtr root)<BR>// 
+--------------------------------------------------------<BR>// Adds an element to the rear of a Queue<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Queue* temp = new Queue;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp-&gt;Ptr = root;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp-&gt;next = NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ((Q.front == 
+NULL)&amp;&amp;(Q.rear == NULL))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.front 
+= Q.rear = temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.size++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.rear-&gt;next 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.rear 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR><BR>void LevelOrder(treeNodePtr T)<BR>// 
+--------------------------------------------------------<BR>// Displays a tree on one line in level order<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;QueueNode Q;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.front = NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.rear = NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.size = 0;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;treeNodePtr N;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EnqueueQ(Q,T);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while ((Q.front != NULL) 
+&amp;&amp; (Q.rear != NULL))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N 
+= DequeueQ(Q);<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(N != NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; N-&gt;element;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EnqueueQ(Q, 
+N-&gt;left);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EnqueueQ(Q, 
+N-&gt;right);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR><BR>treeNodePtr DequeueQ(QueueNode&amp; Q)<BR>// 
+--------------------------------------------------------<BR>// Removes the first element in a queue<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Queue* temp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+((Q.front == NULL) &amp;&amp; (Q.rear == NULL))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= Q.front;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.front 
+= Q.front-&gt;next;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(Q.front == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q.rear 
+= Q.front;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return temp-&gt;Ptr;<BR>}<BR><BR><BR>Boolean TestInput(treeNodePtr temp)<BR>// 
+--------------------------------------------------------<BR>// Tests the input of the to see if it can make a Binary 
+Tree<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int 
+CharCount = 0, DotCount = 0;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (temp -&gt;element == 
+'.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "This Binary Tree cannot be built" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (temp-&gt;element != 
+10)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(temp-&gt;element == '.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DotCount++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CharCount++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= temp-&gt;left;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+((DotCount &gt; CharCount))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(DotCount != CharCount + 1)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "This Binary Tree cannot be built" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+TRUE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "This Binary Tree cannot be built" &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR><BR>Boolean IsBST(treeNodePtr root)<BR>// 
+--------------------------------------------------------<BR>// Test to see if given tree would make a Binary Search<BR>// Tree<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Boolean BST = FALSE;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+((root -&gt;left != NULL) &amp;&amp; (root -&gt; right != NULL))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+((root -&gt;element &gt;= root 
+-&gt;left-&gt;element)&amp;&amp;(root-&gt;right-&gt;element &gt;= root 
+-&gt;element))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BST 
+= IsBST(root-&gt;left);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BST 
+= BST * IsBST(root-&gt;right);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+BST;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(root -&gt;left == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(root -&gt; right != NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(root -&gt; element &lt;= root -&gt; right -&gt;element)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BST 
+= IsBST(root-&gt;right);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+TRUE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(root -&gt;right == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(root -&gt; left != NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(root -&gt;element &gt;= root -&gt; left -&gt;element)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BST 
+= IsBST(root-&gt;left);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+FALSE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 
+TRUE;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return BST;<BR>}<BR><BR>void 
+Enqueue(treeNodePtr&amp; queue, char element)<BR>// 
+--------------------------------------------------------<BR>// Adds an element to a pointer implemented queue<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;treeNodePtr temp, Search, 
+Follow;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Search = queue;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Follow = queue;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp 
+= new treeNode;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp-&gt;element = 
+element;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp-&gt;left = 
+NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp-&gt;right = 
+NULL;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (queue == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;queue 
+= temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(Search 
+!= NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Follow 
+= Search;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(Search-&gt;right == Search -&gt;left)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Search 
+= Search-&gt;right;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+((Follow -&gt; right == NULL)&amp;&amp;(Follow-&gt;left == NULL))<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Follow 
+-&gt; left = Follow-&gt;right = temp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+AddToTree(treeNodePtr&amp; root)<BR>// 
+--------------------------------------------------------<BR>// Creates Binary Tree from a pointer implimented queue<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;treeNodePtr Parent = root, 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Child 
+= root-&gt;left, <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Temp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(root-&gt;element == '.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root 
+= NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "This would not make a proper Binary Tree. " &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(Child-&gt;element != 10)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Temp 
+= Parent-&gt;left;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(Parent == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; "This would not make a proper Binary Tree. " &lt;&lt; endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(Child-&gt;element != '.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parent-&gt;left 
+= Child;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parent-&gt;left 
+= NULL;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Child 
+= Child -&gt;right;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(Child-&gt;element != '.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parent-&gt;right 
+= Child;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parent-&gt;right 
+= NULL;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Child 
+= Child-&gt;left;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parent 
+= Temp;<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while 
+(Parent-&gt;element == '.')<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parent 
+= Parent-&gt;left;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+InOrder(treeNodePtr Current)<BR>// 
+--------------------------------------------------------<BR>// Displays tree on one line in the order of left subtree, 
+<BR>// root, then right subtree<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(Current == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; ".";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else 
+if(Current != NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InOrder(Current-&gt;left);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; Current-&gt;element;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InOrder(Current-&gt;right);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+PreOrder(treeNodePtr Current)<BR>// 
+--------------------------------------------------------<BR>// Displays tree on one line in the order of root, then <BR>// left subtree followed by right subtree. <BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(Current == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; ".";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else 
+if(Current != NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; Current-&gt;element;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PreOrder(Current-&gt;left);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PreOrder(Current-&gt;right);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+PostOrder(treeNodePtr Current)<BR>// 
+--------------------------------------------------------<BR>// Displays tree on one line, in the order of left subtree, 
+<BR>// right subtree, root<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if 
+(Current == NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; ".";<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else 
+if(Current != NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PostOrder(Current-&gt;left);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PostOrder(Current-&gt;right);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; Current-&gt;element;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+RightLeftDisp(treeNodePtr Current, int tabs)<BR>// 
+--------------------------------------------------------<BR>// Draws a side rooted tree whose rightmost value is at 
+the<BR>// top. <BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(Current != NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tabs++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RightLeftDisp(Current-&gt;right, 
+tabs);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(int i = 0; i &lt;= tabs; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; '\t';<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; Current-&gt;element &lt;&lt; endl &lt;&lt;endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RightLeftDisp(Current-&gt;left, 
+tabs);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR><BR>void 
+LeftRightDisp(treeNodePtr Current, int tabs)<BR>// 
+--------------------------------------------------------<BR>// Draws a side rooted tree whose leftmost value is at 
+the<BR>// top<BR>// 
+--------------------------------------------------------<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(Current != NULL)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tabs++;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LeftRightDisp(Current-&gt;left, 
+tabs);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for 
+(int i = 0; i &lt;= tabs; i++)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; '\t';<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout 
+&lt;&lt; Current-&gt;element &lt;&lt; endl &lt;&lt;endl;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LeftRightDisp(Current-&gt;right, 
+tabs);<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR></P></BODY></HTML>

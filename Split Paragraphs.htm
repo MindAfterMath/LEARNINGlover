@@ -1,0 +1,82 @@
+<html>
+<head>
+<script type="text/javascript">
+function parseParas()
+{
+	var rem = document.getElementById("input").value;
+	var sent = [];
+	var outData = "";
+	var i = 0, j = 0, k = 0, last = 0;
+	sent[k] = [];
+
+	for (i = 0; i < rem.length; i++)
+	{
+//		if (rem.charAt(i) == '.')
+//			alert("|" + rem.charAt(i) + "|     |" + rem.charAt(i+1) + "|");
+		if ((i >= 2) && 
+		    ((rem.charAt(i) == '.' && rem.charAt(i+1) == ' ' && rem.charAt(i-2) != '.') ||
+		    (rem.charAt(i) == '?' && rem.charAt(i+1) == ' ') ||
+		    (rem.charAt(i) == '!' && rem.charAt(i+1) == ' ')))
+		{
+			sent[k][j] = rem.substr(last, i+1-last);
+//			alert(sent[j]);
+			last = i+2;
+			j++;
+		}
+		else if ((i >= 2) && 
+		    ((rem.charAt(i) == '.' && rem.charAt(i+1) == '\n' && rem.charAt(i-2) != '.') ||
+		    (rem.charAt(i) == '?' && rem.charAt(i+1) == '\n') ||
+		    (rem.charAt(i) == '!' && rem.charAt(i+1) == '\n')))
+		{
+			sent[k][j] = rem.substr(last, i+1-last);
+//			alert(sent[j]);
+			last = i+2;
+			j = 0;
+			k++;
+			sent[k] = [];
+		}
+		else if ((i >= 2) && 
+		    ((rem.charAt(i) == '.' && rem.charAt(i+1) == '\r' && rem.charAt(i-2) != '.') ||
+		    (rem.charAt(i) == '?' && rem.charAt(i+1) == '\r') ||
+		    (rem.charAt(i) == '!' && rem.charAt(i+1) == '\r')))
+		{
+			sent[k][j] = rem.substr(last, i+1-last);
+//			alert(sent[j]);
+			last = i+2;
+			j = 0;
+			k++;
+			sent[k] = [];
+		}
+	}
+
+	for (i = 0; i < sent.length; i++)
+		for (j = 0; j < sent[i].length; j++)
+		{
+			outData += i + ", " + j + ") " + sent[i][j] + "<br>\n";
+//			outData += j+k[i]-1 + "<br>\n";
+//			outData += "&lt;S PAR='" + (i+1) + "' RSNT='" + (j-k[i]+1) + "' SNO='" + (j+k[i]) + "'&gt;" + sent[j+k[i]-1] + "<br>\n";
+		}
+
+//
+//	for (i = 0; i < sent.length; i++)
+//	{
+//		outData += i + ") " + sent[i] + "<br>\n";
+//	}
+
+	return outData;	
+}
+
+function addTags(inData)
+{
+	return inData;	
+}
+</script>
+</head>
+<body>
+<form id=data name=data>
+<textarea id=input name=input rows=30 cols=100></textarea>
+<button onclick="document.getElementById('output').innerHTML = addTags(parseParas());">Submit</button>
+</form>
+<p name=output id=output></p>
+</body>
+</html>

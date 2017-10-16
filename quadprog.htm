@@ -1,0 +1,48 @@
+<html>
+<head>
+<script type="text/javascript">
+function generate()
+{
+	var sign = new Array(3);
+	var A = new Array(3);
+	var i;
+
+	for (i = 0; i < 3; i++)
+	{
+		A[i] = Math.floor(Math.random()+1)*25;
+		sign[i] = Math.floor(Math.random()+1)*2;
+		if (sign[i] == 0)
+			sign[i] = -1;
+		A[i] = sign[i]*A[i];
+	}
+
+	return A;
+}
+
+function solve(A)
+{
+	var ans = new Array(3);
+//	var real1, real2, imag;
+	var disc = A[1]*A[1] - 4*A[0]*A[2];
+
+	if (disc >= 0)
+	{
+		ans[2] = 0;
+		ans[0] = -A[1] + Math.sqrt(disc);
+		ans[1] = -A[1] - Math.sqrt(disc);
+	}
+	else
+	{
+		ans[2] = 1;
+		disc = disc*-1;
+		ans[0] = -A[1] + Math.sqrt(disc);
+		ans[1] = -A[1] - Math.sqrt(disc);
+	}
+
+	return ans;
+}
+</script>
+</head>
+<body>
+</body>
+</html>

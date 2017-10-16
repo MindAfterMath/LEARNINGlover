@@ -1,0 +1,210 @@
+<html>
+<head>
+<script type="text/javascript">
+function fptree(numItems, numTrans, minSup, poss, itemSep, oneVal)
+{
+	var d
+	var setNum = 0;
+
+	document.getElementById('output').innerHTML += "Generating the Frequency Pattern Tree.<br>";
+	
+	do
+	{
+		setNum++;
+		poss = getPoss(setNum, numItems, poss);
+		poss = getFreq(setNum, numItems, numTrans, poss, minSup, oneVal);
+		if (poss.length != 0)
+		{
+			document.getElementById('output').innerHTML += "Frequent " + setNum + "-itemsets <br>";
+			document.getElementById('output').innerHTML += poss + "<br>";
+		}
+	}
+	while(poss.length > 1);
+}
+
+function getPoss(n, numItems, poss)
+{
+	var tempPoss = new Array();
+	var str1, str2; 
+	var st1, st2;
+
+	if (n == 1)
+	{
+		for(var i = 0; i < numItems; i++)
+		{
+			tempPoss[i] = i+1;
+		}
+	}
+	else if(n == 2)
+	{
+		for(var i = 0; i < poss.length; i++)
+		{
+			str1 = poss[i]
+			for(var j = i + 1; j < poss.length; j++)
+			{
+				str2 = poss[j];
+				tempPoss[tempPoss.length] = str1 + " " + str2;
+			}
+		}
+	}
+	else
+	{
+		for(var i = 0; i < poss.length; i++)
+		{
+			for(var j = i + 1; j < poss.length; j++)
+			{
+				str1 = "";
+				str2 = "";
+				st1 = poss[i].split(" ");
+				st2 = poss[j].split(" ");
+				
+				for(var s = 0; s < n - 2; s++)
+				{
+					str1 = str1 + " " + st1[s];
+					str2 = str2 + " " + st2[s];
+				}
+				
+				if (str2 == str1)
+					tempPoss[tempPoss.length] = str1 + " " + st1[s] + " " + st2[s];
+
+				while (tempPoss.length > 0 && tempPoss[tempPoss.length-1].charAt(0) == " ")
+					tempPoss[tempPoss.length-1] = tempPoss[tempPoss.length-1].substring(1, tempPoss[tempPoss.length-1].length);	
+			}
+		}
+	}
+
+	poss = tempPoss;
+
+	return poss;
+}
+
+function getFreq(n, numItems, numTrans, poss, minSup, oneVal)
+{
+	var possFreq = new Array(); //the frequent candidates for the current itemset
+	var stFile;
+	var match; //whether the transaction has all the items in an itemset
+	var trans = new Array(numItems); //array to hold a transaction so that can be checked
+	var count = new Array(poss.length); //the number of successful matches
+	var toOutput = "", bld1 = "", bld2 = "";
+	for (i = 0; i < count.length; i++)
+		count[i] = 0;
+
+	//for each transaction
+	var temp = document.getElementById("transa").value;
+	
+	for(var i = 0; i < numTrans; i++)
+	{
+		var loc1 = temp.indexOf("\n");
+		stFile = temp.substring(0, loc1).split(itemSep);
+		temp = temp.substring(loc1+1, temp.length);
+
+		for(var j = 0; j < numItems; j++)
+		{
+			if (stFile[j] == oneVal)
+				trans[j] = true;
+			else
+				trans[j] = false;
+		}
+
+		for(var c = 0; c < poss.length; c++)
+		{
+			match = false; //reset match to false
+
+			if (poss[c].length > 0)
+				st = poss[c].split(" ");
+			else
+			{
+				st = new Array();
+				st[0] = poss[c];
+			}
+			
+			for (var d = 0; d < st.length; d++)
+			{
+				match = (trans[parseInt(st[d])-1]);
+				if (!match)
+					break;
+			}
+
+			if (match) //if at this point it is a match, increase the count
+				count[c]++;
+		}
+	}
+	
+	toOutput += "-----<table>"
+	for(var i = 0; i < poss.length; i++)
+	{
+		//  System.out.println("Candidate: " + poss.get(c) + " with count: " + count + " % is: " + (count/(double)numItems));
+		//if the count% is larger than the minSup%, add to the candidate to the frequent poss
+		if( (count[i] / numTrans) >= minSup)
+		{
+			possFreq[possFreq.length] = poss[i];
+			bld1 = "<b>";
+			bld2 = "</b>";
+			//put the frequent itemset into the output file
+		}
+		else
+		{
+			bld1 = "";
+			bld2 = "";
+		}
+		toOutput += "<tr><td>" + bld1 + poss[i] + bld2 + "</td><td>|</td><td>" + bld1 + Math.floor(((count[i] / numTrans)*100))/100 + bld2 + "</td></tr>";
+	}
+	toOutput += "</table>";
+	document.getElementById("output").innerHTML += toOutput;
+	
+	poss = possFreq;
+
+	return poss;
+}
+
+function genData(clms, rows)
+{
+	var i, j;
+	document.getElementById("transa").value = "";
+	
+	for (i = 0; i < rows; i++)
+	{
+		for (j = 0; j < clms; j++)
+		{
+			document.getElementById("transa").value += Math.floor(Math.random()*2) + " ";
+		}
+		document.getElementById("transa").value += "\n";
+	}
+}
+</script>
+</head>
+<body>
+</body>
+<form>
+<table>
+<tr><td><label>Number of Items</label></td><td><input name="numItms" id="numItms"></td></tr>
+<tr><td><label>Number of Transactions</label></td><td><input name="numTsac" id="numTsac"></td></tr>
+</table>
+<input type="button" onclick="numItems = Math.floor(Math.random()*10)+5;numTrans = Math.floor(Math.random()*25)+5;document.getElementById('numItms').value = numItems;document.getElementById('numTsac').value = numTrans;document.getElementById('minSprt').value = minSup;genData(numItems, numTrans);document.getElementById('output').innerHTML = '';" Value="New Data"><br>
+<textarea style="WIDTH: 350px; HEIGHT: 150px" id="transa" name="transa">1 1 1 0 0 
+1 1 1 1 1 
+1 0 1 1 0 
+1 0 1 1 1 
+1 1 1 1 0
+</textarea>
+<table>
+<tr><td width= "113"><label>Minimum Support</label></td><td><input name="minSprt" id="minSprt"></td></tr>
+</table>
+<input type="button" onclick="document.getElementById('output').innerHTML='';apriori(numItems, numTrans, document.getElementById('minSprt').value, poss, itemSep, oneVal)" Value="Submit">
+</form>
+<p name="output" id="output">
+</p>
+<script type="text/javascript">
+	var poss = new Array();
+    
+	var numItems = Math.floor(Math.random()*10)+5;
+	var numTrans = Math.floor(Math.random()*25)+5;
+	var minSup = .25; 
+	document.getElementById("numItms").value = numItems;
+	document.getElementById("numTsac").value = numTrans;
+	document.getElementById("minSprt").value = minSup;
+	var oneVal = "1"; 
+	var itemSep = " "; 
+	genData(numItems, numTrans);
+</script>
+</html>

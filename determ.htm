@@ -1,0 +1,97 @@
+<html>
+<head>
+<meta name="author" content="AfterMath" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<meta name="keywords" content="algorithm, divide, conquer, matrix, computer science, JavaScript, math, mathematics, matrix, script, upper triangular, vector, determinant" /> 
+<meta name="description" content="This page contains a script I've written to help understand the how to find determinants." />
+<title>Determinants at LEARNINGlover.com</title>
+<script type="text/javascript">
+function determinant(mtrx)
+{
+	var det = 0;
+	var size = mtrx.length;
+	
+	if (size == 1)
+	{
+		det = mtrx[0][0];
+	}
+	else if (size == 2)
+	{
+		det = mtrx[0][0]*mtrx[1][1] - mtrx[1][0]*mtrx[0][1];
+	}
+	else
+	{
+		det = 0;
+		for (var j1 = 0; j1 < size; j1++)
+		{
+			var sub = new Array();
+			for (var k = 0; k < size-1; k++)
+			{
+				sub[k] = new Array();
+			}
+			
+			for (var i = 1; i < size; i++)
+			{
+				var j2 = 0;
+				for (var j = 0; j < size; j++)
+				{
+					if (j == j1)
+					{
+						continue;
+					}
+					sub[i-1][j2] = mtrx[i][j];
+					j2++;
+				}
+			}
+
+			det += Math.pow(-1.0,1.0+j1+1.0)* mtrx[0][j1] * determinant(sub);
+		}
+	}
+
+	return det;
+}
+
+function init()
+{
+	var rows = Math.floor(Math.random()*10+2);
+	var A = new Array(); 
+	var text = "<table>";
+
+	for (var i = 0; i < rows; i++)
+	{
+		text += "<tr>";
+		A[i] = new Array();
+		for (var j = 0; j < rows; j++)
+		{
+			A[i][j] = Math.floor(Math.random()*25);
+			var sign = Math.floor(Math.random()*2);
+			if (sign == 0)
+			{
+				A[i][j] = A[i][j]*-1;
+			}
+			
+			text += "<td>" + A[i][j] + "</td>";
+		} 	
+		
+		text += "</tr>"; 
+	}
+	
+	text += "</table>";
+
+	document.getElementById("output").innerHTML = text;
+
+	return A;
+}
+</script>
+<body>
+<h3><center>Determinants </center></h3>
+<p><p>We have a matrix and wish to find the determinant. .</p> </p>
+<form name="data" id="data"> 
+	<input type=button onclick="A=init()" value="New Problem"><br> 
+<p name="output" id="output"></p> 
+<script type="text/javascript"> 
+var A = init();
+</script> 
+<input type="button" onclick="document.getElementById('output').innerHTML += 'The determinant of this matrix is ' + determinant(A, A.length)" value="Solve" id=button1 name=button1>
+</body>
+</html>

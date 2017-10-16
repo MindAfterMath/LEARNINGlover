@@ -1,0 +1,342 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<title>Hofkin Formulation for RBD</title>
+<script type="text/javascript">
+function getData()
+{
+	var prob = new Object();
+	prob.flights = new Array();
+
+	var arr = document.getElementById("arrs").innerHTML.split(/<br.*?>/gi);
+	var len = document.getElementById("lens").innerHTML.split(/<br.*?>/gi);
+	var numsl = 25;
+
+	prob.slots = new Array(numsl);
+
+	for (var k = 0; k < arr.length; k++)
+	{
+		prob.flights[k] = new Object();
+		prob.flights[k].arr = arr[k];
+		prob.flights[k].len = len[k];
+		prob.flights[k].remFlights = k+1;
+		prob.flights[k].asmt = -1;
+	}
+
+	for (var i = 0; i < numsl; i++)
+	{
+		prob.slots[i] = new Object();
+		prob.slots[i].time  = i+5;
+		prob.slots[i].asmt = -1;
+	}
+
+	prob.scen = new Array();
+	var numscen = document.getElementById("numscen").value;
+
+	for (var t = 0; t < numscen; t++)
+	{
+		prob.scen[t] = new Object();
+	}
+
+	if (numscen > 0)
+	{
+		prob.scen[0].time = -150;
+		prob.scen[0].prb = eval(1/7);
+
+	}
+	
+	if (numscen > 1)
+	{
+		prob.scen[1].time = -90;
+		prob.scen[1].prb = eval(1/7);
+	}
+	
+	if (numscen > 2)
+	{
+		prob.scen[2].time = -80;
+		prob.scen[2].prb = eval(1/7);
+	}
+	
+	if (numscen > 3)
+	{
+		prob.scen[3].time = -70;
+		prob.scen[3].prb = eval(1/7);
+	}
+	
+	if (numscen > 4)
+	{
+		prob.scen[4].time = -60;
+		prob.scen[4].prb = eval(1/7);
+	}
+	
+	if (numscen > 5)
+	{
+		prob.scen[5].time = -50;
+		prob.scen[5].prb = eval(1/7);
+	}
+	
+	if (numscen > 6)
+	{
+		prob.scen[6].time = 0;
+		prob.scen[6].prb = eval(1/7);
+	}
+	
+	prob = setCaps(prob);
+
+	for (var j = 0; j < prob.slots.length; j++)
+	{
+		prob.slots[j].finalCap = new Array();
+		prob.slots[j].used = new Array();
+		prob.slots[j].comp = new Array();
+		
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.slots[j].finalCap[t] = 1;
+			prob.slots[j].used[t] = 0;
+			prob.slots[j].comp[t] = -1;
+		}
+	}
+	
+	//Calculation of earliest for each assignment in each scenario
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].want = new Array();
+		prob.flights[k].cost = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			prob.flights[k].want[i] = new Array();
+			prob.flights[k].cost[i] = new Array();
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				prob.flights[k].want[i][t] = new Array();
+				prob.flights[k].cost[i][t] = new Array();
+				for (var j = 0; j < prob.slots.length; j++)
+				{
+					if (prob.slots[i].time >= prob.flights[k].arr &&
+						prob.slots[j].time >= prob.flights[k].arr &&
+						((prob.slots[j].time <= prob.slots[i].time && prob.scen[t].time <= prob.slots[i].time - prob.flights[k].len) || 
+						(prob.slots[i].time == prob.slots[j].time && prob.scen[t].time > prob.slots[i].time - prob.flights[k].len) || 
+						(prob.slots[j].time >= prob.slots[i].time)) &&
+						prob.slots[i].initCap >= 1 && prob.slots[j].finalCap[t] >= 1)
+					{
+						var loc = prob.flights[k].want[i][t].length;
+						prob.flights[k].want[i][t][loc] = j ;
+						prob.flights[k].cost[i][t][loc] = eval(prob.scen[t].prb*(prob.slots[j].time - prob.flights[k].arr));
+					}
+				}
+			}
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].finalAsmt = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.flights[k].finalAsmt[t] = -1;
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].ecost = new Array();
+		prob.flights[k].eloc = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			prob.flights[k].ecost[i] = 0;
+			prob.flights[k].eloc[i] = new Array();
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					var mincost = 100000;
+					var minloc = -1;
+					for (var j = 0; j < prob.flights[k].cost[i][t].length; j++)
+					{
+						if (prob.flights[k].cost[i][t][j] < mincost)
+						{
+							mincost = prob.flights[k].cost[i][t][j];
+							minloc = j;
+						}
+					}
+					prob.flights[k].ecost[i] += prob.flights[k].cost[i][t][minloc];
+					prob.flights[k].eloc[i][t] = prob.flights[k].want[i][t][minloc];
+				}
+			}
+		}
+	}
+	
+	return prob;
+}
+
+function setCaps(prob)
+{
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if ((prob.slots[i].time % 5 == 0) || (prob.slots[i].time  > 30))
+		{
+			prob.slots[i].initCap = 1
+		}
+		else
+		{
+			prob.slots[i].initCap = 0
+		}
+		
+		prob.slots[i].finalCap = new Array();
+		prob.slots[i].used = new Array();
+		prob.slots[i].comp = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.slots[i].finalCap[t] = 1;
+			prob.slots[i].used[t] = 0;
+			prob.slots[i].comp[t] = -1;
+		}
+	}
+	
+	return prob;
+}
+
+function genProb()
+{
+	var numfl = document.getElementById("numfl").value;
+	var flights = new Array();
+	
+	document.getElementById("arrs").innerHTML = "";
+	document.getElementById("lens").innerHTML = "";
+	
+	for (var i = 0; i < numfl; i++)
+	{
+		flights[i] = new Object();
+		flights[i].arr = Math.floor(Math.random()*10);
+		flights[i].len = Math.floor(Math.random()*160)+45;
+		document.getElementById("arrs").innerHTML += flights[i].arr;
+		document.getElementById("lens").innerHTML += flights[i].len;
+		if (i < numfl-1)
+		{
+			document.getElementById("arrs").innerHTML += "<br>";
+			document.getElementById("lens").innerHTML += "<br>";
+		}
+	}
+	var prob = getData();
+	return prob;
+}
+
+
+function buildModel()
+{
+	var prob = genProb();
+	
+	var output = "";
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].initCap >= 1 && prob.slots[i].time >= prob.flights[k].arr)
+			{
+				output += "x<sub>" + k + ", " + prob.flights[k].arr + ", " + i + "</sub> + y<sub>" + k + ", " + prob.flights[k].arr + ", " + i + "</sub>";
+				if (i > prob.flights[k].arr)
+				{
+					output += " - y<sub>" + k + ", " + prob.flights[k].arr + ", " + eval(i-5) + "</sub> = Supp<sub>" + k + ", " + i + "</sub><br>";
+				}
+				else
+				{
+					output += "<br>";
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			if (prob.slots[i].initCap >= 1 && prob.slots[i].time >= prob.flights[k].arr)
+			{
+				output += "x<sub>" + k + ", " + prob.flights[k].arr + ", " + i + "</sub> + ";
+			}
+		}
+		if (output[output.length-2] == "+")
+		{
+			output = output.substring(0, output.length-2);
+			if (prob.slots[i].initCap >= 1)
+			{
+				output += " = Cap<sub>" + i + "</sub><br>";
+			}
+		}
+	}
+	
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		for (var j = 0; j < prob.slots.length; j++)
+		{
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				for (var i = 0; i < prob.slots.length; i++)
+				{
+					if (prob.slots[i].time >= prob.flights[k].arr && prob.flights[k].eloc[i][t] == j)
+					{
+						output += "x<sub>" + k + ", " + prob.flights[k].arr + ", " + i + "</sub> + ";
+					}
+				}
+			}
+			
+			output += "z<sub>" + j + ", " + t + "</sub> + ";
+			if (j > 0)
+			{
+				output += " - z<sub>" + eval(j-5) + ", " + t + "</sub> <= Cap<sub>" + j + ", " + t + "</sub><br>";
+			}
+			else
+			{
+				output += " <= Cap<sub>" + j + ", " + t + "</sub><br>";
+			}
+		}
+	}
+	
+	
+	document.getElementById("model").innerHTML = output;
+}
+</script>
+</head>
+<body>
+<h3>
+<center>Hofkin Formulation for RBD</center>
+</h3>
+<center>
+<table>
+<tr><td>How many Flights? </td><td><select name="numfl" id="numfl">
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10</option>
+</select></td></tr>
+<tr><td>How many Scenarios? </td><td><select name="numscen" id="numscen">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select></td></tr>
+</table>
+<input type="button" value="Submit" onclick="buildModel()"><br>
+<table border="0" cellpadding="0" cellspacing="0">
+<tr><td>Arrival Times</td> <td>Lengths</td></tr>
+<tr>
+<td>
+<p name="arrs" id="arrs"></p>
+</td>
+<td>
+<p name="lens" id="lens"></p>
+</td>
+</tr>
+</table>
+
+<p name="model" id="model"></p>
+</body></html>

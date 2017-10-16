@@ -1,0 +1,662 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="author" content="AfterMath" />
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<title>Hofkin Formulation for RBD</title>
+<script type="text/javascript">
+function getData()
+{
+	var prob = new Object();
+	prob.flights = new Array();
+
+	var arr = document.getElementById("arrs").innerHTML.split(/<br.*?>/gi);
+	var len = document.getElementById("lens").innerHTML.split(/<br.*?>/gi);
+	var numsl = 25;
+
+	prob.slots = new Array(numsl);
+
+	for (var k = 0; k < arr.length; k++)
+	{
+		prob.flights[k] = new Object();
+		prob.flights[k].arr = arr[k];
+		prob.flights[k].len = len[k];
+		prob.flights[k].remFlights = k+1;
+		prob.flights[k].asmt = -1;
+	}
+
+	for (var i = 0; i < numsl; i++)
+	{
+		prob.slots[i] = new Object();
+		prob.slots[i].time  = i+5;
+		prob.slots[i].asmt = -1;
+	}
+
+	prob.scen = new Array();
+	var numscen = document.getElementById("numscen").value;
+
+	for (var t = 0; t < numscen; t++)
+	{
+		prob.scen[t] = new Object();
+	}
+
+	if (numscen > 0)
+	{
+		prob.scen[0].time = -150;
+		prob.scen[0].prb = eval(1/7);
+
+	}
+	
+	if (numscen > 1)
+	{
+		prob.scen[1].time = -90;
+		prob.scen[1].prb = eval(1/7);
+	}
+	
+	if (numscen > 2)
+	{
+		prob.scen[2].time = -80;
+		prob.scen[2].prb = eval(1/7);
+	}
+	
+	if (numscen > 3)
+	{
+		prob.scen[3].time = -70;
+		prob.scen[3].prb = eval(1/7);
+	}
+	
+	if (numscen > 4)
+	{
+		prob.scen[4].time = -60;
+		prob.scen[4].prb = eval(1/7);
+	}
+	
+	if (numscen > 5)
+	{
+		prob.scen[5].time = -50;
+		prob.scen[5].prb = eval(1/7);
+	}
+	
+	if (numscen > 6)
+	{
+		prob.scen[6].time = 0;
+		prob.scen[6].prb = eval(1/7);
+	}
+	
+	prob = setCaps(prob);
+
+	for (var j = 0; j < prob.slots.length; j++)
+	{
+		prob.slots[j].finalCap = new Array();
+		prob.slots[j].used = new Array();
+		prob.slots[j].comp = new Array();
+		
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.slots[j].finalCap[t] = 1;
+			prob.slots[j].used[t] = 0;
+			prob.slots[j].comp[t] = -1;
+		}
+	}
+	
+	//Calculation of earliest for each assignment in each scenario
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].want = new Array();
+		prob.flights[k].cost = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			prob.flights[k].want[i] = new Array();
+			prob.flights[k].cost[i] = new Array();
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				prob.flights[k].want[i][t] = new Array();
+				prob.flights[k].cost[i][t] = new Array();
+				for (var j = 0; j < prob.slots.length; j++)
+				{
+					if (prob.slots[i].time >= prob.flights[k].arr &&
+						prob.slots[j].time >= prob.flights[k].arr &&
+						((prob.slots[j].time <= prob.slots[i].time && prob.scen[t].time <= prob.slots[i].time - prob.flights[k].len) || 
+						(prob.slots[i].time == prob.slots[j].time && prob.scen[t].time > prob.slots[i].time - prob.flights[k].len) || 
+						(prob.slots[j].time >= prob.slots[i].time)) &&
+						prob.slots[i].initCap >= 1 && prob.slots[j].finalCap[t] >= 1)
+					{
+						var loc = prob.flights[k].want[i][t].length;
+						prob.flights[k].want[i][t][loc] = j ;
+						prob.flights[k].cost[i][t][loc] = eval(prob.scen[t].prb*(prob.slots[j].time - prob.flights[k].arr));
+					}
+				}
+			}
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].finalAsmt = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.flights[k].finalAsmt[t] = -1;
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].ecost = new Array();
+		prob.flights[k].eloc = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			prob.flights[k].ecost[i] = 0;
+			prob.flights[k].eloc[i] = new Array();
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					var mincost = 100000;
+					var minloc = -1;
+					for (var j = 0; j < prob.flights[k].cost[i][t].length; j++)
+					{
+						if (prob.flights[k].cost[i][t][j] < mincost)
+						{
+							mincost = prob.flights[k].cost[i][t][j];
+							minloc = j;
+						}
+					}
+					prob.flights[k].ecost[i] += prob.flights[k].cost[i][t][minloc];
+					prob.flights[k].eloc[i][t] = prob.flights[k].want[i][t][minloc];
+				}
+			}
+		}
+	}
+	
+	return prob;
+}
+
+function setCaps(prob)
+{
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if ((prob.slots[i].time % 5 == 0) || (prob.slots[i].time  > 30))
+		{
+			prob.slots[i].initCap = 1
+		}
+		else
+		{
+			prob.slots[i].initCap = 0
+		}
+		
+		prob.slots[i].finalCap = new Array();
+		prob.slots[i].used = new Array();
+		prob.slots[i].comp = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.slots[i].finalCap[t] = 1;
+			prob.slots[i].used[t] = 0;
+			prob.slots[i].comp[t] = -1;
+		}
+	}
+	
+	return prob;
+}
+
+function genProb()
+{
+	var numfl = document.getElementById("numfl").value;
+	var flights = new Array();
+	
+	document.getElementById("arrs").innerHTML = "";
+	document.getElementById("lens").innerHTML = "";
+	
+	for (var i = 0; i < numfl; i++)
+	{
+		flights[i] = new Object();
+		flights[i].arr = Math.floor(Math.random()*10);
+		flights[i].len = Math.floor(Math.random()*160)+45;
+		document.getElementById("arrs").innerHTML += flights[i].arr;
+		document.getElementById("lens").innerHTML += flights[i].len;
+		if (i < numfl-1)
+		{
+			document.getElementById("arrs").innerHTML += "<br>";
+			document.getElementById("lens").innerHTML += "<br>";
+		}
+	}
+	var prob = getData();
+	return prob;
+}
+
+
+function buildModel()
+{
+	var prob = genProb();
+	var usedVars = new Array();
+	
+	var output = "";
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].initCap >= 1 && prob.slots[i].time >= prob.flights[k].arr)
+			{
+				output += "x<sub>" + k + "," + prob.flights[k].arr + "," + i + "</sub> + y<sub>" + k + "," + prob.flights[k].arr + "," + i + "</sub>";
+				if (usedVars.indexOf("x<sub>" + k + "," + prob.flights[k].arr + "," + i + "</sub>") == -1)
+				{
+					usedVars[usedVars.length] = "x<sub>" + k + "," + prob.flights[k].arr + "," + i + "</sub>";
+				}
+				
+				if (usedVars.indexOf("y<sub>" + k + "," + prob.flights[k].arr + "," + i + "</sub>") == -1)
+				{
+					usedVars[usedVars.length] = "y<sub>" + k + "," + prob.flights[k].arr + "," + i + "</sub>";
+				}
+				
+				if (i > prob.flights[k].arr)
+				{
+					output += " - y<sub>" + k + "," + prob.flights[k].arr + "," + eval(i-5) + "</sub> = Supp<sub>" + k + "," + i + "</sub><br>";
+					if (usedVars.indexOf("y<sub>" + k + "," + prob.flights[k].arr + "," + eval(i-5) + "</sub>") == -1)
+					{
+						usedVars[usedVars.length] = "y<sub>" + k + "," + prob.flights[k].arr + "," + eval(i-5) + "</sub>";
+					}
+				}
+				else
+				{
+					output += " = Supp<sub>" + k + "," + i + "</sub><br>";
+				}
+			}
+		}
+	}
+	
+	output += "<br>";
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			if (prob.slots[i].initCap >= 1 && prob.slots[i].time >= prob.flights[k].arr)
+			{
+				output += "x<sub>" + k + "," + prob.flights[k].arr + "," + i + "</sub> + ";
+			}
+		}
+		if (output[output.length-2] == "+")
+		{
+			output = output.substring(0, output.length-2);
+			if (prob.slots[i].initCap >= 1)
+			{
+				output += " = Cap<sub>" + i + "</sub><br>";
+			}
+		}
+	}
+	
+	output += "<br>";
+	
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		for (var j = 0; j < prob.slots.length; j++)
+		{
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				for (var i = 0; i < prob.slots.length; i++)
+				{
+					if (prob.slots[i].time >= prob.flights[k].arr && prob.flights[k].eloc[i][t] == j)
+					{
+						output += "x<sub>" + k + "," + prob.flights[k].arr + "," + i + "</sub> + ";
+					}
+				}
+			}
+			
+			output += "z<sub>" + j + "," + t + "</sub> + ";
+			if (usedVars.indexOf("z<sub>" + j + "," + t + "</sub> + ") == -1)
+			{
+				usedVars[usedVars.length] = "z<sub>" + j + "," + t + "</sub>";
+			}
+			output = output.substring(0, output.length-2);
+			if (j > 0 && prob.slots[j-1].time >= 0 && prob.slots[j-1].finalCap[t] >= 1)
+			{
+				output += " - z<sub>" + eval(j-1) + "," + t + "</sub> <= Cap<sub>" + j + "," + t + "</sub><br>";
+				if (usedVars.indexOf("z<sub>" + eval(j-1) + "," + t + "</sub>") == -1)
+				{
+					usedVars[usedVars.length] = "z<sub>" + eval(j-1) + "," + t + "</sub>";
+				}
+			}
+			else
+			{
+				output += " <= Cap<sub>" + j + "," + t + "</sub><br>";
+			}
+		}
+		output += "<br>";
+	}
+	
+	usedVars = usedVars.sort();
+	var cMtrx = new Array();
+	
+	var constraints = output.split("<br>");
+	
+	for (var yin = 0; yin < constraints.length; yin++)
+	{
+		cMtrx[yin] = new Array();
+		for (var yang = 0; yang < usedVars.length; yang++)
+		{
+			cMtrx[yin][yang] = 0;
+		}
+		var terms = constraints[yin].split(" ");
+		for (var yang = 0; yang < terms.length; yang++)
+		{
+			var loc = usedVars.indexOf(terms[yang]);
+			if (loc != -1)
+			{
+				if (yang == 0 || terms[yang-1] == "+")
+				{
+					cMtrx[yin][loc] = 1;
+				}
+				else if (terms[yang-1] == "-")
+				{
+					cMtrx[yin][loc] = -1;
+				}
+			}
+		}
+	}
+
+	output += "<table><tr>";
+	for (var yang = 0; yang < usedVars.length; yang++)
+	{
+		output += "<td>" + usedVars[yang] + "</td>";
+	}
+	output += "</tr>";
+	for (var yin = 0; yin < constraints.length; yin++)
+	{
+		output += "<tr>";
+		for (var yang = 0; yang < usedVars.length; yang++)
+		{
+			output += "<td>" + cMtrx[yin][yang] + "</td>";
+		}
+		output += "</tr>";
+	}
+	output += "</table>";
+	
+	document.getElementById("model").innerHTML = output;
+	
+	document.getElementById("smtrx").hidden = false;
+	
+	return cMtrx;
+}
+
+function getRandSubmatrix(mtrx)
+{
+	var rows = new Array(mtrx.length);
+	var clms = new Array(mtrx[0].length);
+	
+	for (var zen = 0; zen < rows.length; zen++)
+	{
+		rows[zen] = zen;
+	}
+	
+	for (var zen = 0; zen < clms.length; zen++)
+	{
+		clms[zen] = zen;
+	}
+	
+	var minRC = Math.min(rows.length, clms.length);
+	
+	var subSize = Math.floor(Math.random()*25) + 3;
+	
+	var rowsSel = new Array(subSize);
+	var clmsSel = new Array(subSize);
+	
+	for (var yoga = 0; yoga < subSize; yoga++)
+	{
+		var temp = -1;
+		temp = Math.floor(Math.random()*rows.length);
+		rowsSel[yoga] = rows[temp];
+		rows[temp] = rows[rows.length-1];
+		rows.length--;
+		
+		temp = Math.floor(Math.random()*clms.length);
+		clmsSel[yoga] = clms[temp];
+		clms[temp] = clms[clms.length-1];
+		clms.length--;
+	}
+	
+	var subMat = new Array();
+	
+	for (var yin = 0; yin < rowsSel.length; yin++)
+	{
+		subMat[yin] = new Array();
+		for (yang = 0; yang < clmsSel.length; yang++)
+		{
+			subMat[yin][yang] = mtrx[rowsSel[yin]][clmsSel[yang]];
+		}
+	}
+	
+	dispMtrx(rowsSel, clmsSel, subMat, "sub", 1);
+	
+//	document.getElementById("sub").innerHTML += "Determinant = " + mdeterm(subMat) + "<br>";
+	document.getElementById("det").hidden = false;
+	
+	return subMat;
+}
+
+function getDenseRandSubmatrix(mtrx)
+{
+	var rows = new Array();
+	var clms = new Array();
+		
+	var minRC = Math.min(mtrx.length, mtrx[0].length);
+	
+	var subSize = Math.floor(Math.random()*25) + 3;
+	
+	var rowsSel = new Array();
+	var clmsSel = new Array();
+	
+	var nonzero = new Array();
+	var used = new Array();
+	
+	for (var yin = 0; yin < mtrx.length; yin++)
+	{
+		for (var yang = 0; yang < mtrx[0].length; yang++)
+		{
+			if (mtrx[yin][yang] != 0)
+			{
+				nonzero[nonzero.length] = yin + "-" + yang;
+			}
+		}
+	}
+	
+	nonzero = nonzero.sort();
+	
+	document.getElementById("sub").innerHTML += nonzero + "<br>";
+	
+	for (var yoga = 0; yoga < subSize; yoga++)
+	{
+		var loc, cell;
+		
+		loc = Math.floor(Math.random()*nonzero.length);
+		cell = nonzero[loc].split("-");
+
+		if (rowsSel.indexOf(cell[0]) == -1)
+		{
+			rowsSel[yoga] = cell[0];
+		}
+		else
+		{
+			yoga--;
+		}
+	
+		if (clmsSel.indexOf(cell[1]) == -1)
+		{
+			clmsSel[yoga] = cell[1];
+		}
+		else
+		{
+			yoga--;
+		}
+		
+		nonzero[loc] = nonzero[nonzero.length-1];
+		nonzero.length--;
+	}
+	
+	var subMat = new Array();
+	
+	for (var yin = 0; yin < rowsSel.length; yin++)
+	{
+		subMat[yin] = new Array();
+		for (yang = 0; yang < clmsSel.length; yang++)
+		{
+			subMat[yin][yang] = mtrx[rowsSel[yin]][clmsSel[yang]];
+		}
+	}
+	
+	dispMtrx(rowsSel, clmsSel, subMat, "sub", 1);
+	
+	document.getElementById("det").hidden = false;
+	
+	return subMat;
+}
+
+function dispMtrx(rlabels, clabels, mtrx, loc, rep)
+{
+	var output = "<table><tr><td></td>"
+	
+	if (clabels.length > 0)
+	{
+		for (var zen = 0; zen < clabels.length; zen++)
+		{
+			output += "<td>" + clabels[zen] + "</td>";
+		}
+		output += "</tr>";
+	}
+	
+	for (var yin = 0; yin < mtrx.length; yin++)
+	{
+		if (rlabels.length > 0)
+		{
+			output += "<tr><td>" + rlabels[yin] + "</td>";
+		}
+		else
+		{
+			output += "<tr>";
+		}
+		for (var yang = 0; yang < mtrx[0].length; yang++)
+		{
+			output += "<td>" + mtrx[yin][yang] + "</td>";
+		}
+		output += "</tr>";
+	}
+	output += "</table>";
+	
+	if (rep == 0)
+	{
+		document.getElementById(loc).innerHTML += output;
+	}
+	else
+	{
+		document.getElementById(loc).innerHTML = output;
+	}
+}
+
+function mdeterm(matrix)
+{
+    if (matrix.length == 1)
+	{
+		return (matrix[0][0]);
+    }
+	else if (matrix.length == 2)
+	{
+		return (matrix[1][1]*matrix[0][0] - matrix[1][0]*matrix[0][1]);
+	}
+	
+	var det = 0; 
+	var sign;
+	
+    for (var zen = 0; zen < matrix.length; zen++)
+	{
+		var minor = new Array(matrix.length - 1);
+		for (var yin = 0; yin < minor.length; yin++)
+		{
+			minor[yin] = new Array(matrix.length - 1);
+		}
+		
+		for (var yin = 1; yin < matrix.length; yin++)
+		{
+			for (var yang = 0; yang < matrix[yin].length; yang++)
+			{
+				if (yang < zen)
+				{
+					minor[yin-1][yang] = matrix[yin][yang];
+				}
+				else if (yang > zen)
+				{
+					minor[yin-1][yang-1] = matrix[yin][yang];
+				}
+			}
+		}
+	
+		if (zen % 2 == 0)
+		{
+			sign = 1;
+		}
+		else
+		{
+			sign = -1;
+		}
+		
+//		dispMtrx(new Array(), new Array(), minor, "sub", 0)
+
+		if (matrix[0][zen] != 0)
+		{
+			det += sign * matrix[0][zen] * (mdeterm(minor));
+		}
+		
+//		document.getElementById("sub").innerHTML += "sign = " + sign + "<br>";
+//		document.getElementById("sub").innerHTML += "a<sub>" + 0 + ", " + zen + "</sub> = " + matrix[0][zen] + "<br>";
+    }
+	
+    return(det);
+}
+
+
+</script>
+</head>
+<body>
+<h3>
+<center>Hofkin Formulation for RBD</center>
+</h3>
+<center>
+<table>
+<script type="text/javascript">
+var cMtrx;
+</script>
+<tr><td>How many Flights? </td><td><select name="numfl" id="numfl">
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10</option>
+</select></td></tr>
+<tr><td>How many Scenarios? </td><td><select name="numscen" id="numscen">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3" selected>3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select></td></tr>
+</table>
+<input type="button" value="Submit" onclick="cMtrx = buildModel()"><br>
+<table border="0" cellpadding="0" cellspacing="0">
+<tr><td>Arrival Times</td> <td>Lengths</td></tr>
+<tr>
+<td>
+<p name="arrs" id="arrs"></p>
+</td>
+<td>
+<p name="lens" id="lens"></p>
+</td>
+</tr>
+</table>
+
+<p name="model" id="model"></p>
+<input type="button" name="smtrx" id="smtrx" value="Geneate SubMatrix" onclick="sub = getDenseRandSubmatrix(cMtrx)" hidden><br>
+<p name="sub" id="sub"></p>
+<input type="button" name="det" id="det" value="Get Determinant" onclick="document.getElementById('sub').innerHTML += 'det = ' + mdeterm(sub)" hidden><br>
+</body></html>

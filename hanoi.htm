@@ -1,0 +1,124 @@
+<html>
+<head>
+<script type="text/javascript">
+function hanoi(state, set, clmnout, clmnin, nest)
+{
+	var i;
+	var subset = new Array();
+	var elmnt = new Array();
+
+	if (set.length > 1)
+	{
+		for (i = 0; i < set.length-1; i++)
+			subset[i] = set[i];
+		elmnt[0] = set[set.length-1];
+		var newclm = 3 - clmnout - clmnin;
+
+		text += nest + ") ([" + set + "], " + clmnout + ", " + clmnin + ") -> " + "([" + subset + "], " + clmnout + ", " + newclm + ")<br>";
+
+		state = hanoi(state, subset, clmnout, newclm, nest+1);
+		state = hanoi(state, elmnt, clmnout, clmnin, nest+1);
+		state = hanoi(state, subset, newclm, clmnin, nest+1);
+	}
+	else 
+	{
+		text += nest + ") single ([" + set + "], " + clmnout + ", " + clmnin + ")<br>";
+
+		state[clmnin] = union(set, state[clmnin]);
+
+		for (i = 1; i < state[clmnout].length; i++)
+			state[clmnout][i-1] = state[clmnout][i];
+		state[clmnout].length--;
+	}
+
+//	text += nest + ") showing state<br>";
+//	for (i = 0; i < state.length; i++)
+//	{
+//		text += "{";
+//		for (j = 0; j < state[i].length; j++)
+//			text += state[i][j] + ", ";
+//		text += "}<br>";
+//	}
+//	text += nest + ") finished showing state<br>";
+//	document.getElementById("output").innerHTML += text;
+	return state;
+}
+
+function search(set, elmnt)
+{
+	var i;
+	var ans = false;
+
+	for (i = 0; i < set.length && !ans; i++)
+		if (set[i] == elmnt)
+			ans = true;
+
+	return ans;
+}
+
+
+function union(set1, set2)
+{
+	var set3 = new Array();
+	var i;
+
+//	text += "set1.length = " + set1.length + "<br>";
+//	text += "set2.length = " + set2.length + "<br>";
+
+	for (i = 0; i < set1.length; i++)
+		set3[i] = set1[i];
+	
+	for (i = 0; i < set2.length; i++)
+	{
+		if (!search(set3, set2[i]))
+			set3[set3.length] = set2[i];
+	}
+
+	return set3;
+}
+</script>
+</head>
+<body>
+<p>
+<TEXTAREA style="WIDTH: 350px; HEIGHT: 150px" id=list cols=41 rows=6 name=list></TEXTAREA>
+</p>
+<p name="output" id="output">
+</p>
+<script type="text/javascript">
+var table = new Array(3)
+var text = "";
+
+for (i = 0; i < 3; i++)
+	table[i] = new Array();
+
+for (i = 0; i < 8; i++)
+	table[0][table[0].length] = i+1;
+
+for (i = 0; i < table.length; i++)
+{
+	for (j = 0; j < table[i].length; j++)
+		text += table[i][j] + ", ";
+	text += "<br>";
+}
+
+//document.write(text);
+
+
+table = hanoi(table, table[0], 0, 2, 0);
+
+document.getElementById("output").innerHTML += "done!";
+
+//for (i = 0; i < table.length; i++)
+//{
+//	text += "_(";
+//	for (j = 0; j < table[i].length; j++)
+//		text += table[i][j] + ", ";
+//	text += "<br>";
+//	text += ")_";
+//}
+
+document.getElementById("output").innerHTML += text;
+</script>
+
+</body>
+</html>

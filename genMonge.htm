@@ -1,0 +1,802 @@
+<html>
+<head>
+<script type="text/javascript">
+var log = "";
+
+function isMonge(mtrx)
+{
+	var ans = true;
+	var text = "";
+	for (var i1 = 0; i1 < mtrx.length-1 && ans; i1++)
+	{
+		for (var j1 = 0; j1 < mtrx[i1].length-1 && ans; j1++)
+		{
+			if (mtrx[i1][j1] + mtrx[i1+1][j1+1] > mtrx[i1][j1+1] + mtrx[i1+1][j1])
+				ans = false;
+		}
+	}
+
+	return ans;
+}
+
+function checkRect(mtrx, row, clmn)
+{
+	var found = false;
+	var locs = new Array();
+	
+	for (var i = 1; i < mtrx.length && !found; i++)
+	{
+		for (var j = 1; j < mtrx[i].length && !found; j++)
+		{
+			var newR = (row + i) % mtrx.length;
+			var newC = (clmn + j) % mtrx[i].length;
+			if (mtrx[newR][newC] && mtrx[row][newC] && mtrx[newR][clmn]) 
+			{
+				found = true;
+			}
+		}
+	}
+	
+	if (found)
+		return locs;
+	else
+		return found;
+}
+
+function rectBnds(mtrx, row, clmn, upper, lower)
+{	
+	for (var i = 1; i < mtrx.length; i++)
+	{
+		for (var j = 1; j < mtrx[i].length; j++)
+		{
+			var newR = (row + i) % mtrx.length;
+			var newC = (clmn + j) % mtrx[i].length;
+			if (mtrx[newR][newC] != "-" && 
+			    mtrx[row ][newC] != "-" && 
+				mtrx[newR][clmn] != "-") 
+			{
+				var bnd;
+				if (newR > row && newC > clmn)
+				//	x	b
+				//	c	y
+				// x <= upper(b) + upper(c) - lower(y)
+				{
+					bnd = mtrx[row][newC] + mtrx[newR][clmn] - mtrx[newR][newC];
+					if (bnd < upper[row][clmn])
+					{
+						log += "Because we've already set (" + row + ", " + newC + "), (" + newR + ", " + clmn + "), and (" + newR + ", " + newC + "), the Monge inequality places an upper bound on the value of (" + row + ", " + clmn + "). This value is " + mtrx[row][newC] + " + " + mtrx[newR][clmn] + " - " + mtrx[newR][newC] + ", which equals " + bnd + "<br>";
+						upper[row][clmn] = bnd;
+					}
+					bnd = upper[row][newC] + upper[newR][clmn] - lower[newR][newC];
+					if (bnd < upper[row][clmn])
+					{
+						log += "Because we've already set (" + row + ", " + newC + ") and (" + newR + ", " + clmn + "), and (" + newR + ", " + newC + ") has a lower bound, the Monge inequality places an upper bound on the value of (" + row + ", " + clmn + "). This value is " + mtrx[row][newC] + " + " + mtrx[newR][clmn] + " - " + lower[newR][newC] + ", which equals " + bnd + "<br>";
+						upper[row][clmn] = bnd;
+					}
+				}
+				else if (newR < row && newC < clmn)
+				//	a	b
+				//	c	x
+				//	x <= upper(c) + upper(b) - lower(a)
+				{
+					bnd = mtrx[row][newC] + mtrx[newR][clmn] - mtrx[newR][newC];
+					if (bnd < upper[row][clmn])
+					{
+						log += "Because we've already set (" + row + ", " + newC + "), (" + newR + ", " + clmn + "), and (" + newR + ", " + newC + "), the Monge inequality places an upper bound on the value of (" + row + ", " + clmn + "). This value is " + mtrx[row][newC] + " + " + mtrx[newR][clmn] + " - " + mtrx[newR][newC] + ", which equals " + bnd + "<br>";
+						upper[row][clmn] = bnd;
+					}
+					bnd = upper[row][newC] + upper[newR][clmn] - lower[newR][newC];
+					if (bnd < upper[row][clmn])
+					{
+						log += "Because we've already set (" + row + ", " + newC + ") and (" + newR + ", " + clmn + "), and (" + newR + ", " + newC + ") has a lower bound, the Monge inequality places an upper bound on the value of (" + row + ", " + clmn + "). This value is " + mtrx[row][newC] + " + " + mtrx[newR][clmn] + " - " + lower[newR][newC] + ", which equals " + bnd + "<br>";
+						upper[row][clmn] = bnd;
+					}
+				}
+				else if (newR > row && newC < clmn)
+				//	a	x
+				//	b	c
+				//	a + c <= b + x
+				//	x >= a + c - b
+				//	x >= lower(a) + lower(c) - upper(b)
+				{
+					bnd = mtrx[row][newC] + mtrx[newR][clmn] - mtrx[newR][newC];
+					if (bnd > lower[row][clmn])
+					{
+						log += "Because we've already set (" + row + ", " + newC + "), (" + newR + ", " + clmn + "), and (" + newR + ", " + newC + "), the Monge inequality places a lower bound on the value of (" + row + ", " + clmn + "). This value is " + mtrx[row][newC] + " + " + mtrx[newR][clmn] + " - " + mtrx[newR][newC] + ", which equals " + bnd + "<br>";
+						lower[row][clmn] = bnd;
+					}
+					bnd = lower[row][newC] + lower[newR][clmn] - upper[newR][newC];
+					if (bnd > lower[row][clmn])
+					{
+						log += "Because we've already set (" + row + ", " + newC + ") and (" + newR + ", " + clmn + "), and (" + newR + ", " + newC + ") has an upper bound, the Monge inequality places an lower bound on the value of (" + row + ", " + clmn + "). This value is " + mtrx[row][newC] + " + " + mtrx[newR][clmn] + " - " + upper[newR][newC] + ", which equals " + bnd + "<br>";
+						lower[row][clmn] = bnd;
+					}
+				}
+				else if (newR < row && newC > clmn)
+				//	a	b
+				//	x	c
+				//	a + c <= b + x
+				//	x >= a + c - b
+				//	x >= lower(a) + lower(c) - upper(b)
+				{
+					bnd = mtrx[row][newC] + mtrx[newR][clmn] - mtrx[newR][newC];
+					if (bnd > lower[row][clmn])
+					{
+						log += "Because we've already set (" + row + ", " + newC + "), (" + newR + ", " + clmn + "), and (" + newR, newC + "), the Monge inequality places a lower bound on the value of (" + row + ", " + clmn + "). This value is " + mtrx[row][newC] + " + " + mtrx[newR][clmn] + " - " + mtrx[newR][newC] + ", which equals " + bnd + "<br>";
+						lower[row][clmn] = bnd;
+					}
+					bnd = lower[row][newC] + lower[newR][clmn] - upper[newR][newC];
+					if (bnd > lower[row][clmn])
+					{
+						log += "Because we've already set (" + row + ", " + newC + ") and (" + newR + ", " + clmn + "), and (" + newR, newC + ") has an upper bound, the Monge inequality places an lower bound on the value of (" + row + ", " + clmn + "). This value is " + mtrx[row][newC] + " + " + mtrx[newR][clmn] + " - " + upper[newR][newC] + ", which equals " + bnd + "<br>";
+						lower[row][clmn] = bnd;
+					}
+				}
+			}
+		}
+	}
+	
+	if (upper[row][clmn] < lower[row][clmn])
+	{
+		return false;
+	}
+	
+	var ans;
+	
+	if (upper[row][clmn] == 10000 && lower[row][clmn] == -10000)
+	{
+		ans = Math.floor(Math.random()*25);
+	}
+	else if (lower[row][clmn] == -10000)
+	{
+		ans = Math.floor(Math.random()*25);
+		ans = upper - ans;
+	}
+	else if (upper[row][clmn] == 10000)
+	{
+		ans = Math.floor(Math.random()*25);
+		ans = upper - ans;
+	}
+	else
+	{
+		ans = Math.floor(Math.random()*(upper - lower));
+		ans = lower + ans;
+	}
+		
+	return ans;
+}
+
+function maxRFS(rows, clms)
+{
+	var mtrx = new Array(rows);
+	var rem = new Array();
+	
+	for (var i = 0; i < rows; i++)
+	{
+		mtrx[i] = new Array(clms);
+
+		for (var j = 0; j < clms; j++)
+		{
+			rem[i*clms + j] = i*clms + j;
+			mtrx[i][j] = 0;
+		}
+	}
+	
+	for (var i = 0; i < rows*clms; i++)
+	{
+		var loc = Math.floor(Math.random()*rem.length);
+		var posR = Math.floor(rem[loc] / clms);
+		var posC = rem[loc] % clms;
+		
+		var temp = checkRect(mtrx, posR, posC)
+		if (!temp)
+		{
+			mtrx[posR][posC] = 1;
+		}
+		
+		rem[loc] = rem[rem.length-1];
+		rem.length--;
+	}
+		
+	return mtrx;
+}
+
+function findMonge(rfs)
+{
+	var mtrx = new Array();
+	var found = false;
+	var text = "";
+	var upper = new Array();
+	var lower = new Array();
+	var ans = true;
+	
+	for (var i = 0; i < rfs.length; i++)
+	{
+		mtrx[i] = new Array();
+		upper[i] = new Array();
+		lower[i] = new Array();
+		for (var j = 0; j < rfs[i].length; j++)
+		{
+			upper[i][j] =  10000;
+			lower[i][j] = -10000;
+			mtrx[i][j] = "-";
+		}
+	}
+	
+	for (var i = 0; i < rfs.length; i++)
+	{
+		for (var j = 0; j < rfs[i].length; j++)
+		{		
+			if (rfs[i][j])
+			{
+				var temp = getBounds(mtrx, i, j, upper, lower);
+				upper[i][j] = temp[0];
+				lower[i][j] = temp[1];
+				if (upper[i][j] == 10000 && lower[i][j] == -10000)
+				{
+					mtrx[i][j] = Math.floor(Math.random()*25) + 1;
+				}
+				else if (upper[i][j] != 10000 && lower[i][j] != -10000)
+				{
+					var diff = upper[i][j] - lower[i][j];
+					mtrx[i][j] = Math.floor(Math.random()*diff) + lower[i][j];
+				}
+				else if (upper[i][j] != 10000)
+				{
+					var temp = Math.floor(Math.random()*25) + 1;
+					mtrx[i][j] = upper[i][j] - temp;
+				}
+				else
+				{
+					var temp = Math.floor(Math.random()*25) + 1;
+					mtrx[i][j] = lower[i][j] + temp;
+				}
+					
+				var temp = genIneq(mtrx, upper, lower);
+				upper = temp[0];
+				lower = temp[1];
+			}
+		}
+	}
+	
+	text += "<table>";
+	for (var i = 0; i < mtrx.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < mtrx[i].length; j++)
+		{
+			text += "<td>" + mtrx[i][j] + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+
+	for (var i = 0; i < rfs.length; i++)
+	{
+		for (var j = 0; j < rfs[i].length; j++)
+		{		
+			if (!rfs[i][j])
+			{
+				var temp = getBounds(mtrx, i, j, upper, lower);
+				upper[i][j] = temp[0];
+				lower[i][j] = temp[1];
+				if (upper[i][j] == 10000 && lower[i][j] == -10000)
+				{
+					mtrx[i][j] = Math.floor(Math.random()*25) + 1;
+				}
+				else if (upper[i][j] != 10000 && lower[i][j] != -10000)
+				{
+					var diff = upper[i][j] - lower[i][j];
+					mtrx[i][j] = Math.floor(Math.random()*diff) + lower[i][j];
+				}
+				else if (upper[i][j] != 10000)
+				{
+					var temp = Math.floor(Math.random()*25) + 1;
+					mtrx[i][j] = upper[i][j] - temp;
+				}
+				else
+				{
+					var temp = Math.floor(Math.random()*25) + 1;
+					mtrx[i][j] = lower[i][j] + temp;
+				}
+					
+				var temp = genIneq(mtrx, upper, lower);
+				upper = temp[0];
+				lower = temp[1];
+			}
+		}
+	}
+
+	log += "<table>";
+	for (var i = 0; i < mtrx.length; i++)
+	{
+		log += "<tr>";
+		for (var j = 0; j < mtrx[i].length; j++)
+		{
+			log += "<td>" + mtrx[i][j] + "</td>";
+		}
+		log += "</tr>";
+	}
+	log += "</table>";
+	
+	log += "<table>";
+	for (var i = 0; i < upper.length; i++)
+	{
+		log += "<tr>";
+		for (var j = 0; j < upper[i].length; j++)
+		{
+			log += "<td>" + upper[i][j] + " >= " + lower[i][j];
+			if (!(upper[i][j] >= lower[i][j]))
+			{
+				log += "<br>FALSE";
+				ans = false;
+			}
+			log += "</td>";
+		}
+		log += "</tr>";
+	}
+	log += "</table>";
+	document.getElementById("output").innerHTML += text + "<br>";
+	if (!ans)
+	{
+		return false;
+	}
+
+	return mtrx;
+}
+
+function genIneq(mtrx, upper, lower)
+{
+	var text = "";
+	
+	for (var i1 = 0; i1 < mtrx.length; i1++)
+	{
+		for (var j1 = 0; j1 < mtrx[i1].length; j1++)
+		{
+			for (var i2 = i1+1; i2 < mtrx.length; i2++)
+			{
+				for (var j2 = j1+1; j2 < mtrx[i2].length; j2++)
+				{
+					if ((mtrx[i2][j2] != "-" && mtrx[i1][j2] != "-" && mtrx[i2][j1] != "-") ||	// (i1, j1) case
+						(mtrx[i1][j1] != "-" && mtrx[i2][j1] != "-" && mtrx[i2][j2] != "-") ||	// (i1, j2) case
+						(mtrx[i1][j1] != "-" && mtrx[i1][j2] != "-" && mtrx[i2][j2] != "-") ||	// (i2, j1) case
+						(mtrx[i1][j1] != "-" && mtrx[i1][j2] != "-" && mtrx[i2][j1] != "-"))	// (i2, j2) case
+					{
+						var temp;
+						if (mtrx[i2][j2] != "-" && mtrx[i1][j2] != "-" && mtrx[i2][j1] != "-")
+						{
+							log += "x<sub>" + i1 + ", " + j1 + "</sub>" + " <= x<sub>" + i1 + ", " + j2 + "</sub> + x<sub>" + i2 + ", " + j1 + "</sub> - x<sub>" + i2 + ", " + j2 + "</sub> = " + mtrx[i1][j2] + " + " + mtrx[i2][j1] + " - " + mtrx[i2][j2] + " = " + eval(mtrx[i1][j2] + mtrx[i2][j1] - mtrx[i2][j2]) + "<br>";
+							temp = eval(mtrx[i1][j2] + mtrx[i2][j1] - mtrx[i2][j2]);
+							if (temp < upper[i1][j1])
+							{
+								upper[i1][j1] = temp;
+							}
+						}
+						if (mtrx[i1][j1] != "-" && mtrx[i2][j1] != "-" && mtrx[i2][j2] != "-")
+						{
+							log += "x<sub>" + i1 + ", " + j2 + "</sub>" + " >= x<sub>" + i1 + ", " + j1 + "</sub> + x<sub>" + i2 + ", " + j2 + "</sub> - x<sub>" + i2 + ", " + j1 + "</sub> = " + mtrx[i1][j1] + " + " + mtrx[i2][j2] + " - " + mtrx[i2][j1] + " = " + eval(mtrx[i1][j1] + mtrx[i2][j2] - mtrx[i2][j1]) + "<br>";
+							temp = eval(mtrx[i1][j1] + mtrx[i2][j2] - mtrx[i2][j1]);
+							if (temp > lower[i1][j2])
+							{
+								lower[i1][j2] = temp;
+							}
+						}
+						if (mtrx[i1][j1] != "-" && mtrx[i1][j2] != "-" && mtrx[i2][j2] != "-")
+						{
+							log += "x<sub>" + i2 + ", " + j1 + "</sub>" + " >= x<sub>" + i1 + ", " + j1 + "</sub> + x<sub>" + i2 + ", " + j2 + "</sub> - x<sub>" + i1 + ", " + j2 + "</sub> = " + mtrx[i1][j1] + " + " + mtrx[i2][j2] + " - " + mtrx[i1][j2] + " = " + eval(mtrx[i1][j1] + mtrx[i2][j2] - mtrx[i1][j2]) + "<br>";
+							temp = eval(mtrx[i1][j1] + mtrx[i2][j2] - mtrx[i1][j2]);
+							if (temp > lower[i2][j1])
+							{
+								lower[i2][j1] = temp;
+							}
+						}
+						if (mtrx[i1][j1] != "-" && mtrx[i1][j2] != "-" && mtrx[i2][j1] != "-")
+						{
+							log += "x<sub>" + i2 + ", " + j2 + "</sub>" + " <= x<sub>" + i1 + ", " + j2 + "</sub> + x<sub>" + i2 + ", " + j1 + "</sub> - x<sub>" + i1 + ", " + j1 + "</sub> = " + mtrx[i1][j2] + " + " + mtrx[i2][j1] + " - " + mtrx[i1][j1] + " = " + eval(mtrx[i1][j2] + mtrx[i2][j1] - mtrx[i1][j1]) + "<br>";
+							temp = eval(mtrx[i1][j2] + mtrx[i2][j1] - mtrx[i1][j1]);
+							if (temp < upper[i2][j2])
+							{
+								upper[i2][j2] = temp;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	var textArr = text.split("<br>");
+	
+	for (var i = 0; i < textArr.length; i++)
+	{
+		for (var j = i + 1; j < textArr.length-1; j++)
+		{
+			if (textArr[i] > textArr[j])
+			{
+				var temp = textArr[i];
+				textArr[i] = textArr[j];
+				textArr[j] = temp;
+			}
+		}
+	}
+	
+	text = "";
+	
+	for (var i = 0; i < textArr.length; i++)
+	{
+		text += textArr[i] + "<br>";
+	}
+
+	text += "<table>";
+	for (var i = 0; i < upper.length; i++)
+	{
+		text += "<tr>";
+		for (var j = 0; j < upper[i].length; j++)
+		{
+			text += "<td>" + upper[i][j] + " >= " + lower[i][j];
+			if (!(upper[i][j] >= lower[i][j]))
+			{
+				text += "<br>FALSE";
+			}
+			text += "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+//	document.getElementById('output').innerHTML += text;
+	
+	var ans = new Array();
+	ans[0] = upper;
+	ans[1] = lower;
+	
+	return ans;
+}
+
+function getBounds(mtrx, row, clmn, upper, lower)
+{
+	var bound = new Array();
+	bound[0] = 10000;
+	bound[1] = -10000;
+	var bdUsed;
+	/*
+	bdUsed has 4 possible values
+		0 means we added upper
+		1 means we added lower
+		2 means we subtracted upper
+		3 means we subtracted lower
+	*/
+	var loc = -1;
+	var temp;
+	var text = "";
+	text += "inside getBounds(" + row + ", " + clmn + "<br>";
+	
+	for (var i = 1; i < mtrx.length; i++)
+	{
+		for (var j = 1; j < mtrx[i].length; j++)
+		{
+			var otherR;
+			var otherC;
+			var newR = (row + i) % mtrx.length;
+			var newC = (clmn + j) % mtrx[i].length;
+			
+			if ((mtrx[newR][newC] != "-" && mtrx[row][newC] != "-") ||
+			    (mtrx[newR][newC] != "-" && mtrx[newR][clmn] != "-") || 
+				(mtrx[row][newC] != "-" && mtrx[newR][clmn] != "-"))
+			{
+				if (newR > row && newC > clmn)
+				{
+					if (mtrx[row][newC] != "-" && mtrx[newR][clmn] != "-")
+					{
+						//	(row, clmn)		_(row, newC)_
+						//	_(newR, clmn)_	(newR, newC)
+						//	? <= u1 + u2 - lower(x)
+						// 	u1 = mtrx[row][newC]
+						//	u2 = mtrx[newR][clmn]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= x<sub>" + newR + ", " + clmn + "</sub> + x<sub>" + row + ", " + newC + "</sub> - lower[" + newR + "][" + newC + "]<br>";
+						if (lower[newR][newC] != -10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> <= " + mtrx[newR][clmn] + " + " + mtrx[row][newC] + " - " + lower[newR][newC] + "<br>";
+						otherR = newR;
+						otherC = newC;
+						temp = mtrx[newR][clmn] + mtrx[row][newC] - lower[newR][newC];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= " + temp + "<br>";
+						bdUsed = 3;
+						loc = 0;
+					}
+					else if (mtrx[newR][newC] != "-" && mtrx[row][newC] != "-")
+					{
+						//	(row, clmn)		_(row, newC)_
+						//	(newR, clmn)	_(newR, newC)_
+						//	? <= u1 - u2 + upper(x)
+						//	u1 = mtrx[row][newC]
+						//	u2 = mtrx[newR][newC]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= x<sub>" + row + ", " + newC + "</sub> - x<sub>" + newR + ", " + newC + "</sub> + upper[" + newR + "][" + clmn + "]<br>";
+						if (upper[newR][clmn] != 10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> <= " + mtrx[row][newC] + " - " + mtrx[newR][newC] + " + " + upper[newR][clmn] + "<br>";
+						otherR = newR;
+						otherC = clmn;
+						temp = mtrx[row][newC] - mtrx[newR][newC] + upper[newR][clmn];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= " + temp + "<br>";
+						bdUsed = 0;
+						loc = 0
+					}
+					else if (mtrx[newR][newC] != "-" && mtrx[newR][clmn] != "-")
+					{
+						//	(row, clmn)		(row, newC)
+						//	_(newR, clmn)_	_(newR, newC)_
+						//	? <= u1 - u2 + upper(x)
+						//	u1 = mtrx[newR][clmn]
+						//	u2 = mtrx[newR][newC]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= x<sub>" + newR + ", " + clmn + "</sub> - x<sub>" + newR + ", " + newC + "</sub> + upper[" + row + "][" + newC + "]<br>";
+						if (upper[row][newC] != 10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> <= " + mtrx[newR][clmn] + " - " + mtrx[newR][newC] + " + " + upper[row][newC] + "<br>";
+						otherR = row;
+						otherC = newC;
+						temp = mtrx[newR][clmn] - mtrx[newR][newC] + upper[row][newC];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= " + temp + "<br>";
+						bdUsed = 0;
+						loc = 0;
+					}
+					
+				}
+				else if (newR > row && newC < clmn)
+				{
+					if (mtrx[newR][newC] != "-" && mtrx[row][newC] != "-")
+					{
+						//	_(row, newC)_	(row, clmn)
+						//	_(newR, newC)_	(newR, clmn)
+						//	? >= u1 - u2 + lower(x)
+						//	u1 = mtrx[row][newC]
+						//	u2 = mtrx[newR][newC]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= x<sub>" + row + ", " + newC + "</sub> - x<sub>" + newR + ", " + newC + "</sub> + lower[" + newR + "][" + clmn + "]<br>";
+						if (lower[newR][clmn] != -10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> >= " + mtrx[row][newC] + " - " + mtrx[newR][newC] + " + " + lower[newR][clmn] + "<br>";
+						otherR = newR;
+						otherC = clmn;
+						temp = mtrx[row][newC] - mtrx[newR][newC] + lower[newR][clmn];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= " + temp + "<br>";
+						bdUsed = 1;
+						loc = 1;
+					}
+					else if (mtrx[row][newC] != "-" && mtrx[newR][clmn] != "-")
+					{
+						//	_(row, newC)_	(row, clmn)
+						//	(newR, newC)	_(newR, clmn)_
+						//	? >= u1 + u2 - upper(x)
+						//	u1 = mtrx[row][newC]
+						//	u2 = mtrx[newR][clmn]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= x<sub>" + row + ", " + newC + "</sub> + x<sub>" + newR + ", " + clmn + "</sub> - upper[" + newR + "][" + newC + "]<br>";
+						if (upper[newR][newC] != 10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> >= " + mtrx[row][newC] + " + " + mtrx[newR][clmn] + " - " + upper[newR][newC] + "<br>";
+						otherR = newR;
+						otherC = newC;
+						temp = mtrx[row][newC] + mtrx[newR][clmn] - upper[newR][newC];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= " + temp + "<br>";
+						bdUsed = 2;
+						loc = 1;
+					}
+					else if (mtrx[newR][newC] != "-" && mtrx[newR][clmn] != "-")
+					{
+						//	(row, newC)		(row, clmn)
+						//	_(newR, newC)_	_(newR, clmn)_
+						//	? >= u2 - u1 + lower(x)
+						//	u1 = mtrx[newR][newC]
+						//	u2 = mtrx[newR][clmn]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= x<sub>" + newR + ", " + clmn + "</sub> - x<sub>" + newR + ", " + newC + "</sub> + lower[" + newR + "][" + newC + "]<br>";
+						if (lower[row][newC] != -10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> >= " + mtrx[newR][clmn] + " - " + mtrx[newR][newC] + " + " + lower[row][newC] + "<br>";
+						otherR = row;
+						otherC = newC;
+						temp = mtrx[newR][clmn] - mtrx[newR][newC] + lower[row][newC];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= " + temp + "<br>";
+						bdUsed = 1;
+						loc = 1;
+					}
+				}
+				else if (newR < row && newC > clmn)
+				{
+					if (mtrx[newR][newC] != "-" && mtrx[newR][clmn] != "-")
+					{
+						//	_(newR, clmn)_	_(newR, newC)_
+						//	(row, clmn)		(row, newC)
+						//	? >= u1 - u2 + lower(x)
+						//	u1 = mtrx[newR][clmn]
+						//	u2 = mtrx[newR][newC]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= x<sub>" + newR + ", " + clmn + "</sub> - x<sub>" + newR + ", " + newC + "</sub> + lower[" + row + "][" + newC + "]<br>";
+						if (lower[row][newC] != -10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> >= " + mtrx[newR][clmn] + " + " + mtrx[newR][newC] + " - " + lower[row][newC] + "<br>";
+						otherR = row;
+						otherC = newC;
+						temp = mtrx[newR][clmn] - mtrx[newR][newC] + lower[row][newC];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= " + temp + "<br>";
+						bdUsed = 1;
+						loc = 1;
+					}
+					else if (mtrx[row][newC] != "-" && mtrx[newR][clmn] != "-")
+					{
+						//	_(newR, clmn)_	(newR, newC)
+						//	(row, clmn)		_(row, newC)_
+						//	? >= u1 + u2 - upper(x)
+						//	u1 = mtrx[newR][clmn]
+						//	u2 = mtrx[row][newC]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= x<sub>" + newR + ", " + clmn + "</sub> - x<sub>" + row + ", " + newC + "</sub> - upper[" + newR + "][" + newC + "]<br>";
+						if (upper[newR][newC] != 10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> >= " + mtrx[newR][clmn] + " + " + mtrx[row][newC] + " - " + upper[newR][newC] + "<br>";
+						otherR = newR;
+						otherC = newC;
+						temp = mtrx[newR][clmn] - mtrx[row][newC] - upper[newR][newC];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= " + temp + "<br>";
+						bdUsed = 3;
+						loc = 1;
+					}
+					else if (mtrx[newR][newC] != "-" && mtrx[row][newC] != "-")
+					{
+						//	(newR, clmn)	_(newR, newC)_
+						//	(row, clmn)		_(row, newC)_
+						//	? >= u2 - u1 + lower(x)
+						//	u1 = mtrx[newR][newC]
+						//	u2 = mtrx[row][newC]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= x<sub>" + row + ", " + newC + "</sub> - x<sub>" + newR + ", " + newC + "</sub> + lower[" + newR + "][" + clmn + "]<br>";
+						if (lower[newR][clmn] != -10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> >= " + mtrx[row][newC] + " - " + mtrx[newR][newC] + " - " + lower[newR][clmn] + "<br>";
+						otherR = newR;
+						otherC = clmn;
+						temp = mtrx[row][newC] - mtrx[newR][newC] + lower[newR][clmn];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> >= " + temp + "<br>";
+						bdUsed = 1;
+						loc = 1;
+					}
+				}
+				else if (newR < row && newC < clmn)
+				{
+					if (mtrx[newR][newC] != "-" && mtrx[newR][clmn] != "-")
+					{
+						//	_(newR, newC)_	_(newR, clmn)_
+						//	(row, newC)		(row, clmn)	
+						//	? <= u2 - u1 + upper(x)
+						//	u1 = mtrx[newR][newC]
+						//	u2 = mtrx[newR][clmn]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= x<sub>" + newR + ", " + clmn + "</sub> - x<sub>" + newR + ", " + newC + "</sub> + upper[" + row + "][" + newC + "]<br>";
+						if (upper[row][newC] != 10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> <= " + mtrx[newR][clmn] + " + " + mtrx[newR][newC] + " - " + upper[row][newC] + "<br>";
+						otherR = row;
+						otherC = newC;
+						temp = mtrx[newR][clmn] - mtrx[newR][newC] + upper[row][newC];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= " + temp + "<br>";
+						bdUsed = 0;
+						loc = 0;
+					}
+					else if (mtrx[newR][newC] != "-" && mtrx[row][newC] != "-")
+					{
+						//	_(newR, newC)_	(newR, clmn)
+						//	_(row, newC)_	(row, clmn)
+						//	? <= u2 - u1 + upper(x)
+						//	u1 = mtrx[newR][newC]
+						//	u2 = mtrx[row][newC]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= x<sub>" + row + ", " + newC + "</sub> - x<sub>" + newR + ", " + newC + "</sub> + upper[" + newR + "][" + clmn + "]<br>";
+						if (upper[newR][clmn] != 10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> <= " + mtrx[row][newC] + " - " + mtrx[newR][newC] + " + " + upper[newR][clmn] + "<br>";
+						otherR = newR;
+						otherC = clmn;
+						temp  = mtrx[row][newC] - mtrx[newR][newC] + upper[newR][clmn];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= " + temp + "<br>";
+						bdUsed = 0;
+						loc = 0;
+					}
+					else if (mtrx[row][newC] != "-" && mtrx[newR][clmn] != "-")
+					{
+						//	(newR, newC)	_(newR, clmn)_
+						//	_(row, newC)_	(row, clmn)
+						//	? <= u1 + u2 - lower(x)
+						//	u1 = mtrx[newR][clmn]
+						//	u2 = mtrx[row][newC]
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= x<sub>" + newR + ", " + clmn + "</sub> + x<sub>" + row + ", " + newC + "</sub> - lower[" + newR + "][" + newC + "]<br>";
+						if (lower[newR][newC] != -10000)
+							log += "x<sub>" + row + ", " + clmn + "</sub> <= " + mtrx[newR][clmn] + " + " + mtrx[row][newC] + " - " + lower[newR][newC] + "<br>";
+						otherR = newR;
+						otherC = newC;
+						temp = mtrx[newR][clmn] + mtrx[row][newC] - lower[newR][newC];
+//						log += "x<sub>" + row + ", " + clmn + "</sub> <= " + temp + "<br>";
+						bdUsed = 2;
+						loc = 0;
+					}
+				}
+								
+				if (loc == 0)
+				{
+					if (temp < bound[0] && temp < upper[row][clmn] && (bdUsed == 0 && upper[otherR][otherC] != 10000 || bdUsed == 3 && lower[otherR][otherC] != -10000))
+					{
+						log += "Setting upper bound of (" + row + ", " + clmn + ") to " + temp + "<br>";
+						bound[0] = temp;
+					}
+					else if (upper[row][clmn] < bound[0])
+					{
+						bound[0] = upper[row][clmn];
+					}
+				}
+				else if (loc == 1)
+				{
+					if (temp > bound[1] && temp > lower[row][clmn] && (bdUsed == 1 && lower[otherR][otherC] != -10000 || bdUsed == 2 && upper[otherR][otherC] != 10000))
+					{
+						log += "Setting lower bound of (" + row + ", " + clmn + ") to " + temp + "<br>";
+						bound[1] = temp;
+					}
+					else if (lower[row][clmn] > bound[1])
+					{
+						bound[1] = lower[row][clmn];
+					}
+				}				
+			}
+		}
+	}
+	
+	return bound;
+}
+
+</script>
+<body>
+<p name="output" id="output"></p>
+<script type="text/javascript">
+var mtrx = new Array();
+var rfs = new Array();
+var rem = new Array();
+var min = 0;
+var numRows = 3;
+var numClms = 3;
+var text = "";
+
+rfs = maxRFS(numRows, numClms);
+text += "<table>";
+for (var i = 0; i < rfs.length; i++)
+{
+	text += "<tr>";
+	for (var j = 0; j < rfs[i].length; j++)
+	{
+		text += "<td>" + rfs[i][j] + "</td>";
+	}
+	text += "</tr>";
+}
+text += "</table>";
+
+document.getElementById("output").innerHTML += text + "<br>";
+
+text = "";
+
+do
+{
+	var temp = findMonge(rfs);
+	if (!temp)
+	{
+		text += "infeasible Matrix generated, trying again<br>";
+		document.getElementById("output").innerHTML += log;
+		log = "";
+	}
+}
+while (!temp)
+mtrx = temp;
+
+text += "<table>";
+for (var i = 0; i < mtrx.length; i++)
+{
+	text += "<tr>";
+	for (var j = 0; j < mtrx[i].length; j++)
+	{
+		text += "<td>" + mtrx[i][j] + "</td>";
+	}
+	text += "</tr>";
+}
+text += "</table>";
+
+if (isMonge(mtrx))
+{
+	text += "This matrix is Monge<br>";
+}
+else
+{
+	text += "This matrix is NOT Monge<br>";
+}
+
+document.getElementById("output").innerHTML += text + "<br>";
+</script>
+</body>
+</html>

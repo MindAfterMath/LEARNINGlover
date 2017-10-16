@@ -1,0 +1,465 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<style>
+.content
+{
+	max-width: 500px;
+	overflow: scroll;
+}
+</style>
+<script type="text/javascript">
+function getMean(list)
+{
+	var avgVal = 0;
+	for (var i = 0; i < list.length; i++)
+	{
+		avgVal += list[i];
+	}
+	
+	avgVal = avgVal / list.length;
+		
+	return avgVal;
+}
+
+function getStdDev(list)
+{
+	var dev = 0;
+	
+	var mean = getMean(list);
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		dev += (list[i] - mean)*(list[i] - mean);
+	}
+	
+	dev = dev / list.length;
+	dev = Math.sqrt(dev);
+	
+	return dev;
+}
+
+function entropy(list)
+{
+	var probs = new Array();
+	var total = 0;
+	var ans = new Array();
+	var totalEnt = 0;
+	var keySet = new Array();
+	var counts = new Array();
+	
+	for (var i = 0; i < list.length; i++)
+	{
+		total += 1;
+		if (keySet.indexOf(list[i]) == -1)
+		{
+			keySet.push(list[i]);
+			counts[i] = 0;
+		}
+		else
+		{
+			counts[i] += 1;
+		}
+	}
+	
+	for (var key in counts)
+	{
+		total += counts[key];
+		if (keySet.indexOf(key) == -1)
+		{
+			keySet.push(key);
+		}
+	}
+	
+	for (var key in counts)
+	{
+		if (keySet.length > 1 && counts[key] != 0)
+		{
+			probs[key] = (counts[key] / total);
+			ans[key] = -1 * probs[key] * (Math.log(probs[key]) / Math.log(keySet.length));
+			totEnt += ans[key];
+		}
+	}
+	
+	
+}
+
+function calcEngy()
+{
+	var doc = document.getElementById("dcmt").value;
+	var wds = doc.split(/\W/g);
+	var locs = {};
+	var diffs = {};
+	var cnt = 0;
+	
+	for (var i = 0; i < wds.length; i++)
+	{
+		if (wds[i].length > 0)
+		{
+			cnt++;
+			if (!(wds[i] in locs) || (wds[i] == "watch" && !Array.isArray(locs[wds[i]])))
+			{
+				locs[wds[i]] = new Array();
+				locs[wds[i]].push(i);
+				diffs[wds[i]] = new Array();
+			}
+			else
+			{
+				locs[wds[i]].push(i);
+			}
+		}
+	}
+	
+	var maxGp = {};
+	for (var i in locs)
+	{
+		for (var j = 0; j < locs[i].length - 1; j++)
+		{
+			diffs[i].push(locs[i][j+1] - locs[i][j]);
+		}
+	}
+	
+	var avgGp = {};
+	
+	for (var i in diffs)
+	{
+		maxGp[i] = -1;
+		avgGp[i] = 0;
+		for (var j = 0; j < diffs[i].length; j++)
+		{
+			avgGp[i] += diffs[i][j];
+			if (diffs[i][j] > maxGp[i])
+			{
+				maxGp[i] = diffs[i][j];
+			}
+		}
+		avgGp[i] /= diffs[i].length;
+	}
+	
+	var sigma = {};
+	var sigma2 = {};
+	var sigma3 = {};
+	var p = {};
+	var normDiffs = {};
+	var c = {};
+	var sig3Len = 0;
+	for (var i in diffs)
+	{
+		normDiffs[i] = new Array();
+		for (var j = 0; j < diffs[i].length; j++)
+		{
+			normDiffs[i][j] = diffs[i][j] / avgGp[i];
+		}
+
+		if (diffs[i].length > 0)
+		{
+			sig3Len++;
+			sigma[i] = getStdDev(normDiffs[i]);
+			p[i] = (locs[i].length / cnt);
+			sigma2[i] = Math.sqrt(1 - p[i]);
+			sigma3[i] = sigma[i] / sigma2[i];
+		}
+	}
+	
+	var sigMean = 0
+	for (var i in sigma3)
+	{
+		sigMean += sigma3[i];
+	}
+//	alert(sigMean + " / " + sigma3.length + "\n" + sigma3);
+	sigMean = sigMean / sig3Len;
+
+	var sigDev = 0;
+	
+	for (var i in sigma3)
+	{
+		sigDev += (sigma3[i] - sigMean)*(sigma3[i] - sigMean);
+	}
+	sigDev = sigDev / sig3Len;
+	sigDev = Math.sqrt(sigDev);
+	
+	for (var i in sigma3)
+	{
+		c[i] = (sigma3[i] - sigMean) / (sigDev);
+	}
+	
+//	var imgData=ctx.getImageData(10,10,50,50);
+//	ctx.putImageData(imgData,10,70);
+	
+	var head = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'
+	head += '<html xmlns="http://www.w3.org/1999/xhtml">\n<he' + "ad>\n";
+	head += "<style>\n";
+	head += ".content\n";
+	head += "{\n";
+	head += "	max-width: 500px;\n";
+	head += "}\n";
+	head += "th\n";
+	head += "{\n";
+	head += "	cursor: pointer;\n";
+	head += "}\n";
+	head += "tr\n";
+	head += "{\n";
+	head += "	display:table-row;\n";
+	head += "}\n";
+	head += "</style>\n";
+	head += "<script type='text/javascript'>\n";
+	head += "var data, asc1=1, asc2=1, asc3=1, asc4=1, asc5=1, asc6=1, asc7=1, asc8=1, asc9=1, asc10=1, asc11=1;\n";
+	head += "numWds = " + cnt + ";\n";
+//	head += "window.onload = function() { data = document.getElementById('data');}\n";
+	head += "function sort_table(tbody, col, asc)\n";
+	head += "{\n";
+	head += "	var rows = tbody.rows;\n";
+	head += "	rlen = rows.length; \n";
+	head += "	var arr = new Array(), i, j, cells, clen;\n";
+	head += "	for (i = 0; i < rlen; i++)\n";
+	head += "	{\n";
+	head += "		cells = rows[i].cells;\n";
+	head += "		clen = cells.length;\n";
+	head += "		arr[i] = new Array();\n";
+	head += "		for (j = 0; j < clen; j++)\n";
+	head += "		{\n";
+	head += "			if (!isNaN(parseInt(cells[j].innerHTML)))\n";
+	head += "			{\n";
+	head += "				arr[i][j] = parseFloat(cells[j].innerHTML);\n";
+	head += "			}\n";
+	head += "			else\n";
+	head += "			{\n";
+	head += "				arr[i][j] = cells[j].innerHTML;\n";
+	head += "			}\n";
+	head += "		}\n";
+	head += "	}\n";
+	head += "	\n";
+	head += "	arr.sort(function(a, b) { return (a[col] == b[col]) ? 0 : ((a[col] < b[col]) ? asc : -1 * asc); });\n";
+	head += "	\n";
+	head += "	for (i = 0; i < rlen; i++)\n";
+	head += "	{\n";
+//	head += "		var ctx = c.getContext('2d');\n";
+	head += "		rows[i].innerHTML = '<td>' + arr[i][0] + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td class=\"content\">' + arr[i][1] + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td class=\"content\">' + arr[i][2] + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td>' + arr[i][3] + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td>' + arr[i][4] + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td>' + arr[i][5].toFixed(3) + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td>' + arr[i][6].toFixed(3) + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td>' + arr[i][7].toFixed(3) + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td>' + arr[i][8].toFixed(3) + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td>' + arr[i][9].toFixed(3) + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td>' + arr[i][10].toFixed(3) + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td>' + arr[i][11] + '</td>';\n";
+	head += "		rows[i].innerHTML += '<td>' + arr[i][12] + '</td>';\n";
+	head += "		var c = rows[i].cells[11].children[0];\n";
+	head += "		var c2 = rows[i].cells[12].children[0];\n";
+	head += "		var list = arr[i][1].substring(42, arr[i][1].length - 6).split(',');\n";
+	head += "		plotHist1(c, list, numWds);\n";
+	head += "		plotHist2(c2, list, numWds);\n";
+	head += "	}\n";
+	head += "}\n";
+	head += "function sort(list)\n";
+	head += "{\n";
+	head += "	var temp = new Array();\n";
+	head += "	for (var i = 0; i < list.length; i++)\n";
+	head += "	{\n";
+	head += "		temp[i] = list[i];\n";
+	head += "	}\n";
+	head += "\n";
+	head += "	for (var i = 0; i < list.length; i++)\n";
+	head += "	{\n";
+	head += "		for (var j = 0; j < i; j++)\n";
+	head += "		{\n";
+	head += "			if (temp[i] < temp[j])\n";
+	head += "			{\n";
+	head += "				var temp2 = temp[i];\n";
+	head += "				temp[i] = temp[j];\n";
+	head += "				temp[j] = temp2;\n";
+	head += "			}\n";
+	head += "		}\n";
+	head += "	}\n";
+	head += "\n";
+	head += "	return temp;\n";
+	head += "}\n";
+	head += "\n";
+	head += "	\n";
+	head += "function getMax(list)\n";
+	head += "{\n";
+	head += "	var maxLoc = -1;\n";
+	head += "	for (var i = 0; i < list.length; i++)\n";
+	head += "	{\n";
+	head += "		if (maxLoc == -1 || list[i] > list[maxLoc])\n";
+	head += "		{\n";
+	head += "			maxLoc = i;\n";
+	head += "		}\n";
+	head += "	}\n";
+	head += "	\n";
+	head += "	return list[maxLoc];\n";
+	head += "}\n";
+	head += "\n";
+	head += "function plotHist1(c, list, docLen)\n";
+	head += "{\n";
+	head += "	var temp = sort(list);\n";
+	head += "	var ctx = c.getContext('2d');\n";
+	head += "	ctx.fillStyle = '#FFFFFF';\n";
+	head += "	ctx.fillRect(0, 0, c.width, c.height);\n";
+	head += "	ctx.fill();\n";
+	head += "	\n";
+	head += "	var xAxis = new Array();\n";
+	head += "	var yAxis = new Array();\n";
+	head += "	\n";
+	head += "	var pxlVal = Math.floor(docLen / c.width);\n";
+	head += "	for (var i = 0; i < c.width; i++)\n";
+	head += "	{\n";
+	head += "		xAxis[i] = i * pxlVal;\n";
+	head += "		yAxis[i] = 0;\n";
+	head += "	}\n";
+	head += "	\n";
+	head += "	for (var i in temp)\n";
+	head += "	{\n";
+	head += "		var found = false;\n";
+	head += "		for (var j = 0; j < xAxis.length - 1 && !found; j++)\n";
+	head += "		{\n";
+	head += "			if (xAxis[j] <= temp[i] && temp[i] <= xAxis[j+1])";
+	head += "			{\n";
+	head += "				found = true;\n";
+	head += "				yAxis[j]++;\n";
+	head += "			}\n";
+	head += "		}\n";
+	head += "	}\n";
+	head += "	\n";
+	head += "	var barWidth = 1;\n";
+	head += "	var unitHght = Math.floor(c.height / getMax(yAxis));\n";
+	head += "	\n";
+	head += "	for (var i = 0; i < xAxis.length; i++)\n";
+	head += "	{\n";
+	head += "		ctx.fillStyle = '#0033FF';\n";
+	head += "		ctx.fillRect(i*barWidth, c.height - unitHght * yAxis[i], barWidth, unitHght * yAxis[i]);\n";
+	head += "		ctx.fill();\n";
+	head += "	}\n";
+	head += "}\n";
+	head += "\n";
+	head += "function plotHist2(c, list, docLen)\n";
+	head += "{\n";
+	head += "	var temp = sort(list);\n";
+	head += "	var ctx = c.getContext('2d');\n";
+	head += "	ctx.fillStyle = '#FFFFFF';\n";
+	head += "	ctx.fillRect(0, 0, c.width, c.height);\n";
+	head += "	ctx.fill();\n";
+	head += "	\n";
+	head += "	var xAxis = new Array();\n";
+	head += "	var yAxis = new Array();\n";
+	head += "	\n";
+	head += "	var pxlVal = Math.floor(docLen / c.width);\n";
+	head += "	for (var i = 0; i < c.width; i++)\n";
+	head += "	{\n";
+	head += "		xAxis[i] = i * pxlVal;\n";
+	head += "		yAxis[i] = 0;\n";
+	head += "	}\n";
+	head += "	\n";
+	head += "	for (var i in temp)\n";
+	head += "	{\n";
+	head += "		var found = false;\n";
+	head += "		for (var j = 0; j < xAxis.length - 1 && !found; j++)\n";
+	head += "		{\n";
+	head += "			if (xAxis[j] <= temp[i] && temp[i] <= xAxis[j+1])";
+	head += "			{\n";
+	head += "				found = true;\n";
+	head += "				yAxis[j] = 100;\n";
+	head += "			}\n";
+	head += "		}\n";
+	head += "	}\n";
+	head += "	\n";
+	head += "	var barWidth = 1;\n";
+	head += "	var unitHght = c.height;\n";
+	head += "	\n";
+	head += "	for (var i = 0; i < xAxis.length; i++)\n";
+	head += "	{\n";
+	head += "		ctx.fillStyle = '#0033FF';\n";
+	head += "		ctx.fillRect(i*barWidth, c.height - unitHght * yAxis[i], barWidth, unitHght * yAxis[i]);\n";
+	head += "		ctx.fill();\n";
+	head += "	}\n";
+	head += "}\n";
+
+	head += "</sc" + "ript></he" + "ad><bo" + "dy>\n";
+	
+	var out = "<table>\n<thead>\n";
+	out += "<tr>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data'),  0,  asc1); asc1 *= -1; asc2  =  1; asc3  =  1; asc4  =  1; asc5  =  1; asc6  =  1; asc7  =  1; asc8  =  1; asc9  =  1; asc10  =  1; asc11  =  1;\">Word</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data'),  1,  asc2); asc1  =  1; asc2 *= -1; asc3  =  1; asc4  =  1; asc5  =  1; asc6  =  1; asc7  =  1; asc8  =  1; asc9  =  1; asc10  =  1; asc11  =  1;\">Energy</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data'),  2,  asc3); asc1  =  1; asc2  =  1; asc3 *= -1; asc4  =  1; asc5  =  1; asc6  =  1; asc7  =  1; asc8  =  1; asc9  =  1; asc10  =  1; asc11  =  1;\">Differences</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data'),  3,  asc4); asc1  =  1; asc2  =  1; asc3  =  1; asc4 *= -1; asc5  =  1; asc6  =  1; asc7  =  1; asc8  =  1; asc9  =  1; asc10  =  1; asc11  =  1;\">Appearances</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data'),  4,  asc5); asc1  =  1; asc2  =  1; asc3  =  1; asc4  =  1; asc5 *= -1; asc6  =  1; asc7  =  1; asc8  =  1; asc9  =  1; asc10  =  1; asc11  =  1;\">Max Gap</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data'),  5,  asc6); asc1  =  1; asc2  =  1; asc3  =  1; asc4  =  1; asc5  =  1; asc6 *= -1; asc7  =  1; asc8  =  1; asc9  =  1; asc10  =  1; asc11  =  1;\">Avg Gap</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data'),  6,  asc7); asc1  =  1; asc2  =  1; asc3  =  1; asc4  =  1; asc5  =  1; asc6  =  1; asc7 *= -1; asc8  =  1; asc9  =  1; asc10  =  1; asc11  =  1;\">Sigma</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data'),  7,  asc8); asc1  =  1; asc2  =  1; asc3  =  1; asc4  =  1; asc5  =  1; asc6  =  1; asc7  =  1; asc8 *= -1; asc9  =  1; asc10  =  1; asc11  =  1;\">p</th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data'),  8,  asc9); asc1  =  1; asc2  =  1; asc3  =  1; asc4  =  1; asc5  =  1; asc6  =  1; asc7  =  1; asc8  =  1; asc9 *= -1; asc10  =  1; asc11  =  1;\">Sigma<sub>geo</sub></th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data'),  9, asc10); asc1  =  1; asc2  =  1; asc3  =  1; asc4  =  1; asc5  =  1; asc6  =  1; asc7  =  1; asc8  =  1; asc9  =  1; asc10 *= -1; asc11  =  1;\">Sigma<sub>nor</sub></th>\n";
+	out += "<th onclick=\"sort_table(document.getElementById('data'), 10, asc11); asc1  =  1; asc2  =  1; asc3  =  1; asc4  =  1; asc5  =  1; asc6  =  1; asc7  =  1; asc8  =  1; asc9  =  1; asc10  =  1; asc11 *= -1;\">Z-Score</th>\n";
+	out += "<th>Graph 1</th>\n";
+	out += "<th>Graph 2</th>\n";
+	out += "</tr>\n</thead>\n<tbody id='data'>\n";
+	
+	var count = 0;
+	for (var i in locs)
+	{
+		if (locs[i].length > 75)
+		{
+			out += "<tr><td>" + i + "</td>";
+			out += "<td><div style='overflow-x:auto; width:300px'>" + locs[i] + "</div></td>";
+			out += "<td><div style='overflow-x:auto; width:300px'>" + diffs[i] + "</div></td>";
+			out += "<td>" + locs[i].length + "</td>";
+			out += "<td>" + maxGp[i] + "</td>";
+			out += "<td>" + avgGp[i].toFixed(3) + "</td>";
+			out += "<td>" + sigma[i].toFixed(3) + "</td>";
+			out += "<td>" + p[i].toFixed(3) + "</td>";
+			out += "<td>" + sigma2[i].toFixed(3) + "</td>";
+			out += "<td>" + sigma3[i].toFixed(3) + "</td>";
+			out += "<td>" + c[i].toFixed(3) + "</td>";
+			out += "<td><canvas id=cnvs1" + count + " width='200' height='100'></canvas></td>";
+			out += "<td><canvas id=cnvs2" + count + " width='200' height='100'></canvas></td></tr>";
+			out += "<scr" + "ipt>";
+			out += "var c1 = document.getElementById ('cnvs1" + count + "');";
+			out += "var c2 = document.getElementById ('cnvs2" + count + "');";
+//			out += "var ctx = c.getContext('2d');";
+//			out += "ctx.clearRect(0, 0, c1.width,  c.height);";
+//			out += "ctx.beginPath();";
+			out += "plotHist1(c1, [" + locs[i] + "], numWds);";
+			out += "plotHist2(c2, [" + locs[i] + "], numWds);";
+			out += "</scr" + "ipt>\n";
+			count++;
+		}
+	}
+	
+	out += "</tbody>\n</table></bo" + "dy></ht" + "ml>\n";
+	document.write(head + "\n" + out);
+}
+
+function indexOf(arr, wd)
+{
+	var loc = -1;
+	
+	for(var key in arr)
+	{
+		if(arr[key] == wd)
+		{
+			loc
+		}
+	}
+	
+	return loc;
+}
+</script>
+</head>
+<body>
+<TEXTAREA style="WIDTH: 700px; HEIGHT: 600px" id=dcmt name=dcmt></TEXTAREA><br>
+<input type="button" value="Calculate Energy" onclick="calcEngy()">
+<script type="text/javascript"></script>
+<p name="output" id="output"></p>
+<table  cellpadding="2" cellspacing="0" > 
+<tr>
+<td>Contact: </td>
+<td width="100px"><div style="overflow-x:auto; width:100px">eeeeeeeeeeeeeeeeeeeeeee@yahoo.com</div>
+</td>
+</tr>
+</table>
+
+</body>
+</html>

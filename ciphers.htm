@@ -1,0 +1,40 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Ciphers</title>
+<script type='text/javascript'>
+function additive(x, b, m)
+{
+	return x + b % m;
+}
+
+function mult(x, a, m)
+{
+	return a*x % m;
+}
+
+function affine(x, a, b, m)
+{
+	return (a*x + b) % m;
+}
+</script>
+</head>
+<body>
+What is a cipher?
+What is the inverse of a cipher?
+What are the fixed points of a cipher?
+What is an additive cipher?
+When does an additive cipher have an inverse?
+ - always
+What are the fixed points of an additive cipher?
+ - only if we are adding a multiple of 26 (the base)
+What is a multliplicitave cipher?
+When does a multiplicitave cipher have an inverse?
+ - only is we are multiplying by something relatively prime to the base. 
+What are the fixed points of a multiplicatave cipher?
+ - 0 is always a fixed point, 
+What is an affince cipher?
+When does an affine cipher have an inverse?
+What are the fixed points of an affine cipher?
+ - when gcd(a - 1, m)does not divide b, 
+</body>
+</html>

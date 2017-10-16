@@ -1,0 +1,34 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Hash Functions</title>
+<script type='text/javascript'>
+function additive(x, b, m)
+{
+	return x + b % m;
+}
+
+function mult(x, a, m)
+{
+	return a*x % m;
+}
+
+function affine(x, a, b, m)
+{
+	return (a*x + b) % m;
+}
+</script>
+</head>
+<body>
+A hash function is a function that maps a set S of keys to a finite set of table indexes, which we will assume are 0, 1, ..., n-1. 
+A table whose information is found by a hash function is called a hash table. 
+If a hash function is injective, then it maps every key to the index of the hash table where the information is stored so no searching is involved. 
+When two keys map to the same table index, the result is called a collision. If a hash function is not injective it has collisions. 
+Linear Probing is a technique for dealing with collisions in hash table keys where a program searches the remaining locations in a linear way. 
+Can we always find an injection where there are no collisions?
+If we increase the size of the table, would it give us a better chance of finding an injection?
+If the table size is increased, can we scatter the elements so that collisions can be searched in less time?
+An alternative to linear probing is to try probing with a gap between the table locations in order to scatter or hash the information to different parts of the table. Let g be a gap, where 1 <= g <= n. Then the following sequence of table locations is searched in case a collision occurs at location k:[br](k + g) % n, (k + 2g) % n, ..., (k + ng) % n. 
+Can we find a probe sequence that hits all the elements of {0, 1, ..., n-1}? Just pick a g and n so that they are relatively prime, (g, n) = 1. 
+To ensure that our probe sequence works we can simply select a prime number n as our target size. 
+</body>
+</html>

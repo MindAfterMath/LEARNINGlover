@@ -1,0 +1,459 @@
+<html>
+<head>
+<script type="text/javascript">
+//15 Puzzle JavaScript Program
+//
+//1. Get Row and Column Dimensinos
+//2. Generate Table of Desired Dimensions
+function generate(size_x, size_y)
+{
+	var arr = new Array();
+	
+	for (var i = 0; i < size_x * size_y - 1; i++)
+	{
+		arr[i] = i;
+	}
+	
+	var grid = new Array();
+	
+	for (var i = 0; i < size_x; i++)
+	{
+		grid[i] = new Array();
+		for (var j = 0; j < size_y; j++)
+		{
+			grid[i][j] = i * size_x + j;
+		}
+	}
+	
+	grid = randomize(grid, 10, size_x-1, size_y-1, -1, -1);
+	var table = disp(grid);
+	  
+	return grid;
+}
+
+//3. For each cell generated, have an onClick="move(loc_x, loc_y, free_x, free_y)" which checks if the clicked cell is a neighbor of the free cell, and if so, moves the free cell to the clicked location.
+function move(grid, loc_x, loc_y, free_x, free_y)
+{
+	if (Math.abs(loc_x - free_x) != 1 || Math.abs(loc_y - free_y) != 1)
+	{
+		return;
+	}
+	
+	var temp = document.getElementById("cell" + loc_x + "_" + loc_y).innerHTML;
+}
+
+function disp(grid)
+{
+	var table = "<table>";
+	for (var i = 0; i < grid.length; i++)
+	{
+		table += "<tr>";
+		for (var j = 0; j < grid[i].length; j++)
+		{
+			table += "<td name='cell_" + i + "_" + j + "' id='cell_" + i + "_" + j + "' onclick='move(" + i + ", " + j + ")'>" + grid[i][j] + "</td>";
+		}
+		table += "</tr>";
+	}
+	table += "</table>";
+	return table;
+}
+
+//4. Randomly swap cells in the grid to generate a random instance of the grid.
+function randomize(grid, moves, loc_x, loc_y, prev_x, prev_y)
+{
+	if (moves > 0)
+	{    
+		var poss = new Array();
+
+		if (parseInt(loc_x - 1) >= 0 && (parseInt(loc_x - 1) != prev_x || loc_y != prev_y))
+		{
+			poss[poss.length] = parseInt(loc_x - 1) + "-" + loc_y;
+		}
+		if (parseInt(loc_y - 1) >= 0 && (loc_x != prev_x || parseInt(loc_y - 1) != prev_y))
+		{
+			poss[poss.length] = loc_x + "-" + parseInt(loc_y - 1);
+		}
+		if (parseInt(loc_x + 1) < grid.length && (parseInt(loc_x + 1) != prev_x || loc_y != prev_y))
+		{
+			poss[poss.length] = parseInt(loc_x + 1) + "-" + loc_y;
+		}
+		if (parseInt(loc_y + 1) < grid[0].length && (loc_x != prev_x || parseInt(loc_y + 1) != prev_y))
+		{
+			poss[poss.length] = loc_x + "-" + parseInt(loc_y + 1);
+		}
+	  
+		var newLoc = poss[Math.floor(Math.random()*poss.length)].split("-");
+		grid[loc_x][loc_y] = grid[newLoc[0]][newLoc[1]];
+		grid[newLoc[0]][newLoc[1]] = "x";
+		moves--;
+		grid = randomize(grid, moves, parseInt(newLoc[0]), parseInt(newLoc[1]), parseInt(loc_x), parseInt(loc_y));
+		return grid;
+	}
+	else
+	{
+		return grid;
+	}
+}
+
+function toString(grid)
+{
+	var str = "";
+	for (var i = 0; i < grid.length; i++)
+	{
+		for (var j = 0; j < grid[i].length; j++)
+		{
+			str += grid[i][j] + " ";
+		}
+	}
+	
+	return str;
+}
+
+function toGrid(grid, size_x, size_y)
+{
+	var table = "<table>";
+	var curr = grid.split(" ");
+	
+	for (var i = 0; i < size_x; i++)
+	{
+		table += "<tr>";
+		for (var j = 0; j < size_y; j++)
+		{
+			table += "<td name='cell_" + i + "_" + j + "' id='cell_" + i + "_" + j + "'>" + curr[i * size_x + j] + "</td>";
+		}
+		table += "</tr>";
+	}
+	table += "</table>";
+	
+	return table;
+}
+
+function goal(x, y)
+{
+	document.getElementById("grid").innerHTML += "inside goal<br>";
+	var str = "";
+	
+	for (var i = 0; i < x; i++)
+	{
+		for (var j = 0; j < y; j++)
+		{
+			if (i != x-1 || j != y-1)
+			{
+				str += eval(i*x + j) + " ";
+			}
+			else
+			{
+				str += "x";
+			}
+		}
+	}
+	
+	document.getElementById("grid").innerHTML += "leaving goal<br>";
+	return str;
+}
+
+function remove(set, elmt)
+{
+	for (var zen = 0; zen < set.length && set[zen] != elmt; zen++)
+	{
+	}
+	for (; zen < set.length-1; zen++)
+	{
+		set[zen] = set[zen+1];
+	}
+   
+	set.length--;
+	return set;
+}
+
+function astar(grid)
+{
+	var closedSet = new Array();
+	var openSet = [toString(grid)];
+	var cameFrom = new Object();
+	var start = toString(grid);
+	var end = goal(grid.length, grid[0].length);
+//	var maxDist = gScr(end, start, grid.length, grid[0].length)
+	
+//	document.getElementById("grid").innerHTML += "end = " + end + "<br>";
+	
+//	document.getElementById("grid").innerHTML += "start = " + start + "<br>";
+	
+	cameFrom.prev = new Array();
+	cameFrom.elt = new Array();
+	var gScore = new Object();
+	var fScore = new Object();
+   
+	gScore[start] = gScr(start, start, grid.length, grid[0].length);
+	fScore[start] = gScr(start, start, grid.length, grid[0].length) + hScore(start, grid.length, grid[0].length);
+	var count = 0;
+	var text = "<table>";
+	
+	while (openSet.length > 0 && count < 100)
+	{
+		count ++;
+		
+		text += "<tr><td>----- ----- ----- ----- ----- ----- ----- ----- ----- -----</td></tr>";
+		
+		for (var i = 0; i < openSet.length; i++)
+		{
+			text += "<tr><td>" + toGrid(openSet[i], grid.length, grid[0].length) + "</td><td>" + fScore[openSet[i]] + "</td><td>" + gScore[openSet[i]] + "</td><td>" + hScore(openSet[i], grid.length, grid[0].length) + "</td></tr>";	
+		}
+
+		var minOpen = "";
+		for (var zen = 0; zen < openSet.length; zen++)
+		{
+			if (zen == 0 || (fScore[openSet[zen]] < fScore[minOpen]))
+			{
+				minOpen = openSet[zen];
+			}
+		}
+				
+		var current = minOpen;
+					
+		if (current == end)
+		{		   
+			break;
+		}
+		openSet = remove(openSet, current);
+		
+//		document.getElementById("grid").innerHTML += "current = " + current + "<br>";
+//		text += "<tr><td>" + toGrid(current, grid.length, grid[0].length) + "</td><td>" + fScore[current] + "</td><td>" + gScore[current] + "</td><td>" + hScore(current, grid.length, grid[0].length) + "</td></tr>";	
+		
+		closedSet[closedSet.length] = current;
+		
+//		for (var i = 0; i < openSet.length; i++)
+//		{
+//			document.getElementById("grid").innerHTML += "closedSet[" + i + "] = " + closedSet[i] + "<br>";
+//		}
+		
+		var neigh = neighbors(current, grid.length, grid[0].length);
+//		var text = "<table>";
+		
+		for (var zen = 0; zen < neigh.length; zen++)
+		{
+//			document.getElementById("grid").innerHTML += "neigh[" + zen + "] = " + neigh[zen] + "<br>";	
+//			document.getElementById("grid").innerHTML += "closedSet = " + closedSet + "<br>";
+//			document.getElementById("grid").innerHTML += "contains(closedSet, neigh[zen]) = " + contains(closedSet, neigh[zen]) + "<br>";
+			tempGscr = gScr(current, start, grid.length, grid[0].length);
+			if (contains(closedSet, neigh[zen]) == -1 || tempGscr < gScore[neigh[zen]])
+			{
+				if (contains(openSet, neigh[zen]) == -1 || (tempGscr < gScore[neigh[zen]]))
+				{
+	//				document.getElementById("grid").innerHTML += "cameFrom.elt = " + cameFrom.elt + "<br>";	
+					var loc = contains(cameFrom.elt, neigh[zen]);
+					if (loc == -1)
+					{
+						var len = cameFrom.prev.length;
+						cameFrom.prev[len] = current;
+						cameFrom.elt[len] = neigh[zen];
+					}
+					else
+					{
+						cameFrom.prev[loc] = current;
+					}
+					
+	//				document.getElementById("grid").innerHTML += "cameFrom.elt = " + cameFrom.elt + "<br>";	
+	//				document.getElementById("grid").innerHTML += "cameFrom.prev = " + cameFrom.prev + "<br>";	
+					gScore[neigh[zen]] = tempGscr;
+					fScore[neigh[zen]] = gScore[neigh[zen]] + hScore(neigh[zen], grid.length, grid[0].length);
+					
+					if (contains(openSet, neigh[zen]) == -1 && hScore(neigh[zen], grid.length, grid[0].length) <= hScore(current, grid.length, grid[0].length))
+					{
+						openSet[openSet.length] = neigh[zen];
+					}
+				}
+			}
+			
+//			var txt = toGrid(neigh[zen], grid.length, grid[0].length);
+			
+//			text += "<tr><td><b>" + toGrid(current, grid.length, grid[0].length) + "</b></td><td>" + txt + "</td><td>" + fScore[neigh[zen]] + "</td><td>" + gScore[neigh[zen]] + "</td><td>" + hScore(neigh[zen], grid.length, grid[0].length) + "</td></tr>";	
+		}
+//		text += "</table>";
+//		document.getElementById("grid").innerHTML += text;
+	}
+	
+//	document.getElementById("grid").innerHTML += "goal = " + goal(grid.length, grid[0].length) + "<br>";
+//	for (var i = 0; i < cameFrom.elt.length; i++)
+//	{
+//		document.getElementById("grid").innerHTML += i + ") " + cameFrom.elt[i] + "<br>";
+//	}
+	text += "</table>";
+	document.getElementById("grid").innerHTML += text;
+	
+	var curr = current.split(" ");
+	var tbl = new Array();
+	
+	for (var i = 0; i < grid.length; i++)
+	{
+		tbl[i] = new Array();
+		for (var j = 0; j < grid[0].length; j++)
+		{
+			tbl[i][j] = curr[i * grid.length + j];
+		}
+	}
+
+	return tbl;
+}
+
+function hScore(grid, size_x, size_y)
+{
+	var score = 0;
+	var elts = grid.split(" ");
+	
+	for (var yin = 0; yin < size_x; yin++)
+	{
+		for (var yang = 0; yang < size_y; yang++)
+		{			
+			if (elts[yin * size_x + yang] != yin * size_x + yang && elts[yin * size_x + yang] != "x")
+			{
+//				document.getElementById("grid").innerHTML += yin + ", " + yang + ": " + elts[yin * size_x + yang] + " - " + opt_x + ", " + opt_y + ": " + eval(Math.abs(opt_x - yin) + Math.abs(opt_y - yang)) + "<br>";
+//				score += Math.abs(opt_x - yin) + Math.abs(opt_y - yang);
+				score++;
+			}
+		}
+	}
+	
+	return score;
+}
+
+function gScr(grid, orig, size_x, size_y)
+{
+	var score = 0;
+	var elts_g = grid.split(" ");
+	var elts_o = orig.split(" ");
+	
+	var locs_g = new Array();
+	var locs_o = new Array();
+	
+	for (var yin = 0; yin < size_x; yin++)
+	{
+		for (var yang = 0; yang < size_y; yang++)
+		{
+			if (elts_g[yin * size_x + yang] != "x")
+			{
+				locs_g[elts_g[yin * size_x + yang]] = yin + " " + yang;
+			}
+			
+			if (elts_o[yin * size_x + yang] != "x")
+			{
+				locs_o[elts_o[yin * size_x + yang]] = yin + " " + yang;
+			}
+		}
+	}
+	
+//	document.getElementById("grid").innerHTML += grid + ": locsg = " + locs_g + "<br>";
+//	document.getElementById("grid").innerHTML += orig + ": locso = " + locs_o + "<br>";
+	
+	for (var yin = 0; yin < locs_g.length; yin++)
+	{
+		var num1 = locs_g[yin].split(" ");
+		var num2 = locs_o[yin].split(" ");
+
+		score += Math.abs(num1[0] - num2[0]) + Math.abs(num1[1] - num2[1]);
+	}
+	
+//	document.getElementById("grid").innerHTML += "score = " + score + "<br>";
+	
+	return score;
+}
+
+function neighbors(node, size_x, size_y)
+{
+	var curr = new Array();
+	var poss = new Array();
+	var elts = node.split(" ");
+	var loc_x = -1;
+	var loc_y = -1;
+	
+	for (var yin = 0; yin < size_x; yin++)
+	{
+		curr[yin] = new Array();
+		
+		for (var yang = 0; yang < size_y; yang++)
+		{
+			curr[yin][yang] = elts[yin * size_x + yang];
+			if (curr[yin][yang] == "x")
+			{
+				loc_x = yin;
+				loc_y = yang;
+			}
+		}
+	}
+	
+	if (parseInt(loc_x - 1) >= 0)
+	{
+		poss[poss.length] = parseInt(loc_x - 1) + "-" + loc_y;
+	}
+	if (parseInt(loc_y - 1) >= 0)
+	{
+		poss[poss.length] = loc_x + "-" + parseInt(loc_y - 1);
+	}
+	if (parseInt(loc_x + 1) < curr.length)
+	{
+		poss[poss.length] = parseInt(loc_x + 1) + "-" + loc_y;
+	}
+	if (parseInt(loc_y + 1) < curr[0].length)
+	{
+		poss[poss.length] = loc_x + "-" + parseInt(loc_y + 1);
+	}
+	var neigh = new Array();
+	
+	for (var i = 0; i < poss.length; i++)
+	{
+		var newLoc = poss[i].split("-");
+		var temp = curr;
+		temp[loc_x][loc_y] = temp[newLoc[0]][newLoc[1]];
+		temp[newLoc[0]][newLoc[1]] = "x";
+		neigh[neigh.length] = toString(temp);
+		temp[newLoc[0]][newLoc[1]] = temp[loc_x][loc_y];
+		temp[loc_x][loc_y] = "x";
+	}
+
+	return neigh;
+}
+
+function contains(set, elmt)
+{
+	for (var zen = 0; zen < set.length && set[zen] != elmt; zen++)
+	{ }
+	
+	if (zen < set.length)
+	{
+		return zen;
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+function makePath(cameFrom, curr)
+{
+	var loc = contains(cameFrom.elt, curr);
+
+	if (loc != -1)
+	{
+		var p = makePath(cameFrom, cameFrom.prev[loc]);
+		p[p.length] = curr;
+		return p;
+	}
+	else
+	{
+		var p = new Array();
+		p[p.length] = curr;
+		return p;
+	}
+}
+</script>
+</head>
+<body>
+<p name="grid" id="grid"></p>
+<script type="text/javascript">
+	var puzz = generate(3, 3);
+	document.getElementById("grid").innerHTML = disp(puzz);
+//	document.getElementById("grid").innerHTML += goal(4, 4) + "<br>";
+</script>
+<input type=button onclick="puzz = astar(puzz)" value="Solve">
+</body>
+</html>
