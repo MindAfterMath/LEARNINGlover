@@ -134,73 +134,174 @@ function is_tabu(permutation, tabu_list)
 		for (var j = 0; j < tabu_list.length; i++)
 		{
 			if (tabu_list[j][0] == c1 && tabu_list[j][1] == c2)
+			{
 				return true;
+			}
 		}
 	}
-	return false
+	return false;
 }
 
 function generate_candidate(best, tabu_list, cities)
 {
 	var perm;
 	var edges;
+	
 	do
 	{
-		var arr = stochastic_two_opt(best[:vector]);
+		var arr = stochastic_two_opt(best["vector"]);
 		perm = arr[0];
 		edges = arr[1];
 	}
 	while (is_tabu(perm, tabu_list));
-	var candidate = {:vector=>perm}
-	candidate[:cost] = cost(candidate[:vector], cities)
-	return candidate, edges
+	
+	candidate = {};
+	candidate["vector"] = perm;
+	candidate["cost"] = cost(candidate[vector], cities);
+	
+	return [candidate, edges];
+}
+
+function sort(array)
+{
+	for (var i = 0; i < array.length; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			if (array[i]["cost"] > array[j]["cost"])
+			{
+				var temp = array[i];
+				array[i] = array[j];
+				array[j] = temp;
+			}
+		}
+	}
+	
+	return array;
 }
 
 function search(cities, tabu_list_size, candidate_list_size, max_iter)
 {
-	var current = {:vector=>random_permutation(cities)}
-  	current[:cost] = cost(current[:vector], cities)
-  	var best = current
-  	var tabu_list = Array.new(tabu_list_size)
-  	max_iter.times do |iter|
-    	var candidates = Array.new(candidate_list_size) do |i|
-      	generate_candidate(current, tabu_list, cities)
-    end
-    candidates.sort! {|x,y| x.first[:cost] <=> y.first[:cost]}
-    best_candidate = candidates.first[0]
-    best_candidate_edges = candidates.first[1]
-    if best_candidate[:cost] < current[:cost]
-      current = best_candidate
-      best = best_candidate if best_candidate[:cost] < best[:cost]
-      best_candidate_edges.each {|edge| tabu_list.push(edge)}
-      tabu_list.pop while tabu_list.size > tabu_list_size
-    end
-    puts " > iteration #{(iter+1)}, best=#{best[:cost]}"
-  end
-  return best
+	var current = [];
+	current["vector"] = random_permutation(cities);
+	current["cost"] = cost(current["vector"], cities);
+	best = current;
+	tabu_list = [];
+	var out = "";
+//	for (var i = 0; i < tabu_list_size; i++)
+//	{
+//		tabu_list.push("");
+//	}
+ 
+//	tabu_list = Array.new(tabu_list_size)
+//	max_iter.times do |iter|
+	for (var i = 0; i < max_iter; i++)
+	{
+		var candidates = [];
+		
+//		candidates = Array.new(candidate_list_size) do |i|
+		for (var j = 0; j < candidate_list_size; j++)
+		{
+			candidates.push(generate_candidate(current, tabu_list, cities));
+		}
+//		candidates.sort! {|x,y| x.first[:cost] <=> y.first[:cost]}
+		candidates = sort(candidates);
+		
+		best_candidate = candidates[0][0]
+		best_candidate_edges = candidates[0][1]
+		if (best_candidate["cost"] < current["cost"])
+		{
+			current = best_candidate
+			if (best_candidate["cost"] < best["cost"])
+				best = best_candidate 
+			for (var j = 0; j < best_candidate_edges.length; j++)
+			{
+				tabu_list.push(best_candidate_edges[j]);
+			}
+//			best_candidate_edges.each {|edge| tabu_list.push(edge)}
+
+			while (tabu_list.length > tabu_list_size)
+			{
+				tabu_list.pop();
+			}
+//			tabu_list.pop while tabu_list.size > tabu_list_size
+		}
+		
+		out += " > iteration " + (iter+1) + ", best = " + best["cost"] + "<br>";
+	}
+	
+	document.getElementById("output").innerHTML = out;
+	return best
 }
 
-if __FILE__ == $0
-  # problem configuration
-  berlin52 = [[565,575],[25,185],[345,750],[945,685],[845,655],
-   [880,660],[25,230],[525,1000],[580,1175],[650,1130],[1605,620],
-   [1220,580],[1465,200],[1530,5],[845,680],[725,370],[145,665],
-   [415,635],[510,875],[560,365],[300,465],[520,585],[480,415],
-   [835,625],[975,580],[1215,245],[1320,315],[1250,400],[660,180],
-   [410,250],[420,555],[575,665],[1150,1160],[700,580],[685,595],
-   [685,610],[770,610],[795,645],[720,635],[760,650],[475,960],
-   [95,260],[875,920],[700,500],[555,815],[830,485],[1170,65],
-   [830,610],[605,625],[595,360],[1340,725],[1740,245]]
-  # algorithm configuration
-  max_iter = 100
-  tabu_list_size = 15
-  max_candidates = 50
-  # execute the algorithm
-  best = search(berlin52, tabu_list_size, max_candidates, max_iter)
-  puts "Done. Best Solution: c=#{best[:cost]}, v=#{best[:vector].inspect}"
-end
 </script>
 </head>
 <body>
+<p id="output"></p>
+<script type="text/javascript">
+
+//	problem configuration
+	berlin52 = [];
+	berlin52.push([565,575]);
+	berlin52.push([25,185]);
+	berlin52.push([345,750]);
+	berlin52.push([945,685]);
+	berlin52.push([845,655]);
+	berlin52.push([880,660]);
+	berlin52.push([25,230]);
+	berlin52.push([525,1000]);
+	berlin52.push([580,1175]);
+	berlin52.push([650,1130]);
+	berlin52.push([1605,620]);
+	berlin52.push([1220,580]);
+	berlin52.push([1465,200]);
+	berlin52.push([1530,5]);
+	berlin52.push([845,680]);
+	berlin52.push([725,370]);
+	berlin52.push([145,665]);
+	berlin52.push([415,635]);
+	berlin52.push([510,875]);
+	berlin52.push([560,365]);
+	berlin52.push([300,465]);
+	berlin52.push([520,585]);
+	berlin52.push([480,415]);
+	berlin52.push([835,625]);
+	berlin52.push([975,580]);
+	berlin52.push([1215,245]);
+	berlin52.push([1320,315]);
+	berlin52.push([1250,400]);
+	berlin52.push([660,180]);
+	berlin52.push([410,250]);
+	berlin52.push([420,555]);
+	berlin52.push([575,665]);
+	berlin52.push([1150,1160]);
+	berlin52.push([700,580]);
+	berlin52.push([685,595]);
+	berlin52.push([685,610]);
+	berlin52.push([770,610]);
+	berlin52.push([795,645]);
+	berlin52.push([720,635]);
+	berlin52.push([760,650]);
+	berlin52.push([475,960]);
+	berlin52.push([95,260]);
+	berlin52.push([875,920]);
+	berlin52.push([700,500]);
+	berlin52.push([555,815]);
+	berlin52.push([830,485]);
+	berlin52.push([1170,65]);
+	berlin52.push([830,610]);
+	berlin52.push([605,625]);
+	berlin52.push([595,360]);
+	berlin52.push([1340,725]);
+	berlin52.push([1740,245]);
+	
+//	algorithm configuration
+  max_iter = 100
+  tabu_list_size = 15
+  max_candidates = 50
+//execute the algorithm
+  best = search(berlin52, tabu_list_size, max_candidates, max_iter)
+  document.getElementById("output").innerHTML = "Done. Best Solution: c=#{best[:cost]}, v=#{best[:vector].inspect}";
+</script>
 </body>
 </html>
