@@ -1,20 +1,39 @@
 <html>
 <head>
 <script type="text/javascript">
+function solve(n, start, auxiliary, end)
+{
+	var out = "";
+	if (n == 1) 
+	{
+		out += start + " -> " + end + "<br>";
+	} 
+	else 
+	{
+		solve(n - 1, start, end, auxiliary);
+		out += "Moving disk " + (n-1) + ", " + start + " -> " + end + "<br>";
+		solve(n - 1, auxiliary, start, end);
+	}
+	document.getElementById("output").innerHTML += out;
+}
+
 function hanoi(state, set, clmnout, clmnin, nest)
 {
 	var i;
-	var subset = new Array();
-	var elmnt = new Array();
+	var subset = [];
+	var elmnt = [];
 
 	if (set.length > 1)
 	{
 		for (i = 0; i < set.length-1; i++)
+		{
 			subset[i] = set[i];
+		}
 		elmnt[0] = set[set.length-1];
 		var newclm = 3 - clmnout - clmnin;
 
 		text += nest + ") ([" + set + "], " + clmnout + ", " + clmnin + ") -> " + "([" + subset + "], " + clmnout + ", " + newclm + ")<br>";
+		text += nest + ") ([" + state[0] + "], [" + state[1] + "], [" + state[2] + "])<br>";
 
 		state = hanoi(state, subset, clmnout, newclm, nest+1);
 		state = hanoi(state, elmnt, clmnout, clmnin, nest+1);
@@ -27,7 +46,9 @@ function hanoi(state, set, clmnout, clmnin, nest)
 		state[clmnin] = union(set, state[clmnin]);
 
 		for (i = 1; i < state[clmnout].length; i++)
+		{
 			state[clmnout][i-1] = state[clmnout][i];
+		}
 		state[clmnout].length--;
 	}
 
@@ -50,8 +71,12 @@ function search(set, elmnt)
 	var ans = false;
 
 	for (i = 0; i < set.length && !ans; i++)
+	{
 		if (set[i] == elmnt)
+		{
 			ans = true;
+		}
+	}
 
 	return ans;
 }
@@ -66,12 +91,16 @@ function union(set1, set2)
 //	text += "set2.length = " + set2.length + "<br>";
 
 	for (i = 0; i < set1.length; i++)
+	{
 		set3[i] = set1[i];
+	}
 	
 	for (i = 0; i < set2.length; i++)
 	{
 		if (!search(set3, set2[i]))
+		{
 			set3[set3.length] = set2[i];
+		}
 	}
 
 	return set3;
@@ -85,19 +114,25 @@ function union(set1, set2)
 <p name="output" id="output">
 </p>
 <script type="text/javascript">
-var table = new Array(3)
+/*var table = new Array(3)
 var text = "";
 
 for (i = 0; i < 3; i++)
+{
 	table[i] = new Array();
+}
 
 for (i = 0; i < 8; i++)
+{
 	table[0][table[0].length] = i+1;
+}
 
 for (i = 0; i < table.length; i++)
 {
 	for (j = 0; j < table[i].length; j++)
+	{
 		text += table[i][j] + ", ";
+	}
 	text += "<br>";
 }
 
@@ -118,6 +153,13 @@ document.getElementById("output").innerHTML += "done!";
 //}
 
 document.getElementById("output").innerHTML += text;
+*/
+//	TowersOfHanoi towersOfHanoi = new TowersOfHanoi();
+	document.getElementById("output").innerHTML = "Enter number of discs: 8<br>";
+//	Scanner scanner = new Scanner(System.in);
+	var discs = 8;
+	solve(discs, "A", "B", "C");
+
 </script>
 
 </body>
