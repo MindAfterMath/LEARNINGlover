@@ -31,7 +31,7 @@ table
     width: 100%;
     font-size:4vh;
     height:100%;
-    min-width: 1000px;
+    min-width: 300px;
     margin:0 auto;
     color:#c9c9c9;
     text-align:center;
@@ -50,6 +50,8 @@ function generate(rows, clms)
 //Create an array for the remaining cells that can be blacked out.
 //Initially, this array will contain every cell of the grid.
 	var poss = [];
+	var gray = [];
+	
 	for (var i = 0; i < rows; i++)
 	{
 		for (var j = 0; j < clms; j++)
@@ -71,6 +73,8 @@ function generate(rows, clms)
 			grid[vals[0]][vals[1]] = 1;
 			continue;
 		}
+		
+		gray.push(vals[0] + "_" + vals[1]);
 
 		if (vals[0] > 0)
 		{
@@ -108,6 +112,17 @@ function generate(rows, clms)
 				poss.splice(loc2, 1);
 			}
 		}
+	}
+	
+	
+	var rem = Math.floor(Math.random() * gray.length) / 2 + Math.floor(gray.length / 4);
+	
+	for (var i = 0; i < rem; i++)
+	{
+	  var loc = Math.floor(Math.random() * gray.length);
+	  var vals = gray[loc].split("_");
+	  grid[vals[0]][vals[1]] = 1;
+	  gray.splice(loc, 1);
 	}
 	return grid;
 }
@@ -474,7 +489,7 @@ function removeCells(grid)
 		{
 			if (grid[i][j] == 1)
 			{
-				poss.push(i + "\t" + j);
+				poss.push(i + "\t" + j + "\t" + newGrid[i][j]);
 			}
 			else
 			{
@@ -488,12 +503,30 @@ function removeCells(grid)
 	
 	var queue = [];
 	
+	for (var i = 0; i < poss.length; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			var val1 = poss[i].split("\t")[2];
+			var val2 = poss[j].split("\t")[2];
+			if (parseInt(val1) > parseInt(val2))
+			{
+				var temp = poss[i];
+				poss[i] = poss[j];
+				poss[j] = temp;
+			}
+		}
+	}
+	
 	while (poss.length > 0)
 	{
-		loc = Math.floor(Math.random() * poss.length);
-		vals = poss[loc].split("\t");
-		old = newGrid[vals[0]][vals[1]];
-		vals.push(old);
+//		alert(poss);
+		var loc = Math.floor(Math.random() * poss.length);
+//		loc = Math.floor(poss.length / 2);
+//		var loc = 0;
+		var vals = poss[loc].split("\t");
+//		var old = vals[2]
+//		vals.push(old);
 		queue.push(vals);
 		poss.splice(loc, 1)
 		newGrid[vals[0]][vals[1]] = -1;
@@ -501,21 +534,11 @@ function removeCells(grid)
 		
 		if (!solve(newGrid))
 		{
-//			console.log("0 - adding back cell " + vals);
-			newGrid[vals[0]][vals[1]] = old;
+//			alert("0 - adding back cell " + vals);
+			newGrid[vals[0]][vals[1]] = vals[2];
 		}
 	}
-	
-//	for (var i = queue.length - 1; i >= 0 && !solve(newGrid); i--)
-//	{
-//		vals = queue[i];
-//		if (!solve(newGrid))
-//		{
-//			console.log("1 - adding back cell " + vals);
-//			newGrid[vals[0]][vals[1]] = vals[2];
-//		}
-//	}
-	
+		
 	return newGrid;
 }
 
