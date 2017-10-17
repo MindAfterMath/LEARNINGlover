@@ -654,6 +654,71 @@ function hint(ans)
 		alert("Sorry, you have an error somewhere");
 	}
 }
+
+function newPuzz()
+{
+	var sizeArr = [];
+	sizeArr.push("7\t7");
+	sizeArr.push("8\t10");
+	sizeArr.push("10\t10");
+	sizeArr.push("13\t13");
+	sizeArr.push("15\t15");
+
+	var size = sizeArr[Math.floor(Math.random() * sizeArr.length)].split("\t");
+	size[0] = parseInt(size[0]);
+	size[1] = parseInt(size[1]);
+
+	var out = "<table id='range' class='grid'>";
+	for (var i = 0; i < size[0]; i++)
+	{
+		out += "<tr>";
+		for (var j = 0; j < size[1]; j++)
+		{
+			out += "<td class='grid' id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\")'></td>";
+		}
+		out += "</tr>";
+	}
+	out += "</table>";
+	document.getElementById("content").innerHTML = out;
+
+	var height = document.getElementById("range").offsetHeight ;
+	var width = document.getElementById("range").offsetWidth ;
+	//console.log(height);
+	//console.log(width);
+	var cellHt = height / size[0];
+	var cellWd = width / size[1];
+
+	for (var i = 0; i < size[0]; i++)
+	{
+		for (var j = 0; j < size[1]; j++)
+		{
+			document.getElementById(i + "_" + j).style.height = cellHt;
+			document.getElementById(i + "_" + j).style.width = cellWd;
+		}
+	}
+
+	var grid = generate(size[0], size[1]);
+	var prob = removeCells(grid)
+	var ans = getViews(grid);
+
+	for (var i = 0; i < size[0]; i++)
+	{
+		for (var j = 0; j < size[1]; j++)
+		{
+			if (prob[i][j] > 1)
+			{
+				document.getElementById(i + "_" + j).style.backgroundColor = "#0066FF";
+				document.getElementById(i + "_" + j).style.background = "#0066FF";
+				document.getElementById(i + "_" + j).innerHTML = ans[i][j];
+			}
+			else if (prob[i][j] == 0)
+			{
+				document.getElementById(i + "_" + j).style.backgroundColor = "#666666";
+				document.getElementById(i + "_" + j).style.background = "#666666";
+			}
+		}
+	}
+}
 </script>
 </head>
 <body>
@@ -665,71 +730,10 @@ function hint(ans)
 </table>
 <p id="output"></p>
 <script type="text/javascript">
-var sizeArr = [];
-sizeArr.push("7\t7");
-sizeArr.push("8\t10");
-sizeArr.push("10\t10");
-sizeArr.push("13\t13");
-sizeArr.push("15\t15");
-
-var size = sizeArr[Math.floor(Math.random() * sizeArr.length)].split("\t");
-size[0] = parseInt(size[0]);
-size[1] = parseInt(size[1]);
-
-var out = "<table id='range' class='grid'>";
-for (var i = 0; i < size[0]; i++)
-{
-	out += "<tr>";
-	for (var j = 0; j < size[1]; j++)
-	{
-		out += "<td class='grid' id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\")'></td>";
-	}
-	out += "</tr>";
-}
-out += "</table>";
-document.getElementById("content").innerHTML = out;
-
-var height = document.getElementById("range").offsetHeight ;
-var width = document.getElementById("range").offsetWidth ;
-//console.log(height);
-//console.log(width);
-var cellHt = height / size[0];
-var cellWd = width / size[1];
-
-for (var i = 0; i < size[0]; i++)
-{
-	for (var j = 0; j < size[1]; j++)
-	{
-		document.getElementById(i + "_" + j).style.height = cellHt;
-		document.getElementById(i + "_" + j).style.width = cellWd;
-//		console.log(cellWd);
-//		console.log(cellHt);
-	}
-}
-
-var grid = generate(size[0], size[1]);
-var prob = removeCells(grid)
-var ans = getViews(grid);
-
-for (var i = 0; i < size[0]; i++)
-{
-	for (var j = 0; j < size[1]; j++)
-	{
-		if (prob[i][j] > 1)
-		{
-			document.getElementById(i + "_" + j).style.backgroundColor = "#0066FF";
-			document.getElementById(i + "_" + j).style.background = "#0066FF";
-			document.getElementById(i + "_" + j).innerHTML = ans[i][j];
-		}
-		else if (prob[i][j] == 0)
-		{
-			document.getElementById(i + "_" + j).style.backgroundColor = "#666666";
-			document.getElementById(i + "_" + j).style.background = "#666666";
-		}
-	}
-}
+newPuzz();
 </script>
 <input type="button" value="Check" onclick="checkAns()">
 <input type="button" value="Hint" onclick="hint(ans)">
+<input type="button" value="New Puzzle" onclick="newPuzz()">
 </body>
 </html>
