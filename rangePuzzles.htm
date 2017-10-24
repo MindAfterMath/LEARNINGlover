@@ -10,7 +10,7 @@ table.grid
 td.grid
 {
 	border: 0.1em solid;
-	width: 2em;
+
 }
 
 th.grid
@@ -27,14 +27,12 @@ span
 
 table
 {
-    border: 0.1em;
-    width: 100%;
-    font-size:4vh;
-    height:100%;
-    min-width: 300px;
-    margin:0 auto;
-    color:#c9c9c9;
-    text-align:center;
+	border: 0.1em;
+	width: 100%;
+	font-size:4vh;
+	margin:0 auto;
+	color:#c9c9c9;
+	text-align:center;
 }
 </style>
 <script type="text/javascript">
@@ -294,22 +292,22 @@ function changecolor(id)
 			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(102, 102, 102)" ||
 			 document.getElementById(id).style.background == "rgb(102, 102, 102) none repeat scroll 0% 0%")
 	{
-		document.getElementById(id).style.background = "#66FF66";
-	}
-	else if (document.getElementById(id).style.background == "#66FF66" ||
-			 document.getElementById(id).style.background == "rgb(102, 255, 102)" ||
-			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(102, 255, 102)" ||
-			 document.getElementById(id).style.background == "rgb(102, 255, 102) none repeat scroll 0% 0%")
-	{
-		document.getElementById(id).style.background = "#FF6633";
-	}
-	else if (document.getElementById(id).style.background == "#FF6633" ||
-			 document.getElementById(id).style.background == "rgb(255, 102, 51)" ||
-			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 102, 51)" ||
-			 document.getElementById(id).style.background == "rgb(255, 102, 51) none repeat scroll 0% 0%")
-	{
 		document.getElementById(id).style.background = "#FFFFFF";
 	}
+//	else if (document.getElementById(id).style.background == "#66FF66" ||
+//			 document.getElementById(id).style.background == "rgb(102, 255, 102)" ||
+//			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(102, 255, 102)" ||
+//			 document.getElementById(id).style.background == "rgb(102, 255, 102) none repeat scroll 0% 0%")
+//	{
+//		document.getElementById(id).style.background = "#FF6633";
+//	}
+//	else if (document.getElementById(id).style.background == "#FF6633" ||
+//			 document.getElementById(id).style.background == "rgb(255, 102, 51)" ||
+//			 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 102, 51)" ||
+//			 document.getElementById(id).style.background == "rgb(255, 102, 51) none repeat scroll 0% 0%")
+//	{
+//		document.getElementById(id).style.background = "#FFFFFF";
+//	}
 	else
 	{
 		document.getElementById(id).style.background = "#0066FF";
@@ -674,26 +672,24 @@ function newPuzz()
 		out += "<tr>";
 		for (var j = 0; j < size[1]; j++)
 		{
-			out += "<td class='grid' id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\")'></td>";
+			out += "<td class=\"grid\" id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\")'></td>";
 		}
 		out += "</tr>";
 	}
 	out += "</table>";
-	document.getElementById("content").innerHTML = out;
+	document.getElementById("content2").innerHTML = out;
 
-	var height = document.getElementById("range").offsetHeight ;
-	var width = document.getElementById("range").offsetWidth ;
-	//console.log(height);
-	//console.log(width);
-	var cellHt = height / size[0];
+	var height = document.getElementById("range").offsetHeight;
+	var width = document.getElementById("range").offsetWidth;
+	var cellHt = (window.innerHeight - 100)/ size[0];
 	var cellWd = width / size[1];
 
 	for (var i = 0; i < size[0]; i++)
 	{
 		for (var j = 0; j < size[1]; j++)
 		{
-			document.getElementById(i + "_" + j).style.height = cellHt;
-			document.getElementById(i + "_" + j).style.width = cellWd;
+			document.getElementById(i + "_" + j).style.height = cellHt + "px";
+			document.getElementById(i + "_" + j).style.width = cellWd + "px";
 		}
 	}
 
@@ -718,9 +714,11 @@ function newPuzz()
 			}
 		}
 	}
+
+	return size;
 }
 </script>
-</head>
+	</head>
 <body>
 <center><H3>Range Puzzles</h3></center>
 <table id="wrapper">
