@@ -2770,12 +2770,20 @@ function timeout(usrChc)
 //				document.getElementById("chk3").checked = true;		
 //			}
 			
-			if (sols.length > 100)
+			if (sols.length > 1000)
 			{
-				if (!eqDist(copyGrid(sols[loc])))
+				var plc = Math.floor(Math.random() * sols.length) + 1;
+//				console.log("plc = " + plc);
+				var tmp = [];
+				for (var i = 0; i < plc; i++)
 				{
+					var loc = Math.floor(Math.random() * sols.length);
+					tmp.push(sols[loc]);
+//					console.log(sols[loc]);
 					sols.splice(loc, 1);
 				}
+				sols = tmp;
+//				console.log("sols = " + sols);
 /*				var loc = Number.MAX_VALUE;
 				var val = -1;
 				
