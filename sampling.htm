@@ -1,0 +1,114 @@
+<html>
+<head>
+<script type="text/javascript">
+function genData(size)
+{
+	var arr = new Array();
+	for (var i = 0; i < size; i++)
+	{
+		arr[i] = Math.floor(Math.random() * 1000);
+	}
+	
+	return arr;
+}
+
+function getMean(arr)
+{
+    var mu = 0;
+    for (var i = 0; i < arr.length; i++)
+    {
+        mu += arr[i];
+    }
+    
+    mu /= arr.length;
+    
+    return mu;
+}
+
+function getSample(arr, size)
+{
+	if (size > arr.length)
+	{
+		return arr;
+	}
+	var ans = new Array();
+	var rem = new Array();
+	for (var i = 0; i < arr.length; i++)
+	{
+		rem[i] = i;
+	}
+	
+	for (var i = 0; i < size; i++)
+	{
+		var loc = Math.floor(Math.random() * rem.length);
+		ans[i] = arr[rem[loc]];
+		rem[loc] = rem[rem.length-1];
+		rem.length--;
+	}
+	
+	return ans;
+}
+
+function getPVal(numIter, arr, size, avg)
+{
+    var count = 0;
+    
+    for (var i = 0; i < numIter; i++)
+    {
+        var sam = getSample(arr, size);
+        var mu = getMean(sam);
+        if (mu == avg)
+        {
+            count++;
+        }
+    }
+    
+    var prob = count / numIter;
+    
+    return prob;
+}
+</script>
+</head>
+<body>
+<script type="text/javascript">
+var data;
+var sample;
+var samMean;
+var pValue;
+
+</script>
+<table><tr><td>Data Size</td><td>Sample Size</td><td>Iterations</td><td></td><td></td><td></td></tr>
+<tr><td><select id="dataSize">
+  <option value=10>10</option>
+  <option value=25>25</option>
+  <option value=50 selected>50</option>
+  <option value=100>100</option>
+  <option value=250>250</option>
+</select></td>
+<td><select id="samSize">
+  <option value=5>5</option>
+  <option value=10 selected>10</option>
+  <option value=15>15</option>
+  <option value=20>20</option>
+  <option value=25>25</option>
+</select></td>
+<td><select id="iters">
+  <option value=100>100</option>
+  <option value=250 selected>250</option>
+  <option value=500>500</option>
+  <option value=750>750</option>
+  <option value=1000>1000</option>
+</select></td>
+<td><input type=button value="Generate Data" onclick="data = genData(document.getElementById('dataSize').value); document.getElementById('input').innerHTML = data; document.getElementById('butt2').style.visibility = 'visible'; document.getElementById('sample').innerHTML = '';document.getElementById('samAvg').innerHTML = '';document.getElementById('pValTxt').innerHTML = '';"></td>
+<td><input type=button value="Generate Sample" onclick="sample = getSample(data, document.getElementById('samSize').value); document.getElementById('sample').innerHTML = sample; document.getElementById('samAvg').innerHTML = '';document.getElementById('pValTxt').innerHTML = ''; document.getElementById('butt3').style.visibility = 'visible';" style="visibility:hidden" id="butt2"></td>
+<td><input type=button value="Get Sample Mean" onclick="samMean = getMean(sample); document.getElementById('samAvg').innerHTML = samMean;document.getElementById('pValTxt').innerHTML = ''; document.getElementById('butt4').style.visibility = 'visible';" style="visibility:hidden" id="butt3"></td>
+<td><input type=button value="Get P-Value" onclick="pValue = getPVal(document.getElementById('iters').value, data, sample.length, samMean); document.getElementById('pValTxt').innerHTML = pValue; " style="visibility:hidden" id="butt4"></td>
+</tr>
+</table>
+<p id="input"></p>
+<p id="sample"></p>
+<p id="samAvg"></p>
+<p id="pValTxt"></p>
+
+</body>
+</html>
