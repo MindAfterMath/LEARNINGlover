@@ -1,0 +1,2155 @@
+<html>
+<head>
+<title>The E-RBD Problem</title>
+<script type="text/javascript">
+function indexOf(list, elmt)
+{
+	var loc = -1
+	for (var i = 0; i < list.length && loc == -1; i++)
+	{
+		if (list[i] == elmt)
+		loc = i;
+	}
+	return loc;
+}
+
+function arraysEqual(a, b) 
+{
+	if (a === b) 
+		return true;
+	if (a == null || b == null) 
+		return false;
+	if (a.length != b.length) 
+		return false;
+
+	for (var i = 0; i < a.length; ++i) 
+	{
+		if (a[i] !== b[i]) return false;
+	}
+	return true;
+}
+
+function getData()
+{
+	var prob = new Object();
+	prob.flights = new Array();
+
+	var arr = document.getElementById("arrs").innerHTML.split(/<br.*?>/gi);
+	var len = document.getElementById("lens").innerHTML.split(/<br.*?>/gi);
+//	var numsl = 10*arr.length + 5;
+	var numsl = 45;
+
+	prob.slots = new Array(numsl);
+
+	var Max_Dev = document.getElementById("dev").value;
+
+	for (var k = 0; k < arr.length; k++)
+	{
+		prob.flights[k] = new Object();
+		prob.flights[k].arr = arr[k];
+		prob.flights[k].len = len[k];
+		prob.flights[k].remFlights = k+1;
+		prob.flights[k].rbs = -1;
+		prob.flights[k].asmt = -1;
+	}
+
+	for (var i = 0; i < numsl; i++)
+	{
+		prob.slots[i] = new Object();
+		prob.slots[i].time  = i+5;
+		prob.slots[i].asmt = -1;
+	}
+
+	prob.scen = new Array();
+
+	for (var t = 0; t < 7; t++)
+	{
+		prob.scen[t] = new Object();
+	}
+
+	prob.scen[0].time = -180;
+	prob.scen[1].time = -120;
+	prob.scen[2].time = -60;
+	prob.scen[3].time = 0;
+	prob.scen[4].time = 60;
+	prob.scen[5].time = 120;
+	prob.scen[6].time = 180;
+
+	var scenCase = document.getElementById("scenario").value;
+	switch (parseInt(scenCase))
+	{
+	case 0:
+		prob.scen[0].prb = eval(1/7);
+		prob.scen[1].prb = eval(1/7);
+		prob.scen[2].prb = eval(1/7);
+		prob.scen[3].prb = eval(1/7);
+		prob.scen[4].prb = eval(1/7);
+		prob.scen[5].prb = eval(1/7);
+		prob.scen[6].prb = eval(1/7);
+	break;
+	case 1:
+		prob.scen[0].prb = eval(1/64);
+		prob.scen[1].prb = eval(1/64);
+		prob.scen[2].prb = eval(1/32);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/8);
+		prob.scen[5].prb = eval(1/4);
+		prob.scen[6].prb = eval(1/2);
+	break;
+	case 2:
+		prob.scen[0].prb = eval(1/2);
+		prob.scen[1].prb = eval(1/4);
+		prob.scen[2].prb = eval(1/8);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/32);
+		prob.scen[5].prb = eval(1/64);
+		prob.scen[6].prb = eval(1/64);
+	break;
+	}
+	prob = setCaps(prob);
+	prob = dbrbs(prob);
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		if (eval(parseInt(prob.flights[k].rbs) + parseInt(Max_Dev)) < numsl)
+		{
+			prob.flights[k].latest_arr = prob.slots[eval(parseInt(prob.flights[k].rbs) + parseInt(Max_Dev))].time;
+		}
+		else
+		{
+			prob.flight[k].latest_arr = prob.slots[prob.slots.length-1].time
+		}
+		prob.flights[k].asmt = -1;
+	}
+	
+	for (var j = 0; j < prob.slots.length; j++)
+	{
+		prob.slots[j].finalCap = new Array();
+		prob.slots[j].used = new Array();
+		prob.slots[j].comp = new Array();
+		
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.slots[j].finalCap[t] = 1;
+			prob.slots[j].used[t] = 0;
+			prob.slots[j].comp[t] = -1;
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].want = new Array();
+		prob.flights[k].cost = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			prob.flights[k].want[i] = new Array();
+			prob.flights[k].cost[i] = new Array();
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				prob.flights[k].want[i][t] = new Array();
+				prob.flights[k].cost[i][t] = new Array();
+				for (var j = 0; j < prob.slots.length; j++)
+				{
+					if (prob.slots[i].time >= prob.flights[k].arr &&
+						prob.slots[j].time >= prob.flights[k].arr &&
+						prob.slots[i].time <= prob.flights[k].latest_arr &&
+						((prob.slots[j].time <= prob.slots[i].time && prob.scen[t].time <= prob.slots[i].time - prob.flights[k].len) || 
+						(prob.slots[i].time == prob.slots[j].time && prob.scen[t].time > prob.slots[i].time - prob.flights[k].len) || 
+						(prob.slots[j].time >= prob.slots[i].time)) &&
+						prob.slots[i].initCap >= 1 && prob.slots[j].finalCap[t] >= 1)
+					{
+						prob.flights[k].want[i][t][prob.flights[k].want[i][t].length] = j ;
+						prob.flights[k].cost[i][t][prob.flights[k].cost[i][t].length] = eval(prob.scen[t].prb*(prob.slots[j].time - prob.flights[k].arr));
+					}
+				}
+			}
+		}
+	}
+	
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].finalAsmt = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.flights[k].finalAsmt[t] = -1;
+		}
+	}
+	
+	return prob;
+}
+
+function ea(k, i, arr, len, t, slots)
+{
+	var ea_var;
+
+	if (i - len <= t)
+	{
+		ea_var = i;
+	}
+	else if (t + len < i && t + len >= arr)
+	{
+		var found = false;
+		for (var j = t+len; j < slots.length && !found; j++)
+		{
+			if (slots[j].finalCap[t] >= 1)
+			{
+				ea_var = j;
+				found = true;
+			}
+		}
+	}
+	else if (t + len < arr)
+	{
+		var found = false;
+		for (var j = arr; j < slots.length && !found; j++)
+		{
+			if (slots[j].finalCap[t] >= 1)
+			{
+				ea_var = j;
+				found = true;
+			}
+		}
+	}
+
+	return ea_var;
+}
+
+function earliest(slots)
+/*
+This function finds the earliest remaining slot with nonzero capacity. 
+*/
+{
+	var ans = -1;
+
+	for(var i = 0; i < slots.length && ans == -1; i++)
+	{
+		if (slots[i].initCap >= 1)
+		{
+			ans = i;
+		}
+	}
+	return ans;
+}
+
+function earliest2(flight, slots)
+//function earliest2(flNum, arr, latest_arr, remS, numsl, initCap)
+/*
+This function finds the earlest remaining slot with nonzero capacity that a given flight can be scheduled to. 
+*/
+{
+	var ans = -1;
+
+	for(var i = 0; i < slots.length && ans == -1; i++)
+	{
+		if (parseInt(slots[i].initCap) >= 1 && 
+			parseInt(slots[i].time) >= parseInt(flight.arr) &&
+			parseInt(slots[i].time) <= parseInt(flight.latest_arr))
+		{
+			ans = i;
+		}
+	}
+	
+	return ans;
+}
+
+function GSlot(prob)
+{
+	document.getElementById("output").innerHTML = "GSlot<br>";
+	document.getElementById("gss").innerHTML = "";
+	var count = 0;
+	while(sizeRemF(prob.flights) != 0)
+	{
+		var i = earliest(prob.slots);
+		var found = false;
+		var k;
+		for (k = 0; k < prob.flights.length && !found; k++)
+		{
+			if (prob.slots[i].time == prob.flights[k].latest_arr && !found && prob.flights[k].remFlights != -1)
+			{
+				found = true;
+			}
+		}
+		k--;
+		if (!found)
+		{
+			k = longest2(prob.slots[i].time, prob.flights);
+		}
+		if (k != -1)
+		{
+			prob.flights[k].asmt = i ;
+			prob.slots[i].asmt = k;
+			prob.flights[k].remFlights = -1;
+			prob.slots[i].initCap--;
+		}
+		else
+		{
+			prob.slots[i].initCap--;
+		}
+	}
+	
+	document.getElementById("output").innerHTML += "The GreedySlot Algorithm gives the following solution to stage 1: <br>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		document.getElementById("output").innerHTML += "Flight " + k + " is assigned to slot " + prob.flights[k].asmt + ", which has time " + prob.slots[prob.flights[k].asmt].time + "<br>";
+	}
+	document.getElementById("output").innerHTML += "In order to get a primal feasible solution, we need to solve every scenario in stage two of this problem. <br>";
+	document.getElementById("output").innerHTML += "For each flight, we will simply reassign it to the earliest slot that it can be reallocated to in each scenario<br>";
+	
+	prob = detStage2(prob);
+
+	text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for(var k = 0; k < prob.flights.length; k++)
+	{
+		text += "<tr>";
+		text += "<td>x<sub>" + k + ", " + prob.slots[prob.flights[k].asmt].time + "</sub></td>";
+		document.getElementById("gss").innerHTML += prob.slots[prob.flights[k].asmt].time;
+		if (k < prob.flights.length-1)
+		{
+			document.getElementById("gss").innerHTML += "<br>";
+		}
+		text += "<td>" + eval(parseInt(prob.slots[prob.flights[k].asmt].time) - parseInt(prob.flights[k].len)) + "</td>";
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			text += "<td>w<sub>" + k + ", " + prob.slots[prob.flights[k].asmt].time + ", " + prob.slots[prob.flights[k].finalAsmt[t]].time + ", " + t + "</sub></td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += "Now that we've formulated a stage 1 solution, we want to form a dual solution to check optimality. The first step in the construction of a dual solution is the determination of the continuous slots (comps) in each scenario. <br>";
+	
+	prob = detComps(prob);
+	prob = lastComps(prob);
+	
+	text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Comps: </td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>";
+		for (var j = 0; j < prob.scen[t].comps.length; j++)
+		{
+			text += (j+1) + ") " + prob.scen[t].comps[j] + "<br>";
+		}
+		text += "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Last: </td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>";
+		for (var j = 0; j < prob.scen[t].last.length; j++)
+		{
+			text += (j+1) + ") " + prob.scen[t].last[j] + "<br>";
+		}
+		text += "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += "The construction of our dual solutions are based on comps. The first dual variables we will solve for will be for the slots in each scenario of slage two. We will use the following formula to solve for these dual variables: <br>";
+	document.getElementById("output").innerHTML += "<img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = p<sub>t</sub>(j - j<sub><img src='http://www.learninglover.com/chars/beta.gif'>(t)</sub>)<br>";
+	document.getElementById("output").innerHTML += "Where j<sub><img src='http://www.learninglover.com/chars/beta.gif'>(t)</sub> is the time of the last node in the same comp as j (if j is not in a comp, then we can assign <img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = 0).<br>";
+	
+	prob = setDualSlotVals(prob);
+	
+	text = "<table>";
+	text += "<tr><td>Slot Number</td><td>Slot Time</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		text += "<tr><td>Slot " + i + "</td><td>" + prob.slots[i].time + "</td>";
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			text += "<td><img src='http://www.learninglover.com/chars/delta.gif'><sub>" + i + ", " + t + "</sub> = " + prob.slots[i].dualVal[t].toFixed(3) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += "Now that the dual variables for the stage two slots are set, we need to set dual variables for the stage two assingment nodes. In each scenario of stage two, each possible assignment (arc) of stage 1 is given a node.<br>";
+	document.getElementById("output").innerHTML += "We set these dual variables by first finding the minimum slot j in scenario t that the assignment (k, i) can be reassigned to. We then use the equation :<br>";
+	document.getElementById("output").innerHTML += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>k, i, t</sub> + <img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = cost(k, i, j, t)<br>";
+	
+	prob = setDualFlightVals(prob);
+	
+	text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				if (prob.flights[k].asmt == i)
+				{
+					text += "<tr><td><b>Assignment (" + k + ", " + i + ")</td><td>" + eval(prob.slots[i].time - prob.flights[k].len) + "</td>";
+				}
+				else
+				{
+					text += "<tr><td>Assignment (" + k + ", " + i + ")</td><td>" + eval(prob.slots[i].time - prob.flights[k].len) + "</td>";
+				}
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					text += "<td>";
+					if (prob.flights[k].asmt == i)
+					{
+						text += "<b>";
+					}
+					text += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>" + k + ", " + i + ", " + t + "</sub> = " + prob.flights[k].dualVal[i][t].toFixed(3) + "<br>";
+					if (eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]) < prob.flights[k].dualVal[i][t])
+					{
+						text += "CONSTRAINT VIOLATED<br>";
+					}
+					if (prob.flights[k].asmt == i)
+					{
+						text += "</b>";
+					}
+					text += "</td>";
+				}
+				if (prob.flights[k].asmt == i)
+				{
+					text += "</b></tr>";
+				}
+				else
+				{
+					text += "</tr>";
+				}
+			}
+		}
+	}
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+
+	document.getElementById("output").innerHTML += "Next we need to set a value for the dual slack slot in each scenario. This variable is set equal to -1 times the minimum value of all the Dual Assignment Variables in each scenario<br>.";
+	
+	prob = setDualSlackSlot(prob);
+	
+	text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Slack Slot</td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>" + prob.scen[t].slackSlot.toFixed(3) + "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += "Now that we have the dual slack slot and the dual assignment variables, we can set values to the dual y variables. These are set to satisfy the following equation: <br>";
+	document.getElementById("output").innerHTML += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>k, i, t</sub> + <img src='http://www.learninglover.com/chars/delta.gif'><sub>slack, t </sub> + y<sub>k, i, t</sub> = 0<br>";
+	
+	prob = setDualYVars(prob);
+		
+	text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				if (prob.flights[k].asmt == i)
+				{
+					text += "<tr><td><b>Assignment (" + k + ", " + i + "</td><td></td>";
+				}
+				else
+				{
+					text += "<tr><td>Assignment (" + k + ", " + i + ")</td><td></td>";
+				}
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					text += "<td>";
+					if (prob.flights[k].asmt == i)
+					{
+						text += "<b>";
+					}
+					text += "y<sub>" + k + ", " + i + ", " + t + "</sub> = " + prob.flights[k].yVar[i][t].toFixed(3) + "<br>";
+//					if (eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]) < prob.flights[k].dualVal[i][t])
+//					{
+//						text += "CONSTRAINT VIOLATED<br>";
+//					}
+					if (prob.flights[k].asmt == i)
+					{
+						text += "</b>";
+					}
+					text += "</td>";
+				}
+				if (prob.flights[k].asmt == i)
+				{
+					text += "</b></tr>";
+				}
+				else
+				{
+					text += "</tr>";
+				}
+			}
+		}
+	}
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("output").innerHTML += "Next, we set the dual slack flight in each scenario. <br>";
+
+	prob = setDualSlackFlight(prob)
+	
+	text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Slack Flight</td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>" + prob.scen[t].slackFlight.toFixed(3) + "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("output").innerHTML += "This completes the construction of a stage 2 dual solution to the problem. We can now formulate this problem as an assignment problem to solve for the dual variables to stage 1<br>";
+
+	prob = setCaps(prob);
+	
+	text = "<table>";
+	text += "<tr><td></td>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		text += "<td>Flight " + k + "</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].initCap > 0 && i <= 25)
+		{
+			text += "<tr><td>Slot " + i + "</td>";
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				if (prob.flights[k].want[i][0].length > 0)
+				{
+					text += "<td>";
+					var sum = 0;
+					for (var t = 0; t < prob.scen.length; t++)
+					{
+						sum += prob.flights[k].yVar[i][t];
+					}
+					text += eval(-sum).toFixed(3) + "</td>";
+				}
+				else 
+				{
+					text += "<td> - </td>";
+				}
+			}
+			text += "</tr>";
+		}
+	}
+	text += "</table>";
+
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += "Now we can solve for the dual feasible solution to stage 1 by solving this as an assignment problem. If the result is a feasible dual solution, then we will have constructed a primal feasible solution and a dual feasible solution that satisfy complementary slackness conditions implying optimality.<br>";
+	document.getElementById("output").innerHTML += "If we need to pivit on the degenerate basis, replacing one arc of zero flow with another, then our solution is still valid. <br>";
+	document.getElementById("output").innerHTML += "If, however, we need to pivot out an arc with nonzero flow, then we will need to re-compute the stage 1 solution, followed by a recomputation of the stage 2 solution,  the stage 2 dual and then the stage 1 dual as we have done above. <br>";
+	
+	prob = solveDualStage1(prob);
+	
+	for (var i = 0; i < prob.basis.length; i++)
+	{
+		text += "(" + prob.basis[i][0] + ", " + prob.basis[i][1] + ")<br>";
+	}
+
+//	for (var k = 0; k < prob.flights.length; k++)
+//	{
+//		text += "u<sub>" + k + "</sub> = " + prob.flights[k].uVar.toFixed(3) + "<br>";
+//	}
+//	
+//	for (var i = 0; i < prob.slots.length; i++)
+//	{
+//		text += "v<sub>" + i + "</sub> = " + prob.slots[i].vVar.toFixed(3) + "<br>";
+//	}
+	
+//	document.getElementById("output").innerHTML += text;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].remFlights = k+1;
+	}
+	return prob;
+}
+
+function GDist(prob)
+{
+	document.getElementById("output").innerHTML = "GDist<br>";
+	document.getElementById("gds").innerHTML = "";
+	
+	var text = "";
+	var poss = new Array();
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		poss[k] = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time >= prob.flights[k].arr && prob.slots[i].time <= prob.flights[k].latest_arr && prob.slots[i].initCap >= 1)
+			{
+				poss[k][poss[k].length] = i;
+			}
+		}
+	}
+	
+	while(sizeRemF(prob.flights) != 0)
+	{
+		var lowestDeg = -1;
+		var lowestLoc = -1;
+		for (var k = 0; k < poss.length; k++)
+		{
+			if (prob.flights[k].remFlights != -1 && (lowestDeg == -1 || poss[k].length < lowestDeg))
+			{
+				lowestDeg = poss[k].length;
+				lowestLoc = k;
+			}
+		}
+
+		if (lowestDeg == 1)
+		{
+			var found = false;
+			var slotLoc = -1;
+
+			for (var i = 0; i < poss[lowestLoc].length && !found; i++)
+			{
+				if (prob.slots[poss[lowestLoc][i]].initCap >= 1)
+				{
+					slotLoc = poss[lowestLoc][i];
+					found = true;
+				}
+			}
+			prob.flights[lowestLoc].asmt = slotLoc;
+			prob.slots[slotLoc].asmt = lowestLoc;
+			prob.slots[slotLoc].initCap--;
+			prob.flights[lowestLoc].remFlights = -1;
+			for (var k1 = 0; k1 < prob.flights.length; k1++)
+			{
+				if (indexOf(poss[k1], parseInt(slotLoc)) != -1)
+				{
+					var loc = indexOf(poss[k1], parseInt(slotLoc));
+					poss[k1][loc] = poss[k1][poss[k1].length-1];
+					poss[k1].length--;
+				}
+			}
+		}
+		else
+		{
+			var k = longest(prob.flights);
+			var i = earliest2(prob.flights[k], prob.slots);
+			prob.flights[k].asmt = i ;
+			prob.slots[i].asmt = k;
+			prob.slots[i].initCap--;
+			prob.flights[k].remFlights = -1;
+			for (var k1 = 0; k1 < prob.flights.length; k1++)
+			{
+				if (indexOf(poss[k1], i) != -1)
+				{
+					var loc = indexOf(poss[k1], i);
+					poss[k1][loc] = poss[k1][poss[k1].length-1];
+					poss[k1].length--;
+				}
+			}
+		}
+	}
+	document.getElementById("output").innerHTML += "The GreedySlot Algorithm gives the following solution to stage 1: <br>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		document.getElementById("output").innerHTML += "Flight " + k + " is assigned to slot " + prob.flights[k].asmt + ", which has time " + prob.slots[prob.flights[k].asmt].time + "<br>";
+	}
+	document.getElementById("output").innerHTML += "In order to get a primal feasible solution, we need to solve every scenario in stage two of this problem. <br>";
+	document.getElementById("output").innerHTML += "For each flight, we will simply reassign it to the earliest slot that it can be reallocated to in each scenario<br>";
+	
+	prob = detStage2(prob);
+
+	text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for(var k = 0; k < prob.flights.length; k++)
+	{
+		text += "<tr>";
+		text += "<td>x<sub>" + k + ", " + prob.slots[prob.flights[k].asmt].time + "</sub></td>";
+		document.getElementById("gds").innerHTML += prob.slots[prob.flights[k].asmt].time;
+		if (k < prob.flights.length-1)
+		{
+			document.getElementById("gds").innerHTML += "<br>";
+		}
+		text += "<td>" + eval(parseInt(prob.slots[prob.flights[k].asmt].time) - parseInt(prob.flights[k].len)) + "</td>";
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			text += "<td>w<sub>" + k + ", " + prob.slots[prob.flights[k].asmt].time + ", " + prob.slots[prob.flights[k].finalAsmt[t]].time + ", " + t + "</sub></td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += "Now that we've formulated a stage 1 solution, we want to form a dual solution to check optimality. The first step in the construction of a dual solution is the determination of the continuous slots (comps) in each scenario. <br>";
+	
+	prob = detComps(prob);
+	prob = lastComps(prob);
+	
+	text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Comps: </td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>";
+		for (var j = 0; j < prob.scen[t].comps.length; j++)
+		{
+			text += (j+1) + ") " + prob.scen[t].comps[j] + "<br>";
+		}
+		text += "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Last: </td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>";
+		for (var j = 0; j < prob.scen[t].last.length; j++)
+		{
+			text += (j+1) + ") " + prob.scen[t].last[j] + "<br>";
+		}
+		text += "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += "The construction of our dual solutions are based on comps. The first dual variables we will solve for will be for the slots in each scenario of slage two. We will use the following formula to solve for these dual variables: <br>";
+	document.getElementById("output").innerHTML += "<img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = p<sub>t</sub>(j - j<sub><img src='http://www.learninglover.com/chars/beta.gif'>(t)</sub>)<br>";
+	document.getElementById("output").innerHTML += "Where j<sub><img src='http://www.learninglover.com/chars/beta.gif'>(t)</sub> is the time of the last node in the same comp as j (if j is not in a comp, then we can assign <img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = 0).<br>";
+	
+	prob = setDualSlotVals(prob);
+	
+	text = "<table>";
+	text += "<tr><td>Slot Number</td><td>Slot Time</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		text += "<tr><td>Slot " + i + "</td><td>" + prob.slots[i].time + "</td>";
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			text += "<td><img src='http://www.learninglover.com/chars/delta.gif'><sub>" + i + ", " + t + "</sub> = " + prob.slots[i].dualVal[t].toFixed(3) + "</td>";
+		}
+		text += "</tr>";
+	}
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += "Now that the dual variables for the stage two slots are set, we need to set dual variables for the stage two assingment nodes. In each scenario of stage two, each possible assignment (arc) of stage 1 is given a node.<br>";
+	document.getElementById("output").innerHTML += "We set these dual variables by first finding the minimum slot j in scenario t that the assignment (k, i) can be reassigned to. We then use the equation :<br>";
+	document.getElementById("output").innerHTML += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>k, i, t</sub> + <img src='http://www.learninglover.com/chars/delta.gif'><sub>j, t</sub> = cost(k, i, j, t)<br>";
+	
+	prob = setDualFlightVals(prob);
+	
+	text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				if (prob.flights[k].asmt == i)
+				{
+					text += "<tr><td><b>Assignment (" + k + ", " + i + ")</td><td>" + eval(prob.slots[i].time - prob.flights[k].len) + "</td>";
+				}
+				else
+				{
+					text += "<tr><td>Assignment (" + k + ", " + i + ")</td><td>" + eval(prob.slots[i].time - prob.flights[k].len) + "</td>";
+				}
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					text += "<td>";
+					if (prob.flights[k].asmt == i)
+					{
+						text += "<b>";
+					}
+					text += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>" + k + ", " + i + ", " + t + "</sub> = " + prob.flights[k].dualVal[i][t].toFixed(3) + "<br>";
+					if (eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]) < prob.flights[k].dualVal[i][t])
+					{
+						text += "CONSTRAINT VIOLATED<br>";
+					}
+					if (prob.flights[k].asmt == i)
+					{
+						text += "</b>";
+					}
+					text += "</td>";
+				}
+				if (prob.flights[k].asmt == i)
+				{
+					text += "</b></tr>";
+				}
+				else
+				{
+					text += "</tr>";
+				}
+			}
+		}
+	}
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+
+	document.getElementById("output").innerHTML += "Next we need to set a value for the dual slack slot in each scenario. This variable is set equal to -1 times the minimum value of all the Dual Assignment Variables in each scenario<br>.";
+	
+	prob = setDualSlackSlot(prob);
+	
+	text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Slack Slot</td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>" + prob.scen[t].slackSlot.toFixed(3) + "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += "Now that we have the dual slack slot and the dual assignment variables, we can set values to the dual y variables. These are set to satisfy the following equation: <br>";
+	document.getElementById("output").innerHTML += "<img src='http://www.learninglover.com/chars/lambda.gif'><sub>k, i, t</sub> + <img src='http://www.learninglover.com/chars/delta.gif'><sub>slack, t</sub> + y<sub>k, i, t</sub> = 0<br>";
+	
+	prob = setDualYVars(prob);
+		
+	text = "<table>";
+	text += "<tr><td>Init</td><td>Departure</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				if (prob.flights[k].asmt == i)
+				{
+					text += "<tr><td><b>Assignment (" + k + ", " + i + ")</td><td></td>";
+				}
+				else
+				{
+					text += "<tr><td>Assignment (" + k + ", " + i + ")</td><td></td>";
+				}
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					text += "<td>";
+					if (prob.flights[k].asmt == i)
+					{
+						text += "<b>";
+					}
+					text += "y<sub>" + k + ", " + i + ", " + t + "</sub> = " + prob.flights[k].yVar[i][t].toFixed(3) + "<br>";
+//					if (eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]) < prob.flights[k].dualVal[i][t])
+//					{
+//						text += "CONSTRAINT VIOLATED<br>";
+//					}
+					if (prob.flights[k].asmt == i)
+					{
+						text += "</b>";
+					}
+					text += "</td>";
+				}
+				if (prob.flights[k].asmt == i)
+				{
+					text += "</b></tr>";
+				}
+				else
+				{
+					text += "</tr>";
+				}
+			}
+		}
+	}
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("output").innerHTML += "Next, we set the dual slack flight in each scenario. <br>";
+
+	prob = setDualSlackFlight(prob)
+	
+	text = "<table>";
+	text += "<tr><td></td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>Scenario " + (t+1) + ": " + prob.scen[t].time + "</td>";
+	}
+	text += "</tr>";
+	text += "<tr><td>Slack Flight</td><td></td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>" + prob.scen[t].slackFlight.toFixed(3) + "</td>";
+	}
+	text += "</tr>";
+	text += "</table>";
+	
+	document.getElementById("output").innerHTML += text;
+	document.getElementById("output").innerHTML += "This completes the construction of a stage 2 dual solution to the problem. We can now formulate this problem as an assignment problem to solve for the dual variables to stage 1<br>";
+
+	prob = setCaps(prob);
+	
+	text = "<table>";
+	text += "<tr><td></td>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		text += "<td>Flight " + k + "</td>";
+	}
+	text += "</tr>";
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].initCap > 0 && i <= 25)
+		{
+			text += "<tr><td>Slot " + i + "</td>";
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				if (prob.flights[k].want[i][0].length > 0)
+				{
+					text += "<td>";
+					var sum = 0;
+					for (var t = 0; t < prob.scen.length; t++)
+					{
+						sum += prob.flights[k].yVar[i][t];
+					}
+					text += eval(-sum).toFixed(3) + "</td>";
+				}
+				else 
+				{
+					text += "<td> - </td>";
+				}
+			}
+			text += "</tr>";
+		}
+	}
+	text += "</table>";
+
+	document.getElementById("output").innerHTML += text;
+	
+	document.getElementById("output").innerHTML += "Now we can solve for the dual feasible solution to stage 1 by solving this as an assignment problem. If the result is a feasible dual solution, then we will have constructed a primal feasible solution and a dual feasible solution that satisfy complementary slackness conditions implying optimality.<br>";
+	document.getElementById("output").innerHTML += "If we need to pivit on the degenerate basis, replacing one arc of zero flow with another, then our solution is still valid. <br>";
+	document.getElementById("output").innerHTML += "If, however, we need to pivot out an arc with nonzero flow, then we will need to re-compute the stage 1 solution, followed by a recomputation of the stage 2 solution,  the stage 2 dual and then the stage 1 dual as we have done above. <br>";
+	
+	prob = solveDualStage1(prob);
+	
+	for (var i = 0; i < prob.basis.length; i++)
+	{
+		text += "(" + prob.basis[i][0] + ", " + prob.basis[i][1] + ")<br>";
+	}
+
+//	for (var k = 0; k < prob.flights.length; k++)
+//	{
+//		text += "u<sub>" + k + "</sub> = " + prob.flights[k].uVar.toFixed(3) + "<br>";
+//	}
+//	
+//	for (var i = 0; i < prob.slots.length; i++)
+//	{
+//		text += "v<sub>" + i + "</sub> = " + prob.slots[i].vVar.toFixed(3) + "<br>";
+//	}
+	
+//	document.getElementById("output").innerHTML += text;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].remFlights = k+1;
+	}
+	return prob;
+}
+
+function setDualSlotVals(prob)
+{
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		prob.slots[i].dualVal = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			if (prob.slots[i].comp[t] != -1)
+			{
+				prob.slots[i].dualVal[t] = prob.scen[t].prb * (prob.slots[i].time - prob.slots[prob.scen[t].last[prob.slots[i].comp[t]]].time);
+			}
+			else
+			{
+				prob.slots[i].dualVal[t] = 0;
+			}
+		}
+	}
+	
+	return prob;
+}
+
+function setDualFlightVals(prob)
+{
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].dualVal = new Array();
+		prob.flights[k].earliest = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				prob.flights[k].dualVal[i] = new Array();
+				prob.flights[k].earliest[i] = new Array();
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					var mincost = 100000;
+					var minloc = -1;
+					for (var j = 0; j < prob.flights[k].want[i][t].length; j++)
+					{
+						if (eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]) < mincost)
+						{
+							mincost = eval(prob.flights[k].cost[i][t][j] - prob.slots[prob.flights[k].want[i][t][j]].dualVal[t]);
+							minloc = j;
+						}
+					}
+					prob.flights[k].dualVal[i][t] = eval(prob.flights[k].cost[i][t][minloc] - prob.slots[prob.flights[k].want[i][t][minloc]].dualVal[t]);
+					prob.flights[k].earliest[i][t] = prob.flights[k].want[i][t][minloc];
+				}
+			}
+		}
+	}
+
+	return prob;
+}
+
+function setDualSlackSlot(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{	
+		var mincost = 100000;
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			for (var i = 0; i < prob.slots.length; i++)
+			{
+				if (prob.flights[k].want[i][t].length > 0 && prob.flights[k].asmt != i && prob.flights[k].dualVal[i][t] < mincost)
+				{
+					mincost = prob.flights[k].dualVal[i][t];
+				}
+			}
+		}
+//		prob.scen[t].slackSlot = eval(-1 * mincost);
+		prob.scen[t].slackSlot = 0;
+	}
+	
+	return prob;
+}
+
+function setDualSlackFlight(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{	
+		var mincost = 100000;
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].comp[t] == -1 && prob.slots[i].dualVal[t] < mincost)
+			{
+				mincost = prob.slots[i].dualVal[t];
+			}
+		}
+		prob.scen[t].slackFlight = eval(-1 * mincost);
+	}
+	
+	return prob;
+}
+
+function setDualYVars(prob)
+{
+	for (var k = 0; k < prob.flights.length; k++)
+	{	
+		prob.flights[k].yVar = new Array();
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				prob.flights[k].yVar[i] = new Array();
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					if (prob.flights[k].want[i][t].length > 0)
+					{
+						prob.flights[k].yVar[i][t] = eval(-1 * prob.flights[k].dualVal[i][t] - prob.scen[t].slackSlot);
+//						prob.flights[k].yVar[i][t] = eval(prob.slots[prob.flights[k].earliest[i][t]].dualVal[t] - prob.flights[k].dualVal[i][t] - prob.scen[t].slackSlot)
+//						if (prob.flights[k].yVar[i][t] < 0)
+//						{
+//							prob.flights[k].yVar[i][t] = 0;
+//						}
+					}
+				}
+			}
+		}
+	}
+	
+	return prob;
+}
+
+function solveDualStage1(prob)
+{
+/*
+	First we must initialize the basis. These willl always be in 
+	(flight, slot) pairs, where flight is the location of the flight
+	in the array of flights and slot is the location of the slot in the
+	array of slots (NOT the slot time). 
+*/
+
+	document.getElementById("output").innerHTML += "The first step in solving this assignment problem is getting an initial basis. This will be constructed by (a) the arcs from the assignment, (b) if a flight (other than the last flight) was assigned to the latest possible time it can be assigned to, then we will add the arc to the earliest possible time it can be assigned to, (c) otherwise we will add an arc from the flight (again, other than the last flight) to the latest possible time it can be assigned to.<br>";
+	
+	prob.basis = new Array();
+	for (var k = 0; k < prob.flights.length-1; k++)
+	{
+		var loc = prob.basis.length;
+		prob.basis[loc] = new Array();
+		prob.basis[loc][0] = k;
+		prob.basis[loc][1] = prob.flights[k].asmt;
+		
+		loc++;
+		prob.basis[loc] = new Array();
+		var found = false;
+		for (var k2 = k+1; k2 < prob.flights.length && !found; k2++)
+		{
+			if (prob.flights[k].want[prob.flights[k2].asmt][0].length > 0)
+			{
+				prob.basis[loc][0] = k;
+				prob.basis[loc][1] = prob.flights[k2].asmt;
+				found = true;
+			}
+		}
+		if (!found)
+		{
+			prob.basis[loc][0] = k;
+			found = false;
+			var loc2 = -1;
+			for (var i = 0; i < prob.slots.length && !found; i++)
+			{
+				if (prob.slots[i].time >= prob.flights[k].arr && prob.slots[i].initCap > 0 && i != prob.flights[k].asmt && prob.slots[i].asmt > i)
+				{
+					found = true;
+					loc2 = i;
+				}
+			}
+			prob.basis[loc][1] = loc2;
+		}
+	}
+	
+	var loc = prob.basis.length;
+	prob.basis[loc] = new Array();
+	prob.basis[loc][0] = k;
+	prob.basis[loc][1] = prob.flights[k].asmt;
+	
+	document.getElementById("output").innerHTML += "Initial Basis: <br>";
+	for (var init = 0; init < prob.basis.length; init++)
+	{
+//		document.getElementById("output").innerHTML += " - <br>";
+		if (prob.flights[prob.basis[init][0]].asmt == prob.basis[init][1])
+		{
+			document.getElementById("output").innerHTML += "<b>(" + prob.basis[init][0] + ", " + prob.basis[init][1] + ")</b><br>";
+		}
+		else
+		{
+			document.getElementById("output").innerHTML += "(" + prob.basis[init][0] + ", " + prob.basis[init][1] + ")<br>";
+		}
+	}
+	
+	document.getElementById("output").innerHTML += "Now that we have an initial basis, we must get the stage one dual variables from this basis. This is done in the general methods for getting dual variables in network simplex: Take an arbitary node and set its dual equal to zero and follow the complimentary slackness conditions to solve for all other dual variables. <br>";
+
+	do
+	{
+		var queue = new Array();
+		var curr = 0;
+		k = prob.basis[prob.basis.length-1][0];
+		queue[curr] = k + "-F";
+		prob.flights[k].uVar = 0;
+		while (curr < 2*prob.flights.length-1)
+		{
+			var temp = queue[curr].split("-");
+			if (temp[1] == "F")
+			{
+				for (var iter = 0; iter < prob.basis.length; iter++)
+				{
+					if (prob.basis[iter][0] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][1] + "-S") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][1] + "-S";
+							var sum = 0;
+							for (var t = 0; t < prob.scen.length; t++)
+							{
+								sum += prob.flights[temp[0]].yVar[prob.basis[iter][1]][t];
+							}
+							prob.slots[prob.basis[iter][1]].vVar = eval(-1*sum - prob.flights[temp[0]].uVar);
+						}
+					}
+				}
+			}
+			else
+			{
+				for (var iter = 0; iter < prob.basis.length; iter++)
+				{
+					if (prob.basis[iter][1] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][0] + "-F") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][0] + "-F";
+							var sum = 0;
+							for (var t = 0; t < prob.scen.length; t++)
+							{
+								sum += prob.flights[prob.basis[iter][0]].yVar[temp[0]][t];
+							}
+							prob.flights[prob.basis[iter][0]].uVar = eval(-1*sum - prob.slots[temp[0]].vVar);
+						}
+					}
+				}
+			}
+			
+			curr++;
+		}
+		
+		document.getElementById("output").innerHTML += "This process gives the following dual variables: <br>";
+		
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].asmt == -1)
+			{
+				prob.slots[i].vVar = 0;
+			}
+		}
+		
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			document.getElementById("output").innerHTML += "u<sub>" + k + "</sub> = " + prob.flights[k].uVar.toFixed(3) + "<br>";
+		}
+		
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (Math.abs (prob.slots [i].vVar) > 0.000001)
+			document.getElementById("output").innerHTML += "v<sub>" + i + "</sub> = " + prob.slots[i].vVar.toFixed(3) + "<br>";
+		}
+		
+		var maxim = -100000;
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].vVar > maxim)
+			{
+				maxim = prob.slots[i].vVar;
+			}
+		}
+		prob.slots.slack = eval(-1*maxim);
+		
+		document.getElementById("output").innerHTML += "The slack slot for stage 1 is " + prob.slots.slack.toFixed(3) + "<br>";
+		document.getElementById("output").innerHTML += "Now we have finished the construction of a dual solution and need to check that no dual constraints are violated. <br>";
+		
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].asmt == -1)
+			{
+				prob.slots[i].vVar = eval(-1*prob.slots.slack);
+			}
+		}
+		
+		var violated = false;
+		var newFl = -1;
+		var newSl = -1;
+		var rhs = -1;
+		for (var k = 0; k < prob.flights.length && !violated; k++)
+		{
+			for (var i = 0; i < prob.slots.length && !violated; i++)
+			{
+				if (prob.flights[k].want[i][0].length > 0)
+				{
+					var found = false;
+					for (var iter = 0; iter < prob.basis.length; iter++)
+					{
+						if (prob.basis[iter][0] == k && prob.basis[iter][1] == i)
+						{
+							found = true;
+						}
+					}
+					if (!found)
+					{
+						var sum = 0;
+						for (var t = 0; t < prob.scen.length; t++)
+						{
+							sum += prob.flights[k].yVar[i][t];
+						}
+
+						if (eval(prob.flights[k].uVar + prob.slots[i].vVar + sum) > 0.0000001)  
+						{
+							document.getElementById("output").innerHTML += "u<sub>" + k + "</sub> + v<sub>" + i + "</sub> <= " + eval(-1*sum.toFixed(3)) + "<br>";
+							document.getElementById("output").innerHTML += prob.flights[k].uVar.toFixed(3) + " + " + prob.slots[i].vVar.toFixed(3) + " <= " +  eval(-1*sum.toFixed(3)) + "<br>";
+							violated = true;
+							newFl = k;
+							newSl = i;
+							rhs = sum;
+						}
+					}
+				}
+			}
+		}
+		
+//		for (var i = 0; i < prob.slots.length && !violated; i++)
+//		{
+//			document.getElementById("output").innerHTML += "u<sub>slack</sub> + v<sub>" + i + "</sub> <= " + eval(0).toFixed(3) + "<br>";
+//			document.getElementById("output").innerHTML += prob.slots.slack.toFixed(3) + " + " + prob.slots[i].vVar.toFixed(3) + " <= " +  eval(0).toFixed(3) + "<br>";
+//			document.getElementById("output").innerHTML += eval(prob.slots.slack + prob.slots[i].vVar).toFixed(3) + " <= " + eval(0).toFixed(3) + "<br>";
+//			if (eval(prob.flights[k].uVar + prob.slots[i].vVar + sum) > 0.0000001)  
+//			{
+//				violated = true;
+//				newFl = k;
+//				newSl = i;
+//				rhs = sum;
+//			}
+//		}
+		
+		if (violated)
+		{
+			document.getElementById("output").innerHTML += "We have violated the constraint: <br>";
+			document.getElementById("output").innerHTML += "u<sub>" + newFl + "</sub> + v<sub>" + newSl + "</sub> <= " + rhs.toFixed(3) + "<br>";
+			document.getElementById("output").innerHTML += "So we will add the corresponding edge to the basis and remove another arc. <br>";
+			queue = new Array();
+			var parent = new Array();
+			curr = 0;
+			queue[curr] = newFl + "-F";
+			parent[curr] = -1;
+			var found = false;
+			while (!found)
+			{
+//				document.getElementById("output").innerHTML += curr + ") queue = " + queue + " - " + queue.length + "<br>";
+//				document.getElementById("output").innerHTML += curr + ") parent = " + parent + " - " + parent.length + "<br>";
+				var temp = queue[curr].split("-");
+				for (var iter = 0; iter < prob.basis.length && !found; iter++)
+				{
+					if (temp[1] == "F" && prob.basis[iter][0] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][1] + "-S") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][1] + "-S";
+							if (parent[curr] != -1)
+								parent[parent.length] = parent[curr] + "->" + curr;
+							else
+								parent[parent.length] = curr;
+							if (prob.basis[iter][1] == newSl)
+							{
+								found = true;
+							}
+						}
+					}
+					else if (temp[1] == "S" && prob.basis[iter][1] == temp[0])
+					{
+						if (indexOf(queue, prob.basis[iter][0] + "-F") == -1)
+						{
+							queue[queue.length] = prob.basis[iter][0] + "-F";
+							if (parent[curr] != -1)
+								parent[parent.length] = parent[curr] + "->" + curr;
+							else
+								parent[parent.length] = curr;
+						}
+					}
+				}
+				curr++;
+			}
+			curr--;
+			
+			document.getElementById("output").innerHTML += "The path from " + newFl + " to " + newSl + " that already exists in our basis is: <br>";
+			
+			var path = parent[parent.length-1].split("->");
+			var edges = new Array();
+			for (var i = 0; i < path.length; i++)
+			{
+				edges[i] = new Array();
+				if (i < path.length - 1 && i % 2 == 0)
+				{
+					edges[i][0] = queue[path[i]].split("-")[0];
+					edges[i][1] = queue[path[i+1]].split("-")[0];
+					document.getElementById("output").innerHTML += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+				}
+				else if (i < path.length - 1 && i % 2 == 1)
+				{
+					edges[i][1] = queue[path[i]].split("-")[0];
+					edges[i][0] = queue[path[i+1]].split("-")[0];
+					document.getElementById("output").innerHTML += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+				}
+				else
+				{
+					edges[i][0] = queue[path[i]].split("-")[0];
+					edges[i][1] = queue[queue.length-1].split("-")[0];
+					document.getElementById("output").innerHTML += "edges[" + i + "] = " + edges[i][0] + ", " + edges[i][1] + "<br>";
+				}
+			}
+			
+			var degen = false;
+			for (var iter_1 = 0; iter_1 < edges.length && !degen; iter_1 += 2)
+			{
+				document.getElementById("output").innerHTML += "flight " + edges[iter_1][0] + " is assigned to " + prob.flights[edges[iter_1][0]].asmt + " and we're looking at " + edges[iter_1][1] + "<br>";
+				if (prob.flights[edges[iter_1][0]].asmt != edges[iter_1][1])
+				{
+					degen = true;
+				}
+			}
+			
+			if (!degen)
+			{
+				document.getElementById("output").innerHTML += "This solution is NOT degenerate<br>";
+				var newBasis = new Array();
+				newBasis[0] = new Array();
+				newBasis[0][0] = newFl;
+				newBasis[0][1] = newSl;
+			
+				for (var iter_1 = 1; iter_1 < edges.length; iter_1 += 2)
+				{
+					var loc = newBasis.length;
+					newBasis[loc] = new Array();
+					newBasis[loc][0] = edges[iter_1][0];
+					newBasis[loc][1] = edges[iter_1][1];
+				}
+				
+				for (var iter_0 = 0; iter_0 < newBasis.length; iter_0++)
+				{
+					prob.flights[newBasis[iter_0][0]].asmt = newBasis[iter_0][1];
+					prob.slots[newBasis[iter_0][1]].asmt = newBasis[iter_0][0];
+				}
+				
+				for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+				{
+					var found = false;
+					for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+					{
+						if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+						{
+							found = true;
+						}
+					}
+					if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+					{
+						var loc = newBasis.length;
+						newBasis[loc] = new Array();
+						newBasis[loc][0] = prob.basis[iter_0][0];
+						newBasis[loc][1] = prob.basis[iter_0][1];
+					}
+				}
+			}
+			else
+			{
+				document.getElementById("output").innerHTML += "This solution is degenerate<br>";
+				var newBasis = new Array();
+				newBasis[0] = new Array();
+				newBasis[0][0] = newFl;
+				newBasis[0][1] = newSl;
+				
+				for (var iter_1 = 1; iter_1 < edges.length; iter_1++)
+				{
+					var loc = newBasis.length;
+					newBasis[loc] = new Array();
+					newBasis[loc][0] = edges[iter_1][0];
+					newBasis[loc][1] = edges[iter_1][1];
+				}
+				
+				for (var iter_0 = 0; iter_0 < prob.basis.length; iter_0++)
+				{
+					var found = false;
+					for (var iter_1 = 0; iter_1 < newBasis.length && !false; iter_1++)
+					{
+						if (newBasis[iter_1][0] == prob.basis[iter_0][0] && newBasis[iter_1][1] == prob.basis[iter_0][1])
+						{
+							found = true;
+						}
+					}
+					if (!found && (prob.basis[iter_0][0] != edges[0][0] || prob.basis[iter_0][1] != edges[0][1]))
+					{
+						var loc = newBasis.length;
+						newBasis[loc] = new Array();
+						newBasis[loc][0] = prob.basis[iter_0][0];
+						newBasis[loc][1] = prob.basis[iter_0][1];
+					}
+				}
+			}
+			
+//			newBasis.length--;
+			
+			for (var iter_1 = 0; iter_1 < newBasis.length; iter_1++)
+			{
+				if (prob.flights[newBasis[iter_1][0]].asmt == newBasis[iter_1][1])
+				{
+					document.getElementById("output").innerHTML += "<b>newBasis(" + iter_1 + ") = (" + newBasis[iter_1][0] + ", " + newBasis[iter_1][1] + ")</b><br>";
+				}
+				else
+				{
+					document.getElementById("output").innerHTML += "newBasis(" + iter_1 + ") = (" + newBasis[iter_1][0] + ", " + newBasis[iter_1][1] + ")<br>";
+				}
+			}
+			
+			prob.basis = new Array();
+			
+			for (var iter = 0; iter < newBasis.length; iter++)
+			{
+				prob.basis[iter] = new Array();
+				prob.basis[iter][0] = newBasis[iter][0];
+				prob.basis[iter][1] = newBasis[iter][1];
+			}
+			
+			document.getElementById("output").innerHTML += "New Stage 1 Solution: <br>";
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				document.getElementById("output").innerHTML += "Flight " + k + " is assigned to Slot " + prob.flights[k].asmt + "<br>";
+			}
+			
+//			document.getElementById("output").innerHTML += "Because our assignment changed, we need to recompute the stage 2 primal, stage 2 dual and stage 1 dual variables again to correspond with this new stage 1 primal<br>";
+
+			prob = setCaps(prob);
+			
+			prob = detStage2(prob);
+			prob = detComps(prob);
+			prob = lastComps(prob);
+			prob = setDualSlotVals(prob);
+			prob = setDualFlightVals(prob);
+			prob = setDualSlackSlot(prob);
+			prob = setDualSlackFlight(prob);
+			prob = setDualYVars(prob);
+		}
+	}
+	while (violated);
+	
+	document.getElementById("output").innerHTML += "We did not find any dual constraints violated, so this solution is optimal.<br>";
+	
+	for (var iter = 0; iter < prob.basis.length; iter++)
+	{
+		document.getElementById("output").innerHTML += "(" + prob.basis[iter][0] + ", " + prob.basis[iter][1] + ")<br>";
+	}
+	
+	var primalcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		document.getElementById("output").innerHTML += "Flight " + k + " is assigned to Slot " + prob.flights[k].asmt + "<br>";
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+//			document.getElementById("output").innerHTML += "Flight " + k + "'s final assignment in scenario " + t + " is " + prob.flights[k].finalAsmt[t] + "<br>";
+//			document.getElementById("output").innerHTML += "Flight " + k + "'s want array in scenario " + t + " is " + prob.flights[k].want[prob.flights[k].asmt][t] + "<br>";
+//			document.getElementById("output").innerHTML += "The location of flight " + k + "'s final assignment in flight " + k + "'s want array in scenario " + t + " is " + indexOf(prob.flights[k].want[prob.flights[k].asmt][t], prob.flights[k].finalAsmt[t]) + "<br>";
+//			document.getElementById("output").innerHTML += "The cost of this final assignment in scenario " + t + " is " +  prob.flights[k].cost[prob.flights[k].asmt][t][indexOf(prob.flights[k].want[prob.flights[k].asmt][t], prob.flights[k].finalAsmt[t])] + "<br>";
+//			document.getElementById("output").innerHTML += "A recalculation of the cost of this final assignment in scenario " + t + " is " + prob.scen[t].prb + " * (" + prob.slots[prob.flights[k].finalAsmt[t]].time + " - " + prob.flights[k].arr + ") = " + eval(prob.scen[t].prb * (prob.slots[prob.flights[k].finalAsmt[t]].time - prob.flights[k].arr)) + "<br>";
+			primalcost += prob.flights[k].cost[prob.flights[k].asmt][t][indexOf(prob.flights[k].want[prob.flights[k].asmt][t], prob.flights[k].finalAsmt[t])];
+		}
+//		document.getElementById("output").innerHTML += "The expected cost of this assignment is " + primalcost + "<br>";
+	}
+	
+	document.getElementById("output").innerHTML += "The total cost of this primal solution is " + primalcost.toFixed(3) + "<br>";
+	
+	prob = setCaps(prob);
+	
+	var dualcost = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		dualcost += prob.flights[k].uVar;
+	}
+
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		dualcost += prob.slots[i].vVar;
+	}
+	
+	var count = 0;
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if (prob.slots[i].asmt == -1)
+		{
+			count++;
+		}
+	}
+	dualcost += count * prob.slots.slack;
+	
+	var arcs = 0;
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.flights[k].want[i][0].length > 0)
+			{
+				arcs ++;
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					dualcost += prob.flights[k].dualVal[i][t];
+					dualcost += prob.flights[k].yVar[i][t];
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			dualcost += prob.slots[i].dualVal[t];
+		}
+	}
+	
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		dualcost += (prob.slots.length - prob.flights.length) * prob.scen[t].slackFlight;
+	}
+	
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		dualcost += (arcs - prob.flights.length) * prob.scen[t].slackSlot;
+	}
+	
+	document.getElementById("output").innerHTML += "The total cost of the dual solution is " + dualcost.toFixed(3) + "<br>";
+	
+	document.getElementById("output").innerHTML += "The difference is " + eval(dualcost - primalcost).toFixed(3) + "<br>";
+	return prob;
+}
+
+function lastComps(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		prob.scen[t].last = new Array();
+		for (var j = 0; j < prob.scen[t].comps.length; j++)
+		{
+			var max = -1;
+			var maxLoc = -1;
+			for (var i = 0; i < prob.scen[t].comps[j].length; i++)
+			{
+				if (prob.scen[t].comps[j][i] > max)
+				{
+					max = prob.scen[t].comps[j][i];
+					maxLoc = i;
+				}
+			}
+			// document.getElementById("output").innerHTML += j + ") " + max + "<br>";
+			prob.scen[t].last[prob.scen[t].last.length] = prob.scen[t].comps[j][maxLoc];
+		}
+	}
+	return prob;
+}
+
+function longest(flights)
+/*
+This function returns the (position of the) longest remaining flight. 
+*/
+{
+	var lgth = 0;
+	var pos = -1;
+	for(var k = 0; k < flights.length; k++)
+	{
+		if (parseInt(flights[k].remFlights) != -1 && parseInt(lgth) < parseInt(flights[k].len))
+		{
+			lgth = flights[k].len;
+			pos = k;
+		}
+	}
+return pos;
+}
+
+function longest2(slotTime, flights)
+{
+	var lgth = -1;
+	var pos = -1;
+
+	for(var k = 0; k < flights.length; k++)
+	{
+		if (parseInt(flights[k].remFlights) != -1 && 
+			lgth < parseInt(flights[k].len) && 
+			parseInt(slotTime) >= parseInt(flights[k].arr) && 
+			parseInt(slotTime) <= parseInt(flights[k].latest_arr))
+		{
+			lgth = flights[k].len;
+			pos = k;
+		}
+	}
+
+	return pos;
+}
+
+function sizeRemF(flights)
+{
+	var count = 0;
+
+	for (var k = 0; k < flights.length; k++)
+	{
+		if (parseInt(flights[k].remFlights) != -1)
+		{
+		count++;
+		}
+	}
+
+	return count;
+}
+
+function genProb(numfl)
+{
+	resetBoard();
+
+	var flights = new Array();
+	for (var i = 0; i < numfl; i++)
+	{
+		flights[i] = new Object();
+		flights[i].arr = Math.floor(Math.random()*10);
+		flights[i].len = Math.floor(Math.random()*160)+45;
+		document.getElementById("arrs").innerHTML += flights[i].arr;
+		document.getElementById("lens").innerHTML += flights[i].len;
+		if (i < numfl-1)
+		{
+			document.getElementById("arrs").innerHTML += "<br>";
+			document.getElementById("lens").innerHTML += "<br>";
+		}
+	}
+	var prob = getData();
+	return prob;
+}
+
+function buildLP(prob)
+{
+	var text = "";
+	text += "Objective Function: <br>";
+	text += "minimize ";
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			for (var j = 0; j < prob.slots.length; j++)
+			{
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					if (prob.slots[i].time  >= prob.flights[k].arr && 
+						prob.slots[j].time  >= prob.flights[k].arr && 
+						prob.slots[i].time  <= prob.flights[k].latest_arr && 
+						((prob.slots[j].time  <= prob.slots[i].time  && prob.scen[t].time <= prob.slots[i].time  - prob.flights[k].len) || 
+						(prob.slots[i].time  == prob.slots[j].time  && prob.scen[t].time > prob.slots[i].time  - prob.flights[k].len)) && 
+						prob.slots[i].initCap >= 1 && prob.slots[i].finalCap[t] >= 1)
+					{
+						if (eval(prob.scen[t].prb*(prob.slots[j].time  - prob.slots[i].time )) != 0)
+						{
+							text +=  + eval(prob.scen[t].prb*(prob.slots[j].time  - prob.slots[i].time )) + " * w<sub>" + k + ", " + i + ", " + j + ", " + t + "</sub> + ";
+						}
+					}
+				}
+			}
+		}
+	}
+	text = text.substring(0, text.length-3);
+	text += "<br><br>Subject to: <br><br>";
+	var count = 0;
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			if (prob.slots[i].time  >= prob.flights[k].arr && prob.slots[i].time  <= prob.flights[k].latest_arr && prob.slots[i].initCap >= 1)
+			{
+				text += "x<sub>" + k + ", " + i + "</sub> + ";
+				count++;
+			}
+		}
+		text = text.substring(0, text.length-3);
+		text += " = 1<br>";
+	}
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			if (prob.slots[i].time  >= prob.flights[k].arr && prob.slots[i].time  <= prob.flights[k].latest_arr)
+			{
+				text += "x<sub>" + k + ", " + i + "</sub> + ";
+			}
+		}
+		text += " x<sub>s, " + i + "</sub> = 1<br>";
+	}
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		text += "x<sub>s, " + i + "</sub> + ";
+	}
+	text = text.substring(0, text.length-3);
+	text += " = " + eval(prob.slots.length - prob.flights.length) + "<br>";
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				for (var j = 0; j < prob.slots.length; j++)
+				{
+					if (prob.slots[i].time  >= prob.flights[k].arr && 
+						prob.slots[j].time  >= prob.flights[k].arr && 
+						prob.slots[i].time  <= prob.flights[k].latest_arr && 
+						((prob.slots[i].time  <= prob.slots[j].time  && prob.scen[t].tau <= prob.slots[i].time  - prob.flights[k].len) || 
+						(prob.slots[i].time  == prob.slots[j].time  && prob.scen[t].tau > prob.slots[i].time  - prob.flights[k].len)) && 
+						prob.slots[i].initCap >= 1 && prob.slots[j].finalCap[t] >= 1)
+					{
+						text += "w<sub>" + k + ", " + i + ", " + j + ", " + t + "</sub> + ";
+					}
+				}
+				text += "w<sub>" + k + ", " + i + ", p, " + t + "</sub> = 1<br>";
+			}
+		}
+	}
+	for (var j = 0; j < prob.slots.length; j++)
+	{
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				for (var i = 0; i < prob.slots.length; i++)
+				{
+					if (prob.slots[i].time  >= prob.flights[k].arr && 
+						prob.slots[j].time  >= prob.flights[k].arr && 
+						prob.slots[i].time  <= prob.flights[k].latest_arr && 
+						((prob.slots[i].time  <= prob.slots[j].time  && prob.scen[t].tau <= prob.slots[i].time  - prob.flights[k].len) || 
+						(prob.slots[i].time  == prob.slots[j].time  && prob.scen[t].tau > prob.slots[i].time  - prob.flights[k].len)) && 
+						prob.slots[i].initCap >= 1 && prob.slots[j].finalCap[t] >= 1)
+					{
+						text += "w<sub>" + k + ", " + i + ", " + j + ", " + t + "</sub> + ";
+					}
+				}
+			}
+			text += "w<sub>s, " + j + ", " + t + "</sub> = 1<br>";
+		}
+	}
+
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		for (var j = 0; j < prob.slots.length; j++)
+		{
+			text += "w<sub>s, " + j + ", " + t + "</sub> + ";
+		}
+		text = text.substring(0, text.length-3);
+		text += " = " + eval(count - prob.flights.length);
+	}
+
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			for (var t = 0; t < prob.scen.length; t++)
+			{
+				text += "w<sub>" + k + ", " + i + ", p, " + t + "</sub> + x<sub>" + k + ", " + i + "</sub> = 1<br>";
+			}
+		}
+	}
+	document.getElementById("output").innerHTML += text;
+}
+
+function setProbs(prob)
+{
+	var scenCase = document.getElementById("scenario").value;
+	switch (parseInt(scenCase))
+	{
+	case 0:
+		prob.scen[0].prb = eval(1/7);
+		prob.scen[1].prb = eval(1/7);
+		prob.scen[2].prb = eval(1/7);
+		prob.scen[3].prb = eval(1/7);
+		prob.scen[4].prb = eval(1/7);
+		prob.scen[5].prb = eval(1/7);
+		prob.scen[6].prb = eval(1/7);
+	break;
+	case 1:
+		prob.scen[0].prb = eval(1/64);
+		prob.scen[1].prb = eval(1/64);
+		prob.scen[2].prb = eval(1/32);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/8);
+		prob.scen[5].prb = eval(1/4);
+		prob.scen[6].prb = eval(1/2);
+	break;
+	case 2:
+		prob.scen[0].prb = eval(1/2);
+		prob.scen[1].prb = eval(1/4);
+		prob.scen[2].prb = eval(1/8);
+		prob.scen[3].prb = eval(1/16);
+		prob.scen[4].prb = eval(1/32);
+		prob.scen[5].prb = eval(1/64);
+		prob.scen[6].prb = eval(1/64);
+	break;
+	}
+
+	return prob;
+}
+
+function detComps(prob)
+{
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		// var used = new Array();
+		var comp = new Array();
+		prob.scen[t].comps = new Array();
+		for (var j = 0; j < prob.slots.length; j++)
+		{
+			// used[j] = 0;
+			for (var k = 0; k < prob.flights.length; k++)
+			{
+				if (j == prob.flights[k].finalAsmt[t])
+				{
+					// used[j] = 1;
+					prob.slots[j].used[t] = 1;
+				}
+			}
+		}
+		for (var j = 0; j < prob.slots.length; j++)
+		{
+			if (prob.slots[j].used[t] == 1)
+			{
+				comp[comp.length] = j;
+				prob.slots[j].comp[t] = prob.scen[t].comps.length;
+			}
+			else if (comp.length > 0)
+			{
+				prob.scen[t].comps[prob.scen[t].comps.length] = comp;
+				comp = new Array();
+			}
+		}
+	}
+	return prob;
+}
+
+function detStage2(prob)
+{
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			var mincost = 100000;
+			var minloc = -1;
+			for (var j = 0; j < prob.flights[k].cost[prob.flights[k].asmt][t].length; j++)
+			{
+				if (prob.flights[k].cost[prob.flights[k].asmt][t][j] < mincost && prob.slots[prob.flights[k].want[prob.flights[k].asmt][t][j]].finalCap[t] >= 1)
+				{
+					mincost = prob.flights[k].cost[prob.flights[k].asmt][t][j];
+					minloc = j;
+				}
+			}
+			prob.flights[k].finalAsmt[t] = prob.flights[k].want[prob.flights[k].asmt][t][minloc];
+			prob.slots[prob.flights[k].want[prob.flights[k].asmt][t][minloc]].finalCap[t] --;
+		}
+	}
+	return prob;
+}
+
+function reass(prob)
+{
+	var text = "";
+	prob = setProbs(prob);
+	text += "<table><tr><td></td><td>Departure Time</td>";
+	for (var t = 0; t < prob.scen.length; t++)
+	{
+		text += "<td>" + prob.scen[t].time + "</td>";
+	}
+	text += "<td>Expected Cost</td></tr>";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		for (var i = 0; i < prob.slots.length; i++)
+		{
+			var estCost = 0;
+			if (prob.slots[i].time  >= prob.flights[k].arr && prob.slots[i].time  <= prob.flights[k].latest_arr && prob.slots[i].initCap >= 1)
+			{
+				text += "<tr><td>x<sub>" + k + ", " + prob.slots[i].time  + "</sub></td>";
+				text += "<td>" + eval(prob.slots[i].time  - prob.flights[k].len) + "</td>";
+				for (var t = 0; t < prob.scen.length; t++)
+				{
+					var reloc = ea(k, prob.slots[i].time , prob.flights[k].arr, prob.flights[k].len, prob.scen[t].time, prob.slots);
+					text += "<td>" + reloc + "</td>";
+					estCost += prob.scen[t].prb * (reloc - prob.flights[k].arr);
+				}
+				text += "<td>" + estCost + "</td>";
+				text += "</tr>";
+			}
+		}
+	}
+	text += "</table>";
+	document.getElementById("output").innerHTML += text;
+}
+
+function dbrbs(prob)
+{
+	while(sizeRemF(prob.flights) != 0)
+	{
+		var locEarly = -1;
+		for (var k = 0; k < prob.flights.length; k++)
+		{
+			if ((locEarly == -1 && prob.flights[k].remFlights != -1) || (locEarly != -1 && prob.flights[k].arr < prob.flights[locEarly].arr && prob.flights[k].remFlights != -1))
+			{
+				locEarly = k;
+			}
+		}
+		var locEarlySlot = -1;
+		for (var i = 0; i < prob.slots.length && locEarlySlot == -1; i++)
+		{
+			if (prob.slots[i].time  >= prob.flights[locEarly].arr && prob.slots[i].initCap >= 1 && prob.flights[locEarly].rbs == -1)
+			{
+				locEarlySlot = i;
+			}
+		}
+		prob.flights[locEarly].rbs = locEarlySlot ;
+		prob.flights[locEarly].remFlights = -1;
+		prob.slots[locEarlySlot].initCap--;
+	}
+	document.getElementById("rbss").innerHTML = "";
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		document.getElementById("rbss").innerHTML += prob.slots[prob.flights[k].rbs].time;
+		if (k < prob.flights.length-1)
+		{
+			document.getElementById("rbss").innerHTML += "<br>";
+		}
+	}
+	for (var k = 0; k < prob.flights.length; k++)
+	{
+		prob.flights[k].remFlights = k+1;
+	}
+	prob = setCaps(prob);
+	return prob;
+}
+
+function setCaps(prob)
+{
+	for (var i = 0; i < prob.slots.length; i++)
+	{
+		if ((prob.slots[i].time % 5 == 0) || (prob.slots[i].time  > 30))
+		{
+			prob.slots[i].initCap = 1
+		}
+		else
+		{
+			prob.slots[i].initCap = 0
+		}
+		prob.slots[i].finalCap = new Array();
+		for (var t = 0; t < prob.scen.length; t++)
+		{
+			prob.slots[i].finalCap[t] = 1;
+		}
+	}
+	return prob;
+}
+
+function resetBoard()
+{
+	document.getElementById('output').innerHTML='';
+	document.getElementById('gss').innerHTML='';
+	document.getElementById('arrs').innerHTML='';
+	document.getElementById('lens').innerHTML='';
+	document.getElementById('gds').innerHTML='';
+	document.getElementById('rbss').innerHTML='';
+}
+</script>
+</head>
+<body>
+<center><h2>The E-RBD Problem</h2></center>
+<p>The Glover-Ball Airport (GBA) is expecting a major storm that should significantly impact flights. The airport can generally handle 60 flights per hour, but the storm has reduced this capacity to a measly 12. As with most weather forecasts, this one is uncertain and there are chances that the storm does not hit at all, or that it does not last as long as the forecasters predict. As expected, this has caused major uproar among the differnet airlines about which flights should experience the delay. One option for handling this is the Ration-by-Schedule concept, where flights are awarded landing times based on the order in which they were originally scheduled (so if flight a is before flight b in the original schedule, then flight a will be before flight b in the reduced capacity schedule). <p>
+<p>Some airlines and aviation experts argue that this concept, while agreed upon as fair, does not take advantage of the uncertainty in weather and could lead to the situation where the weather clears up early and there are no flights that can depart their origin cities and land in the arrival times that are become available. Aviation experts have argued in favor of a Ration-by-Distance (RBD) concept which rewards flights with landing times based on their flight length (so the if flight a and flight b are both available to land at a time t, then the flight with the longer distance to travel should be awarded this landing time). Airlines and other aviation experts pushed back stating that this concept unfairly punishes shorter flights by keeping them on the ground for an exceedingly long time just in case the weather clears up early. </p>
+<p>A third alternative that has been proposed is the concept of an equity based Ration-by-Distance (E-RBD). This is somewhat of a middle ground between the RBS and RBD concepts. Arrival times are still awarded to longer flights over shorter flights, but now there is a maximum allowed deviation from a flight's RBS arrival time that allowed. Because each flight has a unique RBS slot, if the maximum deviation is in terms of time slots, the maximum deviation can be formulated that each flight also has a unique latest possible assignment. </p>
+<p><b>Example :</b><br>
+Below we have six flights that were originally scheduled to land at GBA. Each flight has a true arrival time, and a length (in minutes). There are 7 possible cancellation times for the Ground Delay Program (GDP), -180 (three hours before the GDP starts), -120 (two hours before the GDP starts), -60 (one hour before the GDP starts), 0 (right at the start of the GDP), 60 (one hour after the start of the GDP), 120 (two hours after the start of the GDP), 180 (three hours after the start of the GDP). Each possible cancellation time (henceforth called a scenario) has its own probability. In this case we will assume that all scenarios are equally likely. The set of actions that can be taken in any scenario is dependant on the set of flights that are still on the ground (and the ones that have already departed) in that scenario. Obviously, if a flight has already departed, then it cannot have its departure time made sooner. This example considers some solutions approaches to the E-RBD problem. <p>
+
+<p>The <b>GreedySlot</b> algorithm considers the earliest remaining arrival time (slot) and assigns to it the longest flight that was originally scheduled to arrive before that time slot. In order to ensure that a feasible solution is reached, it then checks to see if any flight only has its one possible remaingin arc, in which case that flight is assigned to its latest arrival. <b>GreedyDist</b> operates similarly except the algorithm first considers the longest remaining flight and assigns it to the earliest slot that is feasible. </p>
+<form method="POST" action="--WEBBOT-SELF--" name="form1">
+<table border="0" cellpadding="0" cellspacing="0">
+<tr><td>Arrival Times</td> <td>Lengths</td><td>RBS Slots</td><td>GreedySlot</td><td>GreedyDist</td></tr>
+<tr>
+<td>
+<p name="arrs" id="arrs">1<BR>2<BR>3<BR>4<BR>5<BR>6</p>
+</td>
+<td>
+<p name="lens" id="lens">60<BR>65<BR>75<BR>90<BR>120<BR>150</p>
+</td>
+<td>
+<p name="rbss" id="rbss">5<BR>10<BR>15<BR>20<BR>25<BR>30</p>
+</td>
+<td>
+<p name="gss" id="gss"></p>
+</td>
+<td>
+<p name="gds" id="gds"></p>
+</td>
+</tr>
+<tr>
+<!-- <td><input type="text" name="size1" id="size1" size="25" readonly></td>
+<td><input type="text" name="size2" id="size2" size="25" readonly></td>
+<td><input type="text" name="size3" id="size3" size="25" readonly></td>-->
+</tr>
+</table>
+<p>Maximum Deviation from RBS: <input type="text" name="dev" id="dev" size="20" value = 5></p>
+<p>Scenario: 
+<select name="scenario" id="scenario">
+<option value = "0" selected>Equally Likely</option>
+<!--<option value = "1">Increasing Probability</option>-->
+<!--<option value = "2">Decreasing Probability</option>-->
+</select></p>
+<input type="reset" value="Reset" name="B0" id="B0" onclick="resetBoard()">
+<input type="button" value="GSlot" name="B1" id="B1" onclick="prob = GSlot(prob)">
+<input type="button" value="GDist" name="B2" id="B2" onclick="prob = GDist(prob)">
+<input type="button" value="New Problem" name="B5" id="B5" onclick="prob=genProb(5)">
+<!--<input type="button" value="Generate LP" name="B3" id="B3" onclick="buildLP(prob)">-->
+<!--<input type="button" value="Reassignment Costs" name="B4" id="B4" onclick="reass(prob)">-->
+<!--<input type="button" value="RBS" name="B4" id="B4" onclick="dbrbs(prob)">-->
+
+   <p name="output" id="output"></p>
+  <script type="text/javascript">
+  var prob = genProb(5);
+  </script>
+</form>
+</body>
+</html>

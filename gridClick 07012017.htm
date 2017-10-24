@@ -1,0 +1,3547 @@
+<html>
+<head>
+<title>Grid Coloring</title>
+<style type="text/css">
+#wrapper
+{
+
+}
+
+table.grid  
+{    
+	border: 0.1em solid;
+	border-collapse:collapse; 
+}
+
+td.grid  
+{   
+	border: 0.1em solid; 
+	width: 2em;  
+}
+
+th.grid  
+{   
+	border: 0.1em solid;    
+}
+
+table.outer
+{
+	border-collapse:collapse;
+	border: 0.1em solid;
+	border-spacing: 0px;
+}
+
+td.outer  
+{   
+	padding: 0px;
+	border: 0.1em solid;
+	width: 2em; 
+}
+
+table.inner
+{
+	width:100%;
+	border-collapse:collapse; 
+	border: none;
+}
+
+span 
+{
+	cursor:pointer;
+	color:blue;
+	text-decoration:underline;
+}
+</style>
+<script type="text/javascript">
+function buildLookup()
+{
+	var temp = new Array(numRows * numClms);
+	var count = 0;
+	
+	for (var i = 0; i < temp.length; i++)
+	{
+		temp[i] = new Array(2);
+	}
+
+	for (var line = 0; line < numRows + numClms; line++)
+	{
+		for (var i = 0; i <= line; i++)
+		{
+			var j = line - i;
+			if (i >= 0 && j >= 0 && i < numRows && j < numClms)
+			{
+				temp[count][0] = i;
+				temp[count][1] = j;
+				count++;
+			}
+		}
+	}
+
+	return temp;
+}
+	
+function buildLookup2()
+{
+	var temp = new Array();
+	for (var i = 0; i < numRows; i++)
+	{
+		temp[i] = new Array();
+		for (var j = 0; j < numClms; j++)
+		{
+			temp[i][j] = -1;
+		}
+	}
+	
+	for (var i = 0; i < lookup.length; i++)
+	{
+		temp[lookup[i][0]][lookup[i][1]] = i;
+	}
+	
+	return temp;
+}
+
+function toStr(grid)
+{
+	var text = "";
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j = 0; j < numClms; j++)
+		{
+			text += "_";
+		}
+	}
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j = 0; j < numClms; j++)
+		{
+			if (grid[i][j] != -1)
+			{
+				var loc = lookup2[i][j];
+				if (loc != 0)
+				{
+					text = text.substring(0, loc) + grid[i][j] + text.substring(loc + 1, text.length);
+				}
+				else
+				{
+					text = grid[i][j] + text.substring(loc + 1, text.length);
+				}
+			}
+		}
+	}
+	
+	return text;
+}
+
+function copyGrid(grid)
+{
+	var grid2 = new Array();
+	
+	for (var rowPtr = 0; rowPtr < numRows; rowPtr++)
+	{
+		grid2[rowPtr] = new Array();
+		for (var clmPtr = 0; clmPtr < numClms; clmPtr++)
+		{
+			if (grid.charAt(lookup2[rowPtr][clmPtr]) != '_')
+			{
+				grid2[rowPtr][clmPtr] = grid[lookup2[rowPtr][clmPtr]];
+			}
+			else
+			{
+				grid2[rowPtr][clmPtr] = -1;
+			}
+		}
+	}
+	
+	return grid2;
+}
+
+function updatePoss2(grid, poss)
+{	
+	var rfs = setRFS();
+	var color = -1;
+	if (rfs != -1)
+	{
+		for (var row = 0; row < numRows; row++)
+		{
+			for (var clm = 0; clm < numClms; clm++)
+			{
+				if (rfs[row][clm] != -1)
+				{
+					color = rfs[row][clm];
+					poss[row][clm][color] = true;
+					for (var clr = 0; clr < numClrs; clr++)
+					{
+						if (clr != color)
+						{
+							poss[row][clm][clr] = false;
+						}
+					}
+				}
+			}
+		}
+		
+		for (var row = 0; row < numRows; row++)
+		{
+			for (var clm = 0; clm < numClms; clm++)
+			{
+				if (rfs[row][clm] == -1)
+				{
+					poss[row][clm][color] = false;
+				}
+			}
+		}
+	}
+
+	for (var row1 = 0; row1 < numRows; row1++)
+	{	
+		for (var clm1 = 0; clm1 < numClms; clm1++)
+		{	
+			for (var row2 = row1 + 1; row2 < numRows; row2++)
+			{	
+				for (var clm2 = clm1 + 1; clm2 < numClms; clm2++)
+				{
+					if ((grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm1] && grid[row1][clm1] != -1)
+					{
+						poss[row2][clm2][grid[row1][clm1]] = false;
+					}
+				
+					if ((grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm2] && grid[row1][clm1] != -1)
+					{
+						poss[row2][clm1][grid[row1][clm1]] = false;
+					}
+					
+					if ((grid[row1][clm1] == grid[row2][clm2]) && grid[row1][clm1] == grid[row2][clm1] && grid[row1][clm1] != -1)
+					{
+						poss[row1][clm2][grid[row1][clm1]] = false;
+					}
+				
+					if ((grid[row2][clm2] == grid[row1][clm2]) && grid[row2][clm2] == grid[row2][clm1] && grid[row2][clm2] != -1)
+					{
+						poss[row1][clm1][grid[row2][clm2]] = false;
+					}
+				}
+			}
+		}
+	}
+	
+	if (document.getElementById("chk1").checked)
+	{
+		var lowR = Math.floor(numClms / numClrs);		
+		var lowC = Math.floor(numRows / numClrs);
+
+		var highR = Math.ceil(numClms / numClrs);		
+		var highC = Math.ceil(numRows / numClrs);
+		
+		var maxHighR = numClms % numClrs;
+		var maxHighC = numRows % numClrs;
+		
+		for (var i = 0; i < numRows; i++)
+		{
+			var cnt = new Array(numClrs);
+			
+			for (var k = 0; k < numClrs; k++)
+			{
+				cnt[k] = 0;
+			}
+			for (var j = 0; j < numClms; j++)
+			{
+				if (grid[i][j] != -1)
+				{
+					cnt[grid[i][j]]++;
+				}
+			}
+			
+			var numHighThisRow = 0;
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (cnt[k] == highR)
+				{
+					numHighThisRow++;
+					for (var j = 0; j < numClms; j++)
+					{
+						if (grid[i][j] == -1)
+						{
+							poss[i][j][k] = false;
+						}
+					}
+				}
+			}
+			
+			if (numHighThisRow == maxHighR)
+			{
+				for (var k = 0; k < numClrs; k++)
+				{
+					if (cnt[k] == highR-1)
+					{
+						for (var j = 0; j < numClms; j++)
+						{
+							if (grid[i][j] == -1)
+							{
+								poss[i][j][k] = false;
+							}
+						}
+					}
+				}
+			}		
+		}
+			
+		for (var j = 0; j < numClms; j++)
+		{
+			var cnt = new Array(numClrs);
+			
+			for (var k = 0; k < numClrs; k++)
+			{
+				cnt[k] = 0;
+			}
+			for (var i = 0; i < numRows; i++)
+			{
+				if (grid[i][j] != -1)
+				{
+					cnt[grid[i][j]]++;
+				}
+			}
+			
+			var numHighThisClm = 0;
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (cnt[k] == maxHighC)
+				{
+					numHighThisClm++;
+					for (var i = 0; i < numRows; i++)
+					{
+						if (grid[i][j] == -1)
+						{
+							poss[i][j][k] = false;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return poss;
+}
+
+function initPoss()
+{
+	var temp = new Array();
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		temp[i] = new Array();
+		for (var j = 0; j < numClms; j++)
+		{
+			temp[i][j] = new Array();
+			for (var k = 0; k < numClrs; k++)
+			{
+				temp[i][j][k] = true;
+			}
+		}
+	}
+	
+	return temp;
+}
+
+function initGrid()
+{
+	var temp = new Array(); 
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		temp[i] = new Array();
+		for (var j = 0; j < numClms; j++)
+		{
+			temp[i][j] = -1;
+		}
+	}
+	
+	return temp;
+}
+
+function countPairs(gridMtx)
+{
+	var pairs = [];
+	pairs[0] = 0;
+	pairs[1] = 0;
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j1 = 0; j1 < numClms; j1++)
+		{
+			for (var j2 = j1 + 1; j2 < numClms; j2++)
+			{
+				if (gridMtx[i][j1] == gridMtx[i][j2] && gridMtx[i][j1] != -1)
+				{
+					pairs[0]++;
+				}
+			}
+		}
+	}
+	
+	for (var j = 0; j < numClms; j++)
+	{
+		for (var i1 = 0; i1 < numRows; i1++)
+		{
+			for (var i2 = i1 + 1; i2 < numRows; i2++)
+			{
+				if (gridMtx[i1][j] == gridMtx[i2][j] && gridMtx[i1][j] != -1)
+				{
+					pairs[1]++;
+				}
+			}
+		}
+	}
+
+	return pairs;
+}
+
+function dispGrid(gridMtx)
+{
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j = 0; j < numClms; j++)
+		{
+			if (gridMtx[i][j] == "0")
+			{
+				document.getElementById(i + "_" + j).style = "background:rgb(0, 0, 255)";
+			}
+			else if (gridMtx[i][j] == "1")
+			{
+				document.getElementById(i + "_" + j).style = "background:rgb(255, 0, 0)";
+			}
+			else if (gridMtx[i][j] == "2")
+			{
+				document.getElementById(i + "_" + j).style = "background:rgb(0, 255, 0)";
+			}
+			else if (gridMtx[i][j] == "3")
+			{
+				document.getElementById(i + "_" + j).style = "background:rgb(255, 255, 0)";
+			}
+			else
+			{
+				document.getElementById(i + "_" + j).style = "background:rgb(255, 255, 255)";
+			}
+		}
+	}
+}
+
+function getGrid()
+{
+	var grd = new Array();
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		grd[i] = new Array();
+		for (var j = 0; j < numClms; j++)
+		{
+			if (document.getElementById(i + "_" + j).style.background == "#0000FF" || 
+				document.getElementById(i + "_" + j).style.background == "rgb(0, 0, 255)" || 
+				document.getElementById(i + "_" + j).style.background == "none repeat scroll 0% 0% rgb(0, 0, 255)" ||
+				document.getElementById(i + "_" + j).style.background == "rgb(0, 0, 255) none repeat scroll 0% 0%")
+			{	
+				grd[i][j] = "0";
+			}	
+			else if (document.getElementById(i + "_" + j).style.background == "#FF0000" || 
+				 document.getElementById(i + "_" + j).style.background == "rgb(255, 0, 0)" || 
+				 document.getElementById(i + "_" + j).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)" ||
+				 document.getElementById(i + "_" + j).style.background == "rgb(255, 0, 0) none repeat scroll 0% 0%")
+			{	 
+				grd[i][j] = "1";
+			}	
+			else if (document.getElementById(i + "_" + j).style.background == "#00FF00" || 
+				 document.getElementById(i + "_" + j).style.background == "rgb(0, 255, 0)" || 
+				 document.getElementById(i + "_" + j).style.background == "none repeat scroll 0% 0% rgb(0, 255, 0)" ||
+				 document.getElementById(i + "_" + j).style.background == "rgb(0, 255, 0) none repeat scroll 0% 0%")
+			{
+				grd[i][j] = "2";
+			}
+			else if (document.getElementById(i + "_" + j).style.background == "#FFFF00" || 
+				 document.getElementById(i + "_" + j).style.background == "rgb(255, 255, 0)" || 
+				 document.getElementById(i + "_" + j).style.background == "none repeat scroll 0% 0% rgb(255, 255, 0)" ||
+				 document.getElementById(i + "_" + j).style.background == "rgb(255, 255, 0) none repeat scroll 0% 0%")
+			{
+				grd[i][j] = "3";
+			}
+			else
+			{
+				grd[i][j] = "-1";
+			}
+		}
+	}
+	
+	return toStr(grd);
+}
+
+function hasRect(gridMtx)
+{
+	var found = false;
+	
+	for (var row1 = 0; row1 < numRows && !found; row1++)
+	{
+		for (var row2 = row1 + 1; row2 < numRows && !found; row2++)
+		{
+			for (var clm1 = 0; clm1 < numClms && !found; clm1++)
+			{
+				for (var clm2 = clm1 + 1; clm2 < numClms && !found; clm2++)
+				{
+					if (gridMtx[row1][clm1] != -1 && 
+						gridMtx[row1][clm1] == gridMtx[row1][clm2] && 
+						gridMtx[row1][clm1] == gridMtx[row2][clm1] && 
+						gridMtx[row1][clm1] == gridMtx[row2][clm2])
+					{
+						found = true;
+					}
+				}
+			}
+		}
+	}
+	
+	return found;
+}
+
+function changecolor(id)
+{
+	if (numClrs == 4)
+	{
+		if (document.getElementById(id).style.background == "#0000FF" || 
+			document.getElementById(id).style.background == "rgb(0, 0, 255)" || 
+			document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 0, 255)" ||
+			document.getElementById(id).style.background == "rgb(0, 0, 255) none repeat scroll 0% 0%")
+		{
+			document.getElementById(id).style.background = "#FF0000";
+		}
+		else if (document.getElementById(id).style.background == "#FF0000" || 
+				 document.getElementById(id).style.background == "rgb(255, 0, 0)" || 
+				 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)" ||
+				 document.getElementById(id).style.background == "rgb(255, 0, 0) none repeat scroll 0% 0%")
+		{
+			document.getElementById(id).style.background = "#00FF00";
+		}
+		else if (document.getElementById(id).style.background == "#00FF00" || 
+				 document.getElementById(id).style.background == "rgb(0, 255, 0)" || 
+				 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 255, 0)" ||
+				 document.getElementById(id).style.background == "rgb(0, 255, 0) none repeat scroll 0% 0%")
+		{
+			document.getElementById(id).style.background = "#FFFF00";
+		}
+		else if (document.getElementById(id).style.background == "#FFFF00" || 
+				 document.getElementById(id).style.background == "rgb(255, 255, 0)" || 
+				 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 255, 0)" ||
+				 document.getElementById(id).style.background == "rgb(255, 255, 0) none repeat scroll 0% 0%")
+		{
+			document.getElementById(id).style.background = "#FFFFFF";
+		}
+		else
+		{
+			document.getElementById(id).style.background = "#0000FF";
+		}
+	}
+	else if (numClrs == 3)
+	{
+		if (document.getElementById(id).style.background == "#0000FF" || 
+			document.getElementById(id).style.background == "rgb(0, 0, 255)" || 
+			document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 0, 255)" ||
+			document.getElementById(id).style.background == "rgb(0, 0, 255) none repeat scroll 0% 0%")
+		{
+			document.getElementById(id).style.background = "#FF0000";
+		}
+		else if (document.getElementById(id).style.background == "#FF0000" || 
+				 document.getElementById(id).style.background == "rgb(255, 0, 0)" || 
+				 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(255, 0, 0)" ||
+				 document.getElementById(id).style.background == "rgb(255, 0, 0) none repeat scroll 0% 0%")
+		{
+			document.getElementById(id).style.background = "#00FF00";
+		}
+		else if (document.getElementById(id).style.background == "#00FF00" || 
+				 document.getElementById(id).style.background == "rgb(0, 255, 0)" || 
+				 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 255, 0)" ||
+				 document.getElementById(id).style.background == "rgb(0, 255, 0) none repeat scroll 0% 0%")
+		{
+			document.getElementById(id).style.background = "#FFFFFF";
+		}
+		else
+		{
+			document.getElementById(id).style.background = "#0000FF";
+		}
+	}
+	
+	feas(-1, copyGrid(getGrid()));
+}
+
+function clrGrd()
+{
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j = 0; j < numClms; j++)
+		{
+			document.getElementById(i + "_" + j).style = "background:rgb(255, 255, 255)";
+		}
+	}
+	document.getElementById("metrics").innerHTML = "";
+	document.getElementById("possGrid").innerHTML = "";
+	document.getElementById("output").innerHTML = "";
+}
+
+function eqDist(grid)
+{
+	var lowR = Math.floor(numClms / numClrs);		
+	var lowC = Math.floor(numRows / numClrs);
+
+	var highR = Math.ceil(numClms / numClrs);		
+	var highC = Math.ceil(numRows / numClrs);
+	
+	var maxHighR = numClms % numClrs;
+	var maxHighC = numRows % numClrs;
+	
+//	var feasib = true;
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		var cnt = new Array(numClrs);
+		
+		for (var k = 0; k < numClrs; k++)
+		{
+			cnt[k] = 0;
+		}
+		for (var j = 0; j < numClms; j++)
+		{
+			if (grid[i][j] != -1)
+			{
+				cnt[grid[i][j]]++;
+				if (cnt[grid[i][j]] > highR)
+				{
+					return false;
+				}
+			}
+		}
+		
+		var numHighThisRow = 0;
+		for (var k = 0; k < numClrs; k++)
+		{
+			if (cnt[k] == highR)
+			{
+				numHighThisRow++;
+			}
+		}
+		if (numHighThisRow > maxHighR)
+		{
+			return false;
+		}
+		
+		if (grid[i][numClms-1] != -1)
+		{
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (cnt[k] < lowR)
+				{
+					return false;
+				}
+			}
+		}
+	}
+		
+	for (var j = 0; j < numClms; j++)
+	{
+		var cnt = new Array(numClrs);
+		
+		for (var k = 0; k < numClrs; k++)
+		{
+			cnt[k] = 0;
+		}
+		for (var i = 0; i < numRows; i++)
+		{
+			if (grid[i][j] != -1)
+			{
+				cnt[grid[i][j]]++;
+				if (cnt[grid[i][j]] > highC)
+				{
+					return false;
+				}
+			}
+		}
+		
+		var high = 0;
+		for (var k = 0; k < numClrs; k++)
+		{
+			if (cnt[k] == highC)
+			{
+				high++;
+			}
+		}
+		if (high > maxHighC)
+		{
+			return false;
+		}
+		
+		if (grid[numRows-1][j] != -1)
+		{
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (cnt[k] < lowC)
+				{
+					return false;
+				}
+			}
+		}
+	}
+	
+	return true;
+}
+
+function showPoss()
+{
+	var grid1 = getGrid();
+	var grid = copyGrid(grid1);
+	var poss = updatePoss2(grid, initPoss());
+	
+	var out = "<table class='outer'><tr><td class='outer'>&nbsp;</td>";
+	for (var j = 0; j < numClms; j++)
+	{
+		out += "<td class='outer'>" + j + "</td>";
+	}
+	out += "</tr>";
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		out += "<tr><td class='outer'>" + i + "</td>";
+		for (var j = 0; j < numClms; j++)
+		{
+			out += "<td class='outer'><table class='inner'><tr>"
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (poss[i][j][k])
+				{
+					out += "<td style='background:rgb(";
+					if (k == 0)
+					{
+						out += "0, 0, 255";
+					}
+					else if (k == 1)
+					{
+						out += "255, 0, 0";
+					}
+					else if (k == 2)
+					{
+						out += "0, 255, 0";
+					}
+					else if (k == 3)
+					{
+						out += "255, 255, 0";
+					}
+					out += ")'>&nbsp</td>";
+				}
+			}
+			out += "</tr></table>"
+		}
+		out += "</tr>";
+	}
+	out += "</table>";
+	
+	document.getElementById("possGrid").innerHTML = out;
+}
+
+function randInst(start)
+{
+	var len = start.indexOf("_");
+	if (len == -1)
+	{
+		return start;
+	}
+
+	var grd = copyGrid(start);
+	var pss = updatePoss2(grd, initPoss());
+	
+	for (var cell = len; cell < numRows * numClms; cell++)
+	{
+		var clrs = new Array();
+		var row = lookup[cell][0];
+		var clm = lookup[cell][1];
+		
+		var vals = new Array();
+		
+		for (var k = 0; k < numClrs; k++)
+		{
+			grd[row][clm] = k;
+			var poss2 = updatePoss2(grd, initPoss());
+			if (poss2[row][clm][k])
+			{
+				if ((document.getElementById("chk1").checked && eqDist(grd)) || !document.getElementById("chk1").checked)
+				{
+					clrs.push(k);
+				}
+			}
+			grd[row][clm] = -1;
+		}
+		
+		if (clrs.length > 0)
+		{
+			grd[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];
+			pss = updatePoss2(grd, pss);
+		}
+		else
+		{
+			break;
+		}
+	}
+	
+	return(grd);
+}
+
+function conflict(gridMtx)
+{
+	var locs = new Array();
+	var loc = toStr(gridMtx).indexOf("_");
+	
+	if (loc == -1)
+	{
+		return numRows*numClms;
+	}
+	
+	var row = lookup[loc][0];
+	var clm = lookup[loc][1];
+	var oldCell = -1;
+
+	for (var i = 0; i < numRows * numClms; i++)
+	{
+		locs[i] = new Array();
+		for (var k = 0; k < numClrs; k++)
+		{
+			locs[i][k] = new Array();
+		}
+	}
+	
+	for (var i1 = 0; i1 < numRows; i1++)
+	{
+		for (var j1 = 0; j1 < numClms; j1++)
+		{
+			for (var i2 = i1 + 1; i2 < numRows; i2++)
+			{
+				for (var j2 = j1 + 1; j2 < numClms; j2++)
+				{
+					if (gridMtx[i1][j1] != -1 && gridMtx[i1][j1] == gridMtx[i1][j2] && gridMtx[i1][j1] == gridMtx[i2][j1])
+					{
+						if (locs[lookup2[i2][j2]][gridMtx[i1][j1]].indexOf(lookup2[i1][j1]) == -1)
+						{
+							locs[lookup2[i2][j2]][gridMtx[i1][j1]].push(lookup2[i1][j1]);
+						}
+						if (locs[lookup2[i2][j2]][gridMtx[i1][j1]].indexOf(lookup2[i1][j2]) == -1)
+						{
+							locs[lookup2[i2][j2]][gridMtx[i1][j1]].push(lookup2[i1][j2]);
+						}
+						if (locs[lookup2[i2][j2]][gridMtx[i1][j1]].indexOf(lookup2[i2][j1]) == -1)
+						{
+							locs[lookup2[i2][j2]][gridMtx[i1][j1]].push(lookup2[i2][j1]);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	var list = new Array();
+	
+	for (var i = 0; i < loc; i++)
+	{
+		var sum = 0;
+		for (var k = 0; k < numClrs; k++)
+		{
+			if (locs[i][k].length > 0)
+			{
+				sum++;
+			}
+		}
+		
+		if (sum == numClrs - 1)
+		{
+			list.push(i);
+		}
+	}
+
+//	while (stack.length != 0)
+//	{
+//		var val = stack.pop()
+//		list.push(val);
+//		
+//		for (var i = 0; i < locs[val].length; i++)
+//		{
+//			stack.push(locs[val][i]);
+//		}
+//	}
+
+	return list;
+}
+
+function possPairs(grid, poss)
+{
+	var pairs = 0;
+	var last = toStr(grid).indexOf("_");
+	last = numRows * numClms;
+	var usedR = new Array();
+	for (var j = 0; j < numClms; j++)
+	{
+		for (var i1 = 0; i1 < numRows; i1++)
+		{
+			for (var i2 = i1 + 1; i2 < numRows; i2++)
+			{
+				if (grid[i1][j] == grid[i2][j] && grid[i1][j] != -1)
+				{
+					var len = usedR.length;
+					usedR[len] = new Array();
+					usedR[len][0] = i1;
+					usedR[len][1] = i2;
+					usedR[len][2] = grid[i1][j];
+				}
+			}
+		}
+	}
+	
+	var usedC = new Array();
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j1 = 0; j1 < numClms; j1++)
+		{
+			for (var j2 = j1 + 1; j2 < numClms; j2++)
+			{
+				if (grid[i][j1] == grid[i][j2] && grid[i][j1] != -1)
+				{
+					var len = usedC.length;
+					usedC[len] = new Array();
+					usedC[len][0] = j1;
+					usedC[len][1] = j2;
+					usedC[len][2] = grid[i][j1];
+				}
+			}
+		}
+	}
+	
+	for (var k = 0; k < numClrs; k++)
+	{
+		for (var i = 0; i < numRows; i++)
+		{
+			for (var j1 = 0; j1 < numClms; j1++)
+			{
+				for (var j2 = j1 + 1; j2 < numClms; j2++)
+				{
+					var fnd = false;
+					for (var cntr = 0; cntr < usedC.length; cntr++)
+					{
+						if (usedC[cntr][0] == j1 && usedC[cntr][1] == j2 && k == usedC[cntr][2])
+						{
+							fnd = true;
+						}
+					}
+						
+					if (lookup2[i][j1] <= last && lookup2[i][j2] <= last && poss[i][j1][k] && poss[i][j2][k] && !fnd)
+					{
+						pairs ++;
+					}
+				}
+			}
+		}
+		
+		for (var j = 0; j < numClms; j++)
+		{
+			for (var i1 = 0; i1 < numRows; i1++)
+			{
+				for (var i2 = i1 + 1; i2 < numRows; i2++)
+				{
+					var fnd = false;
+					for (var cntr = 0; cntr < usedR.length; cntr++)
+					{
+						if (usedR[cntr][0] == i1 && usedR[cntr][1] == i2 && k == usedR[cntr][2])
+						{
+							fnd = true;
+						}
+					}
+					
+					if (lookup2[i1][j] <= last && lookup2[i2][j] <= last && poss[i1][j][k] && poss[i2][j][k] && !fnd)
+					{
+						pairs ++;
+					}
+				}
+			}
+		}
+	}
+	
+	return pairs;
+}
+
+function minAppear(gridMtx)
+{
+	var rCount = [];
+	var cCount = [];
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		rCount[i] = [];
+	}
+
+	for (var j = 0; j < numClms; j++)
+	{
+		cCount[j] = [];
+	}
+	
+	for (var k = 0; k < numClrs; k++)
+	{
+		for (var i = 0; i < numRows; i++)
+		{
+			rCount[i][k] = 0;
+		}
+
+		for (var j = 0; j < numClms; j++)
+		{
+			cCount[j][k] = 0;
+		}
+	}
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j = 0; j < numClms; j++)
+		{
+			if (gridMtx[i][j] != -1)
+			{
+				rCount[i][gridMtx[i][j]]++;
+				cCount[j][gridMtx[i][j]]++;
+			}
+		}
+	}
+	
+	var min = Number.MAX_VALUE;
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var k = 0; k < numClrs; k++)
+		{
+			if (rCount[i][k] < min && gridMtx[i][numClms-1] != -1)
+			{
+				min = rCount[i][k];
+			}
+		}
+	}
+	
+	for (var j = 0; j < numClms; j++)
+	{
+		for (var k = 0; k < numClrs; k++)
+		{
+			if (cCount[j][k] < min && gridMtx[numRows-1][j] != -1)
+			{
+				min = cCount[j][k];
+			}
+		}
+	}
+	
+	return min;
+}
+
+function countLs(grid)
+{
+	var clrs = new Array();
+	for (var k = 0; k < numClrs;  k++)
+	{
+		clrs[k] = 0;
+	}
+
+	for (var row1 = 0; row1 < numRows; row1++)
+	{
+		for (var row2 = row1 + 1; row2 < numRows; row2++)
+		{
+			for (var clm1 = 0; clm1 < numClms; clm1++)
+			{
+				for (var clm2 = clm1 + 1; clm2 < numClms; clm2++)
+				{
+					if (grid[row1][clm1] == grid[row1][clm2] && grid[row1][clm1] == grid[row2][clm1] && grid[row1][clm1] != -1)
+					{
+						clrs[grid[row1][clm1]]++;
+					}
+					if (grid[row1][clm1] == grid[row1][clm2] && grid[row1][clm1] == grid[row2][clm2] && grid[row1][clm1] != -1)
+					{
+						clrs[grid[row1][clm1]]++;
+					}
+					if (grid[row1][clm1] == grid[row2][clm1] && grid[row1][clm1] == grid[row2][clm2] && grid[row1][clm1] != -1)
+					{
+						clrs[grid[row1][clm1]]++;
+					}
+					if (grid[row2][clm1] == grid[row1][clm2] && grid[row2][clm1] == grid[row2][clm2] && grid[row2][clm1] != -1)
+					{
+						clrs[grid[row2][clm1]]++;
+					}
+				}
+			}
+		}
+	}
+	
+	var ans = 0;
+	
+	for (var k = 0; k < numClrs; k++)
+	{
+		ans += clrs[k];
+	}
+	
+	return ans;
+}
+
+function getDiffs(grid)
+{
+	var rCount = new Array();
+	var cCount = new Array();
+	var diffs = 0;
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		rCount[i] = new Array();
+		for (var k = 0; k < numClrs; k++)
+		{
+			rCount[i][k] = 0;
+		}
+	}
+	
+	for (var j = 0; j < numClms; j++)
+	{
+		cCount[j] = new Array();
+		for (var k = 0; k < numClrs; k++)
+		{
+			cCount[j][k] = 0;
+		}
+	}
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j = 0; j < numClms; j++)
+		{
+			if (grid[i][j] != -1)
+			{
+				rCount[i][grid[i][j]]++;
+				cCount[j][grid[i][j]]++;
+			}
+		}
+	}
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var k1 = 0; k1 < numClrs; k1++)
+		{
+			for (var k2 = k1 + 1; k2 < numClrs; k2++)
+			{
+				diffs += Math.abs(rCount[i][k1] - rCount[i][k2]);
+			}
+		}
+	}
+	
+	for (var j = 0; j < numClms; j++)
+	{
+		for (var k1 = 0; k1 < numClrs; k1++)
+		{
+			for (var k2 = k1 + 1; k2 < numClrs; k2++)
+			{
+				diffs += Math.abs(cCount[j][k1] - cCount[j][k2]);
+			}
+		}
+	}
+	
+	return diffs;
+}
+
+function getOvlps(gridMtx)
+{
+	var last = toStr(gridMtx).indexOf("_");
+	var locs = new Array();
+	
+	for (var cell = 0; cell <= last; cell++)
+	{
+		var row2 = lookup[cell][0];
+		var clm2 = lookup[cell][1];
+		locs[cell] = new Array();
+		
+		for (var i = 0; i < cell; i++)
+		{
+			var row1 = lookup[i][0];
+			var clm1 = lookup[i][1];
+			
+			if (gridMtx[row1][clm1] == gridMtx[row1][clm2] && gridMtx[row1][clm1] == gridMtx[row2][clm1] && row1 != row2 && clm1 != clm2)
+			{
+				var rect = new Array();
+				rect[0] = row1 + "_" + clm1;
+				rect[1] = row1 + "_" + clm2;
+				rect[2] = row2 + "_" + clm1;
+				locs[cell][locs[cell].length] = rect;
+			}
+		}
+	}	
+}
+
+function chgRdmSub(keep)
+{
+	var gridStr = getGrid();
+	var len1 = gridStr.indexOf("_");
+	var gridMtx = copyGrid(gridStr);
+	if (len1 == -1)
+	{
+		return gridMtx;
+	}
+	
+	var i2 = lookup[len1][0];
+	var j2 = lookup[len1][1];
+	var locs = [];
+	
+	for (var i1 = 0; i1 < numRows; i1++)
+	{
+		for (var j1 = 0; j1 < numClms; j1++)
+		{
+			if (gridMtx[i1][j1] != -1 && gridMtx[i1][j1] == gridMtx[i1][j2] && gridMtx[i1][j1] == gridMtx[i2][j1])
+			{
+				if (locs.indexOf(lookup2[i1][j1]) == -1)
+				{
+					locs.push(lookup2[i1][j1]);
+				}
+				if (locs.indexOf(lookup2[i1][j2]) == -1)
+				{
+					locs.push(lookup2[i1][j2]);
+				}
+				if (locs.indexOf(lookup2[i2][j1]) == -1)
+				{
+					locs.push(lookup2[i2][j1]);
+				}
+			}
+		}
+	}
+	
+	locs.sort(function(a, b){return a-b});
+
+	var loc = locs[Math.floor(Math.random() * locs.length)];
+	
+	var gridMtx2 = copyGrid(gridStr);
+	
+	var gridStr2 = toStr(gridMtx2).substring(0, loc);
+	for (var i = loc; i < numRows * numClms; i++)
+	{
+		gridStr2 += "_";
+	}
+	
+	gridMtx2 = copyGrid(gridStr2);
+	var poss = updatePoss2(gridMtx2, initPoss());
+	var toChg = new Array();
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j = 0; j < numClms; j++)
+		{
+			var size = 0;
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (poss[i][j][k] && gridMtx2[i][j] != -1)
+				{
+					size++;
+				}
+			}
+			
+			if (size > 1)
+			{
+				toChg[toChg.length] = lookup2[i][j];
+			}
+		}
+	}
+	
+	if (toChg.length == 0)
+	{
+		toChg = [Math.floor(Math.random() * len1)];
+//		return gridMtx;
+	}
+
+	loc = Math.floor(Math.random() * toChg.length);
+	loc = toChg[loc];
+	
+	var rw = lookup[loc][0];
+	var cl = lookup[loc][1];
+	var currClr = gridMtx[rw][cl];
+	var clrs = new Array();
+	for (var k = 0; k < numClrs; k++)
+	{
+		if (poss[rw][cl][k] && k != currClr)
+		{
+			clrs[clrs.length] = k;
+		}
+	}
+	var loc2 = Math.floor(Math.random() * clrs.length);
+	gridMtx2[lookup[loc][0]][lookup[loc][1]] = clrs[loc2];
+	
+	var tmpMtx = [];
+	var tmpMax = -1;
+	var tmpStgs = [];
+	for (var i = 0; i < parseInt(document.getElementById("randInstIters").value); i++)
+	{
+		tmpMtx[i] = randInst(toStr(gridMtx2));
+		if (tmpMax == -1 || toStr(tmpMtx[i]).indexOf("_") > toStr(tmpMtx[tmpMax]).indexOf("_"))
+		{
+			tmpMax = i;
+		}
+	}
+
+	gridMtx2 = tmpMtx[tmpMax];
+	
+	var poss2 = updatePoss2(gridMtx2, initPoss());
+	
+	document.getElementById("output").innerHTML = "Change Substring<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx) + "<br>";
+	
+//	if (keep)
+//	{
+//		return gridMtx2;
+//	}
+	if (feas(gridMtx, gridMtx2, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return gridMtx2;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
+}
+
+function clrSwaps(keep)
+{
+	var gridStr = getGrid();
+	var len1 = gridStr.indexOf("_");	
+	var gridMtx = copyGrid(gridStr);
+	if (len1 == -1)
+	{
+		return gridMtx;
+	}	
+	
+	var keepClr = Math.floor(Math.random() * numClrs);
+	var loc = Math.floor(Math.random() * len1);
+	var gridMtx2 = copyGrid(gridStr);
+	
+	for (var cell = loc; cell < numRows * numClms; cell++)
+	{
+		var row = lookup[cell][0];
+		var clm = lookup[cell][1];
+		if (gridMtx2[row][clm] != keepClr)
+		{
+			gridMtx2[row][clm] = -1;
+		}
+	}
+		
+	var poss = updatePoss2(gridMtx2, initPoss());
+	
+	for (var cell = 0; cell < numRows * numClms; cell++)
+	{
+		var row = lookup[cell][0];
+		var clm = lookup[cell][1];
+		if (gridMtx2[row][clm] == -1)
+		{
+			var clrs = new Array();
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (poss[row][clm][k])
+				{
+					var old = gridMtx2[row][clm];
+					gridMtx2[row][clm] = k;
+					if ((document.getElementById("chk1").checked && eqDist(gridMtx2)) || !document.getElementById("chk1").checked)
+					{
+						clrs.push(k);
+					}
+					gridMtx2[row][clm] = old;
+				}
+			}
+			
+			if (clrs.length > 0)
+			{
+				var newClr = clrs[Math.floor(Math.random() * clrs.length)];
+				gridMtx2[row][clm] = newClr;
+				poss = updatePoss2(gridMtx2, poss);
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+	
+	var len2 = toStr(gridMtx2).indexOf("_");
+	for (var cell = len2; cell < numRows * numClms; cell++)
+	{
+		var row = lookup[cell][0];
+		var clm = lookup[cell][1];
+		gridMtx2[row][clm] = -1;
+	}
+	var tmpMtx = [];
+	var tmpMax = -1;
+	for (var i = 0; i < parseInt(document.getElementById("randInstIters").value); i++)
+	{
+		tmpMtx[i] = randInst(toStr(gridMtx2));
+		if (tmpMax == -1 || toStr(tmpMtx[i]).indexOf("_") > toStr(tmpMtx[tmpMax]).indexOf("_"))
+		{
+			tmpMax = i;
+		}
+	}
+	gridMtx2 = tmpMtx[tmpMax];
+	var poss2 = updatePoss2(gridMtx2, initPoss());
+	
+	document.getElementById("output").innerHTML = "Color Swaps<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2) + "<br>";
+	
+//	if (keep)
+//	{
+//		return gridMtx2;
+//	}
+	if (feas(gridMtx, gridMtx2, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return gridMtx2;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
+}
+
+function fixLShapes(keep)
+{
+	var gridStr = getGrid();
+	var len1 = gridStr.indexOf("_");	
+	var gridMtx = copyGrid(gridStr);
+	var gridMtx2 = copyGrid(gridStr);
+	if (len1 == -1)
+	{
+		return gridMtx;
+	}
+	
+	var list = conflict(gridMtx);
+	var lCount = new Array();
+
+	var loc = Math.floor(Math.random() * list.length);
+//	var row = lookup[list[loc]][0];
+//	var clm = lookup[list[loc]][1];
+//	gridMtx2[row][clm] = -1;
+	
+	for (var i = list[loc]; i < numRows * numClms; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		gridMtx2[row][clm] = -1;
+	}
+	
+	for (var i = list[loc]; i < numRows * numClms; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		var poss = updatePoss2(gridMtx2, initPoss());
+		var clrs = [];
+		for (k = 0; k < numClrs; k++)
+		{
+			if (poss[row][clm][k])
+			{
+				clrs.push(k);
+			}
+		}
+		
+		if (clrs.length > 0)
+		{
+			gridMtx2[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];
+		}
+		else
+		{
+			break;
+		}
+	}
+	
+	var gridStr2 = toStr(gridMtx2);
+	var last = gridStr2.indexOf("_");
+	
+	for (var i = last; i < numRows * numClms; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		
+		gridMtx2[row][clm] = -1;
+	}
+	
+	var tmpMtx = [];
+	var tmpMax = -1;
+	for (var i = 0; i < parseInt(document.getElementById("randInstIters").value); i++)
+	{
+		tmpMtx[i] = randInst(toStr(gridMtx2));
+		if (tmpMax == -1 || toStr(tmpMtx[i]).indexOf("_") > toStr(tmpMtx[tmpMax]).indexOf("_"))
+		{
+			tmpMax = i;
+		}
+	}
+	gridMtx2 = tmpMtx[tmpMax];
+	var poss2 = updatePoss2(gridMtx2, initPoss());
+	
+	document.getElementById("output").innerHTML = "Fix LShapes<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2) + "<br>";
+	
+//	if (keep)
+//	{
+//		return gridMtx2;
+//	}
+	if (feas(gridMtx, gridMtx2, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return gridMtx2;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
+}
+
+function shuffClrs(keep)
+{
+	var gridStr = getGrid();
+	var len1 = gridStr.indexOf("_");
+	var gridMtx = copyGrid(gridStr);
+	if (len1 == -1)
+	{
+		return gridMtx;
+	}
+	var gridMtx2 = new Array();
+	var len = gridStr.indexOf("_");
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		gridMtx2[i] = new Array();
+	}
+	
+	for (var cell = 0; cell < len; cell++)
+	{
+		var row = lookup[cell][0];
+		var clm = lookup[cell][1];
+		gridMtx2[row][clm] = gridMtx[row][clm];
+	}
+	
+	for (var cell = len; cell < numRows * numClms; cell++)
+	{
+		var row = lookup[cell][0];
+		var clm = lookup[cell][1];
+		gridMtx2[row][clm] = -1;
+	}
+	
+	var poss = updatePoss2(gridMtx2, initPoss());
+	
+	for (var cell = 0; cell < numRows * numClms; cell++)
+	{
+		var row = lookup[cell][0];
+		var clm = lookup[cell][1];
+		var clrs = new Array();
+		for (var clr = 0; clr < numClrs; clr++)
+		{
+			if (poss[row][clm][clr])
+			{
+				var old = gridMtx2[row][clm];
+				gridMtx2[row][clm] = clr;			
+				if ((document.getElementById("chk1").checked && eqDist(gridMtx2)) || !document.getElementById("chk1").checked)
+				{
+					clrs.push(clr);
+				}
+				gridMtx2[row][clm] = old;
+			}
+		}
+		
+		if (clrs.length >= 2 && gridMtx2[row][clm] != -1)
+		{
+			var newClr = clrs[Math.floor(Math.random() * clrs.length)];
+			gridMtx2[row][clm] = newClr;
+			poss = updatePoss2(gridMtx2, initPoss());
+		}
+	}
+	
+	var tmpMtx = [];
+	var tmpMax = -1;
+	for (var i = 0; i < parseInt(document.getElementById("randInstIters").value); i++)
+	{
+		tmpMtx[i] = randInst(toStr(gridMtx2));
+		if (tmpMax == -1 || toStr(tmpMtx[i]).indexOf("_") > toStr(tmpMtx[tmpMax]).indexOf("_"))
+		{
+			tmpMax = i;
+		}
+	}
+	gridMtx2 = tmpMtx[tmpMax];
+	
+	var poss2 = updatePoss2(gridMtx2, initPoss());
+	
+	document.getElementById("output").innerHTML = "Random Swap<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2) + "<br>";
+
+//	if (keep)
+//	{
+//		return gridMtx2;
+//	}
+	if (feas(gridMtx, gridMtx2, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return gridMtx2;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
+}
+
+function comboMut(keep, list)
+{
+	var gridMtx = copyGrid(getGrid());
+	var gridStr = toStr(gridMtx);
+	var len1 = gridStr.indexOf("_");
+	if (len1 == -1)
+	{
+		return gridMtx;
+	}
+	
+	var numMvs = parseInt(document.getElementById("comboMutIters").value);
+	
+	for (var i = 0; i < numMvs; i++)
+	{
+		var currGrd = getGrid();
+		var currLen = currGrd.indexOf("_");
+		if (currLen >= len1 && sols.indexOf(currGrd) == -1 && currGrd != gridStr)
+		{
+			break;
+		}
+		
+		var choice2 = list[Math.floor(Math.random() * list.length)];
+		
+//		alert(choice + " - " + choice2 + " - " + progress[choice] + " - " + total[choice]);
+		if (choice2 == 0)
+		{
+			dispGrid(chgRdmSub(1));
+		}
+		else if (choice2 == 1)
+		{
+			dispGrid(clrSwaps(1));
+		}
+		else if (choice2 == 2)
+		{
+			dispGrid(fixLShapes(1));
+		}
+		else if (choice2 == 3)
+		{
+			dispGrid(shuffClrs(1));
+		}
+		else if (choice2 == 5)
+		{
+			dispGrid(incr(1));
+		}
+		else if (choice2 == 6)
+		{
+			dispGrid(decr(1));
+		}
+		else if (choice2 == 7)
+		{
+			dispGrid(tryRest(1));
+		}
+		progress[choice]--;
+		total[choice]--;
+		
+		var newLen = getGrid().indexOf("_");
+		if (newLen == -1)
+		{
+			newLen = numRows * numClms;
+		}
+		else if (newLen > len1)
+		{
+			break;
+		}
+	}
+	
+	var gridMtx2 = copyGrid(getGrid());
+	var poss2 = updatePoss2(gridMtx2, initPoss());
+	
+	document.getElementById("output").innerHTML = "Combo<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2) + "<br>";
+	
+//	if (keep)
+//	{
+//		return gridMtx2;
+//	}
+	if (feas(gridMtx, gridMtx2, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return gridMtx2;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
+}
+
+function swapRows()
+{
+	var gridStr = getGrid();
+	var len1 = gridStr.indexOf("_");	
+	var gridMtx = copyGrid(gridStr);
+	if (len1 == -1)
+	{
+		return gridMtx;
+	}
+	var completed = new Array();
+	var rwCnt = new Array(); 
+	
+	var poss = updatePoss2(gridMtx, initPoss());
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j = 0; j < numClms; j++)
+		{
+			if (gridMtx[i][j] == -1)
+			{
+				var clrs = new Array();
+				for (var k = 0; k < numClrs; k++)
+				{
+					if (poss[i][j][k])
+					{
+						clrs.push(k);
+					}
+				}
+				
+				if (clrs.length > 0)
+				{
+					gridMtx[i][j] = clrs[Math.floor(Math.random() * clrs.length)];
+					poss = updatePoss2(gridMtx, initPoss());
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		rwCnt[i] = 0;
+		for (var j = 0; j < numClms; j++)
+		{
+			if (gridMtx[i][j] != -1)
+			{
+				rwCnt[i]++;
+			}
+		}
+		
+		if (rwCnt[i] == numClms)
+		{
+			completed[completed.length] = i;
+		}
+	}
+	
+	if (completed.length < 2)
+	{
+		return copyGrid(gridStr);
+	}
+	
+	var newGds = [];
+	
+	for (var loc1 = 0; loc1 < completed.length; loc1++)
+	{
+		var val1 = completed[loc1];
+		for (var loc2 = loc1 + 1; loc2 < completed.length; loc2++)
+		{
+			var val2 = completed[loc2];
+			var tempMtx = [];
+			
+			for (var i = 0; i < numRows; i++)
+			{
+				tempMtx[i] = [];
+			}
+			
+			for (var i = 0; i < numRows; i++)
+			{
+				if (i != val1 && i != val2)
+				{
+					for (var j = 0; j < numClms; j++)
+					{
+						if (lookup2[i][j] < len1)
+						{
+							tempMtx[i][j] = gridMtx[i][j];
+						}
+						else
+						{
+							tempMtx[i][j] = -1;
+						}
+					}
+				}
+				else
+				{
+					for (var j = 0; j < numClms; j++)
+					{
+						if (lookup2[val1][j] < len1 && lookup2[val2][j] < len1)
+						{
+							tempMtx[val1][j] = gridMtx[val2][j];
+							tempMtx[val2][j] = gridMtx[val1][j];
+						}
+						else
+						{
+							tempMtx[val1][j] = -1;
+							tempMtx[val2][j] = -1;
+						}
+					}
+				}
+			}
+			
+			var lc = toStr(tempMtx).indexOf("_");
+			var tempStr = toStr(tempMtx).substring(0, lc);
+			for (var lt = lc; lt < numRows * numClms; lt++)
+			{
+				tempStr += "_";
+			}
+			newGds.push(copyGrid(toStr(randInst(tempStr))));
+		}
+	}
+
+	return newGds;
+}
+	
+function swapClms()
+{
+	var gridStr = getGrid();
+	var len1 = gridStr.indexOf("_");	
+	var gridMtx = copyGrid(gridStr);
+	if (len1 == -1)
+	{
+		return gridMtx;
+	}
+	var completed = new Array();
+	var clmCnt = new Array(); 
+	
+	var poss = updatePoss2(gridMtx, initPoss());
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j = 0; j < numClms; j++)
+		{
+			if (gridMtx[i][j] == -1)
+			{
+				var clrs = new Array();
+				for (var k = 0; k < numClrs; k++)
+				{
+					if (poss[i][j][k])
+					{
+						clrs.push(k);
+					}
+				}
+				
+				if (clrs.length > 0)
+				{
+					gridMtx[i][j] = clrs[Math.floor(Math.random() * clrs.length)];
+					poss = updatePoss2(gridMtx, initPoss());
+				}
+			}
+		}
+	}
+		
+	for (var j = 0; j < numClms; j++)
+	{
+		clmCnt[j] = 0;
+		
+		for (var i = 0; i < numRows; i++)
+		{
+			if (gridMtx[i][j] != -1)
+			{
+				clmCnt[j]++;
+			}
+		}
+		
+		if (clmCnt[j] == numRows)
+		{
+			completed[completed.length] = j;
+		}
+	}
+	
+	if (completed.length < 2)
+	{
+		return copyGrid(gridStr);
+	}
+	
+	var newGds = [];
+	
+	for (var loc1 = 0; loc1 < completed.length; loc1++)
+	{
+		var val1 = completed[loc1];
+		for (var loc2 = loc1 + 1; loc2 < completed.length; loc2++)
+		{
+			var val2 = completed[loc2];
+			var tempMtx = [];
+			
+			for (var i = 0; i < numRows; i++)
+			{
+				tempMtx[i] = [];
+			}
+			
+			for (var i = 0; i < gridMtx.length; i++)
+			{
+				for (var j = 0; j < gridMtx[i].length; j++)
+				{
+					if (j != val1 && j != val2)
+					{
+						if (lookup2[i][j] < len1)
+						{
+							tempMtx[i][j] = gridMtx[i][j];
+						}
+						else
+						{
+							tempMtx[i][j] = -1;
+						}
+					}
+					else
+					{
+						if (lookup2[i][val1] < len1 && lookup2[i][val2] < len1)
+						{
+							tempMtx[i][val1] = gridMtx[i][val2];
+							tempMtx[i][val2] = gridMtx[i][val1];
+						}
+						else
+						{
+							tempMtx[i][val1] = -1;
+							tempMtx[i][val2] = -1;
+						}
+					}
+				}
+			}
+			
+			var lc = toStr(tempMtx).indexOf("_");
+			var tempStr = toStr(tempMtx).substring(0, lc);
+			for (var lt = lc; lt < numRows * numClms; lt++)
+			{
+				tempStr += "_";
+			}
+			newGds.push(copyGrid(toStr(randInst(tempStr))));
+		}
+	}
+
+	return newGds;
+}
+	
+function swapClms2()
+{
+	var gridStr = getGrid();
+	var len1 = gridStr.indexOf("_");	
+	var gridMtx = copyGrid(gridStr);
+	if (len1 == -1)
+	{
+		return gridMtx;
+	}
+	var tempMtx = new Array();
+	var partial = new Array();
+	var last = toStr(gridMtx).indexOf("_");
+	
+	var poss = updatePoss2(gridMtx, initPoss());
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j = 0; j < numClms; j++)
+		{
+			if (gridMtx[i][j] == -1)
+			{
+				var clrs = new Array();
+				for (var k = 0; k < numClrs; k++)
+				{
+					if (poss[i][j][k])
+					{
+						clrs.push(k);
+					}
+				}
+				
+				if (clrs.length > 0)
+				{
+					gridMtx[i][j] = clrs[Math.floor(Math.random() * clrs.length)];
+					poss = updatePoss2(gridMtx, initPoss());
+				}
+			}
+		}
+	}
+	
+	var lens = new Array();
+	
+	for (var j = 0; j < numClms; j++)
+	{
+		for (var i = 0; i < numRows && gridMtx[i][j] != -1; i++)
+		{
+			lens[j] = i+1;
+		}
+	}
+	
+	for (var j1 = 0; j1 < numClms - 1; j1++)
+	{
+		if ((lens[j1] == lens[j1+1] && lens[j1] != numRows) || (lens[j1+1] > lens[j1]))
+		{
+			var arr = new Array();
+			arr.push(j1);
+			arr.push(j1+1);
+			partial.push(arr);
+		}
+	}
+	
+	if (partial.length < 1)
+	{
+		return copyGrid(gridStr);
+	}
+	var newGds = [];
+	
+	var loc = partial[Math.floor(Math.random() * partial.length)];
+	var val1 = loc[0];
+	var val2 = loc[1];
+	var swap = false;
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		tempMtx[i] = new Array();
+	}
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j = 0; j < numClms; j++)
+		{
+			if (j != val1 && j != val2)
+			{
+				if (lookup2[i][j] < last)
+				{
+					tempMtx[i][j] = gridMtx[i][j];
+				}
+				else
+				{
+					tempMtx[i][j] = -1;
+				}
+			}
+			else
+			{
+				if (lookup2[i][val1] < last)
+				{
+					tempMtx[i][val1] = gridMtx[i][val2];
+				}
+				else
+				{
+					tempMtx[i][val1] = -1;
+				}
+				
+				if (lookup2[i][val2] < last)
+				{
+					tempMtx[i][val2] = gridMtx[i][val1];
+				}
+				else
+				{
+					tempMtx[i][val2] = -1;
+				}
+				swap = true;
+			}
+		}
+	}
+	
+	var lc = toStr(tempMtx).indexOf("_");
+	var tempStr = toStr(tempMtx).substring(0, lc);
+	for (var lt = lc; lt < numRows * numClms; lt++)
+	{
+		tempStr += "_";
+	}
+	newGds.push(copyGrid(toStr(randInst(tempStr))));
+
+	return tempMtx;
+}
+
+function transpose()
+{
+	var gridStr = getGrid();
+	var len1 = gridStr.indexOf("_");	
+	var gridMtx = copyGrid(gridStr);
+	if (len1 == -1)
+	{
+		return gridMtx;
+	}
+	
+	if (numClms != numRows)
+	{
+		return gridMtx;
+	}
+
+	var feasib = true;
+	for (var i = 0; i < numRows && feasib; i++)
+	{
+		if (gridMtx[i][numClms-1] != -1 && gridMtx[numRows-1][i] == -1)
+		{
+			feasib = false;
+		}
+		
+		if (gridMtx[i][numClms-1] == -1 && gridMtx[numRows-1][i] != -1)
+		{
+			feasib = false;
+		}
+	}
+	
+	if (!feasib)
+	{
+		return gridMtx;
+	}
+	
+	var tempMtx = new Array();
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		tempMtx[i] = new Array();
+		for (var j = 0; j < numClms; j++)
+		{
+			tempMtx[i][j] = gridMtx[j][i];
+		}
+	}
+	
+	var loc = toStr(tempMtx).indexOf("_");
+	var tempStr = toStr(tempMtx).substring(0, loc);
+	
+	for (var i = loc; i < numRows * numClms; i++)
+	{
+		tempStr += "_";
+	}
+	
+	var tempMtx2 = randInst(tempStr);
+	
+	return tempMtx2;
+}
+
+function tryRest(keep)
+{
+	var gridMtx = copyGrid(getGrid());
+	var gridMtx2 = randInst(toStr(initGrid()));
+	dispGrid(gridMtx2);
+	
+	var poss2 = updatePoss2(gridMtx2, initPoss());
+
+	document.getElementById("output").innerHTML = "Restart<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2) + "<br>";
+	
+	if (feas(gridMtx, gridMtx2, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return gridMtx2;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
+}
+
+function incr(keep)
+{
+    var gridMtx = copyGrid(getGrid());
+    var gridStr = toStr(gridMtx);
+    var len1 = gridStr.indexOf("_");
+    var finished = false;
+    var gridMtx2 = copyGrid(gridStr);
+	
+//	var numMoves = Math.floor(Math.random() * 25);
+	
+//	for (var mv = 0; mv < numMoves; mv++)
+//	{    
+		finished = false;
+		for (var i = len1 - 1; i >= 0 && !finished; i--)
+		{
+			var poss = updatePoss2(gridMtx2, initPoss());
+			gridMtx2[lookup[i][0]][lookup[i][1]] = parseInt(gridMtx2[lookup[i][0]][lookup[i][1]]) + 1;
+			gridStr2 = toStr(gridMtx2);
+			if (gridMtx2[lookup[i][0]][lookup[i][1]] < numClrs && !hasRect(gridMtx2) && poss[lookup[i][0]][lookup[i][1]][gridMtx2[lookup[i][0]][lookup[i][1]]])
+			{
+				finished = true;
+			}
+			else
+			{
+				gridMtx2[lookup[i][0]][lookup[i][1]] = -1;
+			}
+		}
+//	}
+	
+	var loc = toStr(gridMtx2).indexOf("_");
+	gridStr2 = toStr(gridMtx2).substring(0, loc);
+	
+	for (var i = loc; i < numRows * numClms; i++)
+	{
+		gridStr2 += "_";
+	}
+	
+	var tmpMtx = [];
+	var tmpMax = -1;
+	for (var i = 0; i < parseInt(document.getElementById("randInstIters").value); i++)
+	{
+		tmpMtx[i] = randInst(gridStr2);
+		if (tmpMax == -1 || toStr(tmpMtx[i]).indexOf("_") > toStr(tmpMtx[tmpMax]).indexOf("_"))
+		{
+			tmpMax = i;
+		}
+	}
+	gridMtx2 = tmpMtx[tmpMax];
+	gridStr2 = toStr(gridMtx2);
+	var poss2 = updatePoss2(gridMtx2, initPoss());
+	
+	document.getElementById("output").innerHTML = "Incriment<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += gridStr2 + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2) + "<br>";
+    
+//	if (keep)
+//	{
+//		return gridMtx2;
+//	}
+	if (feas(gridMtx, gridMtx2, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return gridMtx2;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
+}
+
+function decr(keep)
+{
+    var gridMtx = copyGrid(getGrid());
+    var gridStr = toStr(gridMtx);
+    var len1 = gridStr.indexOf("_");
+    var finished = false;
+    var gridMtx2 = copyGrid(gridStr);
+	
+//	var numMoves = Math.floor(Math.random() * 25);
+	
+//	for (var mv = 0; mv < numMoves; mv++)
+//	{
+		finished = false;
+		for (var i = len1 - 1; i >= 0 && !finished; i--)
+		{
+			var poss = updatePoss2(gridMtx2, initPoss());
+			gridMtx2[lookup[i][0]][lookup[i][1]] = parseInt(gridMtx2[lookup[i][0]][lookup[i][1]]) - 1;
+			gridStr2 = toStr(gridMtx2);
+			if (gridMtx2[lookup[i][0]][lookup[i][1]] >= 0 && !hasRect(gridMtx2) && poss[lookup[i][0]][lookup[i][1]][gridMtx2[lookup[i][0]][lookup[i][1]]])
+			{
+				finished = true;
+			}
+			else
+			{
+				gridMtx2[lookup[i][0]][lookup[i][1]] = -1;
+			}
+		}
+//	}
+	
+	var loc = toStr(gridMtx2).indexOf("_");
+	gridStr2 = toStr(gridMtx2).substring(0, loc);
+	
+	for (var i = loc; i < numRows * numClms; i++)
+	{
+		gridStr2 += "_";
+	}
+	
+	var tmpMtx = [];
+	var tmpMax = -1;
+	for (var i = 0; i < parseInt(document.getElementById("randInstIters").value); i++)
+	{
+		tmpMtx[i] = randInst(gridStr2);
+		if (tmpMax == -1 || toStr(tmpMtx[i]).indexOf("_") > toStr(tmpMtx[tmpMax]).indexOf("_"))
+		{
+			tmpMax = i;
+		}
+	}
+	gridMtx2 = tmpMtx[tmpMax];
+	gridStr2 = toStr(gridMtx2);	var poss2 = updatePoss2(gridMtx2, initPoss());
+	
+	document.getElementById("output").innerHTML = "Decriment<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2) + "<br>";
+    
+//	if (keep)
+//	{
+//		return gridMtx2;
+//	}
+	if (feas(gridMtx, gridMtx2, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return gridMtx2;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
+}
+
+function feas(gridMtx, gridMtx2, keep=0)
+{
+	if (keep)
+	{
+		return true;
+	}
+	
+	if (document.getElementById("chk1").checked && !eqDist(gridMtx2))
+	{
+		return false;
+	}
+	
+	var gridStr = "_";
+	var gridStr2 = toStr(gridMtx2);
+	
+	if (gridMtx != -1)
+	{
+		gridMtx3 = copyGrid(sols[0]);
+		gridStr = toStr(gridMtx);
+		
+		var gridStr3 = toStr(gridMtx3);
+		if (gridStr3.indexOf("_") > gridStr.indexOf("_"))
+		{
+			gridMtx = gridMtx3;
+			gridStr = gridStr3;
+		}
+	}
+	
+	if (gridStr2 == gridStr)
+	{
+		return false;
+	}
+	
+	var newGds = {};
+	
+	if (document.getElementById("chk3").checked)
+	{
+		dispGrid(gridMtx2);
+		var gridMtx4 = transpose();
+		var gridStr4 = toStr(gridMtx4);
+		if (gridStr4.indexOf("_") > gridStr2.indexOf("_") && !hasRect(gridMtx4))
+		{
+			gridMtx2 = gridMtx4;
+			gridStr2 = gridStr4;
+		}
+		else if (gridStr4.indexOf("_") == gridStr2.indexOf("_") && !hasRect(gridMtx4))
+		{
+			var ln = toStr(gridMtx4).indexOf("_");
+			if (ln in newGds)
+			{
+				newGds[ln].push(gridMtx4);
+			}
+			else
+			{
+				newGds[ln] = [];
+				newGds[ln].push(gridMtx4);
+			}
+		}
+	}
+	
+	if (document.getElementById("chk2").checked)
+	{
+		dispGrid(gridMtx2);
+		var tmp1 = swapRows();
+		
+		dispGrid(gridMtx2);
+		Array.prototype.push.apply(tmp1, swapClms());
+		
+		dispGrid(gridMtx2);
+		tmp1.push(swapClms2());
+		
+		for (var mtx in tmp1)
+		{
+			if (hasRect(tmp1[mtx]))
+			{
+				continue;
+			}
+			
+			var ln = toStr(tmp1[mtx]).indexOf("_");
+			if (ln in newGds)
+			{
+				newGds[ln].push(tmp1[mtx]);
+			}
+			else
+			{
+				newGds[ln] = [];
+				newGds[ln].push(tmp1[mtx]);
+			}
+		}
+	}
+	
+	var len1 = gridStr.indexOf("_");
+	var len2 = gridStr2.indexOf("_");
+	
+	if (len2 == -1)
+	{
+		len2 = numRows * numClms;
+	}
+	
+	var len = 0;
+	if (gridMtx != -1)
+	{
+		for (var i = 0; i < sols.length; i++)
+		{
+			var tmp = sols[i].indexOf("_");
+			if (tmp > len)
+			{
+				len = tmp;
+			}
+		}
+	}
+	
+	if (len == -1)
+	{
+		len = numRows * numClms;
+	}
+
+	if (len2 > len && len2 >= sols[0].indexOf("_"))
+	{
+//		document.getElementById("chk2").checked = true;
+//		document.getElementById("chk3").checked = true;
+		sols = new Array();
+
+		for (var newLen = len2; newLen <= len2; newLen++)
+		{
+			var newGdStr = toStr(gridMtx2).substring(0, newLen);
+			for (var remCells = newLen; remCells < numRows * numClms; remCells++)
+			{
+				newGdStr += "_";
+			}
+			var newGdMtx = copyGrid(newGdStr);
+			sols.push(newGdStr);
+			var poss2 = updatePoss2(newGdMtx, initPoss());
+//			if (document.getElementById("div" + newLen) == null)
+//			{
+//				var text = "<span onclick=showHideDiv('div" + newLen + "');>Grids of length " + newLen + "</span>";
+//				text = "<select id='grid" + newLen + "sel'></select>";
+//				text += "<input type='button' value='Load Grid' onClick='clearTimeout(myVar);dispGrid(copyGrid(document.getElementById(\"grid" + newLen + "sel\").value)); feas(-1, copyGrid(getGrid()));'><br>";
+//				text += "<div id='div" + newLen + "' style='display:none;'>";
+//				text += "</div>";
+//				document.getElementById("finished").innerHTML += text;
+//			}
+//			document.getElementById("div" + newLen).innerHTML += len2 + " > " + len + " - " + toStr(newGdMtx) + " - " + eqDist(newGdMtx) + " - " + possPairs(newGdMtx, poss2) + " - " + countLs(newGdMtx) + " - " + getDiffs(newGdMtx) + " - " + countPairs(newGdMtx) + " - " + minAppear(newGdMtx) + " - " + (new Date()).toLocaleString() + " - " + choice + "<br>";
+//			var x = document.getElementById("grid" + newLen + "sel");
+//			var option = document.createElement("option");
+//			option.text = newGdStr;
+//			option.style = "background-color: rgba(70, 248, 229, 0)";
+//			option.value = newGdStr;
+//			x.add(option);
+		}
+		
+//		var text = "";
+
+//			if (document.getElementById("div" + key) == null)
+//			{
+//				sols = new Array();
+//				var text = "<span onclick=showHideDiv('div" + key + "');>Grids of length " + key + "</span>";
+//				text = "<select id='grid" + key + "sel'></select>";
+//				text += "<input type='button' value='Load Grid' onClick='clearTimeout(myVar);dispGrid(copyGrid(document.getElementById(\"grid" + key + "sel\").value)); feas(-1, copyGrid(getGrid()));'><br>";
+//				text += "<div id='div" + key + "' style='display:none;'>";
+//				text += "</div>";
+//				document.getElementById("finished").innerHTML += text;
+				
+//				for (var i = 0; i < newGds[key].length; i++)
+//				{
+//					poss2 = updatePoss2(newGds[key][i], initPoss());
+//					document.getElementById("div" + key).innerHTML += key + "(a) - " + toStr(newGds[key][i]) + " - " + eqDist(newGds[key][i]) + " - " + possPairs(newGds[key][i], poss2) + " - " + countLs(newGds[key][i]) + " - " + getDiffs(newGds[key][i]) + " - " + countPairs(newGds[key][i]) + " - " + minAppear(newGds[key][i]) + " - " + (new Date()).toLocaleString() + "<br>";
+//				}
+//			}
+//			else
+//			{
+//				for (var i = 0; i < newGds[key].length; i++)
+//				{
+//					poss2 = updatePoss2(newGds[key][i], initPoss());
+//					document.getElementById("div" + key).innerHTML += key + "(b) - " + toStr(newGds[key][i]) + " - " + eqDist(newGds[key][i]) + " - " + possPairs(newGds[key][i], poss2) + " - " + countLs(newGds[key][i]) + " - " + getDiffs(newGds[key][i]) + " - " + countPairs(newGds[key][i]) + " - " + minAppear(newGds[key][i]) + " - " + (new Date()).toLocaleString() + "<br>";
+//				}
+//			}
+			
+//			var x = document.getElementById("grid" + key + "sel");
+			for (var i = 0; len2 in newGds && i < newGds[len2].length; i++)
+			{
+//				var option = document.createElement("option");
+//				option.text = toStr(newGds[key][i]);
+//				option.value = toStr(newGds[key][i]);
+//				option.style = "background-color: rgba(70, 248, 229, 0)";
+//				x.add(option);
+				sols.push(toStr(newGds[len2][i]));
+			}
+		
+		if (len2 == numRows * numClms)
+		{
+			dispMetrics();
+			stopTimeout();
+		}
+		
+		sols = dedupe(sols);
+		return true;
+	}
+	else if (len2 == len && sols.indexOf(gridStr2) == -1)
+	{
+//		var poss2 = updatePoss2(gridMtx2, initPoss());				
+//		var cnt2 = possPairs(gridMtx2, poss2);
+//		var lshapes2 = countLs(gridMtx2);
+//		var diffs2 = getDiffs(gridMtx2);
+//		var prs2 = countPairs(gridMtx2);
+//		var min2 = minAppear(gridMtx2);
+		
+		var poss1 = updatePoss2(gridMtx, initPoss());
+		var poss2 = updatePoss2(gridMtx2, initPoss());
+		
+//		if (poss2 == 0)
+//		{
+//			return false;
+//		}
+		
+		var cnt1 = possPairs(gridMtx, poss1);
+		var cnt2 = possPairs(gridMtx2, poss2);
+		
+		var lshapes1 = countLs(gridMtx);
+		var lshapes2 = countLs(gridMtx2);
+		
+		var diffs1 = getDiffs(gridMtx);
+		var diffs2 = getDiffs(gridMtx2);
+		
+		var prs1 = countPairs(gridMtx);
+		var prs2 = countPairs(gridMtx2);
+		
+		var min1 = minAppear(gridMtx);
+		var min2 = minAppear(gridMtx2);
+		
+		if (poss2 >= poss1 || 
+			diffs2 <= diffs1 || 
+			prs2 <= prs1 || 
+			cnt2 >= cnt1 || 
+			lshapes2 <= lshapes1 || 
+			min2 <= min1)
+		{
+			sols.push(gridStr2);
+		}
+		else
+		{
+			return false;
+		}
+		
+//		var x = document.getElementById("grid" + len2 + "sel");
+//		var option = document.createElement("option");
+//		option.text = gridStr2;
+//		option.value = toStr(gridMtx2);
+//		option.style="background-color: rgba(70, 248, 229, 0)";
+//		x.add(option);
+//		var text = "";
+
+//			var x = document.getElementById("grid" + i + "sel");
+//			if (x == null)
+//			{
+//				sols = new Array();
+//				var text = "<span onclick=showHideDiv('div" + i + "');>Grids of length " + i + "</span>";
+//				text += "<select id='grid" + i + "sel'></select>";
+//				text += "<input type='button' value='Load Grid' onClick='clearTimeout(myVar);dispGrid(copyGrid(document.getElementById(\"grid" + i + "sel\").value)); feas(-1, copyGrid(getGrid()));'><br>";
+//				text += "<div id='div" + i + "' style='display:none;'>";
+//				text += "</div>";
+//				document.getElementById("finished").innerHTML += text;
+//				var x = document.getElementById("grid" + i + "sel");
+//			}
+			
+			for (var j = 0; len2 in newGds && j < newGds[len2].length; j++)
+			{
+//				var option = document.createElement("option");
+//				option.text = toStr(newGds[i][j]);
+//				option.value = toStr(newGds[i][j]);
+//				option.style = "background-color: rgba(70, 248, 229, 0)";
+//				x.add(option);
+				sols.push(toStr(newGds[len2][j]));
+//				document.getElementById("div" + i).innerHTML += i + " - " + toStr(newGds[i][j]) + " - " + eqDist(newGds[i][j]) + " - " + possPairs(newGds[i][j], poss2) + " - " + countLs(newGds[i][j]) + " - " + getDiffs(newGds[i][j]) + " - " + countPairs(newGds[i][j]) + " - " + minAppear(newGds[i][j]) + " - " + (new Date()).toLocaleString() + " - " + choice + "<br>";
+			}
+		
+//		document.getElementById("div" + len2).innerHTML += len2 + " = " + len + " - " + toStr(gridMtx2) + " - " + eqDist(gridMtx2) + " - " + cnt2 + " - " + lshapes2 + " - " + diffs2 + " - " + prs2 + " - " + min2 + " - " + (new Date()).toLocaleString() + " - " + choice + "<br>";
+		
+		sols = dedupe(sols);
+		return true;
+	}
+}
+
+function showHideDiv(id)
+{
+	var val = document.getElementById(id).style.display;
+	if (val == "none")
+	{
+		document.getElementById(id).style.display = "block";
+	}
+	else
+	{
+		document.getElementById(id).style.display = "none";
+	}
+}
+
+
+function timeout(usrChc) 
+{
+	var gridStr = getGrid();
+	var gridMtx = copyGrid(gridStr);
+	var keep = 0;
+	var len1 = gridStr.indexOf("_");
+	if (len1 == -1)
+	{
+		len1 = numRows * numClms;
+		stopTimeout();
+	}
+    myVar = setTimeout
+	(
+		function () 
+		{
+			var loc = Math.floor(Math.random() * sols.length);
+			if (usrChc != 8)
+			{
+				dispGrid(copyGrid(sols[loc]));
+				len1 = sols[loc].indexOf("_");
+				var toChg = -1;
+//				var opts = document.getElementById("grid" + len1 + "sel").options;
+//				for (var i = 0; i < opts.length; i++) 
+//				{
+//					if (opts[i].childNodes[0].nodeValue === sols[loc]) 
+//					{
+//						toChg = i;
+//						break;
+//					}
+//				}
+				
+//				var a = document.getElementById("grid" + len1 + "sel").options[toChg].style.backgroundColor.split(", ")[3];
+//				a = a.substring(0, a.length-1);
+//				a = parseFloat(a);
+//				a = (a + 1) / 2;
+//				document.getElementById("grid" + len1 + "sel").options[toChg].selected = true;
+//				document.getElementById("grid" + len1 + "sel").options[toChg].style.backgroundColor = "rgba(70, 248, 229, " + a.toFixed(3) + ")";
+			}
+			
+			if (usrChc == -1)
+			{
+				var sumN = [0, 0, 0, 0, 0, 0, 0, 0];
+				for (var listL = 0; listL < sumN.length; listL++)
+				{
+					if (listL == 0)
+					{
+						sumN[listL] = progress[listL] / total[listL];
+					}
+					else
+					{
+						sumN[listL] = sumN[listL-1] + progress[listL] / total[listL];
+					}
+				}
+				
+				choice = Math.random() * sumN[sumN.length - 1];
+				for (var sumLoc = 0; sumLoc < sumN.length; sumLoc++)
+				{
+					if (sumN[sumLoc] >= choice)
+					{
+						choice = sumLoc;
+						break;
+					}
+				}
+			}
+			else
+			{
+				choice = usrChc;
+			}
+			
+			if (choice == 0)
+			{
+				dispGrid(chgRdmSub(keep));
+			}
+			else if (choice == 1)
+			{
+				dispGrid(clrSwaps(keep));
+			}
+			else if (choice == 2)
+			{
+				dispGrid(fixLShapes(keep));
+			}
+			else if (choice == 3)
+			{
+				dispGrid(shuffClrs(keep));
+			}
+			else if (choice == 4)
+			{
+				var list = [];
+				if (document.getElementById("combo0").checked)
+				{
+					list.push(0);
+				}
+				if (document.getElementById("combo1").checked)
+				{
+					list.push(1);
+				}
+				if (document.getElementById("combo2").checked)
+				{
+					list.push(2);
+				}
+				if (document.getElementById("combo3").checked)
+				{
+					list.push(3);
+				}
+				if (document.getElementById("combo5").checked)
+				{
+					list.push(5);
+				}
+				if (document.getElementById("combo6").checked)
+				{
+					list.push(6);
+				}
+				if (document.getElementById("combo7").checked)
+				{
+					list.push(7);
+				}
+				dispGrid(comboMut(keep, list));
+			}
+			else if (choice == 5)
+			{
+				dispGrid(incr(keep));
+			}
+			else if (choice == 6)
+			{
+				dispGrid(decr(keep));
+			}
+			else if (choice == 7)
+			{
+				dispGrid(tryRest(keep));
+			}
+			else if (choice == 8)
+			{
+				nextColoring2();
+			}
+
+			gridMtx2 = randInst(getGrid());
+			var gridStr2 = toStr(gridMtx2);
+			var len2 = gridStr2.indexOf("_");
+			if (len2 == -1)
+			{
+				len2 = numRows * numClms;
+			}
+			if (len2 >= len1)
+			{
+				dispGrid(gridMtx2);
+			}
+			else
+			{
+				dispGrid(gridMtx);
+			}
+			dispGrid(gridMtx2);
+			showPoss(); 
+			dispMetrics();
+			var out = "<table><tr>";
+			out += "<td>Rdm Sub</td>";
+			out += "<td>Swaps Color</td>";
+			out += "<td>Fix Ls</td>";
+			out += "<td>Shuff Clrs</td>";
+			out += "<td>ComboMut</td>";
+			out += "<td>Incriment</td>";
+			out += "<td>Decriment</td>";
+			out += "<td>Restart</td>";
+			out += "</tr>";
+			out += "<tr>";
+			out += "<td>" + progress[0] + "/" + total[0] + "</td>";
+			out += "<td>" + progress[1] + "/" + total[1] + "</td>";
+			out += "<td>" + progress[2] + "/" + total[2] + "</td>";
+			out += "<td>" + progress[3] + "/" + total[3] + "</td>";
+			out += "<td>" + progress[4] + "/" + total[4] + "</td>";
+			out += "<td>" + progress[5] + "/" + total[5] + "</td>";
+			out += "<td>" + progress[6] + "/" + total[6] + "</td>";
+			out += "<td>" + progress[7] + "/" + total[7] + "</td>";
+			out += "</tr>";
+			out += "<tr>";
+			out += "<td>" + (progress[0] / total[0]).toFixed(4) + "</td>";
+			out += "<td>" + (progress[1] / total[1]).toFixed(4) + "</td>";
+			out += "<td>" + (progress[2] / total[2]).toFixed(4) + "</td>";
+			out += "<td>" + (progress[3] / total[3]).toFixed(4) + "</td>";
+			out += "<td>" + (progress[4] / total[4]).toFixed(4) + "</td>";
+			out += "<td>" + (progress[5] / total[5]).toFixed(4) + "</td>";
+			out += "<td>" + (progress[6] / total[6]).toFixed(4) + "</td>";
+			out += "<td>" + (progress[7] / total[7]).toFixed(4) + "</td>";
+			out += "</tr></table>";
+			document.getElementById("output").innerHTML += out;
+			document.getElementById("output").innerHTML += eqDist(copyGrid(getGrid()));
+			
+//			if (sols.length > 1)
+//			{
+//				sols.splice(loc, 1);
+//			}
+//			else
+//			{
+//					keep = 1;
+//				document.getElementById("chk2").checked = true;
+//				document.getElementById("chk3").checked = true;		
+//			}
+			
+			if (sols.length > 100)
+			{
+				if (!eqDist(copyGrid(sols[loc])))
+				{
+					sols.splice(loc, 1);
+				}
+/*				var loc = Number.MAX_VALUE;
+				var val = -1;
+				
+				for (var i = 0; i < sols.length; i++)
+				{
+					var tempMtx = copyGrid(sols[i]);
+					var poss = updatePoss2(tempMtx, initPoss());
+					var cnt = possPairs(tempMtx, poss);
+
+					if (cnt > val)
+					{
+						val = cnt;
+						minLoc = i;
+					}
+				}
+				
+				var tmp = sols[minLoc];
+				sols = new Array();
+				sols.push(tmp);
+//				sols.splice(0, 999);*/
+//				keep = 0;
+//				document.getElementById("chk2").checked = false;
+//				document.getElementById("chk3").checked = false;
+			}
+			
+			var len = getGrid().indexOf("_");
+			
+			if (len == -1)
+			{
+				clearTimeout(myVar);
+			}
+			timeout(usrChc);
+		}
+	, tmo);
+}
+
+function stopTimeout() 
+{
+    clearTimeout(myVar);
+}
+
+function restart()
+{
+	sols = [];
+//	fails = [];
+	progress[0] = 1;
+	progress[1] = 1;
+	progress[2] = 1;
+	progress[3] = 1;
+	progress[4] = 1;
+	progress[5] = 1;
+	progress[6] = 1;
+	progress[7] = 1;
+	
+	total[0] = 1;
+	total[1] = 1;
+	total[2] = 1;
+	total[3] = 1;
+	total[4] = 1;
+	total[5] = 1;
+	total[6] = 1;
+	total[7] = 1;
+	var val = document.getElementById("game").value;
+	if (val == 0)
+	{
+		numRows = 10;
+		numClms = 10;
+		numClrs = 3;
+	}
+	else if (val == 1)
+	{
+		numRows = 18;
+		numClms = 18;
+		numClrs = 4;
+	}
+	lookup = buildLookup();
+	lookup2 = buildLookup2();
+	var out = "<table class='grid'>";
+	out += "<tr><td class='grid'></td>";
+	for (var j = 0; j < numClms; j++)
+	{
+		out += "<td class='grid'>" + j + "</td>";
+	}
+	out += "</tr>";
+	for (var i = 0; i < numRows; i++)
+	{
+		out += "<tr><td class='grid'>" + i + "</td>";
+		for (var j = 0; j < numClms; j++)
+		{
+			out += "<td class='grid' id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\"); showPoss(); dispMetrics()'></td>";
+		}
+		out += "</tr>";
+	}
+	document.getElementById("content").innerHTML = out;
+	document.getElementById("btn7").click();
+	sols.push(getGrid());
+}
+
+function dispMetrics()
+{
+	var out = "<table>";
+	var gridStr = getGrid();
+	var gridMtx = copyGrid(gridStr);
+	var poss = updatePoss2(gridMtx, initPoss());
+	var diffs = getDiffs(gridMtx);
+	var pairs = possPairs(gridMtx, poss);
+	var pairs2 = countPairs(gridMtx);
+	var lshapes = countLs(gridMtx)
+	var len = gridStr.indexOf("_");
+	var len2 = 0;
+	for (var i = 0; i < sols.length; i++)
+	{
+		var tmp = sols[i].indexOf("_");
+		if (tmp > len2)
+		{
+			len2 = tmp;
+		}
+	}
+	
+	if (len2 == -1)
+	{
+		len2 = numRows * numClms;
+	}
+	var ratio = (len2 * 100) / (numRows * numClms);
+	document.title = "Grid Coloring - " + (ratio).toFixed(0) + " % Complete";
+	out += "<tr><td>Cells Occupied:</td>";
+	out += "<td>Possible Pairs:</td>";
+	out += "<td>Differences: </td>";
+	out += "<td>L Shapes: </td>";
+	out += "<td>Total Pairs: </td><td>Solutions</td></tr>";
+//	for (var i = len; i >= len; i--)
+//	{
+/*		gridStr2 = gridStr.substring(0, i);
+		for (var j = i; j < numRows * numClms; j++)
+		{
+			gridStr2 += "_";
+		}
+		gridMtx2 = copyGrid(gridStr2);
+		poss = updatePoss2(gridMtx2, initPoss());
+		diffs = getDiffs(gridMtx2);
+		pairs = possPairs(gridMtx2, poss);
+		lshapes = countLs(gridMtx2);
+		pairs2 = countPairs(gridMtx2);*/
+//		sols.push(gridStr2);
+		out += "<tr><td>" + len + "</td><td>" + pairs + "</td><td>" + diffs +
+		"</td><td>" + lshapes + "</td><td>" + pairs2 + "</td><td>" + sols.length + "</td></tr>";
+//	}
+	out += "</table>";
+	document.getElementById("metrics").innerHTML = out;
+}
+
+function setRFS()
+{
+	var checked = document.getElementById("chk4").checked;
+	var rfs = [];
+	if (checked)
+	{
+		rfs = [];
+		rfs[0] = [0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
+		rfs[1] = [0, -1, -1, -1, 0, 0, 0, -1, -1, -1];
+		rfs[2] = [-1, 0, -1, -1, 0, -1, -1, 0, 0, -1];
+		rfs[3] = [-1, -1, 0, -1, -1, 0, -1, 0, -1, 0];
+		rfs[4] = [0, -1, -1, -1, -1, -1, -1, -1, 0, 0];
+		rfs[5] = [-1, 0, -1, -1, -1, -1, 0, -1, -1, 0];
+		rfs[6] = [-1, -1, 0, -1, -1, -1, 0, -1, 0, -1];
+		rfs[7] = [-1, -1, -1, 0, 0, -1, -1, -1, -1, 0];
+		rfs[8] = [-1, -1, -1, 0, -1, 0, -1, -1, 0, -1];
+		rfs[9] = [-1, -1, -1, 0, -1, -1, 0, 0, -1, -1];
+	}
+	else
+	{
+		rfs = -1;
+	}
+	
+	return rfs;
+}
+
+function formGraph()
+{
+	var gridMtx = copyGrid(getGrid());
+	var poss = updatePoss2(gridMtx, initPoss());
+	var rfs = setRFS();
+	var nodes = [];
+//	var cnts = [];
+	for (var i = 0; i < numRows; i++)
+	{
+		for (var j1 = 0; j1 < numClms; j1++)
+		{
+			if (rfs[i][j1] == -1)
+			{
+				for (var j2 = j1 + 1; j2 < numClms; j2++)
+				{
+					if (rfs[i][j2] == -1)
+					{
+						for (var j3 = j2 + 1; j3 < numClms; j3++)
+						{
+							if (rfs[i][j3] == -1)
+							{
+								nodes.push(i + "." + j1 + "-" + j2 + "-" + j3);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	var edges = [];
+	var A = [];
+	
+	for (var i = 0; i < nodes.length; i++)
+	{
+		A[i] = [];
+		var row1 = nodes[i].split(".")[0];
+		var clms1 = nodes[i].split(".")[1].split("-");
+		for (var j = 0; j < nodes.length; j++)
+		{
+			var ans = true;
+			var row2 = nodes[j].split(".")[0];
+			var clms2 = nodes[j].split(".")[1].split("-");
+			
+			if (row1 != row2)
+			{
+				for (var ctr1 = 0; ctr1 < clms1.length; ctr1++)
+				{
+					for (var ctr2 = ctr1 + 1; ctr2 < clms1.length; ctr2++)
+					{
+						for (var ctr3 = 0; ctr3 < clms2.length; ctr3++)
+						{
+							for (var ctr4 = ctr3 + 1; ctr4 < clms2.length; ctr4++)
+							{
+								if (clms1[ctr1] == clms2[ctr3] && clms1[ctr2] == clms2[ctr4])
+								{
+									ans = false;
+								}
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				ans = false;
+			}
+			
+			if (ans)
+			{
+				var temp = [];
+				temp[0] = i;
+				temp[1] = j;
+				edges.push(temp);
+				A[i][j] = 1;
+			}
+			else
+			{
+				A[i][j] = Number.MAX_VALUE;
+			}
+		}
+	}
+	text = "<span onclick=showHideDiv('nodes');>Nodes for the graph of this grid</span><br>";
+	text += "<div id='nodes' style='display:none;'>";
+	for (var i = 0; i < nodes.length; i++)
+	{
+		text += nodes[i] + "<br>";
+	}
+	text += "</div>";
+	
+	text += "<span onclick=showHideDiv('edges');>Edges for the graph of this grid</span>";
+	text += "<div id='edges' style='display:none;'>";
+	for (var i = 0; i < edges.length; i++)
+	{
+		text += edges[i] + "<br>";
+	}
+	text += "</div>";
+	
+	var graph = new Object();
+	graph.edges = [];
+	graph.nodes = [];
+	graph.trees = [];
+	
+	var x = new Array();
+	var y = new Array();
+	
+	for (var i = 0; i < nodes.length; i++)
+	{
+		graph.trees[i] = [];
+	
+		graph.nodes[i] = new Object;
+		graph.nodes[i].value = nodes[i];
+		graph.nodes[i].lookup = i;
+		
+		graph.trees[i][0] = graph.nodes[i];
+	}
+		
+	for (var i = 0; i < edges.length; i++)
+	{
+		var len = graph.edges.length;
+		graph.edges[len] = new Array();
+		graph.edges[len][0] = edges[i][0];
+		graph.edges[len][1] = edges[i][1];
+	}
+	
+	var P = [];
+	for (var i = 0; i < A.length; i++)
+	{
+		P[i] = i;
+	}
+	var R = [];
+	var X = [];
+	BKAlg(A, R, P, X, 0);
+//	alert(clqs);
+	var ans = getMaxClq();
+	text += '<br>A maximum clique for this graph is <br>';
+	for (var i = 0; i < ans.length; i++)
+	{
+		text += graph.nodes[ans[i]].value + "<br>";
+	}
+	text += ' with a length of ' + ans.length + '<br /> ';
+
+	
+	document.getElementById("output").innerHTML += text;
+}
+
+function BKAlg(A, R, P, X, nest)
+{
+	if (P.length == 0 && X.length == 0)
+	{
+		clqs[clqs.length] = R;
+		return;
+	}
+	
+	var u = Math.floor(Math.random()*(P.length + X.length));
+	
+	var uVal = -1;
+
+	if (u >= P.length)
+	{
+		u = u - P.length;
+		uVal = X[u];
+	}
+	else
+	{
+		uVal = P[u];
+	}
+
+	for (var v = 0; v < P.length; v++)
+	{
+		var val = P[v];
+	
+		if (A[val][uVal] == Number.MAX_VALUE)
+		{
+			var tempR = new Array();
+			for (var i = 0; i < R.length; i++)
+			{
+				tempR[i] = R[i];
+			}
+			if (tempR.length == 0 || tempR.indexOf(val) == -1)
+			{
+//				tempR[tempR.length] = val;
+				tempR.push(val);
+			}
+			
+			var tempP = new Array();
+			for (var j = 0; j < A.length; j++)
+			{
+				if (A[val][j] == 1 && P.indexOf(j) != -1)
+				{
+//					tempP[tempP.length] = j;
+					tempP.push(j);
+				}
+			}
+		
+			var tempX = new Array();
+			for (var i = 0; i < A.length; i++)
+			{
+				if (A[i][val] == 1 && X.indexOf(i) != -1)
+				{
+//					tempX[tempX.length] = i;
+					tempX.push(i);
+				}
+			}
+		
+			BKAlg(A, tempR, tempP, tempX, nest + 1);
+			
+			P[v] = -1;
+		
+			if (X.indexOf(val) == -1)
+			{
+				X[X.length] = val;
+			}
+		}
+	}
+}
+
+function getMaxClq()
+{
+	var maxLen = 0;
+	var maxLoc = -1;
+	
+	for (var i = 0; i < clqs.length; i++)
+	{
+		if (clqs[i].length > maxLen)
+		{
+			maxLen = clqs[i].length;
+			maxLoc = i;
+		}
+	}
+
+	
+	return clqs[maxLoc];
+}
+
+function dedupe(arr)
+{
+    var tmp = [];
+    for(var i = 0; i < arr.length; i++)
+	{
+        if (tmp.indexOf(arr[i]) == -1)
+		{
+			tmp.push(arr[i]);
+        }
+    }
+	
+    return tmp;
+}
+
+function nextColoring()
+{
+	var gridMtx = copyGrid(getGrid());
+	var gridStr = toStr(gridMtx);
+	var len1 = gridStr.indexOf("_");
+	var finished = false;
+	var gridMtx2 = copyGrid(gridStr);
+
+	for (var i = len1; i >= 0 && !finished; i--)
+	{
+		var poss = updatePoss2(gridMtx2, initPoss());
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		var clrs = [];
+		
+		for (var k = 0; k < numClrs; k++)
+		{
+			var old = gridMtx2[row][clm];
+			gridMtx2[row][clm] = k;
+			var bal = eqDist(gridMtx2);
+			gridMtx2[row][clm] = old;
+			
+			if (((document.getElementById("chk1").checked && bal) || !document.getElementById("chk1").checked) && poss[row][clm][k])
+			{
+				if (gridMtx2[row][clm] != -1 && k > gridMtx2[row][clm])
+				{
+					clrs.push(k);
+				}
+				else if (gridMtx2[row][clm] == -1)
+				{
+					clrs.push(k);
+				}
+			}
+		}
+		
+		if (clrs.length == 0)
+		{
+			gridMtx2[row][clm] = -1;
+		}
+		else
+		{
+			gridMtx2[row][clm] = clrs[0];
+			finished = true;
+		}
+	}
+	
+	document.getElementById("output").innerHTML = "";
+	
+	dispGrid(gridMtx2);
+	feas(initGrid(), gridMtx2, 1);
+	dispMetrics();
+	
+	return;
+}
+
+function nextColoring2()
+{
+	var gridMtx = copyGrid(getGrid());
+	var gridStr = toStr(gridMtx);
+	var loc = gridStr.indexOf("_");
+	var finished = false;
+	var gridMtx2 = copyGrid(gridStr);
+
+	if (loc == -1)
+	{
+		return numRows*numClms;
+	}
+	
+	var row = lookup[loc][0];
+	var clm = lookup[loc][1];
+	var oldCell = -1;
+
+//	for (var i = 0; i < numRows * numClms; i++)
+//	{
+//		locs[i] = [];
+//	}
+	var i2 = lookup[loc][0];
+	var j2 = lookup[loc][1];
+	var locs = new Array();
+	
+	for (var i1 = 0; i1 < numRows; i1++)
+	{
+		for (var j1 = 0; j1 < numClms; j1++)
+		{
+			if (gridMtx[i1][j1] != -1 && gridMtx[i1][j1] == gridMtx[i1][j2] && gridMtx[i1][j1] == gridMtx[i2][j1])
+			{
+				if (locs.indexOf(lookup2[i1][j1]) == -1)
+				{
+					locs.push(lookup2[i1][j1]);
+				}
+				if (locs.indexOf(lookup2[i1][j2]) == -1)
+				{
+					locs.push(lookup2[i1][j2]);
+				}
+				if (locs.indexOf(lookup2[i2][j1]) == -1)
+				{
+					locs.push(lookup2[i2][j1]);
+				}
+			}
+		}
+	}
+	
+	locs.sort(function(a, b){return a-b});
+
+	for (var i = locs.length - 1; i >= 0 && !finished; i--)
+	{
+		var poss = updatePoss2(gridMtx2, initPoss());
+		var row = lookup[locs[i]][0];
+		var clm = lookup[locs[i]][1];
+		var clrs = [];
+		
+		for (var k = 0; k < numClrs; k++)
+		{
+			var old = gridMtx2[row][clm];
+			gridMtx2[row][clm] = k;
+			var bal = eqDist(gridMtx2);
+			gridMtx2[row][clm] = old;
+			
+			if (((document.getElementById("chk1").checked && bal) || !document.getElementById("chk1").checked) && poss[row][clm][k])
+			{
+				if (gridMtx2[row][clm] != -1 && k > gridMtx2[row][clm])
+				{
+					clrs.push(k);
+				}
+				else if (gridMtx2[row][clm] == -1)
+				{
+					clrs.push(k);
+				}
+			}
+		}
+		
+		if (clrs.length == 0)
+		{
+			for (var j = locs[i]; j < numRows * numClms; j++)
+			{
+				gridMtx2[lookup[j][0]][lookup[j][1]] = -1;
+			}
+		}
+		else
+		{
+			gridMtx2[row][clm] = clrs[0];
+			for (var j = locs[i] + 1; j < numRows * numClms; j++)
+			{
+				gridMtx2[lookup[j][0]][lookup[j][1]] = -1;
+			}
+			finished = true;
+		}
+	}
+	
+	document.getElementById("output").innerHTML = "";
+	
+	dispGrid(gridMtx2);
+	feas(initGrid(), gridMtx2, 1);
+	dispMetrics();
+	
+	return;
+}
+</script>
+</head>
+<body>
+<input id="oldGrid">
+<input type="button" id="btn6" value="Display" onclick="dispGrid(copyGrid(document.getElementById('oldGrid').value)); showPoss(); dispMetrics(); feas(sols[0], copyGrid(getGrid()), 1); feas(-1, copyGrid(getGrid()), 1);"><br>
+<p id="output"></p>
+<span onclick=showHideDiv('grids');>Display Grids</span>
+<table id="wrapper"><tr id="grids" style="display:none"><td id="content"></td><td id="possGrid"></td></tr>
+<tr><td colspan="2"><span onclick=showHideDiv('gamesel');>Game Select Box</span></td></tr>
+<tr id="gamesel"><td colspan=2>
+<select id="game">
+  <option value=0>3 Color a 10 by 10</option>
+  <option value=1>4 Color a 18 by 18</option>
+</select>
+</td></tr>
+<tr><td colspan="2"><span onclick=showHideDiv('btns1');>Buttons 1</span></td></tr>
+<tr id="btns1" style="display:none"><td colspan="2">
+<input type="button" id="btn0" onclick="restart()" value="Restart">
+<input type="button" id="btn7" onclick="restart();dispGrid(randInst(toStr(initGrid()))); showPoss(); dispMetrics(); feas(-1, copyGrid(getGrid()), 1)" value="Generate Random">
+<input type="button" id="btn2" onclick="getOvlps()" value="Get L Shapes">
+<input type="button" id="btn3" onclick="dispGrid(randInst(getGrid())); showPoss(); dispMetrics()" value="Continue Random">
+<input type="button" id="btn5" onclick="showPoss(); dispMetrics()" value="Show Poss">
+<input type="button" id="btn4" onclick="clrGrd()" value="Clear">
+<input type="button" id="btn6" onclick="clearTimeout(myVar);timeout(8)" value="Next Coloring">
+</td></tr>
+<tr><td colspan="2"><span onclick=showHideDiv('btns2');>Buttons 2</span></td></tr>
+<tr id="btns2"><td colspan="2">
+<input type="button" id="mut0" onclick="clearTimeout(myVar);timeout(0)" value="Change Substring">
+<input type="button" id="mut1" onclick="clearTimeout(myVar);timeout(1)" value="Swap Colors">
+<input type="button" id="mut2" onclick="clearTimeout(myVar);timeout(2)" value="Fix L Shapes">
+<input type="button" id="mut4" onclick="clearTimeout(myVar);timeout(3)" value="Shuffle Colors">
+<input type="button" id="mut5" onclick="clearTimeout(myVar);timeout(4)" value="Combination">
+<input type="button" id="mut10" onclick="clearTimeout(myVar);timeout(5)" value="Incriment">
+<input type="button" id="mut11" onclick="clearTimeout(myVar);timeout(6)" value="Decriment">
+<input type="button" id="mut11" onclick="clearTimeout(myVar);timeout(7)" value="Try Restart"><br>
+<input type="button" id="btn9" onclick="clearTimeout(myVar);timeout(-1);" value="Repeat Random Change">
+<input type="button" id="btn10" onclick="clearTimeout(myVar);" value="Stop Timeout"><br>
+<label>Iterations for Random Instance</label>
+<select id="randInstIters">
+  <option value=1>1</option>
+  <option value=2>2</option>
+  <option value=5 selected>5</option>
+  <option value=10>10</option>
+  <option value=25>25</option>
+  <option value=50>50</option>
+  <option value=100>100</option>
+</select><br>
+<label>Iterations for Combo Mutation</label><select id="comboMutIters">
+  <option value=1>1</option>
+  <option value=2>2</option>
+  <option value=5>5</option>
+  <option value=10 selected>10</option>
+  <option value=25>25</option>
+  <option value=50>50</option>
+  <option value=100>100</option>
+</select>
+</td></tr>
+<tr><td colspan="2"><span onclick=showHideDiv('boxes1');>Checkboxes 1</span></td></tr>
+<tr id="boxes1" style="display:none"><td colspan="2">
+<input type="checkbox" id="combo0" checked><label>Change Substring</label><br>
+<input type="checkbox" id="combo1" checked><label>Swap Colors</label><br>
+<input type="checkbox" id="combo2" checked><label>Fix L Shapes</label><br>
+<input type="checkbox" id="combo3" checked><label>Shuffle Colors</label><br>
+<input type="checkbox" id="combo5" checked><label>Incriment</label><br>
+<input type="checkbox" id="combo6" checked><label>Decriment</label><br>
+<input type="checkbox" id="combo7" checked><label>Try Restart</label><br>
+</td></tr>
+<tr><td colspan="2"><span onclick=showHideDiv('boxes2');>Checkboxes 2</span></td></tr>
+<tr id="boxes2" style="display:none"><td>
+<input type="checkbox" id="chk1"><label>Equal Distribution? </label><br>
+<input type="checkbox" id="chk2" checked><label>Allow for row and column swaps?</label><br>
+<input type="checkbox" id="chk3" checked><label>Allow for transpose?</label><br>
+<input type="checkbox" id="chk4"><label>Use Rectangle Free Sets</label><br>
+</td></tr>
+<tr><td span=2 id="metrics"></td></tr></table>
+<p id="finished">
+<table id="finGds"></table></p>
+<!--<canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas>-->
+<script type="text/javascript">
+var progress = new Array();
+var total = new Array();
+/*var rfs = [];
+rfs[0] = [0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
+rfs[1] = [0, -1, -1, -1, 0, 0, 0, -1, -1, -1];
+rfs[2] = [-1, 0, -1, -1, 0, -1, -1, 0, 0, -1];
+rfs[3] = [-1, -1, 0, -1, -1, 0, -1, 0, -1, 0];
+rfs[4] = [0, -1, -1, -1, -1, -1, -1, -1, 0, 0];
+rfs[5] = [-1, 0, -1, -1, -1, -1, 0, -1, -1, 0];
+rfs[6] = [-1, -1, 0, -1, -1, -1, 0, -1, 0, -1];
+rfs[7] = [-1, -1, -1, 0, 0, -1, -1, -1, -1, 0];
+rfs[8] = [-1, -1, -1, 0, -1, 0, -1, -1, 0, -1];
+rfs[9] = [-1, -1, -1, 0, -1, -1, 0, 0, -1, -1];*/
+
+myVar = setTimeout(function(){}, 10000000000);
+clearTimeout(myVar);
+progress[0] = 1;
+progress[1] = 1;
+progress[2] = 1;
+progress[3] = 1;
+progress[4] = 1;
+progress[5] = 1;
+progress[6] = 1;
+progress[7] = 1;
+
+total[0] = 1;
+total[1] = 1;
+total[2] = 1;
+total[3] = 1;
+total[4] = 1;
+total[5] = 1;
+total[6] = 1;
+total[7] = 1;
+sols = new Array();
+//fails = new Array();
+//var M_VAL = 50000;
+var choice = -1;
+var numRows = 10;
+var numClms = 10;
+var numClrs = 3;
+var lookup = buildLookup();
+var lookup2 = buildLookup2();
+var best = new Array();
+var tmo = 5 * numRows * numClms;
+var out = "<table class='grid'>";
+out += "<tr><td class='grid'></td>";
+for (var j = 0; j < numClms; j++)
+{
+	out += "<td class='grid'>" + j + "</td>";
+}
+out += "</tr>";
+for (var i = 0; i < numRows; i++)
+{
+	out += "<tr><td class='grid'>" + i + "</td>";
+	for (var j = 0; j < numClms; j++)
+	{
+		out += "<td class='grid' id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\"); showPoss(); dispMetrics()'></td>";
+	}
+	out += "</tr>";
+}
+document.getElementById("content").innerHTML = out;
+document.getElementById("btn7").click();
+
+/*
+1111223323 (1, 2, 3, 4)(5, 6, 9)(7, 8, 10)
+1223111332 (1, 5, 6, 7)(2, 3, 10)(4, 8, 9)
+3123122113 (2, 5, 8, 9)(3, 6, 7)(1, 4, 10)
+3212213131 (3, 6, 8, 10)()()
+1233323211 (1, 9, 10)()()
+3122331221 (2, 7, 10)()()
+2312321312 (3, 7, 9)()()
+2231132321 (4, 5, 10)()()
+3331212212 (4, 6, 9)()()
+2321231133 (4, 7, 8)()()
+
+1	1	1	2	2	3	3	2	3	1
+1	2	2	1	1	3	2	3	1	3
+3	1	2	1	2	1	3	1	2	3
+3	2	1	2	1	1	1	3	3	2
+1	2	3	3	2	2	1	1	3	3
+3	1	2	3	3	2	1	2	1	2
+2	3	1	3	2	3	2	1	1	2
+2	2	3	1	3	3	1	2	2	1
+3	3	3	2	1	2	2	1	2	1
+2	3	2	2	3	1	3	3	1	1
+
+
+0000120102121101020122001201201121211210210122202121221100222022221010010010210012101002121110000122
+022210110210222020001002010021111011122202022210102111101122022210102120101210121221222000101102002_
+00002102012121010101210022011012112221201201122022121221001110112120200200202200112020011122200001__
+
+1111______
+1___111___
+_1__1__11_
+__1__1_1_1
+1_______11
+_1____1__1
+__1___1_1_
+___11____1
+___1_1__1_
+___1__11__
+*/
+//var clqs = [];
+//formGraph();
+</script>
+</body>
+</html>
