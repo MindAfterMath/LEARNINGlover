@@ -326,6 +326,160 @@ function updatePoss(grid, poss)
 	return poss;
 }
 
+function updatePoss2(grid, poss)
+{
+	var rfs = setRFS();
+	var color = -1;
+	if (rfs != -1)
+	{
+		for (var row = 0; row < numRows; row++)
+		{
+			for (var clm = 0; clm < numClms; clm++)
+			{
+				if (rfs[row][clm] != -1)
+				{
+					color = rfs[row][clm];
+					poss[row][clm][color] = true;
+					for (var clr = 0; clr < numClrs; clr++)
+					{
+						if (clr != color)
+						{
+							poss[row][clm][clr] = false;
+						}
+					}
+				}
+			}
+		}
+		
+		for (var row = 0; row < numRows; row++)
+		{
+			for (var clm = 0; clm < numClms; clm++)
+			{
+				if (rfs[row][clm] == -1)
+				{
+					poss[row][clm][color] = false;
+				}
+			}
+		}
+		
+		return poss;
+	}
+
+	for (var row1 = 0; row1 < numRows; row1++)
+	{
+		for (var clm1 = 0; clm1 < numClms; clm1++)
+		{	
+			for (var row2 = row1 + 1; row2 < numRows; row2++)
+			{	
+				for (var clm2 = clm1 + 1; clm2 < numClms; clm2++)
+				{
+					if (grid[row1][clm1] != -1 && (grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm1])
+					{
+						poss[row2][clm2][grid[row1][clm1]] = false;
+					}				
+				}
+			}
+		}
+	}
+	
+	if (document.getElementById("chk1").checked)
+	{
+		var lowR = Math.floor(numClms / numClrs);		
+		var lowC = Math.floor(numRows / numClrs);
+
+		var highR = Math.ceil(numClms / numClrs);		
+		var highC = Math.ceil(numRows / numClrs);
+		
+		var maxHighR = numClms % numClrs;
+		var maxHighC = numRows % numClrs;
+		
+		for (var i = 0; i < numRows; i++)
+		{
+			var cnt = new Array(numClrs);
+			
+			for (var k = 0; k < numClrs; k++)
+			{
+				cnt[k] = 0;
+			}
+			for (var j = 0; j < numClms; j++)
+			{
+				if (grid[i][j] != -1)
+				{
+					cnt[grid[i][j]]++;
+				}
+			}
+			
+			var numHighThisRow = 0;
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (cnt[k] == highR)
+				{
+					numHighThisRow++;
+					for (var j = 0; j < numClms; j++)
+					{
+						if (grid[i][j] == -1)
+						{
+							poss[i][j][k] = false;
+						}
+					}
+				}
+			}
+			
+			if (numHighThisRow == maxHighR)
+			{
+				for (var k = 0; k < numClrs; k++)
+				{
+					if (cnt[k] == highR-1)
+					{
+						for (var j = 0; j < numClms; j++)
+						{
+							if (grid[i][j] == -1)
+							{
+								poss[i][j][k] = false;
+							}
+						}
+					}
+				}
+			}		
+		}
+			
+		for (var j = 0; j < numClms; j++)
+		{
+			var cnt = new Array(numClrs);
+			
+			for (var k = 0; k < numClrs; k++)
+			{
+				cnt[k] = 0;
+			}
+			for (var i = 0; i < numRows; i++)
+			{
+				if (grid[i][j] != -1)
+				{
+					cnt[grid[i][j]]++;
+				}
+			}
+			
+			var numHighThisClm = 0;
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (cnt[k] == maxHighC)
+				{
+					numHighThisClm++;
+					for (var i = 0; i < numRows; i++)
+					{
+						if (grid[i][j] == -1)
+						{
+							poss[i][j][k] = false;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return poss;
+}
+
 function initPoss()
 {
 	var temp = [];
@@ -753,9 +907,13 @@ function randInst(start)
 	}
 
 	var grd = copyGrid(start);
-//	var pss = updatePoss(grd, initPoss());
 	
-	for (var cell = len; cell < numRows * numClms; cell++)
+	if (len == 0)
+	{
+		len = 1;
+	}
+	
+	for (var cell = len-1; cell < numRows * numClms; cell++)
 	{
 		var clrs = [];
 		var row = lookup[cell][0];
@@ -778,13 +936,16 @@ function randInst(start)
 		if (clrs.length > 0)
 		{
 			grd[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];
-//			pss = updatePoss(grd, pss);
 		}
 		else
 		{
 			break;
 		}
 	}
+	
+//	console.log(start);
+//	console.log(toStr(grd));
+//	console.log("_____");
 	
 	return(grd);
 }
@@ -861,6 +1022,37 @@ function conflict(gridMtx)
 	}
 
 	return list;
+}
+
+function firstSing(grid, poss)
+{
+	var cnts = [];
+	for (var i = 0; i < numRows; i++)
+	{
+		cnts[i] = [];
+		for (var j = 0; j < numClms; j++)
+		{
+			cnts[i][j] = 0;
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (poss[i][j][k])
+				{
+					cnts[i][j]++;
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < numRows * numClms; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		
+		if (cnts[row][clm] == 1)
+		{
+			return i;
+		}
+	}
 }
 
 function possPairs(grid, poss)
@@ -1535,7 +1727,7 @@ function shuffClrs(keep, gridStr)
 		return gridMtx;
 	}
 }
-	
+
 function comboMut(keep, list, gridStr)
 {
 	var gridMtx = copyGrid(gridStr);
@@ -1604,8 +1796,8 @@ function comboMut(keep, list, gridStr)
 	var poss2 = updatePoss(gridMtx2, initPoss());
 	
 	document.getElementById("output").innerHTML = "Combo<br>";
-	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
-	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_") + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_") + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2) + "<br>";
 	
 	if (feas(gridMtx, gridMtx2, keep))
 	{
@@ -1651,7 +1843,7 @@ function swapRows(gridStr)
 				if (clrs.length > 0)
 				{
 					gridMtx[i][j] = clrs[Math.floor(Math.random() * clrs.length)];
-					poss = updatePoss2(gridMtx, initPoss());
+					poss = updatePoss(gridMtx, initPoss());
 				}
 			}
 		}
@@ -1752,7 +1944,7 @@ function swapClms(gridStr)
 	var completed = [];
 	var clmCnt = []; 
 	
-	var poss = updatePoss2(gridMtx, initPoss());
+	var poss = updatePoss(gridMtx, initPoss());
 	
 	for (var i = 0; i < numRows; i++)
 	{
@@ -1772,7 +1964,7 @@ function swapClms(gridStr)
 				if (clrs.length > 0)
 				{
 					gridMtx[i][j] = clrs[Math.floor(Math.random() * clrs.length)];
-					poss = updatePoss2(gridMtx, initPoss());
+					poss = updatePoss(gridMtx, initPoss());
 				}
 			}
 		}
@@ -1872,7 +2064,7 @@ function swapClms2(gridStr)
 	var partial = [];
 	var last = toStr(gridMtx).indexOf("_");
 	
-	var poss = updatePoss2(gridMtx, initPoss());
+	var poss = updatePoss(gridMtx, initPoss());
 	
 	for (var i = 0; i < numRows; i++)
 	{
@@ -1892,7 +2084,7 @@ function swapClms2(gridStr)
 				if (clrs.length > 0)
 				{
 					gridMtx[i][j] = clrs[Math.floor(Math.random() * clrs.length)];
-					poss = updatePoss2(gridMtx, initPoss());
+					poss = updatePoss(gridMtx, initPoss());
 				}
 			}
 		}
@@ -2048,11 +2240,11 @@ function tryRest(keep, gridStr)
 	var gridMtx2 = randInst(toStr(initGrid()));
 	dispGrid(gridMtx2);
 	
-	var poss2 = updatePoss2(gridMtx2, initPoss());
+	var poss2 = updatePoss(gridMtx2, initPoss());
 
 	document.getElementById("output").innerHTML = "Restart<br>";
-	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
-	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_") + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_") + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2) + "<br>";
 	
 	if (feas(gridMtx, gridMtx2, keep))
 	{
@@ -2077,7 +2269,7 @@ function incr(keep, gridStr)
 	finished = false;
 	for (var i = len1 - 1; i >= 0 && !finished; i--)
 	{
-		var poss = updatePoss2(gridMtx2, initPoss());
+		var poss = updatePoss(gridMtx2, initPoss());
 		gridMtx2[lookup[i][0]][lookup[i][1]] = parseInt(gridMtx2[lookup[i][0]][lookup[i][1]]) + 1;
 		gridStr2 = toStr(gridMtx2);
 		if (gridMtx2[lookup[i][0]][lookup[i][1]] < numClrs && !hasRect(gridMtx2) && poss[lookup[i][0]][lookup[i][1]][gridMtx2[lookup[i][0]][lookup[i][1]]])
@@ -2110,11 +2302,11 @@ function incr(keep, gridStr)
 	}
 	gridMtx2 = tmpMtx[tmpMax];
 	gridStr2 = toStr(gridMtx2);
-	var poss2 = updatePoss2(gridMtx2, initPoss());
+	var poss2 = updatePoss(gridMtx2, initPoss());
 	
 	document.getElementById("output").innerHTML = "Incriment<br>";
-	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
-	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_") + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_") + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2) + "<br>";
     
 	if (feas(gridMtx, gridMtx2, keep))
 	{
@@ -2139,7 +2331,7 @@ function decr(keep, gridStr)
 	finished = false;
 	for (var i = len1 - 1; i >= 0 && !finished; i--)
 	{
-		var poss = updatePoss2(gridMtx2, initPoss());
+		var poss = updatePoss(gridMtx2, initPoss());
 		gridMtx2[lookup[i][0]][lookup[i][1]] = parseInt(gridMtx2[lookup[i][0]][lookup[i][1]]) - 1;
 		gridStr2 = toStr(gridMtx2);
 		if (gridMtx2[lookup[i][0]][lookup[i][1]] >= 0 && !hasRect(gridMtx2) && poss[lookup[i][0]][lookup[i][1]][gridMtx2[lookup[i][0]][lookup[i][1]]])
@@ -2171,11 +2363,11 @@ function decr(keep, gridStr)
 		}
 	}
 	gridMtx2 = tmpMtx[tmpMax];
-	gridStr2 = toStr(gridMtx2);	var poss2 = updatePoss2(gridMtx2, initPoss());
+	gridStr2 = toStr(gridMtx2);	var poss2 = updatePoss(gridMtx2, initPoss());
 	
 	document.getElementById("output").innerHTML = "Decriment<br>";
-	document.getElementById("output").innerHTML += toStr(gridMtx) + "<br>";
-	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_") + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_") + " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2) + "<br>";
     
 	if (feas(gridMtx, gridMtx2, keep))
 	{
@@ -2310,6 +2502,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 
 	if (len2 > len)
 	{
+		help[choice]++;
 		sols = [];
 		sols.push(gridStr2);
 		for (var i = 0; len2 in newGds && i < newGds[len2].length; i++)
@@ -2326,10 +2519,10 @@ function feas(gridMtx, gridMtx2, keep=0)
 		sols = dedupe(sols);
 		return true;
 	}
-	else if (len2 == len && sols.indexOf(gridStr2) == -1)
+	else if (len2 == len)
 	{
-		var poss1 = updatePoss2(gridMtx, initPoss());
-		var poss2 = updatePoss2(gridMtx2, initPoss());
+		var poss1 = updatePoss(gridMtx, initPoss());
+		var poss2 = updatePoss(gridMtx2, initPoss());
 
 		var cnt1 = possPairs(gridMtx, poss1);
 		var cnt2 = possPairs(gridMtx2, poss2);
@@ -2346,23 +2539,29 @@ function feas(gridMtx, gridMtx2, keep=0)
 		var min1 = minAppear(gridMtx);
 		var min2 = minAppear(gridMtx2);
 		
-		if (poss2 >= poss1 || 
-			diffs2 <= diffs1 || 
-			prs2 <= prs1 || 
-			cnt2 >= cnt1 || 
-			lshapes2 <= lshapes1 || 
-			min2 <= min1)
+//		if (poss2 >= poss1 || 
+//			diffs2 <= diffs1 || 
+//			prs2 <= prs1 || 
+//			cnt2 >= cnt1 || 
+//			lshapes2 <= lshapes1 || 
+//			min2 <= min1)
+//		{
+		if (sols.indexOf(gridStr2) == -1)
 		{
 			sols.push(gridStr2);
 		}
-		else
-		{
-			return false;
-		}
+//		}
+//		else
+//		{
+//			return false;
+//		}
 		
 		for (var j = 0; len2 in newGds && j < newGds[len2].length; j++)
 		{
-			sols.push(newGds[len2][j]);
+			if (sols.indexOf(newGds[len2][j]) == -1)
+			{
+				sols.push(newGds[len2][j]);
+			}
 		}
 		
 		sols = dedupe(sols);
@@ -2370,7 +2569,15 @@ function feas(gridMtx, gridMtx2, keep=0)
 	}
 	else
 	{
-		return false;
+		if (Math.floor(Math.random() * 2) != 0)
+		{
+			return false;
+		}
+		else
+		{
+			sols.push(gridStr2);
+			return false;
+		}
 	}
 }
 
@@ -2563,6 +2770,16 @@ function timeout(usrChc)
 			out += "<td>" + (progress[5] / total[5]).toFixed(4) + "</td>";
 			out += "<td>" + (progress[6] / total[6]).toFixed(4) + "</td>";
 			out += "<td>" + (progress[7] / total[7]).toFixed(4) + "</td>";
+			out += "</tr>";
+			out += "<tr>";
+			out += "<td>" + help[0] + "</td>";
+			out += "<td>" + help[1] + "</td>";
+			out += "<td>" + help[2] + "</td>";
+			out += "<td>" + help[3] + "</td>";
+			out += "<td>" + help[4] + "</td>";
+			out += "<td>" + help[5] + "</td>";
+			out += "<td>" + help[6] + "</td>";
+			out += "<td>" + help[7] + "</td>";
 			out += "</tr></table>";
 			document.getElementById("output").innerHTML += out;
 			document.getElementById("output").innerHTML += eqDist(copyGrid(getGrid()));
@@ -2587,7 +2804,7 @@ function timeout(usrChc)
 				for (var i = 0; i < sols.length; i++)
 				{
 					var tempMtx = copyGrid(sols[i]);
-					var poss = updatePoss2(tempMtx, initPoss());
+					var poss = updatePoss(tempMtx, initPoss());
 					var cnt = possPairs(tempMtx, poss);
 
 					if (cnt > val)
@@ -2714,7 +2931,7 @@ function dispMetrics()
 	var out = "<table>";
 	var gridStr = getGrid();
 	var gridMtx = copyGrid(gridStr);
-	var poss = updatePoss2(gridMtx, initPoss());
+	var poss = updatePoss(gridMtx, initPoss());
 	var diffs = getDiffs(gridMtx);
 	var pairs = possPairs(gridMtx, poss);
 	var pairs2 = countPairs(gridMtx);
@@ -2744,7 +2961,10 @@ function dispMetrics()
 	out += "<td>L Shapes: </td>";
 	out += "<td>Total Pairs: </td>";
 	out += "<td>Solutions</td>";
-	out += "<td>Ratios</td></tr>";
+	out += "<td>Ratios</td>";
+	out += "<td>Feasible</td>";
+	out += "<td>First Singular Cell</td>";
+	out += "</tr>";
 	out += "<tr><td>" + len + "</td><td>" + pairs + "</td><td>" + diffs +
 		"</td><td>" + lshapes + "</td><td>" + pairs2 + "</td><td>" + sols.length + "</td>";
 //	}
@@ -2759,6 +2979,8 @@ function dispMetrics()
 		}
 	}
 	out += "</td>";
+	out += "<td>" + !hasRect(gridMtx) + "</td>";
+	out += "<td>" + firstSing(gridMtx, poss) + "</td>";
 	out += "</tr></table>";
 	document.getElementById("metrics").innerHTML = out;
 }
@@ -2792,7 +3014,7 @@ function setRFS()
 function formGraph()
 {
 	var gridMtx = copyGrid(getGrid());
-	var poss = updatePoss2(gridMtx, initPoss());
+	var poss = updatePoss(gridMtx, initPoss());
 	var rfs = setRFS();
 	var nodes = [];
 //	var cnts = [];
@@ -3048,7 +3270,7 @@ function nextColoring()
 
 	for (var i = len1; i >= 0 && !finished; i--)
 	{
-		var poss = updatePoss2(gridMtx2, initPoss());
+		var poss = updatePoss(gridMtx2, initPoss());
 		var row = lookup[i][0];
 		var clm = lookup[i][1];
 		var clrs = [];
@@ -3144,7 +3366,7 @@ function nextColoring2()
 
 	for (var i = locs.length - 1; i >= 0 && !finished; i--)
 	{
-		var poss = updatePoss2(gridMtx2, initPoss());
+		var poss = updatePoss(gridMtx2, initPoss());
 		var row = lookup[locs[i]][0];
 		var clm = lookup[locs[i]][1];
 		var clrs = [];
@@ -3227,7 +3449,7 @@ function nextColoring2()
 <input type="button" id="mut2" onclick="clearTimeout(myVar);timeout(2)" value="Fix L Shapes">
 <input type="button" id="mut4" onclick="clearTimeout(myVar);timeout(3)" value="Shuffle Colors">
 <input type="button" id="mut5" onclick="clearTimeout(myVar);timeout(4)" value="Combination">
-<input type="button" id="mut10" onclick="clearTimeout(myVar);timeout(5)" value="Incriment">
+<input type="button" id="mut6" onclick="clearTimeout(myVar);timeout(9)" value="Shuffle Colors 2">
 <input type="button" id="mut11" onclick="clearTimeout(myVar);timeout(6)" value="Decriment">
 <input type="button" id="mut11" onclick="clearTimeout(myVar);timeout(7)" value="Try Restart"><br>
 <input type="button" id="btn9" onclick="clearTimeout(myVar);timeout(-1);" value="Repeat Random Change">
@@ -3276,6 +3498,7 @@ function nextColoring2()
 <script type="text/javascript">
 var progress = [];
 var total = [];
+var help = [];
 /*var rfs = [];
 rfs[0] = [0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
 rfs[1] = [0, -1, -1, -1, 0, 0, 0, -1, -1, -1];
@@ -3307,6 +3530,15 @@ total[4] = 1;
 total[5] = 1;
 total[6] = 1;
 total[7] = 1;
+
+help[0] = 0;
+help[1] = 0;
+help[2] = 0;
+help[3] = 0;
+help[4] = 0;
+help[5] = 0;
+help[6] = 0;
+help[7] = 0;
 sols = [];
 //fails = [];
 //var M_VAL = 50000;
