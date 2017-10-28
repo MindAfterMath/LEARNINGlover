@@ -2269,16 +2269,33 @@ function incr(keep, gridStr)
 	finished = false;
 	for (var i = len1 - 1; i >= 0 && !finished; i--)
 	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
 		var poss = updatePoss(gridMtx2, initPoss());
-		gridMtx2[lookup[i][0]][lookup[i][1]] = parseInt(gridMtx2[lookup[i][0]][lookup[i][1]]) + 1;
+		var size = 0;
+		for (var k = 0; k < numClrs; k++)
+		{
+			if (poss[row][clm][k])
+			{
+				size++;
+			}
+		}
+		
+		if (size == 1)
+		{
+			gridMtx2[row][clm] = -1;
+			continue;
+		}
+		
+		gridMtx2[row][clm] = parseInt(gridMtx2[row][clm]) + 1;
 		gridStr2 = toStr(gridMtx2);
-		if (gridMtx2[lookup[i][0]][lookup[i][1]] < numClrs && !hasRect(gridMtx2) && poss[lookup[i][0]][lookup[i][1]][gridMtx2[lookup[i][0]][lookup[i][1]]])
+		if (gridMtx2[row][clm] < numClrs && !hasRect(gridMtx2) && poss[row][clm][gridMtx2[row][clm]])
 		{
 			finished = true;
 		}
 		else
 		{
-			gridMtx2[lookup[i][0]][lookup[i][1]] = -1;
+			gridMtx2[row][clm] = -1;
 		}
 	}
 	
@@ -2331,16 +2348,33 @@ function decr(keep, gridStr)
 	finished = false;
 	for (var i = len1 - 1; i >= 0 && !finished; i--)
 	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
 		var poss = updatePoss(gridMtx2, initPoss());
-		gridMtx2[lookup[i][0]][lookup[i][1]] = parseInt(gridMtx2[lookup[i][0]][lookup[i][1]]) - 1;
+		var size = 0;
+		for (var k = 0; k < numClrs; k++)
+		{
+			if (poss[row][clm][k])
+			{
+				size++;
+			}
+		}
+		
+		if (size == 1)
+		{
+			gridMtx2[row][clm] = -1;
+			continue;
+		}
+		var poss = updatePoss(gridMtx2, initPoss());
+		gridMtx2[row][clm] = parseInt(gridMtx2[row][clm]) - 1;
 		gridStr2 = toStr(gridMtx2);
-		if (gridMtx2[lookup[i][0]][lookup[i][1]] >= 0 && !hasRect(gridMtx2) && poss[lookup[i][0]][lookup[i][1]][gridMtx2[lookup[i][0]][lookup[i][1]]])
+		if (gridMtx2[row][clm] >= 0 && !hasRect(gridMtx2) && poss[row][clm][gridMtx2[row][clm]])
 		{
 			finished = true;
 		}
 		else
 		{
-			gridMtx2[lookup[i][0]][lookup[i][1]] = -1;
+			gridMtx2[row][clm] = -1;
 		}
 	}
 	
@@ -2521,40 +2555,10 @@ function feas(gridMtx, gridMtx2, keep=0)
 	}
 	else if (len2 == len)
 	{
-		var poss1 = updatePoss(gridMtx, initPoss());
-		var poss2 = updatePoss(gridMtx2, initPoss());
-
-		var cnt1 = possPairs(gridMtx, poss1);
-		var cnt2 = possPairs(gridMtx2, poss2);
-		
-		var lshapes1 = countLs(gridMtx);
-		var lshapes2 = countLs(gridMtx2);
-		
-		var diffs1 = getDiffs(gridMtx);
-		var diffs2 = getDiffs(gridMtx2);
-		
-		var prs1 = countPairs(gridMtx);
-		var prs2 = countPairs(gridMtx2);
-		
-		var min1 = minAppear(gridMtx);
-		var min2 = minAppear(gridMtx2);
-		
-//		if (poss2 >= poss1 || 
-//			diffs2 <= diffs1 || 
-//			prs2 <= prs1 || 
-//			cnt2 >= cnt1 || 
-//			lshapes2 <= lshapes1 || 
-//			min2 <= min1)
-//		{
 		if (sols.indexOf(gridStr2) == -1)
 		{
 			sols.push(gridStr2);
 		}
-//		}
-//		else
-//		{
-//			return false;
-//		}
 		
 		for (var j = 0; len2 in newGds && j < newGds[len2].length; j++)
 		{
@@ -2569,15 +2573,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 	}
 	else
 	{
-		if (Math.floor(Math.random() * 2) != 0)
-		{
-			return false;
-		}
-		else
-		{
-			sols.push(gridStr2);
-			return false;
-		}
+		return false;
 	}
 }
 
@@ -2593,7 +2589,6 @@ function showHideDiv(id)
 		document.getElementById(id).style.display = "none";
 	}
 }
-
 
 function timeout(usrChc) 
 {
@@ -2616,6 +2611,7 @@ function timeout(usrChc)
 		function () 
 		{
 			var loc = Math.floor(Math.random() * sols.length);
+//			var loc = sols.length-1;
 			if (usrChc != 8)
 			{
 				gridStr = sols[loc];
@@ -3449,9 +3445,9 @@ function nextColoring2()
 <input type="button" id="mut2" onclick="clearTimeout(myVar);timeout(2)" value="Fix L Shapes">
 <input type="button" id="mut4" onclick="clearTimeout(myVar);timeout(3)" value="Shuffle Colors">
 <input type="button" id="mut5" onclick="clearTimeout(myVar);timeout(4)" value="Combination">
-<input type="button" id="mut6" onclick="clearTimeout(myVar);timeout(9)" value="Shuffle Colors 2">
-<input type="button" id="mut11" onclick="clearTimeout(myVar);timeout(6)" value="Decriment">
-<input type="button" id="mut11" onclick="clearTimeout(myVar);timeout(7)" value="Try Restart"><br>
+<input type="button" id="mut6" onclick="clearTimeout(myVar);timeout(5)" value="Incriment">
+<input type="button" id="mut3" onclick="clearTimeout(myVar);timeout(6)" value="Decriment">
+<input type="button" id="mut12" onclick="clearTimeout(myVar);timeout(7)" value="Try Restart"><br>
 <input type="button" id="btn9" onclick="clearTimeout(myVar);timeout(-1);" value="Repeat Random Change">
 <input type="button" id="btn10" onclick="clearTimeout(myVar);" value="Stop Timeout"><br>
 <label>Iterations for Random Instance</label>
