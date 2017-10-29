@@ -908,11 +908,6 @@ function randInst(start)
 
 	var grd = copyGrid(start);
 	
-//	if (len == 0)
-//	{
-//		len = 1;
-//	}
-	
 	for (var cell = len; cell < numRows * numClms; cell++)
 	{
 		var clrs = [];
@@ -1369,24 +1364,24 @@ function chgRdmSub(keep, gridStr)
 		var row = lookup[i][0];
 		var clm = lookup[i][1];
 		var poss = updatePoss(gridMtx2, initPoss());
-		var size = 0;
+		var clrs = [];
 		for (var k = 0; k < numClrs; k++)
 		{
-			if (poss[row][clm][k])
+			if (poss[row][clm][k] && gridMtx[row][clm] != k)
 			{
-				size++;
+				clrs.push(k);
 			}
 		}
 		
-		if (size == 1)
+		if (clrs.length == 0)
 		{
 			gridMtx2[row][clm] = -1;
 			continue;
 		}
 		
-		gridMtx2[row][clm] = Math.floor(Math.random() * numClrs);
+		gridMtx2[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];
 		gridStr2 = toStr(gridMtx2);
-		if (gridMtx2[row][clm] >= 0 && !hasRect(gridMtx2) && poss[row][clm][gridMtx2[row][clm]])
+		if (!hasRect(gridMtx2))
 		{
 			finished = true;
 		}
@@ -1396,19 +1391,11 @@ function chgRdmSub(keep, gridStr)
 		}
 	}
 	
-	gridMtx2 = randInst(gridMtx2);
-	
-	var loc = toStr(gridMtx2).indexOf("_");
-	gridStr2 = toStr(gridMtx2).substring(0, loc);
-	
-	for (var i = loc; i < numRows * numClms; i++)
-	{
-		gridStr2 += "_";
-	}
+	gridMtx2 = randInst(toStr(gridMtx2));
 		
 	var poss2 = updatePoss(gridMtx2, initPoss());
 	
-	document.getElementById("output").innerHTML = "Change Substring<br>";
+a	document.getElementById("output").innerHTML = "Change Substring<br>";
 	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + ", " + (toStr(gridMtx) == toStr(gridMtx2)) + "<br>";
 	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_")
 /*	+ " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2)*/ + "<br>";
@@ -1493,7 +1480,7 @@ function clrSwaps(keep, gridStr)
 		gridMtx2[row][clm] = -1;
 	}
 	
-	gridMtx2 = randInst(gridMtx2);
+	gridMtx2 = randInst(toStr(gridMtx2));
 	
 	var poss2 = updatePoss(gridMtx2, initPoss());
 	
@@ -1572,7 +1559,7 @@ function fixLShapes(keep, gridStr)
 		gridMtx2[row][clm] = -1;
 	}
 	
-	gridMtx2 = randInst(gridMtx2);
+	gridMtx2 = randInst(toStr(gridMtx2));
 	
 	var poss2 = updatePoss(gridMtx2, initPoss());
 	
@@ -1652,7 +1639,7 @@ function shuffClrs(keep, gridStr)
 		}
 	}
 	
-	gridMtx2 = randInst(gridMtx2);
+	gridMtx2 = randInst(toStr(gridMtx2));
 	
 	var poss2 = updatePoss(gridMtx2, initPoss());
 	
