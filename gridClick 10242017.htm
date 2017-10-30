@@ -1051,6 +1051,42 @@ function firstSing(grid, poss)
 	}
 }
 
+function nonSings(grid, poss)
+{
+	var cnts = [];
+	for (var i = 0; i < numRows; i++)
+	{
+		cnts[i] = [];
+		for (var j = 0; j < numClms; j++)
+		{
+			cnts[i][j] = 0;
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (poss[i][j][k])
+				{
+					cnts[i][j]++;
+				}
+			}
+		}
+	}
+	
+	var total = 0;
+	
+	for (var i = 0; i < numRows * numClms; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		
+		if (cnts[row][clm] > 1)
+		{
+			total++;
+		}
+	}
+	
+	return total;
+}
+
+
 function possPairs(grid, poss)
 {
 	var pairs = 0;
@@ -1360,7 +1396,24 @@ function chgRdmSub(keep, gridStr)
 	gridMtx2 = copyGrid(gridStr);
 	
     var finished = false;
-	for (var i = len1 - 1; i >= 0 && !finished; i--)
+	var dist = (len1 * (len1 + 1)) / 2;
+	var subLen = Math.floor(Math.random() * dist);
+	var j = 0;
+	for (j = 1; subLen >= 0; j++)
+	{
+		subLen -= j;
+//		console.log("j = " + j + ", " + "subLen = " + subLen);
+	}
+//	j++;
+	
+	for (var i = j; i <= len1; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		gridMtx2[row][clm] = -1;
+	}
+	
+	for (var i = j-1; i >= 0 && !finished; i--)
 	{
 		var row = lookup[i][0];
 		var clm = lookup[i][1];
@@ -1396,7 +1449,7 @@ function chgRdmSub(keep, gridStr)
 		
 	var poss2 = updatePoss(gridMtx2, initPoss());
 	
-a	document.getElementById("output").innerHTML = "Change Substring<br>";
+	document.getElementById("output").innerHTML = "Change Substring<br>";
 	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + ", " + (toStr(gridMtx) == toStr(gridMtx2)) + "<br>";
 	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_")
 /*	+ " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2)*/ + "<br>";
@@ -2242,6 +2295,8 @@ function incr(keep, gridStr)
 	{
 		gridStr2 += "_";
 	}
+	
+	gridMtx2 = randInst(gridStr2);
 	var poss2 = updatePoss(gridMtx2, initPoss());
 	
 	document.getElementById("output").innerHTML = "Incriment<br>";
@@ -2309,7 +2364,7 @@ function decr(keep, gridStr)
 	{
 		gridStr2 += "_";
 	}
-	
+	gridMtx2 = randInst(gridStr2);
 	var poss2 = updatePoss(gridMtx2, initPoss());
 	
 	document.getElementById("output").innerHTML = "Decriment<br>";
@@ -2359,10 +2414,10 @@ function feas(gridMtx, gridMtx2, keep=0)
 		}
 	}
 	
-//	if (gridStr2 == gridStr)
-//	{
-//		return false;
-//	}
+	if (gridStr2 == gridStr)
+	{
+		return false;
+	}
 	
 	var newGds = {};
 	
@@ -2558,6 +2613,15 @@ function timeout(usrChc)
 						break;
 					}
 				}
+				
+				if (choice < 5)
+				{
+					choice = 0;
+				}
+				else
+				{
+					choice = 3;
+				}
 			}
 			else
 			{
@@ -2690,7 +2754,12 @@ function timeout(usrChc)
 					var loc = Math.floor(Math.random() * sols.length);
 					tmp.push(sols[loc]);
 //					console.log(sols[loc]);
-					sols.splice(loc, 1);
+					var currGrid = copyGrid(sols[loc]);
+					var poss = updatePoss(currGrid);
+					if (nonSings(currGrid, poss) == 0)
+					{
+						sols.splice(loc, 1);
+					}
 				}
 				sols = tmp;
 			}
@@ -2834,7 +2903,8 @@ function dispMetrics(gridStr)
 	out += "<td>Solutions</td>";
 	out += "<td>Ratios</td>";
 	out += "<td>Feasible</td>";
-	out += "<td>First Singular Cell</td>";
+	out += "<td>FSC</td>";
+	out += "<td>NSs</td>";
 	out += "</tr>";
 	out += "<tr><td>" + len + "</td><td>" + pairs + "</td><td>" + diffs +
 		"</td><td>" + lshapes + "</td><td>" + pairs2 + "</td><td>" + sols.length + "</td>";
@@ -2852,6 +2922,7 @@ function dispMetrics(gridStr)
 	out += "</td>";
 	out += "<td>" + !hasRect(gridMtx) + "</td>";
 	out += "<td>" + firstSing(gridMtx, poss) + "</td>";
+	out += "<td>" + nonSings(gridMtx, poss) + "</td>";
 	out += "</tr></table>";
 	document.getElementById("metrics").innerHTML = out;
 }
@@ -3312,16 +3383,16 @@ function nextColoring2()
 <tr><td colspan="2"><span onclick=showHideDiv('btns2');>Buttons 2</span></td></tr>
 <tr id="btns2"><td colspan="2">
 <input type="button" id="mut0" onclick="clearTimeout(myVar);timeout(0)" value="Change Substring">
-<input type="button" id="mut1" onclick="clearTimeout(myVar);timeout(1)" value="Swap Colors">
-<input type="button" id="mut2" onclick="clearTimeout(myVar);timeout(2)" value="Fix L Shapes">
+<!--<input type="button" id="mut1" onclick="clearTimeout(myVar);timeout(1)" value="Swap Colors">
+<input type="button" id="mut2" onclick="clearTimeout(myVar);timeout(2)" value="Fix L Shapes">-->
 <input type="button" id="mut4" onclick="clearTimeout(myVar);timeout(3)" value="Shuffle Colors">
-<input type="button" id="mut5" onclick="clearTimeout(myVar);timeout(4)" value="Combination">
+<!--<input type="button" id="mut5" onclick="clearTimeout(myVar);timeout(4)" value="Combination">
 <input type="button" id="mut6" onclick="clearTimeout(myVar);timeout(5)" value="Incriment">
 <input type="button" id="mut3" onclick="clearTimeout(myVar);timeout(6)" value="Decriment">
-<input type="button" id="mut12" onclick="clearTimeout(myVar);timeout(7)" value="Try Restart"><br>
+<input type="button" id="mut12" onclick="clearTimeout(myVar);timeout(7)" value="Try Restart">--><br>
 <input type="button" id="btn9" onclick="clearTimeout(myVar);timeout(-1);" value="Repeat Random Change">
 <input type="button" id="btn10" onclick="clearTimeout(myVar);" value="Stop Timeout"><br>
-<label>Iterations for Random Instance</label>
+<!--<label>Iterations for Random Instance</label>
 <select id="randInstIters">
   <option value=1>1</option>
   <option value=2>2</option>
@@ -3339,17 +3410,17 @@ function nextColoring2()
   <option value=25>25</option>
   <option value=50>50</option>
   <option value=100>100</option>
-</select>
+</select>-->
 </td></tr>
 <tr><td colspan="2"><span onclick=showHideDiv('boxes1');>Checkboxes 1</span></td></tr>
 <tr id="boxes1" style="display:none"><td colspan="2">
 <input type="checkbox" id="combo0" checked><label>Change Substring</label><br>
-<input type="checkbox" id="combo1" checked><label>Swap Colors</label><br>
-<input type="checkbox" id="combo2" checked><label>Fix L Shapes</label><br>
+<!--<input type="checkbox" id="combo1" checked><label>Swap Colors</label><br>
+<input type="checkbox" id="combo2" checked><label>Fix L Shapes</label><br>-->
 <input type="checkbox" id="combo3" checked><label>Shuffle Colors</label><br>
-<input type="checkbox" id="combo5" checked><label>Incriment</label><br>
+<!--<input type="checkbox" id="combo5" checked><label>Incriment</label><br>
 <input type="checkbox" id="combo6" checked><label>Decriment</label><br>
-<input type="checkbox" id="combo7" checked><label>Try Restart</label><br>
+<input type="checkbox" id="combo7" checked><label>Try Restart</label><br>-->
 </td></tr>
 <tr><td colspan="2"><span onclick=showHideDiv('boxes2');>Checkboxes 2</span></td></tr>
 <tr id="boxes2" style="display:none"><td>
