@@ -2752,14 +2752,19 @@ function timeout(usrChc)
 				for (var i = 0; i < plc; i++)
 				{
 					var loc = Math.floor(Math.random() * sols.length);
-					tmp.push(sols[loc]);
+					
 //					console.log(sols[loc]);
 					var currGrid = copyGrid(sols[loc]);
-					var poss = updatePoss(currGrid);
-					if (nonSings(currGrid, poss) == 0)
+					var poss = updatePoss(currGrid, initPoss());
+					if (nonSings(currGrid, poss) != 0)
 					{
-						sols.splice(loc, 1);
+						tmp.push(sols[loc]);
 					}
+					sols.splice(loc, 1);
+				}
+				if (tmp.length == 0)
+				{
+					tmp.push(sols[0]);
 				}
 				sols = tmp;
 			}
