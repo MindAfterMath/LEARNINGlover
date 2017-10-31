@@ -2331,7 +2331,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 		return false;
 	}
 	
-	var gridStr = "_";
+	var gridStr = toStr(gridMtx);
 	var gridStr2 = toStr(gridMtx2);
 	
 //	if (gridMtx != -1)
@@ -2443,7 +2443,12 @@ function feas(gridMtx, gridMtx2, keep=0)
 		help[choice]++;
 		sols = [];
 		sols.push(gridStr2);
-//		sols.push(gridStr);
+		if (gridMtx != -1)
+		{
+//			console.log(gridStr);
+			hist.push(gridStr);
+		}
+		sols = sols.concat(hist);
 		for (var i = 0; len2 in newGds && i < newGds[len2].length; i++)
 		{
 			sols.push(newGds[len2][i]);
@@ -2754,7 +2759,7 @@ function stopTimeout()
 function restart()
 {
 	sols = [];
-//	fails = [];
+	hist = [];
 	progress[0] = 1;
 	progress[1] = 1;
 	progress[2] = 1;
@@ -3452,6 +3457,7 @@ help[5] = 0;
 help[6] = 0;
 help[7] = 0;
 sols = [];
+hist = [];
 //fails = [];
 //var M_VAL = 50000;
 var choice = -1;
