@@ -1573,7 +1573,7 @@ function shuffClrs2(keep, gridStr)
 		return gridMtx;
 	}
 	
-	var len2 = len1 - (Math.floor(Math.random() * 20) + 1);
+	var len2 = len1 - (Math.floor(Math.random() * 5) + 1);
 	var gridMtx2 = [];
 	
 	for (var i = 0; i < numRows; i++)
@@ -1683,13 +1683,17 @@ function comboMut(keep, list, gridStr)
 		}
 		else if (choice2 == 5)
 		{
-			gridStr = toStr(incr(1, gridStr));
+			gridStr = toStr(shuffClrs2(1, gridStr));
 		}
 		else if (choice2 == 6)
 		{
-			gridStr = toStr(decr(1, gridStr));
+			gridStr = toStr(incr(1, gridStr));
 		}
 		else if (choice2 == 7)
+		{
+			gridStr = toStr(decr(1, gridStr));
+		}
+		else if (choice2 == 8)
 		{
 			gridStr = toStr(tryRest(1, gridStr));
 		}
@@ -2540,7 +2544,7 @@ function timeout(usrChc)
 			
 			if (usrChc == -1)
 			{
-				var sumN = [0, 0, 0, 0, 0, 0];
+				var sumN = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 				for (var listL = 0; listL < sumN.length; listL++)
 				{
 					if (listL == 0)
@@ -2612,7 +2616,7 @@ function timeout(usrChc)
 				{
 					list.push(3);
 				}
-/*				if (document.getElementById("combo5").checked)
+				if (document.getElementById("combo5").checked)
 				{
 					list.push(5);
 				}
@@ -2623,14 +2627,18 @@ function timeout(usrChc)
 				if (document.getElementById("combo7").checked)
 				{
 					list.push(7);
-				}*/
+				}
+				if (document.getElementById("combo8").checked)
+				{
+					list.push(8);
+				}
 				gridMtx = comboMut(keep, list, gridStr);
 			}
 			else if (choice == 5)
 			{
 				gridMtx = shuffClrs2(keep, gridStr);
 			}
-/*			else if (choice == 6)
+			else if (choice == 6)
 			{
 				gridMtx = incr(keep, gridStr);
 			}
@@ -2642,7 +2650,7 @@ function timeout(usrChc)
 			{
 				gridMtx = tryRest(keep, gridStr);
 			}
-			else if (choice == 9)
+/*			else if (choice == 9)
 			{
 				nextColoring2();
 			}*/
@@ -2660,10 +2668,10 @@ function timeout(usrChc)
 			out += "<td>Fix Ls</td>";
 			out += "<td>Shuff Clrs</td>";
 			out += "<td>ComboMut</td>";
-			out += "<td>Shuff Clrs 3</td>";
-/*			out += "<td>Incriment</td>";
+			out += "<td>Shuff Clrs 2</td>";
+			out += "<td>Incriment</td>";
 			out += "<td>Decriment</td>";
-			out += "<td>Restart</td>";*/
+			out += "<td>Restart</td>";
 			out += "</tr>";
 			out += "<tr>";
 			out += "<td>" + progress[0] + "/" + total[0] + "</td>";
@@ -2672,9 +2680,9 @@ function timeout(usrChc)
 			out += "<td>" + progress[3] + "/" + total[3] + "</td>";
 			out += "<td>" + progress[4] + "/" + total[4] + "</td>";
 			out += "<td>" + progress[5] + "/" + total[5] + "</td>";
-/*			out += "<td>" + progress[5] + "/" + total[5] + "</td>";
 			out += "<td>" + progress[6] + "/" + total[6] + "</td>";
-			out += "<td>" + progress[7] + "/" + total[7] + "</td>";*/
+			out += "<td>" + progress[7] + "/" + total[7] + "</td>";
+			out += "<td>" + progress[8] + "/" + total[8] + "</td>";
 			out += "</tr>";
 			out += "<tr>";
 			out += "<td>" + (progress[0] / total[0]).toFixed(4) + "</td>";
@@ -2683,9 +2691,9 @@ function timeout(usrChc)
 			out += "<td>" + (progress[3] / total[3]).toFixed(4) + "</td>";
 			out += "<td>" + (progress[4] / total[4]).toFixed(4) + "</td>";
 			out += "<td>" + (progress[5] / total[5]).toFixed(4) + "</td>";
-/*			out += "<td>" + (progress[5] / total[5]).toFixed(4) + "</td>";
 			out += "<td>" + (progress[6] / total[6]).toFixed(4) + "</td>";
-			out += "<td>" + (progress[7] / total[7]).toFixed(4) + "</td>";*/
+			out += "<td>" + (progress[7] / total[7]).toFixed(4) + "</td>";
+			out += "<td>" + (progress[8] / total[8]).toFixed(4) + "</td>";
 			out += "</tr>";
 			out += "<tr>";
 			out += "<td>" + help[0] + "</td>";
@@ -2694,9 +2702,9 @@ function timeout(usrChc)
 			out += "<td>" + help[3] + "</td>";
 			out += "<td>" + help[4] + "</td>";
 			out += "<td>" + help[5] + "</td>";
-/*			out += "<td>" + help[5] + "</td>";
 			out += "<td>" + help[6] + "</td>";
-			out += "<td>" + help[7] + "</td>";*/
+			out += "<td>" + help[7] + "</td>";
+			out += "<td>" + help[8] + "</td>";
 			out += "</tr></table>";
 			document.getElementById("output").innerHTML += out;
 			document.getElementById("output").innerHTML += eqDist(copyGrid(getGrid()));
@@ -2755,6 +2763,7 @@ function restart()
 	progress[5] = 1;
 	progress[6] = 1;
 	progress[7] = 1;
+	progress[8] = 1;
 	
 	total[0] = 1;
 	total[1] = 1;
@@ -2764,6 +2773,17 @@ function restart()
 	total[5] = 1;
 	total[6] = 1;
 	total[7] = 1;
+	total[8] = 1;
+	
+	help[0] = 1;
+	help[1] = 1;
+	help[2] = 1;
+	help[3] = 1;
+	help[4] = 1;
+	help[5] = 1;
+	help[6] = 1;
+	help[7] = 1;
+	help[8] = 1;
 	var val = document.getElementById("game").value;
 	if (val == 0)
 	{
@@ -3347,24 +3367,14 @@ function nextColoring2()
 <input type="button" id="mut0" onclick="clearTimeout(myVar);timeout(0)" value="Change Substring">
 <input type="button" id="mut1" onclick="clearTimeout(myVar);timeout(1)" value="Swap Colors">
 <input type="button" id="mut2" onclick="clearTimeout(myVar);timeout(2)" value="Fix L Shapes">
-<input type="button" id="mut4" onclick="clearTimeout(myVar);timeout(3)" value="Shuffle Colors">
-<input type="button" id="mut5" onclick="clearTimeout(myVar);timeout(4)" value="Combination">
-<input type="button" id="mut6" onclick="clearTimeout(myVar);timeout(5)" value="Shuffle Colors 2">
-<!--<input type="button" id="mut6" onclick="clearTimeout(myVar);timeout(5)" value="Incriment">
-<input type="button" id="mut3" onclick="clearTimeout(myVar);timeout(6)" value="Decriment">
-<input type="button" id="mut12" onclick="clearTimeout(myVar);timeout(7)" value="Try Restart">--><br>
+<input type="button" id="mut3" onclick="clearTimeout(myVar);timeout(3)" value="Shuffle Colors">
+<input type="button" id="mut4" onclick="clearTimeout(myVar);timeout(4)" value="Combination">
+<input type="button" id="mut5" onclick="clearTimeout(myVar);timeout(5)" value="Shuffle Colors 2">
+<input type="button" id="mut6" onclick="clearTimeout(myVar);timeout(6)" value="Incriment">
+<input type="button" id="mut7" onclick="clearTimeout(myVar);timeout(7)" value="Decriment">
+<input type="button" id="mut8" onclick="clearTimeout(myVar);timeout(8)" value="Try Restart"><br>
 <input type="button" id="btn9" onclick="clearTimeout(myVar);timeout(-1);" value="Repeat Random Change">
 <input type="button" id="btn10" onclick="clearTimeout(myVar);" value="Stop Timeout"><br>
-<!--<label>Iterations for Random Instance</label>
-<select id="randInstIters">
-  <option value=1>1</option>
-  <option value=2>2</option>
-  <option value=5 selected>5</option>
-  <option value=10>10</option>
-  <option value=25>25</option>
-  <option value=50>50</option>
-  <option value=100>100</option>
-</select><br>-->
 <label>Iterations for Combo Mutation</label><select id="comboMutIters">
   <option value=1>1</option>
   <option value=2>2</option>
@@ -3381,9 +3391,10 @@ function nextColoring2()
 <input type="checkbox" id="combo1" checked><label>Swap Colors</label><br>
 <input type="checkbox" id="combo2" checked><label>Fix L Shapes</label><br>
 <input type="checkbox" id="combo3" checked><label>Shuffle Colors</label><br>
-<!--<input type="checkbox" id="combo5" checked><label>Incriment</label><br>
-<input type="checkbox" id="combo6" checked><label>Decriment</label><br>
-<input type="checkbox" id="combo7" checked><label>Try Restart</label><br>-->
+<input type="checkbox" id="combo5" checked><label>Shuffle Colors 2</label><br>
+<input type="checkbox" id="combo6" checked><label>Incriment</label><br>
+<input type="checkbox" id="combo7" checked><label>Decriment</label><br>
+<input type="checkbox" id="combo8" checked><label>Try Restart</label><br>
 </td></tr>
 <tr><td colspan="2"><span onclick=showHideDiv('boxes2');>Checkboxes 2</span></td></tr>
 <tr id="boxes2" style="display:none"><td>
