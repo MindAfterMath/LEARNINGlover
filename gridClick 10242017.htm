@@ -1709,6 +1709,10 @@ function comboMut(keep, list, gridStr)
 		{
 			break;
 		}
+		else if (newLen < currLen)
+		{
+			gridStr = currGrd;
+		}
 	}
 	
 	var gridMtx2 = copyGrid(gridStr);
@@ -2737,6 +2741,7 @@ function timeout(usrChc)
 					tmp.push(sols[0]);
 				}
 				sols = tmp;
+				sols = sols.concat(hist);
 			}
 			
 			var len = getGrid().indexOf("_");
