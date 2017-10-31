@@ -1658,7 +1658,7 @@ function comboMut(keep, list, gridStr)
 	{
 		var currGrd = gridStr;
 		var currLen = currGrd.indexOf("_");
-		if (currLen >= len1 && sols.indexOf(currGrd) == -1 && currGrd != gridStr)
+		if (currLen > len1 && sols.indexOf(currGrd) == -1)
 		{
 			break;
 		}
