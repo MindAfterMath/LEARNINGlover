@@ -897,6 +897,8 @@ function firstSing(grid, poss)
 			return i;
 		}
 	}
+	
+	return -1;
 }
 
 function nonSings(grid, poss)
@@ -1850,7 +1852,7 @@ function swapRows(gridStr)
 			{
 				tempStr += "_";
 			}
-			newGds.push(randInst(tempStr));
+			newGds.push(copyGrid(toStr(randInst(tempStr))));
 		}
 	}
 
@@ -1969,7 +1971,7 @@ function swapClms(gridStr)
 			{
 				tempStr += "_";
 			}
-			newGds.push(randInst(tempStr));
+			newGds.push(copyGrid(toStr(randInst(tempStr))));
 		}
 	}
 
@@ -2096,8 +2098,7 @@ function swapClms2(gridStr)
 	{
 		tempStr += "_";
 	}
-//	newGds.push();
-	tempMtx = randInst(tempStr);
+	newGds.push(copyGrid(toStr(randInst(tempStr))));
 
 	return tempMtx;
 }
@@ -2163,7 +2164,7 @@ function tryRest(keep, gridStr)
 {
 	var gridMtx = copyGrid(gridStr);
 	var gridMtx2 = randInst(toStr(initGrid()));
-	dispGrid(gridMtx2);
+//	dispGrid(gridMtx2);
 	
 //	var poss2 = updatePoss(gridMtx2, initPoss());
 
@@ -2448,6 +2449,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 		help[choice]++;
 		sols = [];
 		sols.push(gridStr2);
+		
 		if (gridMtx != -1)
 		{
 //			console.log(gridStr);
@@ -2470,12 +2472,43 @@ function feas(gridMtx, gridMtx2, keep=0)
 	}
 	else if (len2 == len)
 	{
-		var poss = updatePoss(gridMtx2, initPoss());
+		var poss2 = updatePoss(gridMtx2, initPoss());
 		var added  = 0;
-		if (sols.indexOf(gridStr2) == -1 && nonSings(gridMtx2, poss) != 0)
+		
+		var mxm = -1;
+		var mxlen = -1;
+		for (var i = 0; i < sols.length; i++)
+		{
+			var tmpGrd = copyGrid(sols[i]);
+			var poss = updatePoss(tmpGrd, initPoss());
+			var cnt = nonSings(tmpGrd, poss);
+			var currLen = sols[i].indexOf("_");
+			if (currLen > mxlen)
+			{
+				mxlen = currLen;
+				mxm = cnt;
+			}
+			else if (currLen == mxlen)
+			{
+				if (cnt > mxm)
+				{
+					mxm = cnt;
+				}
+			}
+		}
+		
+		var cnt2 = nonSings(gridMtx2, poss2);
+		
+//		console.log(cnt2 + " vs " + mxm);
+		
+		if (sols.indexOf(gridStr2) == -1 && cnt2 >= mxm)
 		{
 			sols.push(gridStr2);
 			added++;
+		}
+		else if (cnt2 < mxm)
+		{
+			return false;
 		}
 		
 		for (var j = 0; len2 in newGds && j < newGds[len2].length; j++)
@@ -2497,11 +2530,11 @@ function feas(gridMtx, gridMtx2, keep=0)
 			return false;
 		}
 	}
-	else if (len2 == len - 1)
-	{
-		sols.push(gridStr2);
-		return false;
-	}
+//	else if (len2 == len - 1)
+//	{
+//		sols.push(gridStr2);
+//		return false;
+//	}
 	else
 	{
 		return false;
@@ -2721,20 +2754,52 @@ function timeout(usrChc)
 			
 			if (sols.length > 1000)
 			{
+				mxm = -1;
+				mxms = [];
+				mxlen = -1;
+				for (var i = 0; i < sols.length; i++)
+				{
+					var tmpGrd = copyGrid(sols[i]);
+					var poss = updatePoss(tmpGrd, initPoss());
+					var cnt = nonSings(tmpGrd, poss);
+					var currLen = sols[i].indexOf("_");
+					if (currLen > mxlen)
+					{
+						mxlen = currLen;
+						mxm = cnt;
+						mxms = [];
+						mxms.push(i);
+					}
+					else if (currLen == mxlen)
+					{
+						if (cnt > mxm)
+						{
+							mxm = cnt;
+							mxms = [];
+							mxms.push(i);
+						}
+						else if (cnt == mxm && mxms.length < 100)
+						{
+							mxms.push(i);
+						}
+					}
+				}
+			
 				var plc = Math.floor(Math.random() * sols.length) + 1;
-//				console.log("plc = " + plc);
 				var tmp = [];
+				for (var i = 0; i < mxms.length; i++)
+				{
+					tmp.push(sols[mxms[i]]);
+//					document.getElementById("finished").innerHTML += mxms[i] + " - " + mxm + " - " + sols[mxms[i]].indexOf("_") + " - " + sols[mxms[i]] + "<br>";
+				}
+				document.getElementById("finished").innerHTML = mxms.length + " - " + mxlen + " - " + mxm + "<br>";
+				
 				for (var i = 0; i < plc; i++)
 				{
 					var loc = Math.floor(Math.random() * sols.length);
 					
-//					console.log(sols[loc]);
 					var currGrid = copyGrid(sols[loc]);
-//					var poss = updatePoss(currGrid, initPoss());
-//					if (nonSings(currGrid, poss) != 0)
-//					{
-						tmp.push(sols[loc]);
-//					}
+					tmp.push(sols[loc]);
 					sols.splice(loc, 1);
 				}
 				if (tmp.length == 0)
@@ -3358,7 +3423,7 @@ function nextColoring2()
 <table id="wrapper"><tr id="grids" style="display:none"><td id="content"></td><td id="possGrid"></td></tr>
 <tr><td colspan="2"><span onclick=showHideDiv('gamesel');>Game Select Box</span></td></tr>
 <tr id="gamesel"><td colspan=2>
-<select id="game" onchange="restart()">
+<select id="game">
   <option value=0>3 Color a 10 by 10</option>
   <option value=1>4 Color a 18 by 18</option>
 </select>
