@@ -1850,7 +1850,7 @@ function swapRows(gridStr)
 			{
 				tempStr += "_";
 			}
-			newGds.push(copyGrid(toStr(randInst(tempStr))));
+			newGds.push(randInst(tempStr));
 		}
 	}
 
@@ -1969,7 +1969,7 @@ function swapClms(gridStr)
 			{
 				tempStr += "_";
 			}
-			newGds.push(copyGrid(toStr(randInst(tempStr))));
+			newGds.push(randInst(tempStr));
 		}
 	}
 
@@ -2096,7 +2096,8 @@ function swapClms2(gridStr)
 	{
 		tempStr += "_";
 	}
-	newGds.push(copyGrid(toStr(randInst(tempStr))));
+//	newGds.push();
+	tempMtx = randInst(tempStr);
 
 	return tempMtx;
 }
@@ -3357,7 +3358,7 @@ function nextColoring2()
 <table id="wrapper"><tr id="grids" style="display:none"><td id="content"></td><td id="possGrid"></td></tr>
 <tr><td colspan="2"><span onclick=showHideDiv('gamesel');>Game Select Box</span></td></tr>
 <tr id="gamesel"><td colspan=2>
-<select id="game">
+<select id="game" onchange="restart()">
   <option value=0>3 Color a 10 by 10</option>
   <option value=1>4 Color a 18 by 18</option>
 </select>
