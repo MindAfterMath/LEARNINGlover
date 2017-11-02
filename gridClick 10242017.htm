@@ -1247,17 +1247,18 @@ function chgRdmSub(keep, gridStr)
 	gridMtx2 = copyGrid(gridStr);
 	
     var finished = false;
-	var dist = (len1 * (len1 + 1)) / 2;
-	var subLen = Math.floor(Math.random() * dist);
-	var j = 0;
-	for (j = 1; subLen >= 0; j++)
+	var sub = [];
+	for (var i = 0; i < len1; i++)
 	{
-		subLen -= j;
-//		console.log("j = " + j + ", " + "subLen = " + subLen);
+		for (var j = 0; j < i; j++)
+		{
+			sub.push(i);
+		}
 	}
-//	j++;
 	
-	for (var i = j; i <= len1; i++)
+	var subLen = sub[Math.floor(Math.random() * sub.length)];
+	
+	for (var i = subLen; i <= len1; i++)
 	{
 		var row = lookup[i][0];
 		var clm = lookup[i][1];
@@ -1266,7 +1267,7 @@ function chgRdmSub(keep, gridStr)
 	
 	var poss = updatePoss(gridMtx2, initPoss());
 	
-	for (var i = j-1; i >= 0 && !finished; i--)
+	for (var i = subLen-1; i >= 0 && !finished; i--)
 	{
 		var row = lookup[i][0];
 		var clm = lookup[i][1];
@@ -1287,7 +1288,6 @@ function chgRdmSub(keep, gridStr)
 		}
 		
 		gridMtx2[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];
-		gridStr2 = toStr(gridMtx2);
 		if (!hasRect(gridMtx2))
 		{
 			finished = true;
@@ -1529,8 +1529,6 @@ function fixLShapes2(keep, gridStr)
 			}
 		}
 	}
-	
-	console.log(locs);
 	
 	var loc = Math.floor(Math.random() * locs.length);
 	
@@ -2675,7 +2673,6 @@ function timeout(usrChc)
 	var gridMtx = copyGrid(gridStr);
 	if (sols.length == 0)
 	{
-		
 		sols.push(gridStr);
 	}
 	var keep = 0;
@@ -2691,14 +2688,9 @@ function timeout(usrChc)
 		function () 
 		{
 			var loc = Math.floor(Math.random() * sols.length);
-//			var loc = sols.length-1;
-//			if (usrChc != -1)
-//			{
-//				gridStr = sols[loc];
-//				gridMtx = copyGrid(sols[loc]);
-//				len1 = sols[loc].indexOf("_");
-//				var toChg = -1;
-//			}
+			gridStr = sols[loc];
+			gridMtx = copyGrid(sols[loc]);
+			len1 = sols[loc].indexOf("_");
 			
 			if (usrChc == -1)
 			{
