@@ -1354,7 +1354,7 @@ function clrSwaps(keep, gridStr)
 			var clrs = [];
 			for (var k = 0; k < numClrs; k++)
 			{
-				if (poss[row][clm][k] && k != keepClr)
+				if (poss[row][clm][k])
 				{
 					var old = gridMtx2[row][clm];
 					gridMtx2[row][clm] = k;
@@ -1441,7 +1441,7 @@ function fixLShapes(keep, gridStr)
 		var clrs = [];
 		for (k = 0; k < numClrs; k++)
 		{
-			if (poss[row][clm][k] && k != gridMtx[row][clm])
+			if (poss[row][clm][k])
 			{
 				clrs.push(k);
 			}
@@ -1473,6 +1473,116 @@ function fixLShapes(keep, gridStr)
 //	var poss2 = updatePoss(gridMtx2, initPoss());
 	
 	document.getElementById("output").innerHTML = "Fix LShapes<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + ", " + (toStr(gridMtx) == toStr(gridMtx2)) + "<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_")
+/*	+ " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2)*/ + "<br>";
+	
+	if (feas(gridMtx, gridMtx2, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return gridMtx2;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
+}
+
+function fixLShapes2(keep, gridStr)
+{
+	var len1 = gridStr.indexOf("_");	
+	var gridMtx = copyGrid(gridStr);
+	var gridMtx2 = copyGrid(gridStr);
+	if (len1 == -1)
+	{
+		return gridMtx;
+	}
+	
+//	var list = conflict(gridMtx);
+	
+	var row = lookup[len1][0];
+	var clm = lookup[len1][1];
+	var oldCell = -1;
+	var locs = [];
+
+	for (var i1 = 0; i1 < row; i1++)
+	{
+		for (var j1 = 0; j1 < clm; j1++)
+		{
+			if (gridMtx[i1][j1] != -1 && gridMtx[i1][clm] != -1 && gridMtx[row][j1] != -1 && 
+			gridMtx[i1][j1] == gridMtx[i1][clm] && gridMtx[i1][j1] == gridMtx[row][j1])
+			{
+				if (locs.indexOf(lookup2[i1][j1]) == -1)
+				{
+					locs.push(lookup2[i1][j1]);
+				}
+				if (locs.indexOf(lookup2[i1][clm]) == -1)
+				{
+					locs.push(lookup2[i1][clm]);
+				}
+				if (locs.indexOf(lookup2[row][j1]) == -1)
+				{
+					locs.push(lookup2[row][j1]);
+				}
+			}
+		}
+	}
+	
+	console.log(locs);
+	
+	var loc = Math.floor(Math.random() * locs.length);
+	
+	for (var i = locs[loc]; i < numRows * numClms; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		gridMtx2[row][clm] = -1;
+	}
+	
+	var poss = updatePoss(gridMtx2, initPoss());
+	
+	for (var i = locs[loc]; i < numRows * numClms; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		poss = updatePoss(gridMtx2, poss);
+		var clrs = [];
+		for (k = 0; k < numClrs; k++)
+		{
+			if (poss[row][clm][k])
+			{
+				clrs.push(k);
+			}
+		}
+		
+		if (clrs.length > 0)
+		{
+			gridMtx2[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];
+		}
+		else
+		{
+			break;
+		}
+	}
+	
+	var gridStr2 = toStr(gridMtx2);
+	var last = gridStr2.indexOf("_");
+	
+	for (var i = last; i < numRows * numClms; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		
+		gridMtx2[row][clm] = -1;
+	}
+	
+	gridMtx2 = randInst(toStr(gridMtx2));
+	
+//	var poss2 = updatePoss(gridMtx2, initPoss());
+	
+	document.getElementById("output").innerHTML = "Fix L Shapes 2<br>";
 	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + ", " + (toStr(gridMtx) == toStr(gridMtx2)) + "<br>";
 	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_")
 /*	+ " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2)*/ + "<br>";
@@ -1525,7 +1635,7 @@ function shuffClrs(keep, gridStr)
 		var clrs = [];
 		for (var clr = 0; clr < numClrs; clr++)
 		{
-			if (poss[row][clm][clr] && gridMtx[row][clm] != clr)
+			if (poss[row][clm][clr])
 			{
 				var old = gridMtx2[row][clm];
 				gridMtx2[row][clm] = clr;			
@@ -1604,7 +1714,7 @@ function shuffClrs2(keep, gridStr)
 		var clrs = [];
 		for (var clr = 0; clr < numClrs; clr++)
 		{
-			if (poss[row][clm][clr] && gridMtx[row][clm] != clr)
+			if (poss[row][clm][clr])
 			{
 				var old = gridMtx2[row][clm];
 				gridMtx2[row][clm] = clr;			
@@ -1699,6 +1809,10 @@ function comboMut(keep, list, gridStr)
 		else if (choice2 == 8)
 		{
 			gridStr = toStr(tryRest(1, gridStr));
+		}
+		else if (choice2 == 9)
+		{
+			gridStr = toStr(fixLShapes2(1, gridStr));
 		}
 		progress[choice]--;
 		total[choice]--;
@@ -2578,17 +2692,17 @@ function timeout(usrChc)
 		{
 			var loc = Math.floor(Math.random() * sols.length);
 //			var loc = sols.length-1;
-			if (usrChc != 8)
-			{
-				gridStr = sols[loc];
-				gridMtx = copyGrid(sols[loc]);
-				len1 = sols[loc].indexOf("_");
-				var toChg = -1;
-			}
+//			if (usrChc != -1)
+//			{
+//				gridStr = sols[loc];
+//				gridMtx = copyGrid(sols[loc]);
+//				len1 = sols[loc].indexOf("_");
+//				var toChg = -1;
+//			}
 			
 			if (usrChc == -1)
 			{
-				var sumN = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+				var sumN = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 				for (var listL = 0; listL < sumN.length; listL++)
 				{
 					if (listL == 0)
@@ -2676,6 +2790,10 @@ function timeout(usrChc)
 				{
 					list.push(8);
 				}
+				if (document.getElementById("combo9").checked)
+				{
+					list.push(9);
+				}
 				gridMtx = comboMut(keep, list, gridStr);
 			}
 			else if (choice == 5)
@@ -2694,10 +2812,10 @@ function timeout(usrChc)
 			{
 				gridMtx = tryRest(keep, gridStr);
 			}
-/*			else if (choice == 9)
+			else if (choice == 9)
 			{
-				nextColoring2();
-			}*/
+				gridMtx = fixLShapes2(keep, gridStr);
+			}
 
 			gridMtx = randInst(gridMtx);
 			if (document.getElementById("grids").style.display != "none")
@@ -2716,6 +2834,7 @@ function timeout(usrChc)
 			out += "<td>Incriment</td>";
 			out += "<td>Decriment</td>";
 			out += "<td>Restart</td>";
+			out += "<td>Fix L Shapes 2</td>";
 			out += "</tr>";
 			out += "<tr>";
 			out += "<td>" + progress[0] + "/" + total[0] + "</td>";
@@ -2727,6 +2846,7 @@ function timeout(usrChc)
 			out += "<td>" + progress[6] + "/" + total[6] + "</td>";
 			out += "<td>" + progress[7] + "/" + total[7] + "</td>";
 			out += "<td>" + progress[8] + "/" + total[8] + "</td>";
+			out += "<td>" + progress[9] + "/" + total[9] + "</td>";
 			out += "</tr>";
 			out += "<tr>";
 			out += "<td>" + (progress[0] / total[0]).toFixed(4) + "</td>";
@@ -2738,6 +2858,7 @@ function timeout(usrChc)
 			out += "<td>" + (progress[6] / total[6]).toFixed(4) + "</td>";
 			out += "<td>" + (progress[7] / total[7]).toFixed(4) + "</td>";
 			out += "<td>" + (progress[8] / total[8]).toFixed(4) + "</td>";
+			out += "<td>" + (progress[9] / total[9]).toFixed(4) + "</td>";
 			out += "</tr>";
 			out += "<tr>";
 			out += "<td>" + help[0] + "</td>";
@@ -2749,51 +2870,52 @@ function timeout(usrChc)
 			out += "<td>" + help[6] + "</td>";
 			out += "<td>" + help[7] + "</td>";
 			out += "<td>" + help[8] + "</td>";
+			out += "<td>" + help[9] + "</td>";
 			out += "</tr></table>";
 			document.getElementById("output").innerHTML += out;
 			document.getElementById("output").innerHTML += eqDist(copyGrid(getGrid()));
 			
 			if (sols.length > 1000)
 			{
-				mxm = -1;
-				mxms = [];
+				mnm = -1;
+				mnms = [];
 				mxlen = -1;
 				for (var i = 0; i < sols.length; i++)
 				{
 					var tmpGrd = copyGrid(sols[i]);
-					var poss = updatePoss(tmpGrd, initPoss());
-					var cnt = possPairs(tmpGrd, poss);
+//					var poss = updatePoss(tmpGrd, initPoss());
+					var cnt = getDiffs(tmpGrd);
 					var currLen = sols[i].indexOf("_");
 					if (currLen > mxlen)
 					{
 						mxlen = currLen;
-						mxm = cnt;
-						mxms = [];
-						mxms.push(i);
+						mnm = cnt;
+						mnms = [];
+						mnms.push(i);
 					}
 					else if (currLen == mxlen)
 					{
-						if (cnt > mxm)
+						if (cnt < mnm)
 						{
-							mxm = cnt;
-							mxms = [];
-							mxms.push(i);
+							mnm = cnt;
+							mnms = [];
+							mnms.push(i);
 						}
-						else if (cnt == mxm && mxms.length < 100)
+						else if (cnt == mnm && mnms.length < 100)
 						{
-							mxms.push(i);
+							mnms.push(i);
 						}
 					}
 				}
 			
 				var plc = Math.floor(Math.random() * sols.length) + 1;
 				var tmp = [];
-				for (var i = 0; i < mxms.length; i++)
+				for (var i = 0; i < mnms.length; i++)
 				{
-					tmp.push(sols[mxms[i]]);
+					tmp.push(sols[mnms[i]]);
 //					document.getElementById("finished").innerHTML += mxms[i] + " - " + mxm + " - " + sols[mxms[i]].indexOf("_") + " - " + sols[mxms[i]] + "<br>";
 				}
-				document.getElementById("finished").innerHTML = mxms.length + " - " + mxlen + " - " + mxm + "<br>";
+				document.getElementById("finished").innerHTML = mnms.length + " - " + mxlen + " - " + mnm + "<br>";
 				
 				for (var i = 0; i < plc; i++)
 				{
@@ -2841,6 +2963,7 @@ function restart()
 	progress[6] = 1;
 	progress[7] = 1;
 	progress[8] = 1;
+	progress[9] = 1;
 	
 	total[0] = 1;
 	total[1] = 1;
@@ -2851,6 +2974,7 @@ function restart()
 	total[6] = 1;
 	total[7] = 1;
 	total[8] = 1;
+	total[9] = 1;
 	
 	help[0] = 1;
 	help[1] = 1;
@@ -2861,6 +2985,7 @@ function restart()
 	help[6] = 1;
 	help[7] = 1;
 	help[8] = 1;
+	help[9] = 1;
 	var val = document.getElementById("game").value;
 	if (val == 0)
 	{
@@ -3060,7 +3185,8 @@ function dedupe(arr)
 <input type="button" id="mut5" onclick="clearTimeout(myVar);timeout(5)" value="Shuffle Colors 2">
 <input type="button" id="mut6" onclick="clearTimeout(myVar);timeout(6)" value="Incriment">
 <input type="button" id="mut7" onclick="clearTimeout(myVar);timeout(7)" value="Decriment">
-<input type="button" id="mut8" onclick="clearTimeout(myVar);timeout(8)" value="Try Restart"><br>
+<input type="button" id="mut8" onclick="clearTimeout(myVar);timeout(8)" value="Try Restart">
+<input type="button" id="mut9" onclick="clearTimeout(myVar);timeout(9)" value="Fix L Shapes 2"><br>
 <input type="button" id="btn9" onclick="clearTimeout(myVar);timeout(-1);" value="Repeat Random Change">
 <input type="button" id="btn10" onclick="clearTimeout(myVar);" value="Stop Timeout"><br>
 <label>Iterations for Combo Mutation</label><select id="comboMutIters">
@@ -3083,6 +3209,7 @@ function dedupe(arr)
 <input type="checkbox" id="combo6" checked><label>Incriment</label><br>
 <input type="checkbox" id="combo7" checked><label>Decriment</label><br>
 <input type="checkbox" id="combo8" checked><label>Try Restart</label><br>
+<input type="checkbox" id="combo9" checked><label>Fix L Shapes 2</label><br>
 </td></tr>
 <tr><td colspan="2"><span onclick=showHideDiv('boxes2');>Checkboxes 2</span></td></tr>
 <tr id="boxes2" style="display:none"><td>
@@ -3121,6 +3248,8 @@ progress[4] = 1;
 progress[5] = 1;
 progress[6] = 1;
 progress[7] = 1;
+progress[8] = 1;
+progress[9] = 1;
 
 total[0] = 1;
 total[1] = 1;
@@ -3130,6 +3259,8 @@ total[4] = 1;
 total[5] = 1;
 total[6] = 1;
 total[7] = 1;
+total[8] = 1;
+total[9] = 1;
 
 help[0] = 0;
 help[1] = 0;
@@ -3139,6 +3270,8 @@ help[4] = 0;
 help[5] = 0;
 help[6] = 0;
 help[7] = 0;
+help[8] = 0;
+help[9] = 0;
 sols = [];
 hist = [];
 //fails = [];
