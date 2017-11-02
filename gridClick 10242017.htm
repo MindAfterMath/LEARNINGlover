@@ -903,6 +903,7 @@ function firstSing(grid, poss)
 
 function nonSings(grid, poss)
 {
+	var len = toStr(grid).indexOf("_");
 	var cnts = [];
 	for (var i = 0; i < numRows; i++)
 	{
@@ -922,20 +923,20 @@ function nonSings(grid, poss)
 	
 	var total = 0;
 	
-	for (var i = 0; i < numRows * numClms; i++)
+	for (var i = 0; i < len; i++)
 	{
 		var row = lookup[i][0];
 		var clm = lookup[i][1];
 		
 		if (cnts[row][clm] > 1)
 		{
+//			total += cnts[row][clm];
 			total++;
 		}
 	}
 	
 	return total;
 }
-
 
 function possPairs(grid, poss)
 {
@@ -2475,41 +2476,41 @@ function feas(gridMtx, gridMtx2, keep=0)
 		var poss2 = updatePoss(gridMtx2, initPoss());
 		var added  = 0;
 		
-		var mxm = -1;
-		var mxlen = -1;
-		for (var i = 0; i < sols.length; i++)
-		{
-			var tmpGrd = copyGrid(sols[i]);
-			var poss = updatePoss(tmpGrd, initPoss());
-			var cnt = nonSings(tmpGrd, poss);
-			var currLen = sols[i].indexOf("_");
-			if (currLen > mxlen)
-			{
-				mxlen = currLen;
-				mxm = cnt;
-			}
-			else if (currLen == mxlen)
-			{
-				if (cnt > mxm)
-				{
-					mxm = cnt;
-				}
-			}
-		}
+//		var mxm = -1;
+//		var mxlen = -1;
+//		for (var i = 0; i < sols.length; i++)
+//		{
+//			var tmpGrd = copyGrid(sols[i]);
+//			var poss = updatePoss(tmpGrd, initPoss());
+//			var cnt = nonSings(tmpGrd, poss);
+//			var currLen = sols[i].indexOf("_");
+//			if (currLen > mxlen)
+//			{
+//				mxlen = currLen;
+//				mxm = cnt;
+//			}
+//			else if (currLen == mxlen)
+//			{
+//				if (cnt > mxm)
+//				{
+//					mxm = cnt;
+//				}
+//			}
+//		}
 		
-		var cnt2 = nonSings(gridMtx2, poss2);
+//		var cnt2 = nonSings(gridMtx2, poss2);
 		
 //		console.log(cnt2 + " vs " + mxm);
 		
-		if (sols.indexOf(gridStr2) == -1 && cnt2 >= mxm)
-		{
+//		if (sols.indexOf(gridStr2) == -1 && cnt2 >= mxm)
+//		{
 			sols.push(gridStr2);
 			added++;
-		}
-		else if (cnt2 < mxm)
-		{
-			return false;
-		}
+//		}
+//		else if (cnt2 < mxm)
+//		{
+//			return false;
+//		}
 		
 		for (var j = 0; len2 in newGds && j < newGds[len2].length; j++)
 		{
@@ -2761,7 +2762,7 @@ function timeout(usrChc)
 				{
 					var tmpGrd = copyGrid(sols[i]);
 					var poss = updatePoss(tmpGrd, initPoss());
-					var cnt = nonSings(tmpGrd, poss);
+					var cnt = possPairs(tmpGrd, poss);
 					var currLen = sols[i].indexOf("_");
 					if (currLen > mxlen)
 					{
@@ -3011,241 +3012,6 @@ function setRFS()
 	return rfs;
 }
 
-function formGraph()
-{
-	var gridMtx = copyGrid(getGrid());
-	var poss = updatePoss(gridMtx, initPoss());
-	var rfs = setRFS();
-	var nodes = [];
-//	var cnts = [];
-	for (var i = 0; i < numRows; i++)
-	{
-		for (var j1 = 0; j1 < numClms; j1++)
-		{
-			if (rfs[i][j1] == -1)
-			{
-				for (var j2 = j1 + 1; j2 < numClms; j2++)
-				{
-					if (rfs[i][j2] == -1)
-					{
-						for (var j3 = j2 + 1; j3 < numClms; j3++)
-						{
-							if (rfs[i][j3] == -1)
-							{
-								nodes.push(i + "." + j1 + "-" + j2 + "-" + j3);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	var edges = [];
-	var A = [];
-	
-	for (var i = 0; i < nodes.length; i++)
-	{
-		A[i] = [];
-		var row1 = nodes[i].split(".")[0];
-		var clms1 = nodes[i].split(".")[1].split("-");
-		for (var j = 0; j < nodes.length; j++)
-		{
-			var ans = true;
-			var row2 = nodes[j].split(".")[0];
-			var clms2 = nodes[j].split(".")[1].split("-");
-			
-			if (row1 != row2)
-			{
-				for (var ctr1 = 0; ctr1 < clms1.length; ctr1++)
-				{
-					for (var ctr2 = ctr1 + 1; ctr2 < clms1.length; ctr2++)
-					{
-						for (var ctr3 = 0; ctr3 < clms2.length; ctr3++)
-						{
-							for (var ctr4 = ctr3 + 1; ctr4 < clms2.length; ctr4++)
-							{
-								if (clms1[ctr1] == clms2[ctr3] && clms1[ctr2] == clms2[ctr4])
-								{
-									ans = false;
-								}
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				ans = false;
-			}
-			
-			if (ans)
-			{
-				var temp = [];
-				temp[0] = i;
-				temp[1] = j;
-				edges.push(temp);
-				A[i][j] = 1;
-			}
-			else
-			{
-				A[i][j] = Number.MAX_VALUE;
-			}
-		}
-	}
-	text = "<span onclick=showHideDiv('nodes');>Nodes for the graph of this grid</span><br>";
-	text += "<div id='nodes' style='display:none;'>";
-	for (var i = 0; i < nodes.length; i++)
-	{
-		text += nodes[i] + "<br>";
-	}
-	text += "</div>";
-	
-	text += "<span onclick=showHideDiv('edges');>Edges for the graph of this grid</span>";
-	text += "<div id='edges' style='display:none;'>";
-	for (var i = 0; i < edges.length; i++)
-	{
-		text += edges[i] + "<br>";
-	}
-	text += "</div>";
-	
-	var graph = new Object();
-	graph.edges = [];
-	graph.nodes = [];
-	graph.trees = [];
-	
-	var x = [];
-	var y = [];
-	
-	for (var i = 0; i < nodes.length; i++)
-	{
-		graph.trees[i] = [];
-	
-		graph.nodes[i] = new Object;
-		graph.nodes[i].value = nodes[i];
-		graph.nodes[i].lookup = i;
-		
-		graph.trees[i][0] = graph.nodes[i];
-	}
-		
-	for (var i = 0; i < edges.length; i++)
-	{
-		var len = graph.edges.length;
-		graph.edges[len] = [];
-		graph.edges[len][0] = edges[i][0];
-		graph.edges[len][1] = edges[i][1];
-	}
-	
-	var P = [];
-	for (var i = 0; i < A.length; i++)
-	{
-		P[i] = i;
-	}
-	var R = [];
-	var X = [];
-	BKAlg(A, R, P, X, 0);
-//	alert(clqs);
-	var ans = getMaxClq();
-	text += '<br>A maximum clique for this graph is <br>';
-	for (var i = 0; i < ans.length; i++)
-	{
-		text += graph.nodes[ans[i]].value + "<br>";
-	}
-	text += ' with a length of ' + ans.length + '<br /> ';
-
-	
-	document.getElementById("output").innerHTML += text;
-}
-
-function BKAlg(A, R, P, X, nest)
-{
-	if (P.length == 0 && X.length == 0)
-	{
-		clqs[clqs.length] = R;
-		return;
-	}
-	
-	var u = Math.floor(Math.random()*(P.length + X.length));
-	
-	var uVal = -1;
-
-	if (u >= P.length)
-	{
-		u = u - P.length;
-		uVal = X[u];
-	}
-	else
-	{
-		uVal = P[u];
-	}
-
-	for (var v = 0; v < P.length; v++)
-	{
-		var val = P[v];
-	
-		if (A[val][uVal] == Number.MAX_VALUE)
-		{
-			var tempR = [];
-			for (var i = 0; i < R.length; i++)
-			{
-				tempR[i] = R[i];
-			}
-			if (tempR.length == 0 || tempR.indexOf(val) == -1)
-			{
-//				tempR[tempR.length] = val;
-				tempR.push(val);
-			}
-			
-			var tempP = [];
-			for (var j = 0; j < A.length; j++)
-			{
-				if (A[val][j] == 1 && P.indexOf(j) != -1)
-				{
-//					tempP[tempP.length] = j;
-					tempP.push(j);
-				}
-			}
-		
-			var tempX = [];
-			for (var i = 0; i < A.length; i++)
-			{
-				if (A[i][val] == 1 && X.indexOf(i) != -1)
-				{
-//					tempX[tempX.length] = i;
-					tempX.push(i);
-				}
-			}
-		
-			BKAlg(A, tempR, tempP, tempX, nest + 1);
-			
-			P[v] = -1;
-		
-			if (X.indexOf(val) == -1)
-			{
-				X[X.length] = val;
-			}
-		}
-	}
-}
-
-function getMaxClq()
-{
-	var maxLen = 0;
-	var maxLoc = -1;
-	
-	for (var i = 0; i < clqs.length; i++)
-	{
-		if (clqs[i].length > maxLen)
-		{
-			maxLen = clqs[i].length;
-			maxLoc = i;
-		}
-	}
-
-	
-	return clqs[maxLoc];
-}
-
 function dedupe(arr)
 {
     var tmp = [];
@@ -3259,160 +3025,6 @@ function dedupe(arr)
 	
     return tmp;
 }
-
-function nextColoring()
-{
-	var gridMtx = copyGrid(getGrid());
-	var gridStr = toStr(gridMtx);
-	var len1 = gridStr.indexOf("_");
-	var finished = false;
-	var gridMtx2 = copyGrid(gridStr);
-
-	for (var i = len1; i >= 0 && !finished; i--)
-	{
-		var poss = updatePoss(gridMtx2, initPoss());
-		var row = lookup[i][0];
-		var clm = lookup[i][1];
-		var clrs = [];
-		
-		for (var k = 0; k < numClrs; k++)
-		{
-			var old = gridMtx2[row][clm];
-			gridMtx2[row][clm] = k;
-			var bal = eqDist(gridMtx2);
-			gridMtx2[row][clm] = old;
-			
-			if (((document.getElementById("chk1").checked && bal) || !document.getElementById("chk1").checked) && poss[row][clm][k])
-			{
-				if (gridMtx2[row][clm] != -1 && k > gridMtx2[row][clm])
-				{
-					clrs.push(k);
-				}
-				else if (gridMtx2[row][clm] == -1)
-				{
-					clrs.push(k);
-				}
-			}
-		}
-		
-		if (clrs.length == 0)
-		{
-			gridMtx2[row][clm] = -1;
-		}
-		else
-		{
-			gridMtx2[row][clm] = clrs[0];
-			finished = true;
-		}
-	}
-	
-	document.getElementById("output").innerHTML = "";
-	
-	dispGrid(gridMtx2);
-	feas(initGrid(), gridMtx2, 1);
-	dispMetrics(toStr(gridMtx2));
-	
-	return;
-}
-
-function nextColoring2()
-{
-	var gridMtx = copyGrid(getGrid());
-	var gridStr = toStr(gridMtx);
-	var loc = gridStr.indexOf("_");
-	var finished = false;
-	var gridMtx2 = copyGrid(gridStr);
-
-	if (loc == -1)
-	{
-		return numRows*numClms;
-	}
-	
-	var row = lookup[loc][0];
-	var clm = lookup[loc][1];
-	var oldCell = -1;
-
-	var i2 = lookup[loc][0];
-	var j2 = lookup[loc][1];
-	var locs = [];
-	
-	for (var i1 = 0; i1 < numRows; i1++)
-	{
-		for (var j1 = 0; j1 < numClms; j1++)
-		{
-			if (gridMtx[i1][j1] != -1 && gridMtx[i1][j1] == gridMtx[i1][j2] && gridMtx[i1][j1] == gridMtx[i2][j1])
-			{
-				if (locs.indexOf(lookup2[i1][j1]) == -1)
-				{
-					locs.push(lookup2[i1][j1]);
-				}
-				if (locs.indexOf(lookup2[i1][j2]) == -1)
-				{
-					locs.push(lookup2[i1][j2]);
-				}
-				if (locs.indexOf(lookup2[i2][j1]) == -1)
-				{
-					locs.push(lookup2[i2][j1]);
-				}
-			}
-		}
-	}
-	
-	locs.sort(function(a, b){return a-b});
-
-	for (var i = locs.length - 1; i >= 0 && !finished; i--)
-	{
-		var poss = updatePoss(gridMtx2, initPoss());
-		var row = lookup[locs[i]][0];
-		var clm = lookup[locs[i]][1];
-		var clrs = [];
-		
-		for (var k = 0; k < numClrs; k++)
-		{
-			var old = gridMtx2[row][clm];
-			gridMtx2[row][clm] = k;
-			var bal = eqDist(gridMtx2);
-			gridMtx2[row][clm] = old;
-			
-			if (((document.getElementById("chk1").checked && bal) || !document.getElementById("chk1").checked) && poss[row][clm][k])
-			{
-				if (gridMtx2[row][clm] != -1 && k > gridMtx2[row][clm])
-				{
-					clrs.push(k);
-				}
-				else if (gridMtx2[row][clm] == -1)
-				{
-					clrs.push(k);
-				}
-			}
-		}
-		
-		if (clrs.length == 0)
-		{
-			for (var j = locs[i]; j < numRows * numClms; j++)
-			{
-				gridMtx2[lookup[j][0]][lookup[j][1]] = -1;
-			}
-		}
-		else
-		{
-			gridMtx2[row][clm] = clrs[0];
-			for (var j = locs[i] + 1; j < numRows * numClms; j++)
-			{
-				gridMtx2[lookup[j][0]][lookup[j][1]] = -1;
-			}
-			finished = true;
-		}
-	}
-	
-	document.getElementById("output").innerHTML = "";
-	
-	dispGrid(gridMtx2);
-	feas(initGrid(), gridMtx2, 1);
-	dispMetrics(toStr(gridMtx2));
-	
-	return;
-}
 </script>
 </head>
 <body>
@@ -3423,7 +3035,7 @@ function nextColoring2()
 <table id="wrapper"><tr id="grids" style="display:none"><td id="content"></td><td id="possGrid"></td></tr>
 <tr><td colspan="2"><span onclick=showHideDiv('gamesel');>Game Select Box</span></td></tr>
 <tr id="gamesel"><td colspan=2>
-<select id="game">
+<select id="game" onchange="restart()">
   <option value=0>3 Color a 10 by 10</option>
   <option value=1>4 Color a 18 by 18</option>
 </select>
