@@ -762,16 +762,20 @@ function randInst(start)
 		var row = lookup[cell][0];
 		var clm = lookup[cell][1];
 		
-		
+		var clrcnt1 = [];
+		var clrcnt2 = [];
 		for (var k = 0; k < numClrs; k++)
 		{
 			grd[row][clm] = k;
 			poss2 = updatePoss(grd, poss2);
+			
 			if (poss2[row][clm][k])
 			{
 				if ((document.getElementById("chk1").checked && eqDist(grd)) || !document.getElementById("chk1").checked)
 				{
 					clrs.push(k);
+					clrcnt1.push(possPairs(grd, poss2));
+					clrcnt2.push(getDiffs(grd));
 				}
 			}
 			grd[row][clm] = -1;
@@ -779,7 +783,35 @@ function randInst(start)
 		
 		if (clrs.length > 0)
 		{
-			grd[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];
+			var alg = Math.floor(Math.random() * 3);
+			if (alg == 0)
+			{
+				grd[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];			
+			}
+			else if (alg == 1)
+			{
+				var max = 0;
+				for (var k = 0; k < clrs.length; k++)
+				{
+					if (clrcnt1[k] > clrcnt1[max])
+					{
+						max = k;
+					}
+				}
+				grd[row][clm] = clrs[max];
+			}
+			else if (alg == 2)
+			{
+				var min = 0;
+				for (var k = 0; k < clrs.length; k++)
+				{
+					if (clrcnt2[k] < clrcnt2[min])
+					{
+						min = k;
+					}
+				}
+				grd[row][clm] = clrs[min];
+			}
 		}
 		else
 		{
