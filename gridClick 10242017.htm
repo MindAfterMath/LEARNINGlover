@@ -1532,7 +1532,7 @@ function fixLShapes2(keep, gridStr)
 	
 	var loc = Math.floor(Math.random() * locs.length);
 	
-	for (var i = 0; i < locs.length; i++)
+	for (var i = locs[loc]; i < locs.length; i++)
 	{
 		var row = lookup[locs[i]][0];
 		var clm = lookup[locs[i]][1];
