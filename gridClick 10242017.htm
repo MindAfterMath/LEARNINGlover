@@ -1815,7 +1815,15 @@ function comboMut(keep, list, gridStr)
 		progress[choice]--;
 		total[choice]--;
 		
+		total[choice2]++;
+		
 		var newLen = gridStr.indexOf("_");
+		
+		if (newLen >= currLen)
+		{
+			progress[choice2]++;
+		}
+		
 		if (newLen == -1)
 		{
 			newLen = numRows * numClms;
@@ -2968,16 +2976,16 @@ function restart()
 	total[8] = 1;
 	total[9] = 1;
 	
-	help[0] = 1;
-	help[1] = 1;
-	help[2] = 1;
-	help[3] = 1;
-	help[4] = 1;
-	help[5] = 1;
-	help[6] = 1;
-	help[7] = 1;
-	help[8] = 1;
-	help[9] = 1;
+	help[0] = 0;
+	help[1] = 0;
+	help[2] = 0;
+	help[3] = 0;
+	help[4] = 0;
+	help[5] = 0;
+	help[6] = 0;
+	help[7] = 0;
+	help[8] = 0;
+	help[9] = 0;
 	var val = document.getElementById("game").value;
 	if (val == 0)
 	{
