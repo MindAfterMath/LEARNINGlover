@@ -1532,16 +1532,16 @@ function fixLShapes2(keep, gridStr)
 	
 	var loc = Math.floor(Math.random() * locs.length);
 	
-	for (var i = locs[loc]; i < numRows * numClms; i++)
+	for (var i = 0; i < locs.length; i++)
 	{
-		var row = lookup[i][0];
-		var clm = lookup[i][1];
+		var row = lookup[locs[i]][0];
+		var clm = lookup[locs[i]][1];
 		gridMtx2[row][clm] = -1;
 	}
 	
 	var poss = updatePoss(gridMtx2, initPoss());
 	
-	for (var i = locs[loc]; i < numRows * numClms; i++)
+	for (var i = 0; i < numRows * numClms; i++)
 	{
 		var row = lookup[i][0];
 		var clm = lookup[i][1];
