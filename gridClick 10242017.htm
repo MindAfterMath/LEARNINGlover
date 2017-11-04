@@ -835,9 +835,9 @@ function eqDist(grid)
 	return true;
 }
 
-function showPoss()
+function showPoss(grid1)
 {
-	var grid1 = getGrid();
+//	var grid1 = getGrid();
 	var grid = copyGrid(grid1);
 	var poss = updatePoss(grid, initPoss());
 	
@@ -906,10 +906,11 @@ function randInst(start)
 		
 		var clrcnt1 = [];
 		var clrcnt2 = [];
+		var clrcnt3 = [];
 		for (var k = 0; k < numClrs; k++)
 		{
 			grd[row][clm] = k;
-			poss2 = updatePoss(grd, poss2, cell);
+			poss2 = updatePoss(grd, poss2);
 			
 			if (poss2[row][clm][k])
 			{
@@ -918,6 +919,7 @@ function randInst(start)
 					clrs.push(k);
 					clrcnt1.push(possPairs(grd, poss2));
 					clrcnt2.push(getDiffs(grd));
+					clrcnt3.push(countLs(grd));
 				}
 			}
 			grd[row][clm] = -1;
@@ -925,7 +927,7 @@ function randInst(start)
 		
 		if (clrs.length > 0)
 		{
-			var alg = Math.floor(Math.random() * 3);
+			var alg = Math.floor(Math.random() * 4);
 			if (alg == 0)
 			{
 				grd[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];			
@@ -948,6 +950,18 @@ function randInst(start)
 				for (var k = 0; k < clrs.length; k++)
 				{
 					if (clrcnt2[k] < clrcnt2[min])
+					{
+						min = k;
+					}
+				}
+				grd[row][clm] = clrs[min];
+			}
+			else if (alg == 3)
+			{
+				var min = 0;
+				for (var k = 0; k < clrs.length; k++)
+				{
+					if (clrcnt3[k] < clrcnt3[min])
 					{
 						min = k;
 					}
@@ -1421,27 +1435,27 @@ function chgRdmSub(keep, gridStr)
 	gridMtx2 = copyGrid(gridStr);
 	
     var finished = false;
-	var sub = [];
-	for (var i = 0; i < len1; i++)
-	{
-		for (var j = 0; j < i; j++)
-		{
-			sub.push(i);
-		}
-	}
+//	var sub = [];
+//	for (var i = 0; i < len1; i++)
+//	{
+//		for (var j = 0; j < i; j++)
+//		{
+//			sub.push(i);
+//		}
+//	}
 	
-	var subLen = sub[Math.floor(Math.random() * sub.length)];
-	
-	for (var i = subLen; i <= len1; i++)
-	{
-		var row = lookup[i][0];
-		var clm = lookup[i][1];
-		gridMtx2[row][clm] = -1;
-	}
+//	var subLen = sub[Math.floor(Math.random() * sub.length)];
+//	
+//	for (var i = subLen; i <= len1; i++)
+//	{
+//		var row = lookup[i][0];
+//		var clm = lookup[i][1];
+//		gridMtx2[row][clm] = -1;
+//	}
 	
 	var poss = updatePoss(gridMtx2, initPoss());
 	
-	for (var i = subLen-1; i >= 0 && !finished; i--)
+	for (var i = len1-1; i >= 0 && !finished; i--)
 	{
 		var row = lookup[i][0];
 		var clm = lookup[i][1];
@@ -1828,8 +1842,6 @@ function shuffClrs(keep, gridStr)
 	}
 	
 	gridMtx2 = randInst(toStr(gridMtx2));
-	
-//	var poss2 = updatePoss(gridMtx2, initPoss());
 	
 	document.getElementById("output").innerHTML = "Shuffle Colors<br>";
 	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + ", " + (toStr(gridMtx) == toStr(gridMtx2)) + "<br>";
@@ -2994,7 +3006,7 @@ function timeout(usrChc)
 			gridMtx = randInst(gridMtx);
 			if (document.getElementById("grids").style.display != "none")
 			{
-				showPoss(); 
+				showPoss(gridStr); 
 			}
 			gridStr2 = toStr(gridMtx);
 			dispMetrics(gridStr2);
@@ -3187,7 +3199,7 @@ function restart()
 		out += "<tr><td class='grid'>" + i + "</td>";
 		for (var j = 0; j < numClms; j++)
 		{
-			out += "<td class='grid' id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\"); showPoss(); dispMetrics(getGrid())'></td>";
+			out += "<td class='grid' id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\"); showPoss(getGrid()); dispMetrics(getGrid())'></td>";
 		}
 		out += "</tr>";
 	}
@@ -3328,7 +3340,7 @@ function dedupe(arr)
 </head>
 <body>
 <input id="oldGrid">
-<input type="button" id="btn6" value="Display" onclick="dispGrid(copyGrid(document.getElementById('oldGrid').value)); showPoss(); dispMetrics(getGrid()); feas(sols[0], copyGrid(getGrid()), 1); feas(-1, copyGrid(getGrid()), 1);"><br>
+<input type="button" id="btn6" value="Display" onclick="dispGrid(copyGrid(document.getElementById('oldGrid').value)); showPoss(getGrid()); dispMetrics(getGrid()); feas(sols[0], copyGrid(getGrid()), 1); feas(-1, copyGrid(getGrid()), 1);"><br>
 <p id="output"></p>
 <span onclick=showHideDiv('grids');>Display Grids</span>
 <table id="wrapper"><tr id="grids" style="display:none"><td id="content"></td><td id="possGrid"></td></tr>
@@ -3342,10 +3354,10 @@ function dedupe(arr)
 <tr><td colspan="2"><span onclick=showHideDiv('btns1');>Buttons 1</span></td></tr>
 <tr id="btns1" style="display:none"><td colspan="2">
 <input type="button" id="btn0" onclick="restart()" value="Restart">
-<input type="button" id="btn7" onclick="restart();dispGrid(randInst(toStr(initGrid()))); showPoss(); dispMetrics(getGrid()); feas(-1, copyGrid(getGrid()), 1)" value="Generate Random">
+<input type="button" id="btn7" onclick="restart();dispGrid(randInst(toStr(initGrid()))); showPoss(getGrid()); dispMetrics(getGrid()); feas(-1, copyGrid(getGrid()), 1)" value="Generate Random">
 <input type="button" id="btn2" onclick="getOvlps()" value="Get L Shapes">
-<input type="button" id="btn3" onclick="dispGrid(randInst(getGrid())); showPoss(); dispMetrics(getGrid())" value="Continue Random">
-<input type="button" id="btn5" onclick="showPoss(); dispMetrics(getGrid())" value="Show Poss">
+<input type="button" id="btn3" onclick="dispGrid(randInst(getGrid())); showPoss(getGrid()); dispMetrics(getGrid())" value="Continue Random">
+<input type="button" id="btn5" onclick="showPoss(getGrid()); dispMetrics(getGrid())" value="Show Poss">
 <input type="button" id="btn4" onclick="clrGrd()" value="Clear">
 <input type="button" id="btn6" onclick="clearTimeout(myVar);timeout(8)" value="Next Coloring">
 </td></tr>
@@ -3470,7 +3482,7 @@ for (var i = 0; i < numRows; i++)
 	out += "<tr><td class='grid'>" + i + "</td>";
 	for (var j = 0; j < numClms; j++)
 	{
-		out += "<td class='grid' id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\"); showPoss(); dispMetrics(getGrid())'></td>";
+		out += "<td class='grid' id=" + i + "_" + j + " onclick='changecolor(\"" + i + "_" + j + "\"); showPoss(getGrid()); dispMetrics(getGrid())'></td>";
 	}
 	out += "</tr>";
 }
