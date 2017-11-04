@@ -435,7 +435,7 @@ function updatePoss(grid, poss, cell = -1)
 			var clm = lookup[i][1];
 			for (var k = 0; k < numClrs; k++)
 			{
-				if (locs[i][k].length == 0)
+				if (locs[i][k].length < 3)
 				{
 					poss[row][clm][k] = true;
 				}
