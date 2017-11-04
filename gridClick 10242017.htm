@@ -342,30 +342,106 @@ function updatePoss(grid, poss, cell = -1)
 	}
 	else
 	{
-		var row2 = lookup[cell][0];
-		var clm2 = lookup[cell][1];
-		for (var row1 = 0; row1 < numRows; row1++)
-		{	
-			for (var clm1 = 0; clm1 < numClms; clm1++)
-			{	
-				if (poss[row2][clm2][grid[row1][clm1]] && grid[row1][clm1] != -1 && (grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm1])
+		var i2 = lookup[cell][0];
+		var j2 = lookup[cell][1];
+		var locs = [];
+		
+		for (var i = 0; i < numRows * numClms; i++)
+		{
+			locs[i] = [];
+			for (var k = 0; k < numClrs; k++)
+			{
+				locs[i][k] = [];
+			}
+		}
+
+		for (var i1 = 0; i1 < numRows; i1++)
+		{
+			for (var j1 = 0; j1 < numClms; j1++)
+			{
+				if (grid[i1][j1] != -1 && 
+				grid[i1][j1] == grid[i1][j2] && grid[i1][j1] == grid[i2][j1])
 				{
-					poss[row2][clm2][grid[row1][clm1]] = false;
-				}
-			
-				if (poss[row2][clm1][grid[row1][clm1]] && grid[row1][clm1] != -1 && (grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm2])
-				{
-					poss[row2][clm1][grid[row1][clm1]] = false;
+					if (locs[lookup2[i2][j2]][grid[i1][j1]].indexOf(lookup2[i1][j1]) == -1)
+					{
+						locs[lookup2[i2][j2]][grid[i1][j1]].push(lookup2[i1][j1]);
+					}
+					if (locs[lookup2[i2][j2]][grid[i1][j1]].indexOf(lookup2[i1][j2]) == -1)
+					{
+						locs[lookup2[i2][j2]][grid[i1][j1]].push(lookup2[i1][j2]);
+					}
+					if (locs[lookup2[i2][j2]][grid[i1][j1]].indexOf(lookup2[i2][j1]) == -1)
+					{
+						locs[lookup2[i2][j2]][grid[i1][j1]].push(lookup2[i2][j1]);
+					}
 				}
 				
-				if (poss[row1][clm2][grid[row1][clm1]] && grid[row1][clm1] != -1 && (grid[row1][clm1] == grid[row2][clm2]) && grid[row1][clm1] == grid[row2][clm1])
+				if (grid[i1][j2] != -1 && 
+				grid[i1][j2] == grid[i1][j1] && grid[i1][j2] == grid[i2][j2])
 				{
-					poss[row1][clm2][grid[row1][clm1]] = false;
+					if (locs[lookup2[i2][j1]][grid[i1][j2]].indexOf(lookup2[i1][j2]) == -1)
+					{
+						locs[lookup2[i2][j1]][grid[i1][j2]].push(lookup2[i1][j2]);
+					}
+					if (locs[lookup2[i2][j1]][grid[i1][j2]].indexOf(lookup2[i1][j1]) == -1)
+					{
+						locs[lookup2[i2][j1]][grid[i1][j2]].push(lookup2[i1][j1]);
+					}
+					if (locs[lookup2[i2][j1]][grid[i1][j2]].indexOf(lookup2[i2][j2]) == -1)
+					{
+						locs[lookup2[i2][j1]][grid[i1][j2]].push(lookup2[i2][j2]);
+					}
 				}
-			
-				if (poss[row1][clm1][grid[row2][clm2]] && grid[row2][clm2] != -1 && (grid[row2][clm2] == grid[row1][clm2]) && grid[row2][clm2] == grid[row2][clm1])
+				
+				if (grid[i2][j1] != -1 && 
+				grid[i2][j1] == grid[i1][j1] && grid[i2][j1] == grid[i2][j2])
 				{
-					poss[row1][clm1][grid[row2][clm2]] = false;
+					if (locs[lookup2[i1][j2]][grid[i2][j1]].indexOf(lookup2[i2][j1]) == -1)
+					{
+						locs[lookup2[i1][j2]][grid[i2][j1]].push(lookup2[i2][j1]);
+					}
+					if (locs[lookup2[i1][j2]][grid[i2][j1]].indexOf(lookup2[i1][j1]) == -1)
+					{
+						locs[lookup2[i1][j2]][grid[i2][j1]].push(lookup2[i1][j1]);
+					}
+					if (locs[lookup2[i1][j2]][grid[i2][j1]].indexOf(lookup2[i2][j2]) == -1)
+					{
+						locs[lookup2[i1][j2]][grid[i2][j1]].push(lookup2[i2][j2]);
+					}
+				}
+				
+				if (grid[i2][j2] != -1 && 
+				grid[i2][j2] == grid[i1][j2] && grid[i2][j2] == grid[i2][j1])
+				{
+					if (locs[lookup2[i1][j1]][grid[i2][j2]].indexOf(lookup2[i2][j2]) == -1)
+					{
+						locs[lookup2[i1][j1]][grid[i2][j2]].push(lookup2[i2][j2]);
+					}
+					if (locs[lookup2[i1][j1]][grid[i2][j2]].indexOf(lookup2[i1][j2]) == -1)
+					{
+						locs[lookup2[i1][j1]][grid[i2][j2]].push(lookup2[i1][j2]);
+					}
+					if (locs[lookup2[i1][j1]][grid[i2][j2]].indexOf(lookup2[i2][j1]) == -1)
+					{
+						locs[lookup2[i1][j1]][grid[i2][j2]].push(lookup2[i2][j1]);
+					}
+				}
+			}
+		}
+		
+		for (var i = 0; i < numRows * numClms; i++)
+		{
+			var row = lookup[i][0];
+			var clm = lookup[i][1];
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (locs[i][k].length == 0)
+				{
+					poss[row][clm][k] = true;
+				}
+				else
+				{
+					poss[row][clm][k] = false;
 				}
 			}
 		}
@@ -910,7 +986,7 @@ function randInst(start)
 		for (var k = 0; k < numClrs; k++)
 		{
 			grd[row][clm] = k;
-			poss2 = updatePoss(grd, poss2);
+			poss2 = updatePoss(grd, poss2, cell);
 			
 			if (poss2[row][clm][k])
 			{
