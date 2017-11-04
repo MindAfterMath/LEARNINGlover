@@ -157,7 +157,7 @@ function copyGrid(grid)
 	return grid2;
 }
 
-function updatePoss(grid, poss)
+function updatePoss(grid, poss, cell = -1)
 {	
 	var rfs = setRFS();
 	var color = -1;
@@ -196,34 +196,176 @@ function updatePoss(grid, poss)
 		
 		return poss;
 	}
-
-	for (var row1 = 0; row1 < numRows; row1++)
-	{	
-		for (var clm1 = 0; clm1 < numClms; clm1++)
-		{	
-			for (var row2 = row1 + 1; row2 < numRows; row2++)
-			{	
-				for (var clm2 = clm1 + 1; clm2 < numClms; clm2++)
+	
+	if (cell == -1)
+	{
+		var locs = [];
+		
+		for (var i = 0; i < numRows * numClms; i++)
+		{
+			locs[i] = [];
+			for (var k = 0; k < numClrs; k++)
+			{
+				locs[i][k] = [];
+			}
+		}
+		
+		for (var i1 = 0; i1 < numRows; i1++)
+		{
+			for (var j1 = 0; j1 < numClms; j1++)
+			{
+				for (var i2 = i1 + 1; i2 < numRows; i2++)
 				{
-					if (poss[row2][clm2][grid[row1][clm1]] && grid[row1][clm1] != -1 && (grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm1])
+					for (var j2 = j1 + 1; j2 < numClms; j2++)
 					{
-						poss[row2][clm2][grid[row1][clm1]] = false;
+						if (grid[i1][j1] != -1 && 
+						grid[i1][j1] == grid[i1][j2] && grid[i1][j1] == grid[i2][j1])
+						{
+							if (locs[lookup2[i2][j2]][grid[i1][j1]].indexOf(lookup2[i1][j1]) == -1)
+							{
+								locs[lookup2[i2][j2]][grid[i1][j1]].push(lookup2[i1][j1]);
+							}
+							if (locs[lookup2[i2][j2]][grid[i1][j1]].indexOf(lookup2[i1][j2]) == -1)
+							{
+								locs[lookup2[i2][j2]][grid[i1][j1]].push(lookup2[i1][j2]);
+							}
+							if (locs[lookup2[i2][j2]][grid[i1][j1]].indexOf(lookup2[i2][j1]) == -1)
+							{
+								locs[lookup2[i2][j2]][grid[i1][j1]].push(lookup2[i2][j1]);
+							}
+						}
+						
+						if (grid[i1][j2] != -1 && 
+						grid[i1][j2] == grid[i1][j1] && grid[i1][j2] == grid[i2][j2])
+						{
+							if (locs[lookup2[i2][j1]][grid[i1][j2]].indexOf(lookup2[i1][j2]) == -1)
+							{
+								locs[lookup2[i2][j1]][grid[i1][j2]].push(lookup2[i1][j2]);
+							}
+							if (locs[lookup2[i2][j1]][grid[i1][j2]].indexOf(lookup2[i1][j1]) == -1)
+							{
+								locs[lookup2[i2][j1]][grid[i1][j2]].push(lookup2[i1][j1]);
+							}
+							if (locs[lookup2[i2][j1]][grid[i1][j2]].indexOf(lookup2[i2][j2]) == -1)
+							{
+								locs[lookup2[i2][j1]][grid[i1][j2]].push(lookup2[i2][j2]);
+							}
+						}
+						
+						if (grid[i2][j1] != -1 && 
+						grid[i2][j1] == grid[i1][j1] && grid[i2][j1] == grid[i2][j2])
+						{
+							if (locs[lookup2[i1][j2]][grid[i2][j1]].indexOf(lookup2[i2][j1]) == -1)
+							{
+								locs[lookup2[i1][j2]][grid[i2][j1]].push(lookup2[i2][j1]);
+							}
+							if (locs[lookup2[i1][j2]][grid[i2][j1]].indexOf(lookup2[i1][j1]) == -1)
+							{
+								locs[lookup2[i1][j2]][grid[i2][j1]].push(lookup2[i1][j1]);
+							}
+							if (locs[lookup2[i1][j2]][grid[i2][j1]].indexOf(lookup2[i2][j2]) == -1)
+							{
+								locs[lookup2[i1][j2]][grid[i2][j1]].push(lookup2[i2][j2]);
+							}
+						}
+						
+						if (grid[i2][j2] != -1 && 
+						grid[i2][j2] == grid[i1][j2] && grid[i2][j2] == grid[i2][j1])
+						{
+							if (locs[lookup2[i1][j1]][grid[i2][j2]].indexOf(lookup2[i2][j2]) == -1)
+							{
+								locs[lookup2[i1][j1]][grid[i2][j2]].push(lookup2[i2][j2]);
+							}
+							if (locs[lookup2[i1][j1]][grid[i2][j2]].indexOf(lookup2[i1][j2]) == -1)
+							{
+								locs[lookup2[i1][j1]][grid[i2][j2]].push(lookup2[i1][j2]);
+							}
+							if (locs[lookup2[i1][j1]][grid[i2][j2]].indexOf(lookup2[i2][j1]) == -1)
+							{
+								locs[lookup2[i1][j1]][grid[i2][j2]].push(lookup2[i2][j1]);
+							}
+						}
 					}
-				
-					if (poss[row2][clm1][grid[row1][clm1]] && grid[row1][clm1] != -1 && (grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm2])
+				}
+			}
+		}
+		
+		for (var i = 0; i < numRows * numClms; i++)
+		{
+			var row = lookup[i][0];
+			var clm = lookup[i][1];
+			for (var k = 0; k < numClrs; k++)
+			{
+				if (locs[i][k].length == 0)
+				{
+					poss[row][clm][k] = true;
+				}
+				else
+				{
+					poss[row][clm][k] = false;
+				}
+			}
+		}
+		
+/*		for (var row1 = 0; row1 < numRows; row1++)
+		{	
+			for (var clm1 = 0; clm1 < numClms; clm1++)
+			{	
+				for (var row2 = row1 + 1; row2 < numRows; row2++)
+				{	
+					for (var clm2 = clm1 + 1; clm2 < numClms; clm2++)
 					{
-						poss[row2][clm1][grid[row1][clm1]] = false;
-					}
+						if (grid[row1][clm1] != -1 && poss[row2][clm2][grid[row1][clm1]] && (grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm1])
+						{
+							poss[row2][clm2][grid[row1][clm1]] = false;
+						}
 					
-					if (poss[row1][clm2][grid[row1][clm1]] && grid[row1][clm1] != -1 && (grid[row1][clm1] == grid[row2][clm2]) && grid[row1][clm1] == grid[row2][clm1])
-					{
-						poss[row1][clm2][grid[row1][clm1]] = false;
+						else if (grid[row1][clm1] != -1 && poss[row2][clm1][grid[row1][clm1]] && (grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm2])
+						{
+							poss[row2][clm1][grid[row1][clm1]] = false;
+						}
+						
+						else if (grid[row1][clm1] != -1 && poss[row1][clm2][grid[row1][clm1]] && (grid[row1][clm1] == grid[row2][clm2]) && grid[row1][clm1] == grid[row2][clm1])
+						{
+							poss[row1][clm2][grid[row1][clm1]] = false;
+						}
+					
+						else if (grid[row2][clm2] != -1 && poss[row1][clm1][grid[row2][clm2]] && (grid[row2][clm2] == grid[row1][clm2]) && grid[row2][clm2] == grid[row2][clm1])
+						{
+							poss[row1][clm1][grid[row2][clm2]] = false;
+						}
+						else if (grid[row1][clm1] != -1 && poss[row2][clm2][
 					}
+				}
+			}
+		}*/
+	}
+	else
+	{
+		var row2 = lookup[cell][0];
+		var clm2 = lookup[cell][1];
+		for (var row1 = 0; row1 < numRows; row1++)
+		{	
+			for (var clm1 = 0; clm1 < numClms; clm1++)
+			{	
+				if (poss[row2][clm2][grid[row1][clm1]] && grid[row1][clm1] != -1 && (grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm1])
+				{
+					poss[row2][clm2][grid[row1][clm1]] = false;
+				}
+			
+				if (poss[row2][clm1][grid[row1][clm1]] && grid[row1][clm1] != -1 && (grid[row1][clm1] == grid[row1][clm2]) && grid[row1][clm1] == grid[row2][clm2])
+				{
+					poss[row2][clm1][grid[row1][clm1]] = false;
+				}
 				
-					if (poss[row1][clm1][grid[row2][clm2]] && grid[row2][clm2] != -1 && (grid[row2][clm2] == grid[row1][clm2]) && grid[row2][clm2] == grid[row2][clm1])
-					{
-						poss[row1][clm1][grid[row2][clm2]] = false;
-					}
+				if (poss[row1][clm2][grid[row1][clm1]] && grid[row1][clm1] != -1 && (grid[row1][clm1] == grid[row2][clm2]) && grid[row1][clm1] == grid[row2][clm1])
+				{
+					poss[row1][clm2][grid[row1][clm1]] = false;
+				}
+			
+				if (poss[row1][clm1][grid[row2][clm2]] && grid[row2][clm2] != -1 && (grid[row2][clm2] == grid[row1][clm2]) && grid[row2][clm2] == grid[row2][clm1])
+				{
+					poss[row1][clm1][grid[row2][clm2]] = false;
 				}
 			}
 		}
@@ -767,7 +909,7 @@ function randInst(start)
 		for (var k = 0; k < numClrs; k++)
 		{
 			grd[row][clm] = k;
-			poss2 = updatePoss(grd, poss2);
+			poss2 = updatePoss(grd, poss2, cell);
 			
 			if (poss2[row][clm][k])
 			{
@@ -3120,7 +3262,7 @@ function dispMetrics(gridStr)
 	out += "<td>Ratios</td>";
 	out += "<td>Feasible</td>";
 	out += "<td>FSC</td>";
-	out += "<td>NSs</td>";
+	out += "<td>NSCs</td>";
 	out += "</tr>";
 	out += "<tr><td>" + len + "</td><td>" + pairs + "</td><td>" + diffs +
 		"</td><td>" + lshapes + "</td><td>" + pairs2 + "</td><td>" + sols.length + "</td>";
