@@ -987,11 +987,14 @@ function randInst(start)
 		var clrcnt1 = [];
 		var clrcnt2 = [];
 		var clrcnt3 = [];
+		var clrcnt4 = [];
+		var clrcnt5 = [];
+		var clrcnt6 = [];
+		var clrcnt7 = [];
 		for (var k = 0; k < numClrs; k++)
 		{
 			grd[row][clm] = k;
 			poss2 = updatePoss(grd, poss2, cell);
-//			console.log(row + ", " + clm + "\t" + poss2[row][clm]);
 			if (poss2[row][clm][k])
 			{
 				if ((document.getElementById("chk1").checked && eqDist(grd)) || !document.getElementById("chk1").checked)
@@ -1000,17 +1003,18 @@ function randInst(start)
 					clrcnt1.push(possPairs(grd, poss2));
 					clrcnt2.push(getDiffs(grd));
 					clrcnt3.push(countLs(grd));
+					clrcnt4.push(countPairs(grd));
+					clrcnt5.push(nonSings(grd, poss2));
+					clrcnt6.push(minAppear(grd));
+					clrcnt7.push(getOvlps(grd));
 				}
 			}
 			grd[row][clm] = -1;
-//			poss2 = updatePoss(grd, poss2, cell);
-//			console.log(row + ", " + clm + "\t" + poss2[row][clm]);
 		}
 		
-//		console.log(row + ", " + clm + "\t" + clrs);
 		if (clrs.length > 0)
 		{
-			var alg = Math.floor(Math.random() * 4);
+			var alg = Math.floor(Math.random() * 8);
 			if (alg == 0)
 			{
 				grd[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];			
@@ -1045,6 +1049,54 @@ function randInst(start)
 				for (var k = 0; k < clrs.length; k++)
 				{
 					if (clrcnt3[k] < clrcnt3[min])
+					{
+						min = k;
+					}
+				}
+				grd[row][clm] = clrs[min];
+			}
+			else if (alg == 4)
+			{
+				var min = 0;
+				for (var k = 0; k < clrs.length; k++)
+				{
+					if (clrcnt4[k] < clrcnt4[min])
+					{
+						min = k;
+					}
+				}
+				grd[row][clm] = clrs[min];
+			}
+			else if (alg == 5)
+			{
+				var max = 0;
+				for (var k = 0; k < clrs.length; k++)
+				{
+					if (clrcnt5[k] > clrcnt5[max])
+					{
+						max = k;
+					}
+				}
+				grd[row][clm] = clrs[max];
+			}
+			else if (alg == 6)
+			{
+				var max = 0;
+				for (var k = 0; k < clrs.length; k++)
+				{
+					if (clrcnt6[k] > clrcnt6[max])
+					{
+						max = k;
+					}
+				}
+				grd[row][clm] = clrs[max];
+			}
+			else if (alg == 7)
+			{
+				var min = 0;
+				for (var k = 0; k < clrs.length; k++)
+				{
+					if (clrcnt7[k] < clrcnt7[min])
 					{
 						min = k;
 					}
