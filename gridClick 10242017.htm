@@ -439,7 +439,7 @@ function updatePoss(grid, poss, cell = -1)
 			
 			for (var k = 0; k < numClrs; k++)
 			{
-				if (locs[i][k].length < 3)
+				if (locs[i][k].length < 3 && poss[row][clm][k])
 				{
 					poss[row][clm][k] = true;
 				}
@@ -1569,12 +1569,13 @@ function chgRdmSub(keep, gridStr)
 	}
 	
 	gridMtx2 = randInst(toStr(gridMtx2));
+	gridStr2 = toStr(gridMtx2);
 		
 //	var poss2 = updatePoss(gridMtx2, poss);
 	
 	document.getElementById("output").innerHTML = "Change Substring<br>";
-	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + ", " + (toStr(gridMtx) == toStr(gridMtx2)) + "<br>";
-	document.getElementById("output").innerHTML += toStr(gridMtx2) + " - " + toStr(gridMtx2).indexOf("_")
+	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + gridStr.indexOf("_") + ", " + (gridStr == gridStr2) + "<br>";
+	document.getElementById("output").innerHTML += gridStr2 + " - " + gridStr2.indexOf("_")
 /*	+ " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2)*/ + "<br>";
 	
 	if (feas(gridMtx, gridMtx2, keep))
@@ -1640,7 +1641,7 @@ function clrSwaps(keep, gridStr)
 			{
 				var newClr = clrs[Math.floor(Math.random() * clrs.length)];
 				gridMtx2[row][clm] = newClr;
-				poss = updatePoss(gridMtx2, poss);
+				poss = updatePoss(gridMtx2, poss, cell);
 			}
 			else
 			{
@@ -1650,6 +1651,10 @@ function clrSwaps(keep, gridStr)
 	}
 	
 	var len2 = toStr(gridMtx2).indexOf("_");
+	if (len2 == -1)
+	{
+		len2 = numRows * numClms;
+	}
 	for (var cell = len2; cell < numRows * numClms; cell++)
 	{
 		var row = lookup[cell][0];
@@ -1719,7 +1724,7 @@ function fixLShapes(keep, gridStr)
 		if (clrs.length > 0)
 		{
 			gridMtx2[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];
-			poss = updatePoss(gridMtx2, poss);
+			poss = updatePoss(gridMtx2, poss, i);
 		}
 		else
 		{
@@ -1827,7 +1832,7 @@ function fixLShapes2(keep, gridStr)
 		if (clrs.length > 0)
 		{
 			gridMtx2[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];
-			poss = updatePoss(gridMtx2, poss);
+			poss = updatePoss(gridMtx2, poss, i);
 		}
 		else
 		{
@@ -1919,7 +1924,7 @@ function shuffClrs(keep, gridStr)
 		{
 			var newClr = clrs[Math.floor(Math.random() * clrs.length)];
 			gridMtx2[row][clm] = newClr;
-			poss = updatePoss(gridMtx2, poss);		
+			poss = updatePoss(gridMtx2, poss, cell);		
 		}
 	}
 	
@@ -1996,7 +2001,7 @@ function shuffClrs2(keep, gridStr)
 		{
 			var newClr = clrs[Math.floor(Math.random() * clrs.length)];
 			gridMtx2[row][clm] = newClr;
-			poss = updatePoss(gridMtx2, poss);
+			poss = updatePoss(gridMtx2, poss, cell);
 		}
 	}
 	
@@ -2614,7 +2619,7 @@ function incr(keep, gridStr)
 		{
 			gridMtx2[row][clm] = -1;
 		}
-		poss = updatePoss(gridMtx2, poss);
+		poss = updatePoss(gridMtx2, poss, i);
 	}
 	
 	var loc = toStr(gridMtx2).indexOf("_");
@@ -2686,7 +2691,7 @@ function decr(keep, gridStr)
 		{
 			gridMtx2[row][clm] = -1;
 		}
-		poss = updatePoss(gridMtx2, poss);
+		poss = updatePoss(gridMtx2, poss, i);
 	}
 	
 	var loc = toStr(gridMtx2).indexOf("_");
