@@ -2898,11 +2898,17 @@ function feas(gridMtx, gridMtx2, keep=0)
 		help[choice]++;
 		sols = [];
 		sols.push(gridStr2);
+		hist = [];
+		var gridStr3 = gridStr2;
 		
 		if (gridMtx != -1)
 		{
-//			console.log(gridStr);
-			hist.push(gridStr);
+			for (var i = len2 - 1; i >= 0; i--)
+			{
+				gridStr3[i] = "_";
+				hist.push(gridStr3);
+			}
+//			hist.push(gridStr);
 		}
 		sols = sols.concat(hist);
 		for (var i = 0; len2 in newGds && i < newGds[len2].length; i++)
@@ -2979,11 +2985,15 @@ function feas(gridMtx, gridMtx2, keep=0)
 			return false;
 		}
 	}
-//	else if (len2 == len - 1)
-//	{
-//		sols.push(gridStr2);
-//		return false;
-//	}
+	else if (len2 >= len - 5)
+	{
+		sols.push(gridStr2);
+		return false;
+	}
+	else if (eqDist(gridMtx2))
+	{
+		sols.push(gridStr2);	
+	}
 	else
 	{
 		return false;
@@ -3165,40 +3175,25 @@ function timeout(usrChc)
 			out += "<td>Fix L Shapes 2</td>";
 			out += "</tr>";
 			out += "<tr>";
-			out += "<td>" + progress[0] + "/" + total[0] + "</td>";
-			out += "<td>" + progress[1] + "/" + total[1] + "</td>";
-			out += "<td>" + progress[2] + "/" + total[2] + "</td>";
-			out += "<td>" + progress[3] + "/" + total[3] + "</td>";
-			out += "<td>" + progress[4] + "/" + total[4] + "</td>";
-			out += "<td>" + progress[5] + "/" + total[5] + "</td>";
-			out += "<td>" + progress[6] + "/" + total[6] + "</td>";
-			out += "<td>" + progress[7] + "/" + total[7] + "</td>";
-			out += "<td>" + progress[8] + "/" + total[8] + "</td>";
-			out += "<td>" + progress[9] + "/" + total[9] + "</td>";
+			
+			for (var i = 0; i < progress.length; i++)
+			{
+				out += "<td>" + progress[i] + "/" + total[i] + "</td>";			
+			}
 			out += "</tr>";
 			out += "<tr>";
-			out += "<td>" + (progress[0] / total[0]).toFixed(4) + "</td>";
-			out += "<td>" + (progress[1] / total[1]).toFixed(4) + "</td>";
-			out += "<td>" + (progress[2] / total[2]).toFixed(4) + "</td>";
-			out += "<td>" + (progress[3] / total[3]).toFixed(4) + "</td>";
-			out += "<td>" + (progress[4] / total[4]).toFixed(4) + "</td>";
-			out += "<td>" + (progress[5] / total[5]).toFixed(4) + "</td>";
-			out += "<td>" + (progress[6] / total[6]).toFixed(4) + "</td>";
-			out += "<td>" + (progress[7] / total[7]).toFixed(4) + "</td>";
-			out += "<td>" + (progress[8] / total[8]).toFixed(4) + "</td>";
-			out += "<td>" + (progress[9] / total[9]).toFixed(4) + "</td>";
+			for (var i = 0; i < progress.length; i++)
+			{
+				out += "<td>" + (progress[i] / total[i]).toFixed(4) + "</td>";
+			}
+			
 			out += "</tr>";
 			out += "<tr>";
-			out += "<td>" + help[0] + "</td>";
-			out += "<td>" + help[1] + "</td>";
-			out += "<td>" + help[2] + "</td>";
-			out += "<td>" + help[3] + "</td>";
-			out += "<td>" + help[4] + "</td>";
-			out += "<td>" + help[5] + "</td>";
-			out += "<td>" + help[6] + "</td>";
-			out += "<td>" + help[7] + "</td>";
-			out += "<td>" + help[8] + "</td>";
-			out += "<td>" + help[9] + "</td>";
+			
+			for (var i = 0; i < help.length; i++)
+			{
+				out += "<td>" + help[i] + "</td>";
+			}
 			out += "</tr></table>";
 			document.getElementById("output").innerHTML += out;
 			document.getElementById("output").innerHTML += eqDist(copyGrid(getGrid()));
@@ -3247,7 +3242,7 @@ function timeout(usrChc)
 				
 				for (var i = 0; i < plc; i++)
 				{
-					var loc = Math.floor(Math.random() * sols.length);
+					var loc = Math.floor(Math.random() * 100);
 					
 					var currGrid = copyGrid(sols[loc]);
 					tmp.push(sols[loc]);
@@ -3259,6 +3254,15 @@ function timeout(usrChc)
 				}
 				sols = tmp;
 				sols = sols.concat(hist);
+			}
+			
+			if (total[0] > 1000)
+			{
+				for (var i = 0; i < help.length; i++)
+				{
+					progress[i] = 1;
+					total[i] = 1;
+				}
 			}
 			
 			var len = getGrid().indexOf("_");
@@ -3282,38 +3286,12 @@ function restart()
 {
 	sols = [];
 	hist = [];
-	progress[0] = 1;
-	progress[1] = 1;
-	progress[2] = 1;
-	progress[3] = 1;
-	progress[4] = 1;
-	progress[5] = 1;
-	progress[6] = 1;
-	progress[7] = 1;
-	progress[8] = 1;
-	progress[9] = 1;
-	
-	total[0] = 1;
-	total[1] = 1;
-	total[2] = 1;
-	total[3] = 1;
-	total[4] = 1;
-	total[5] = 1;
-	total[6] = 1;
-	total[7] = 1;
-	total[8] = 1;
-	total[9] = 1;
-	
-	help[0] = 0;
-	help[1] = 0;
-	help[2] = 0;
-	help[3] = 0;
-	help[4] = 0;
-	help[5] = 0;
-	help[6] = 0;
-	help[7] = 0;
-	help[8] = 0;
-	help[9] = 0;
+	for (var i = 0; i < progress.length; i++)
+	{
+		progress[i] = 1;
+		total[i] = 1;
+		help[i] = 0;
+	}
 	var val = document.getElementById("game").value;
 	if (val == 0)
 	{
