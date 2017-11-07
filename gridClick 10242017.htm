@@ -3231,7 +3231,7 @@ function timeout(usrChc)
 					}
 				}
 			
-				var plc = Math.floor(Math.random() * sols.length) + 1;
+				var plc = Math.floor(Math.random() * 100) + 1;
 				var tmp = [];
 				for (var i = 0; i < mnms.length; i++)
 				{
@@ -3242,7 +3242,7 @@ function timeout(usrChc)
 				
 				for (var i = 0; i < plc; i++)
 				{
-					var loc = Math.floor(Math.random() * 100);
+					var loc = Math.floor(Math.random() * sols.length);
 					
 					var currGrid = copyGrid(sols[loc]);
 					tmp.push(sols[loc]);
