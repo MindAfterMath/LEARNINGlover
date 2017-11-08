@@ -2895,17 +2895,17 @@ function feas(gridMtx, gridMtx2, keep=0)
 
 	if (len2 > len)
 	{
+		document.getElementById("maxSize").value = 100;
 		help[choice]++;
 		sols = [];
 		sols.push(gridStr2);
 		hist = [];
-		var gridStr3 = gridStr2;
 		
 		if (gridMtx != -1)
 		{
 			for (var i = len2 - 1; i >= 0; i--)
 			{
-				gridStr3[i] = "_";
+				var gridStr3 = gridStr2.substr(0, i) + '_' + Array(numRows * numClms - i).join("_") ;
 				hist.push(gridStr3);
 			}
 //			hist.push(gridStr);
@@ -2930,41 +2930,8 @@ function feas(gridMtx, gridMtx2, keep=0)
 		var poss2 = updatePoss(gridMtx2, initPoss());
 		var added  = 0;
 		
-//		var mxm = -1;
-//		var mxlen = -1;
-//		for (var i = 0; i < sols.length; i++)
-//		{
-//			var tmpGrd = copyGrid(sols[i]);
-//			var poss = updatePoss(tmpGrd, initPoss());
-//			var cnt = nonSings(tmpGrd, poss);
-//			var currLen = sols[i].indexOf("_");
-//			if (currLen > mxlen)
-//			{
-//				mxlen = currLen;
-//				mxm = cnt;
-//			}
-//			else if (currLen == mxlen)
-//			{
-//				if (cnt > mxm)
-//				{
-//					mxm = cnt;
-//				}
-//			}
-//		}
-		
-//		var cnt2 = nonSings(gridMtx2, poss2);
-		
-//		console.log(cnt2 + " vs " + mxm);
-		
-//		if (sols.indexOf(gridStr2) == -1 && cnt2 >= mxm)
-//		{
-			sols.push(gridStr2);
-			added++;
-//		}
-//		else if (cnt2 < mxm)
-//		{
-//			return false;
-//		}
+		sols.push(gridStr2);
+		added++;
 		
 		for (var j = 0; len2 in newGds && j < newGds[len2].length; j++)
 		{
@@ -2992,7 +2959,10 @@ function feas(gridMtx, gridMtx2, keep=0)
 	}
 	else if (eqDist(gridMtx2))
 	{
-		sols.push(gridStr2);	
+		sols.push(gridStr2);
+		hist.push(gridStr2);
+		document.getElementById("finished").innerHTML += gridStr2 + "<br>";
+		return false;
 	}
 	else
 	{
@@ -3198,8 +3168,13 @@ function timeout(usrChc)
 			document.getElementById("output").innerHTML += out;
 			document.getElementById("output").innerHTML += eqDist(copyGrid(getGrid()));
 			
-			if (sols.length > 1000)
+			if (sols.length > parseInt(document.getElementById("maxSize").value))
 			{
+				document.getElementById("maxSize").value = parseInt(document.getElementById("maxSize").value) + 25;
+				if (document.getElementById("maxSize").value > 10000)
+				{
+					document.getElementById("maxSize").value = 100;
+				}
 				mnm = -1;
 				mnms = [];
 				mxlen = -1;
@@ -3209,6 +3184,12 @@ function timeout(usrChc)
 //					var poss = updatePoss(tmpGrd, initPoss());
 					var cnt = getDiffs(tmpGrd);
 					var currLen = sols[i].indexOf("_");
+					var bal = eqDist(tmpGrd);
+					if (bal && hist.indexOf(sols[i]) == -1)
+					{
+						hist.push(sols[i]);
+					}
+					
 					if (currLen > mxlen)
 					{
 						mxlen = currLen;
@@ -3236,7 +3217,6 @@ function timeout(usrChc)
 				for (var i = 0; i < mnms.length; i++)
 				{
 					tmp.push(sols[mnms[i]]);
-//					document.getElementById("finished").innerHTML += mxms[i] + " - " + mxm + " - " + sols[mxms[i]].indexOf("_") + " - " + sols[mxms[i]] + "<br>";
 				}
 				document.getElementById("finished").innerHTML = mnms.length + " - " + mxlen + " - " + mnm + "<br>";
 				
@@ -3284,8 +3264,10 @@ function stopTimeout()
 
 function restart()
 {
+	document.getElementById("maxSize").value = 100;
 	sols = [];
 	hist = [];
+	
 	for (var i = 0; i < progress.length; i++)
 	{
 		progress[i] = 1;
@@ -3525,8 +3507,9 @@ function dedupe(arr)
 <input type="checkbox" id="chk4"><label>Use Rectangle Free Sets</label><br>
 </td></tr>
 <tr><td span=2 id="metrics"></td></tr></table>
-<p id="finished">
-<table id="finGds"></table></p>
+<input id="maxSize" value="100">
+<p id="finished"></p>
+<table id="finGds"></table>
 <!--<canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas>-->
 <script type="text/javascript">
 var progress = [];
