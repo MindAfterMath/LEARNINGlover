@@ -2961,7 +2961,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 	{
 		sols.push(gridStr2);
 		hist.push(gridStr2);
-		document.getElementById("finished").innerHTML += gridStr2 + "<br>";
+		document.getElementById("finished").innerHTML += len2 + " - " + gridStr2 + "<br>";
 		return false;
 	}
 	else
@@ -3168,7 +3168,7 @@ function timeout(usrChc)
 			document.getElementById("output").innerHTML += out;
 			document.getElementById("output").innerHTML += eqDist(copyGrid(getGrid()));
 			
-			if (sols.length > parseInt(document.getElementById("maxSize").value))
+			if (sols.length > parseInt(document.getElementById("maxSize").value) + hist.length)
 			{
 				document.getElementById("maxSize").value = parseInt(document.getElementById("maxSize").value) + 25;
 				if (document.getElementById("maxSize").value > 10000)
@@ -3373,13 +3373,14 @@ function dispMetrics(gridStr)
 	out += "<td>L Shapes: </td>";
 	out += "<td>Total Pairs: </td>";
 	out += "<td>Solutions</td>";
+	out += "<td>Hist</td>";
 	out += "<td>Ratios</td>";
 	out += "<td>Feasible</td>";
 	out += "<td>FSC</td>";
 	out += "<td>NSCs</td>";
 	out += "</tr>";
 	out += "<tr><td>" + len + "</td><td>" + pairs + "</td><td>" + diffs +
-		"</td><td>" + lshapes + "</td><td>" + pairs2 + "</td><td>" + sols.length + "</td>";
+		"</td><td>" + lshapes + "</td><td>" + pairs2 + "</td><td>" + sols.length + "</td><td>" + hist.length + "</td>";
 //	}
 
 	out += "<td>";
