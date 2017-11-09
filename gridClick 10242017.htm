@@ -2899,18 +2899,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 		help[choice]++;
 		sols = [];
 		sols.push(gridStr2);
-//		hist = [];
 		
-		if (gridMtx != -1)
-		{
-//			for (var i = len2 - 1; i >= 0.9*len; i--)
-//			{
-//				var gridStr3 = gridStr2.substr(0, i) + '_' + Array(numRows * numClms - i).join("_") ;
-//				hist.push(gridStr3);
-//			}
-//			hist.push(gridStr);
-		}
-		hist = dedupe(hist);
 		sols = sols.concat(hist);
 		for (var i = 0; len2 in newGds && i < newGds[len2].length; i++)
 		{
@@ -2922,7 +2911,11 @@ function feas(gridMtx, gridMtx2, keep=0)
 			dispMetrics(gridStr2);
 			stopTimeout();
 		}
-		
+		if (eqDist(gridMtx2))
+		{
+			hist.push(gridStr2);
+			document.getElementById("finished").innerHTML += len2 + " - " + gridStr2 + "<br>";
+		}
 		sols = dedupe(sols);
 		return true;
 	}
@@ -2942,6 +2935,11 @@ function feas(gridMtx, gridMtx2, keep=0)
 				added++;
 			}
 		}
+		if (eqDist(gridMtx2))
+		{
+			hist.push(gridStr2);
+			hist = dedupe(hist);
+		}
 		
 		sols = dedupe(sols);
 		if (added > 0)
@@ -2953,15 +2951,11 @@ function feas(gridMtx, gridMtx2, keep=0)
 			return false;
 		}
 	}
-	else if (len2 >= len - 5)
-	{
-		sols.push(gridStr2);
-		return false;
-	}
-	else if (eqDist(gridMtx2) && len2 >= 0.9*len)
+	else if (eqDist(gridMtx2))
 	{
 		sols.push(gridStr2);
 		hist.push(gridStr2);
+		
 		sols = dedupe(sols);
 		hist = dedupe(hist);
 		document.getElementById("finished").innerHTML += len2 + " - " + gridStr2 + "<br>";
@@ -3006,8 +3000,16 @@ function timeout(usrChc)
 	(
 		function () 
 		{
-			var loc = Math.floor(Math.random() * sols.length);
-			gridStr = sols[loc];
+			var loc = Math.floor(Math.random() * (sols.length + hist.length));
+			if (loc >= sols.length)
+			{
+					loc -= sols.length;
+					gridStr = hist[loc];
+			}
+			else
+			{
+				gridStr = sols[loc];
+			}
 			gridMtx = copyGrid(sols[loc]);
 			len1 = sols[loc].indexOf("_");
 			
@@ -3186,11 +3188,6 @@ function timeout(usrChc)
 					var tmpGrd = copyGrid(sols[i]);
 //					var poss = updatePoss(tmpGrd, initPoss());
 					var cnt = getDiffs(tmpGrd);
-//					var bal = eqDist(tmpGrd);
-//					if (bal && hist.indexOf(sols[i]) == -1)
-//					{
-//						hist.push(sols[i]);
-//					}
 					var currLen = sols[i].indexOf("_");
 					
 					if (currLen > mxlen)
@@ -3214,6 +3211,26 @@ function timeout(usrChc)
 						}
 					}
 				}
+				
+				var histMax = 0;
+				for (var i = 0; i < hist.length; i++)
+				{
+					var tmp = hist[i].indexOf("_");
+					if (tmp > histMax)
+					{
+						histMax = tmp;
+					}
+				}
+				
+				for (var i = 0; i < hist.length; i++)
+				{
+					var tmp = hist[i].indexOf("_");
+					if (tmp != histMax)
+					{
+						hist.splice(i, 1);
+						i--;
+					}
+				}
 			
 				var plc = Math.floor(Math.random() * 100) + 1;
 				var tmp = [];
@@ -3221,7 +3238,11 @@ function timeout(usrChc)
 				{
 					tmp.push(sols[mnms[i]]);
 				}
-				document.getElementById("finished").innerHTML = mnms.length + " - " + mxlen + " - " + mnm + "<br>";
+				document.getElementById("finished").innerHTML = mnms.length + " - " + mxlen + " - " + mnm + ", " + histMax + "<br>";
+				for (var i = 0; i < hist.length; i++)
+				{
+					document.getElementById("finished").innerHTML += hist[i].indexOf("_") + " - " + hist[i] + "<br>";
+				}
 				
 				for (var i = 0; i < plc; i++)
 				{
@@ -3246,6 +3267,7 @@ function timeout(usrChc)
 					progress[i] = 1;
 					total[i] = 1;
 				}
+				hist.splice(0, hist.length-1);
 			}
 			
 			var len = getGrid().indexOf("_");
