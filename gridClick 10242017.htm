@@ -792,7 +792,7 @@ function changecolor(id)
 		}
 	}
 	
-	feas(-1, copyGrid(getGrid()));
+	feas(-1, copyGrid(getGrid()), 1);
 }
 
 function clrGrd()
@@ -991,12 +991,14 @@ function randInst(start)
 		var clrcnt5 = [];
 		var clrcnt6 = [];
 		var clrcnt7 = [];
+		var clrcnt8 = [];
 		for (var k = 0; k < numClrs; k++)
 		{
 			grd[row][clm] = k;
-			poss2 = updatePoss(grd, poss2, cell);
-			if (poss2[row][clm][k])
+//			if (poss2[row][clm][k])
+			if (!hasRect(grd))
 			{
+				poss2 = updatePoss(grd, poss2, cell);
 				if ((document.getElementById("chk1").checked && eqDist(grd)) || !document.getElementById("chk1").checked)
 				{
 					clrs.push(k);
@@ -1007,6 +1009,7 @@ function randInst(start)
 					clrcnt5.push(nonSings(grd, poss2));
 					clrcnt6.push(minAppear(grd));
 					clrcnt7.push(getOvlps(grd));
+					clrcnt8.push(possPairs2(grd, poss2, len));
 				}
 			}
 			grd[row][clm] = -1;
@@ -1014,7 +1017,7 @@ function randInst(start)
 		
 		if (clrs.length > 0)
 		{
-			var alg = Math.floor(Math.random() * 8);
+			var alg = Math.floor(Math.random() * 9);
 			if (alg == 0)
 			{
 				grd[row][clm] = clrs[Math.floor(Math.random() * clrs.length)];			
@@ -1103,11 +1106,21 @@ function randInst(start)
 				}
 				grd[row][clm] = clrs[min];
 			}
+			else if (alg == 8)
+			{
+				var max = 0;
+				for (var k = 0; k < clrs.length; k++)
+				{
+					if (clrcnt8[k] > clrcnt8[max])
+					{
+						max = k;
+					}
+				}
+				grd[row][clm] = clrs[max];
+			}
 		}
 		else
 		{
-//			console.log(cell + "(" + row + ", " + clm + ") has no options ");
-//			console.log(poss2[row][clm]);
 			break;
 		}
 	}
@@ -1354,6 +1367,104 @@ function possPairs(grid, poss)
 	return pairs;
 }
 
+function possPairs2(grid, poss, cell)
+{
+	var pairs = 0;
+	var last = toStr(grid).indexOf("_");
+	last = numRows * numClms;
+	var usedR = [];
+	var row = lookup[cell][0];
+	var clm = lookup[cell][1];
+	
+//	for (var j = 0; j < numClms; j++)
+//	{
+		for (var i1 = 0; i1 < numRows; i1++)
+		{
+			for (var i2 = i1 + 1; i2 < numRows; i2++)
+			{
+				if (grid[i1][clm] == grid[i2][clm] && grid[i1][clm] != -1)
+				{
+					var len = usedR.length;
+					usedR[len] = [];
+					usedR[len][0] = i1;
+					usedR[len][1] = i2;
+					usedR[len][2] = grid[i1][clm];
+				}
+			}
+		}
+//	}
+	
+	var usedC = [];
+//	for (var i = 0; i < numRows; i++)
+//	{
+		for (var j1 = 0; j1 < numClms; j1++)
+		{
+			for (var j2 = j1 + 1; j2 < numClms; j2++)
+			{
+				if (grid[row][j1] == grid[row][j2] && grid[row][j1] != -1)
+				{
+					var len = usedC.length;
+					usedC[len] = [];
+					usedC[len][0] = j1;
+					usedC[len][1] = j2;
+					usedC[len][2] = grid[row][j1];
+				}
+			}
+		}
+//	}
+	
+	for (var k = 0; k < numClrs; k++)
+	{
+//		for (var i = 0; i < numRows; i++)
+//		{
+			for (var j1 = 0; j1 < numClms; j1++)
+			{
+				for (var j2 = j1 + 1; j2 < numClms; j2++)
+				{
+					var fnd = false;
+					for (var cntr = 0; cntr < usedC.length; cntr++)
+					{
+						if (usedC[cntr][0] == j1 && usedC[cntr][1] == j2 && k == usedC[cntr][2])
+						{
+							fnd = true;
+						}
+					}
+						
+					if (lookup2[row][j1] <= last && lookup2[row][j2] <= last && poss[row][j1][k] && poss[row][j2][k] && !fnd)
+					{
+						pairs ++;
+					}
+				}
+			}
+//		}
+		
+//		for (var j = 0; j < numClms; j++)
+//		{
+			for (var i1 = 0; i1 < numRows; i1++)
+			{
+				for (var i2 = i1 + 1; i2 < numRows; i2++)
+				{
+					var fnd = false;
+					for (var cntr = 0; cntr < usedR.length; cntr++)
+					{
+						if (usedR[cntr][0] == i1 && usedR[cntr][1] == i2 && k == usedR[cntr][2])
+						{
+							fnd = true;
+						}
+					}
+					
+					if (lookup2[i1][clm] <= last && lookup2[i2][clm] <= last && poss[i1][clm][k] && poss[i2][clm][k] && !fnd)
+					{
+						pairs ++;
+					}
+				}
+			}
+//		}
+	}
+	
+	return pairs;
+}
+
 function minAppear(gridMtx)
 {
 	var rCount = [];
@@ -1568,23 +1679,23 @@ function chgRdmSub(keep, gridStr)
 	gridMtx2 = copyGrid(gridStr);
 	
     var finished = false;
-//	var sub = [];
-//	for (var i = 0; i < len1; i++)
-//	{
-//		for (var j = 0; j < i; j++)
-//		{
-//			sub.push(i);
-//		}
-//	}
+	var sub = [];
+	for (var i = 0; i < len1; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			sub.push(i);
+		}
+	}
 	
-//	var subLen = sub[Math.floor(Math.random() * sub.length)];
-//	
-//	for (var i = subLen; i <= len1; i++)
-//	{
-//		var row = lookup[i][0];
-//		var clm = lookup[i][1];
-//		gridMtx2[row][clm] = -1;
-//	}
+	var subLen = sub[Math.floor(Math.random() * sub.length)];
+	
+	for (var i = subLen; i <= len1; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		gridMtx2[row][clm] = -1;
+	}
 	
 	var poss = updatePoss(gridMtx2, initPoss());
 	
@@ -1642,7 +1753,6 @@ function chgRdmSub(keep, gridStr)
 		return gridMtx;
 	}
 }
-
 function clrSwaps(keep, gridStr)
 {
 	var len1 = gridStr.indexOf("_");	
@@ -1735,7 +1845,6 @@ function clrSwaps(keep, gridStr)
 		return gridMtx;
 	}
 }
-
 function fixLShapes(keep, gridStr)
 {
 	var len1 = gridStr.indexOf("_");	
@@ -1748,7 +1857,6 @@ function fixLShapes(keep, gridStr)
 	
 	var list = conflict(gridMtx);
 	var lCount = [];
-
 	var loc = Math.floor(Math.random() * list.length);
 		
 	for (var i = list[loc]; i < numRows * numClms; i++)
@@ -1817,6 +1925,7 @@ function fixLShapes(keep, gridStr)
 	}
 }
 
+
 function fixLShapes2(keep, gridStr)
 {
 	var len1 = gridStr.indexOf("_");	
@@ -1833,7 +1942,6 @@ function fixLShapes2(keep, gridStr)
 	var clm = lookup[len1][1];
 	var oldCell = -1;
 	var locs = [];
-
 	for (var i1 = 0; i1 < row; i1++)
 	{
 		for (var j1 = 0; j1 < clm; j1++)
@@ -1960,16 +2068,13 @@ function shuffClrs(keep, gridStr)
 		var clrs = [];
 		for (var clr = 0; clr < numClrs; clr++)
 		{
-			if (poss[row][clm][clr])
+			var old = gridMtx2[row][clm];
+			gridMtx2[row][clm] = clr;
+			if (!hasRect(gridMtx2) && old != clr)
 			{
-				var old = gridMtx2[row][clm];
-				gridMtx2[row][clm] = clr;			
-				if ((document.getElementById("chk1").checked && eqDist(gridMtx2)) || !document.getElementById("chk1").checked)
-				{
-					clrs.push(clr);
-				}
-				gridMtx2[row][clm] = old;
+				clrs.push(clr);
 			}
+			gridMtx2[row][clm] = old;
 		}
 		
 		if (clrs.length >= 1 && gridMtx2[row][clm] != -1)
@@ -2037,16 +2142,13 @@ function shuffClrs2(keep, gridStr)
 		var clrs = [];
 		for (var clr = 0; clr < numClrs; clr++)
 		{
-			if (poss[row][clm][clr])
+			var old = gridMtx[row][clm];
+			gridMtx[row][clm] = clr;
+			if (!hasRect(gridMtx) && old != clr)
 			{
-				var old = gridMtx2[row][clm];
-				gridMtx2[row][clm] = clr;			
-				if ((document.getElementById("chk1").checked && eqDist(gridMtx2)) || !document.getElementById("chk1").checked)
-				{
-					clrs.push(clr);
-				}
-				gridMtx2[row][clm] = old;
+				clrs.push(clr);
 			}
+			gridMtx[row][clm] = old;
 		}
 		
 		if (clrs.length >= 1 && gridMtx2[row][clm] != -1)
@@ -2640,6 +2742,25 @@ function incr(keep, gridStr)
     var gridMtx2 = copyGrid(gridStr);
 	
 	finished = false;
+	
+	var sub = [];
+	for (var i = 0; i < len1; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			sub.push(i);
+		}
+	}
+	
+	var subLen = sub[Math.floor(Math.random() * sub.length)];
+	
+	for (var i = subLen; i <= len1; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		gridMtx2[row][clm] = -1;
+	}
+	
 	var poss = updatePoss(gridMtx2, initPoss());
 	for (var i = len1 - 1; i >= 0 && !finished; i--)
 	{
@@ -2711,6 +2832,25 @@ function decr(keep, gridStr)
     var gridMtx2 = copyGrid(gridStr);
 	
 	finished = false;
+	
+	var sub = [];
+	for (var i = 0; i < len1; i++)
+	{
+		for (var j = 0; j < i; j++)
+		{
+			sub.push(i);
+		}
+	}
+	
+	var subLen = sub[Math.floor(Math.random() * sub.length)];
+	
+	for (var i = subLen; i <= len1; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		gridMtx2[row][clm] = -1;
+	}
+	
 	var poss = updatePoss(gridMtx2, initPoss());
 	for (var i = len1 - 1; i >= 0 && !finished; i--)
 	{
@@ -2785,10 +2925,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 	{
 		return false;
 	}
-	
-	var gridStr = toStr(gridMtx);
-	var gridStr2 = toStr(gridMtx2);
-	
+		
 //	if (gridMtx != -1)
 //	{
 //		gridStr = toStr(gridMtx);
@@ -2802,6 +2939,9 @@ function feas(gridMtx, gridMtx2, keep=0)
 //			}
 //		}
 //	}
+
+	var gridStr = toStr(gridMtx);
+	var gridStr2 = toStr(gridMtx2);
 	
 	if (gridStr2 == gridStr)
 	{
@@ -2911,11 +3051,11 @@ function feas(gridMtx, gridMtx2, keep=0)
 			dispMetrics(gridStr2);
 			stopTimeout();
 		}
-		if (eqDist(gridMtx2))
-		{
-			hist.push(gridStr2);
-			document.getElementById("finished").innerHTML += len2 + " - " + gridStr2 + "<br>";
-		}
+//		if (eqDist(gridMtx2))
+//		{
+//			hist.push(gridStr2);
+//			document.getElementById("finished").innerHTML += len2 + " - " + gridStr2 + "<br>";
+//		}
 		sols = dedupe(sols);
 		return true;
 	}
@@ -2935,11 +3075,11 @@ function feas(gridMtx, gridMtx2, keep=0)
 				added++;
 			}
 		}
-		if (eqDist(gridMtx2))
-		{
-			hist.push(gridStr2);
-			hist = dedupe(hist);
-		}
+//		if (eqDist(gridMtx2))
+//		{
+//			hist.push(gridStr2);
+//			hist = dedupe(hist);
+//		}
 		
 		sols = dedupe(sols);
 		if (added > 0)
@@ -2954,11 +3094,11 @@ function feas(gridMtx, gridMtx2, keep=0)
 	else if (eqDist(gridMtx2))
 	{
 		sols.push(gridStr2);
-		hist.push(gridStr2);
+//		hist.push(gridStr2);
 		
 		sols = dedupe(sols);
-		hist = dedupe(hist);
-		document.getElementById("finished").innerHTML += len2 + " - " + gridStr2 + "<br>";
+//		hist = dedupe(hist);
+//		document.getElementById("finished").innerHTML += len2 + " - " + gridStr2 + "<br>";
 		return false;
 	}
 	else
@@ -3000,7 +3140,7 @@ function timeout(usrChc)
 	(
 		function () 
 		{
-			var loc = Math.floor(Math.random() * (sols.length + hist.length));
+			var loc = Math.floor(Math.random() * (sols.length));
 			if (loc >= sols.length)
 			{
 					loc -= sols.length;
@@ -3010,7 +3150,7 @@ function timeout(usrChc)
 			{
 				gridStr = sols[loc];
 			}
-			gridMtx = copyGrid(sols[loc]);
+			gridMtx = copyGrid(gridStr);
 			len1 = sols[loc].indexOf("_");
 			
 			if (usrChc == -1)
@@ -3176,38 +3316,38 @@ function timeout(usrChc)
 			if (sols.length > parseInt(document.getElementById("maxSize").value))
 			{
 				document.getElementById("maxSize").value = parseInt(document.getElementById("maxSize").value) + 25;
-				if (document.getElementById("maxSize").value > 10000)
+				if (document.getElementById("maxSize").value > 2500)
 				{
 					document.getElementById("maxSize").value = 100;
 				}
-				mnm = -1;
-				mnms = [];
+				mxm = -1;
+				mxms = [];
 				mxlen = -1;
 				for (var i = 0; i < sols.length; i++)
 				{
 					var tmpGrd = copyGrid(sols[i]);
-//					var poss = updatePoss(tmpGrd, initPoss());
-					var cnt = getDiffs(tmpGrd);
+					var poss = updatePoss(tmpGrd, initPoss());
 					var currLen = sols[i].indexOf("_");
+					var cnt = possPairs2(tmpGrd, poss, currLen);
 					
 					if (currLen > mxlen)
 					{
 						mxlen = currLen;
-						mnm = cnt;
-						mnms = [];
-						mnms.push(i);
+						mxm = cnt;
+						mxms = [];
+						mxms.push(i);
 					}
 					else if (currLen == mxlen)
 					{
-						if (cnt < mnm)
+						if (cnt > mxm)
 						{
-							mnm = cnt;
-							mnms = [];
-							mnms.push(i);
+							mxm = cnt;
+							mxms = [];
+							mxms.push(i);
 						}
-						else if (cnt == mnm && mnms.length < 100)
+						else if (cnt == mxm && mxms.length < 100)
 						{
-							mnms.push(i);
+							mxms.push(i);
 						}
 					}
 				}
@@ -3234,11 +3374,11 @@ function timeout(usrChc)
 			
 				var plc = Math.floor(Math.random() * 100) + 1;
 				var tmp = [];
-				for (var i = 0; i < mnms.length; i++)
+				for (var i = 0; i < mxms.length; i++)
 				{
-					tmp.push(sols[mnms[i]]);
+					tmp.push(sols[mxms[i]]);
 				}
-				document.getElementById("finished").innerHTML = mnms.length + " - " + mxlen + " - " + mnm + ", " + histMax + "<br>";
+				document.getElementById("finished").innerHTML = mxms.length + " - " + mxlen + " - " + mxm + ", " + histMax + "<br>";
 				for (var i = 0; i < hist.length; i++)
 				{
 					document.getElementById("finished").innerHTML += hist[i].indexOf("_") + " - " + hist[i] + "<br>";
@@ -3257,7 +3397,7 @@ function timeout(usrChc)
 					tmp.push(sols[0]);
 				}
 				sols = tmp;
-				sols = sols.concat(hist);
+//				sols = sols.concat(hist);
 			}
 			
 			if (total[0] > 1000)
@@ -3374,6 +3514,7 @@ function dispMetrics(gridStr)
 	var pairs2 = countPairs(gridMtx);
 	var lshapes = countLs(gridMtx)
 	var len = gridStr.indexOf("_");
+	var pairs3 = possPairs2(gridMtx, poss, len);
 	var dist = getDist(gridMtx);
 	var len2 = 0;
 	for (var i = 0; i < sols.length; i++)
@@ -3394,6 +3535,7 @@ function dispMetrics(gridStr)
 	document.title = "Grid Coloring - " + (ratio).toFixed(0) + " % Complete";
 	out += "<tr><td>Cells Occupied:</td>";
 	out += "<td>Possible Pairs:</td>";
+	out += "<td>Possible Pairs 2:</td>";
 	out += "<td>Differences: </td>";
 	out += "<td>L Shapes: </td>";
 	out += "<td>Total Pairs: </td>";
@@ -3404,7 +3546,7 @@ function dispMetrics(gridStr)
 	out += "<td>FSC</td>";
 	out += "<td>NSCs</td>";
 	out += "</tr>";
-	out += "<tr><td>" + len + "</td><td>" + pairs + "</td><td>" + diffs +
+	out += "<tr><td>" + len + "</td><td>" + pairs + "</td><td>" + pairs3 + "</td><td>" + diffs +
 		"</td><td>" + lshapes + "</td><td>" + pairs2 + "</td><td>" + sols.length + "</td><td>" + hist.length + "</td>";
 //	}
 
