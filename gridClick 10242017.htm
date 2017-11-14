@@ -3035,7 +3035,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 
 	if (len2 > len)
 	{
-		document.getElementById("maxSize").value = 100;
+		document.getElementById("maxSize").value = 1000;
 		help[choice]++;
 		sols = [];
 		sols.push(gridStr2);
@@ -3070,15 +3070,16 @@ function feas(gridMtx, gridMtx2, keep=0)
 		var pairs12 = countPairs(gridMtx);
 		var lshapes1 = countLs(gridMtx)
 		var pairs13 = possPairs2(gridMtx, poss, len);
-
+		var ns1 = nonSings(gridMtx, poss)
 	
 		var diffs2 = getDiffs(gridMtx2);
 		var pairs2 = possPairs(gridMtx2, poss2);
 		var pairs22 = countPairs(gridMtx2);
 		var lshapes2 = countLs(gridMtx2)
 		var pairs23 = possPairs2(gridMtx2, poss2, len2);
+		var ns2 = nonSings(gridMtx2, poss2)
 
-		if (diffs2 < diffs1 || pairs2 > pairs1 || pairs22 < pairs12 || lshapes2 < lshapes1 || pairs23 > pairs13)
+		if (diffs2 < diffs1 || pairs2 > pairs1 || pairs22 < pairs12 || lshapes2 < lshapes1 || pairs23 > pairs13 || ns2 >= ns1 || eqDist(gridMtx2))
 		{
 			sols.push(gridStr2);
 			added++;
@@ -3321,7 +3322,7 @@ function timeout(usrChc)
 				document.getElementById("maxSize").value = parseInt(document.getElementById("maxSize").value) + 25;
 				if (document.getElementById("maxSize").value > 2500)
 				{
-					document.getElementById("maxSize").value = 100;
+					document.getElementById("maxSize").value = 1000;
 				}
 //				mxm = -1;
 //				mxms = [];
@@ -3431,7 +3432,7 @@ function stopTimeout()
 
 function restart()
 {
-	document.getElementById("maxSize").value = 100;
+	document.getElementById("maxSize").value = 1000;
 	sols = [];
 	hist = [];
 	
@@ -3677,7 +3678,7 @@ function dedupe(arr)
 <input type="checkbox" id="chk4"><label>Use Rectangle Free Sets</label><br>
 </td></tr>
 <tr><td span=2 id="metrics"></td></tr></table>
-<input id="maxSize" value="100">
+<input id="maxSize" value="1000">
 <p id="finished"></p>
 <table id="finGds"></table>
 <!--<canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas>-->
