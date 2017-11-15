@@ -2191,6 +2191,7 @@ function comboMut(keep, list, gridStr)
 	}
 	
 	var numMvs = parseInt(document.getElementById("comboMutIters").value);
+	numMvs = Math.floor(Math.random() * numMvs);
 	
 	for (var i = 0; i < numMvs; i++)
 	{
@@ -2261,8 +2262,13 @@ function comboMut(keep, list, gridStr)
 		total[choice2]++;
 		
 		var newLen = gridStr.indexOf("_");
-		
-		if (newLen >= currLen)
+//		
+//		if (newLen >= currLen)
+//		{
+//			progress[choice2]++;
+//		}
+			
+		if (feas(gridMtx, copyGrid(gridStr), keep))
 		{
 			progress[choice2]++;
 		}
@@ -3122,18 +3128,34 @@ function timeout(usrChc)
 			
 			if (choice == 0)
 			{
+				gridMtx = swapRows(keep, gridStr);
+				gridMtx = swapClms(keep, toStr(gridMtx));
+				gridMtx = swapClms2(keep, toStr(gridMtx));
+				gridMtx = transpose(keep, toStr(gridMtx));
 				gridMtx = chgRdmSub(keep, gridStr);
 			}
 			else if (choice == 1)
 			{
+				gridMtx = swapRows(keep, gridStr);
+				gridMtx = swapClms(keep, toStr(gridMtx));
+				gridMtx = swapClms2(keep, toStr(gridMtx));
+				gridMtx = transpose(keep, toStr(gridMtx));
 				gridMtx = clrSwaps(keep, gridStr);
 			}
 			else if (choice == 2)
 			{
+				gridMtx = swapRows(keep, gridStr);
+				gridMtx = swapClms(keep, toStr(gridMtx));
+				gridMtx = swapClms2(keep, toStr(gridMtx));
+				gridMtx = transpose(keep, toStr(gridMtx));
 				gridMtx = fixLShapes(keep, gridStr);
 			}
 			else if (choice == 3)
 			{
+				gridMtx = swapRows(keep, gridStr);
+				gridMtx = swapClms(keep, toStr(gridMtx));
+				gridMtx = swapClms2(keep, toStr(gridMtx));
+				gridMtx = transpose(keep, toStr(gridMtx));
 				gridMtx = shuffClrs(keep, gridStr);
 			}
 			else if (choice == 4)
@@ -3195,14 +3217,26 @@ function timeout(usrChc)
 			}
 			else if (choice == 5)
 			{
+				gridMtx = swapRows(keep, gridStr);
+				gridMtx = swapClms(keep, toStr(gridMtx));
+				gridMtx = swapClms2(keep, toStr(gridMtx));
+				gridMtx = transpose(keep, toStr(gridMtx));
 				gridMtx = shuffClrs2(keep, gridStr);
 			}
 			else if (choice == 6)
 			{
+				gridMtx = swapRows(keep, gridStr);
+				gridMtx = swapClms(keep, toStr(gridMtx));
+				gridMtx = swapClms2(keep, toStr(gridMtx));
+				gridMtx = transpose(keep, toStr(gridMtx));
 				gridMtx = incr(keep, gridStr);
 			}
 			else if (choice == 7)
 			{
+				gridMtx = swapRows(keep, gridStr);
+				gridMtx = swapClms(keep, toStr(gridMtx));
+				gridMtx = swapClms2(keep, toStr(gridMtx));
+				gridMtx = transpose(keep, toStr(gridMtx));
 				gridMtx = decr(keep, gridStr);
 			}
 			else if (choice == 8)
@@ -3211,23 +3245,27 @@ function timeout(usrChc)
 			}
 			else if (choice == 9)
 			{
-				gridMtx = fixLShapes2(keep, gridStr);
+				gridMtx = swapRows(keep, gridStr);
+				gridMtx = swapClms(keep, toStr(gridMtx));
+				gridMtx = swapClms2(keep, toStr(gridMtx));
+				gridMtx = transpose(keep, toStr(gridMtx));
+				gridMtx = fixLShapes2(keep, toStr(gridMtx));
 			}
 			else if (choice == 10)
 			{
-				gridStr = toStr(swapRows(keep, gridStr));
+				gridMtx = swapRows(keep, gridStr);
 			}
 			else if (choice == 11)
 			{
-				gridStr = toStr(swapClms(keep, gridStr));
+				gridMtx = swapClms(keep, gridStr);
 			}
 			else if (choice == 12)
 			{
-				gridStr = toStr(swapClms2(keep, gridStr));
+				gridMtx = swapClms2(keep, gridStr);
 			}
 			else if (choice == 13)
 			{
-				gridStr = toStr(transpose(keep, gridStr));
+				gridMtx = transpose(keep, gridStr);
 			}
 			gridMtx = randInst(gridMtx);
 			if (document.getElementById("grids").style.display != "none")
@@ -3299,14 +3337,14 @@ function timeout(usrChc)
 					sols.splice(loc, 1);
 				}
 				
-				for (var i = 0; i < sols.length; i++)
-				{
-					var currGrid = copyGrid(sols[i]);
-					if (eqDist(currGrid) && !hasRect(gridMtx))
-					{
-						tmp.push(sols[i]);
-					}
-				}
+//				for (var i = 0; i < sols.length; i++)
+//				{
+//					var currGrid = copyGrid(sols[i]);
+//					if (eqDist(currGrid) && !hasRect(gridMtx))
+//					{
+//						tmp.push(sols[i]);
+//					}
+//				}
 				
 				if (tmp.length == 0)
 				{
