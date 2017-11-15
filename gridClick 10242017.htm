@@ -2239,6 +2239,22 @@ function comboMut(keep, list, gridStr)
 		{
 			gridStr = toStr(fixLShapes2(1, gridStr));
 		}
+		else if (choice2 == 10)
+		{
+			gridStr = toStr(swapRows(1, gridStr));
+		}
+		else if (choice2 == 11)
+		{
+			gridStr = toStr(swapClms(1, gridStr));
+		}
+		else if (choice2 == 12)
+		{
+			gridStr = toStr(swapClms2(1, gridStr));
+		}
+		else if (choice2 == 13)
+		{
+			gridStr = toStr(transpose(1, gridStr));
+		}
 		progress[choice]--;
 		total[choice]--;
 		
@@ -2286,7 +2302,7 @@ function comboMut(keep, list, gridStr)
 	}
 }
 
-function swapRows(gridStr)
+function swapRows(keep, gridStr)
 {
 	var len1 = gridStr.indexOf("_");	
 	var gridMtx = copyGrid(gridStr);
@@ -2297,31 +2313,7 @@ function swapRows(gridStr)
 	var completed = [];
 	var rwCnt = []; 
 	
-	var poss = updatePoss(gridMtx, initPoss());
-	
-	for (var i = 0; i < numRows; i++)
-	{
-		for (var j = 0; j < numClms; j++)
-		{
-			if (gridMtx[i][j] == -1)
-			{
-				var clrs = [];
-				for (var k = 0; k < numClrs; k++)
-				{
-					if (poss[i][j][k])
-					{
-						clrs.push(k);
-					}
-				}
-				
-				if (clrs.length > 0)
-				{
-					gridMtx[i][j] = clrs[Math.floor(Math.random() * clrs.length)];
-					poss = updatePoss(gridMtx, poss);
-				}
-			}
-		}
-	}
+	gridMtx = randInst(gridStr);
 	
 	for (var i = 0; i < numRows; i++)
 	{
@@ -2345,69 +2337,79 @@ function swapRows(gridStr)
 		return copyGrid(gridStr);
 	}
 	
-	var newGds = [];
+	var tempMtx = [];
 	
-	for (var loc1 = 0; loc1 < completed.length; loc1++)
+	for (var i = 0; i < numRows; i++)
 	{
-		var val1 = completed[loc1];
-		for (var loc2 = loc1 + 1; loc2 < completed.length; loc2++)
+		tempMtx[i] = [];
+	}
+	
+	var loc = Math.floor(Math.random() * completed.length);
+	var val1 = completed[loc];
+	completed.splice(loc, 1);
+	loc = Math.floor(Math.random() * completed.length);
+	var val2 = completed[loc];
+	
+	for (var i = 0; i < numRows; i++)
+	{
+		if (i != val1 && i != val2)
 		{
-			var val2 = completed[loc2];
-			var tempMtx = [];
-			
-			for (var i = 0; i < numRows; i++)
+			for (var j = 0; j < numClms; j++)
 			{
-				tempMtx[i] = [];
-			}
-			
-			for (var i = 0; i < numRows; i++)
-			{
-				if (i != val1 && i != val2)
+				if (lookup2[i][j] < len1)
 				{
-					for (var j = 0; j < numClms; j++)
-					{
-						if (lookup2[i][j] < len1)
-						{
-							tempMtx[i][j] = gridMtx[i][j];
-						}
-						else
-						{
-							tempMtx[i][j] = -1;
-						}
-					}
+					tempMtx[i][j] = gridMtx[i][j];
 				}
 				else
 				{
-					for (var j = 0; j < numClms; j++)
-					{
-						if (lookup2[val1][j] < len1 && lookup2[val2][j] < len1)
-						{
-							tempMtx[val1][j] = gridMtx[val2][j];
-							tempMtx[val2][j] = gridMtx[val1][j];
-						}
-						else
-						{
-							tempMtx[val1][j] = -1;
-							tempMtx[val2][j] = -1;
-						}
-					}
+					tempMtx[i][j] = -1;
 				}
 			}
-			
-			var lc = toStr(tempMtx).indexOf("_");
-			var tempStr = toStr(tempMtx).substring(0, lc);
-			for (var lt = lc; lt < numRows * numClms; lt++)
+		}
+		else
+		{
+			for (var j = 0; j < numClms; j++)
 			{
-				tempStr += "_";
+				if (lookup2[val1][j] < len1 && lookup2[val2][j] < len1)
+				{
+					tempMtx[val1][j] = gridMtx[val2][j];
+					tempMtx[val2][j] = gridMtx[val1][j];
+				}
+				else
+				{
+					tempMtx[val1][j] = -1;
+					tempMtx[val2][j] = -1;
+				}
 			}
-			newGds.push(copyGrid(toStr(randInst(tempStr))));
 		}
 	}
-
-	return newGds;
+	
+	var lc = toStr(tempMtx).indexOf("_");
+	var tempStr = toStr(tempMtx).substring(0, lc);
+	for (var lt = lc; lt < numRows * numClms; lt++)
+	{
+		tempStr += "_";
+	}
+	tempMtx = randInst(tempStr);
+	
+	document.getElementById("output").innerHTML = "Swap Rows<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + "<br>";
+	document.getElementById("output").innerHTML += toStr(tempMtx) + " - " + toStr(tempMtx).indexOf("_")
+	
+	if (feas(gridMtx, tempMtx, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return tempMtx;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
 }
 	
-function swapClms(gridStr)
+function swapClms(keep, gridStr)
 {
 	var len1 = gridStr.indexOf("_");	
 	var gridMtx = copyGrid(gridStr);
@@ -2420,29 +2422,7 @@ function swapClms(gridStr)
 	
 	var poss = updatePoss(gridMtx, initPoss());
 	
-	for (var i = 0; i < numRows; i++)
-	{
-		for (var j = 0; j < numClms; j++)
-		{
-			if (gridMtx[i][j] == -1)
-			{
-				var clrs = [];
-				for (var k = 0; k < numClrs; k++)
-				{
-					if (poss[i][j][k])
-					{
-						clrs.push(k);
-					}
-				}
-				
-				if (clrs.length > 0)
-				{
-					gridMtx[i][j] = clrs[Math.floor(Math.random() * clrs.length)];
-					poss = updatePoss(gridMtx, poss);
-				}
-			}
-		}
-	}
+	gridMtx = randInst(gridStr);
 		
 	for (var j = 0; j < numClms; j++)
 	{
@@ -2467,66 +2447,78 @@ function swapClms(gridStr)
 		return copyGrid(gridStr);
 	}
 	
-	var newGds = [];
+	var loc = Math.floor(Math.random() * completed.length);
+	var val1 = completed[loc];
+	completed.splice(loc, 1);
 	
-	for (var loc1 = 0; loc1 < completed.length; loc1++)
+	loc = Math.floor(Math.random() * completed.length);
+	var val2 = completed[loc];
+	
+	var tempMtx = [];
+	
+	for (var i = 0; i < numRows; i++)
 	{
-		var val1 = completed[loc1];
-		for (var loc2 = loc1 + 1; loc2 < completed.length; loc2++)
+		tempMtx[i] = [];
+	}
+	
+	for (var i = 0; i < gridMtx.length; i++)
+	{
+		for (var j = 0; j < gridMtx[i].length; j++)
 		{
-			var val2 = completed[loc2];
-			var tempMtx = [];
-			
-			for (var i = 0; i < numRows; i++)
+			if (j != val1 && j != val2)
 			{
-				tempMtx[i] = [];
-			}
-			
-			for (var i = 0; i < gridMtx.length; i++)
-			{
-				for (var j = 0; j < gridMtx[i].length; j++)
+				if (lookup2[i][j] < len1)
 				{
-					if (j != val1 && j != val2)
-					{
-						if (lookup2[i][j] < len1)
-						{
-							tempMtx[i][j] = gridMtx[i][j];
-						}
-						else
-						{
-							tempMtx[i][j] = -1;
-						}
-					}
-					else
-					{
-						if (lookup2[i][val1] < len1 && lookup2[i][val2] < len1)
-						{
-							tempMtx[i][val1] = gridMtx[i][val2];
-							tempMtx[i][val2] = gridMtx[i][val1];
-						}
-						else
-						{
-							tempMtx[i][val1] = -1;
-							tempMtx[i][val2] = -1;
-						}
-					}
+					tempMtx[i][j] = gridMtx[i][j];
+				}
+				else
+				{
+					tempMtx[i][j] = -1;
 				}
 			}
-			
-			var lc = toStr(tempMtx).indexOf("_");
-			var tempStr = toStr(tempMtx).substring(0, lc);
-			for (var lt = lc; lt < numRows * numClms; lt++)
+			else
 			{
-				tempStr += "_";
+				if (lookup2[i][val1] < len1 && lookup2[i][val2] < len1)
+				{
+					tempMtx[i][val1] = gridMtx[i][val2];
+					tempMtx[i][val2] = gridMtx[i][val1];
+				}
+				else
+				{
+					tempMtx[i][val1] = -1;
+					tempMtx[i][val2] = -1;
+				}
 			}
-			newGds.push(copyGrid(toStr(randInst(tempStr))));
 		}
 	}
+	
+	var lc = toStr(tempMtx).indexOf("_");
+	var tempStr = toStr(tempMtx).substring(0, lc);
+	for (var lt = lc; lt < numRows * numClms; lt++)
+	{
+		tempStr += "_";
+	}
+	
+	tempMtx = randInst(tempStr);
 
-	return newGds;
+	document.getElementById("output").innerHTML = "Swap Clms<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + "<br>";
+	document.getElementById("output").innerHTML += toStr(tempMtx) + " - " + toStr(tempMtx).indexOf("_")
+	
+	if (feas(gridMtx, tempMtx, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return tempMtx;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
 }
 	
-function swapClms2(gridStr)
+function swapClms2(keep, gridStr)
 {
 	var len1 = gridStr.indexOf("_");	
 	var gridMtx = copyGrid(gridStr);
@@ -2640,18 +2632,25 @@ function swapClms2(gridStr)
 		}
 	}
 	
-	var lc = toStr(tempMtx).indexOf("_");
-	var tempStr = toStr(tempMtx).substring(0, lc);
-	for (var lt = lc; lt < numRows * numClms; lt++)
+	document.getElementById("output").innerHTML = "Swap Clms 2<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + "<br>";
+	document.getElementById("output").innerHTML += toStr(tempMtx) + " - " + toStr(tempMtx).indexOf("_")
+/*	+ " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2)*/ + "<br>";
+	
+	if (feas(gridMtx, tempMtx, keep))
 	{
-		tempStr += "_";
+		progress[choice]++;
+		total[choice]++;
+		return tempMtx;
 	}
-	newGds.push(copyGrid(toStr(randInst(tempStr))));
-
-	return tempMtx;
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
 }
 
-function transpose(gridStr)
+function transpose(keep, gridStr)
 {
 	var len1 = gridStr.indexOf("_");	
 	var gridMtx = copyGrid(gridStr);
@@ -2705,7 +2704,22 @@ function transpose(gridStr)
 	
 	var tempMtx2 = randInst(tempStr);
 	
-	return tempMtx2;
+	document.getElementById("output").innerHTML = "Transpose<br>";
+	document.getElementById("output").innerHTML += toStr(gridMtx) + " - " + toStr(gridMtx).indexOf("_") + "<br>";
+	document.getElementById("output").innerHTML += toStr(tempMtx2) + " - " + toStr(tempMtx2).indexOf("_")
+/*	+ " - " + possPairs(gridMtx2, poss2) + " - " + countLs(gridMtx2) + " - " + getDiffs(gridMtx2) + " - " + countPairs(gridMtx2)*/ + "<br>";
+	
+	if (feas(gridMtx, tempMtx2, keep))
+	{
+		progress[choice]++;
+		total[choice]++;
+		return tempMtx2;
+	}
+	else
+	{
+		total[choice]++;
+		return gridMtx;
+	}
 }
 
 function tryRest(keep, gridStr)
@@ -2925,20 +2939,6 @@ function feas(gridMtx, gridMtx2, keep=0)
 	{
 		return false;
 	}
-		
-//	if (gridMtx != -1)
-//	{
-//		gridStr = toStr(gridMtx);
-//		
-//		for (var i = 0; i < sols.length; i++)
-//		{
-//			if (sols[i].indexOf("_") > gridStr.indexOf("_"))
-//			{
-//				gridMtx = copyGrid(sols[i]);
-//				gridStr = sols[i];
-//			}
-//		}
-//	}
 
 	var gridStr = toStr(gridMtx);
 	var gridStr2 = toStr(gridMtx2);
@@ -2947,65 +2947,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 	{
 		return false;
 	}
-	
-	var newGds = {};
-	
-	if (document.getElementById("chk3").checked)
-	{
-//		dispGrid(gridMtx2);
-		var gridMtx4 = transpose(gridStr2);
-		var gridStr4 = toStr(gridMtx4);
-		if (gridStr4.indexOf("_") > gridStr2.indexOf("_") && !hasRect(gridMtx4))
-		{
-			gridMtx2 = gridMtx4;
-			gridStr2 = gridStr4;
-		}
-		else if (gridStr4.indexOf("_") == gridStr2.indexOf("_") && !hasRect(gridMtx4))
-		{
-			var ln = gridStr4.indexOf("_");
-			if (ln in newGds)
-			{
-				newGds[ln].push(gridStr4);
-			}
-			else
-			{
-				newGds[ln] = [];
-				newGds[ln].push(gridStr4);
-			}
-		}
-	}
-	
-	if (document.getElementById("chk2").checked)
-	{
-//		dispGrid(gridMtx2);
-		var tmp1 = swapRows(gridStr2);
 		
-//		dispGrid(gridMtx2);
-		Array.prototype.push.apply(tmp1, swapClms(gridStr2));
-		
-//		dispGrid(gridMtx2);
-		tmp1.push(swapClms2(gridStr2));
-		
-		for (var mtx in tmp1)
-		{
-			if (hasRect(tmp1[mtx]))
-			{
-				continue;
-			}
-			
-			var ln = toStr(tmp1[mtx]).indexOf("_");
-			if (ln in newGds)
-			{
-				newGds[ln].push(toStr(tmp1[mtx]));
-			}
-			else
-			{
-				newGds[ln] = [];
-				newGds[ln].push(toStr(tmp1[mtx]));
-			}
-		}
-	}
-	
 	var len1 = gridStr.indexOf("_");
 	var len2 = gridStr2.indexOf("_");
 	
@@ -3041,21 +2983,12 @@ function feas(gridMtx, gridMtx2, keep=0)
 		sols.push(gridStr2);
 		
 		sols = sols.concat(hist);
-		for (var i = 0; len2 in newGds && i < newGds[len2].length; i++)
-		{
-			sols.push(newGds[len2][i]);
-		}
 		
 		if (len2 == numRows * numClms)
 		{
 			dispMetrics(gridStr2);
 			stopTimeout();
 		}
-//		if (eqDist(gridMtx2))
-//		{
-//			hist.push(gridStr2);
-//			document.getElementById("finished").innerHTML += len2 + " - " + gridStr2 + "<br>";
-//		}
 		sols = dedupe(sols);
 		return true;
 	}
@@ -3089,15 +3022,6 @@ function feas(gridMtx, gridMtx2, keep=0)
 			return false;
 		}
 		
-		for (var j = 0; len2 in newGds && j < newGds[len2].length; j++)
-		{
-			if (sols.indexOf(newGds[len2][j]) == -1)
-			{
-				sols.push(newGds[len2][j]);
-				added++;
-			}
-		}
-		
 		sols = dedupe(sols);
 		if (added > 0)
 		{
@@ -3108,12 +3032,12 @@ function feas(gridMtx, gridMtx2, keep=0)
 			return false;
 		}
 	}
-	else if (eqDist(gridMtx2))
-	{
-		sols.push(gridStr2);
-		sols = dedupe(sols);
-		return false;
-	}
+//	else if (eqDist(gridMtx2))
+//	{
+//		sols.push(gridStr2);
+//		sols = dedupe(sols);
+//		return false;
+//	}
 	else
 	{
 		return false;
@@ -3251,6 +3175,22 @@ function timeout(usrChc)
 				{
 					list.push(9);
 				}
+				if (document.getElementById("combo10").checked)
+				{
+					list.push(10);
+				}
+				if (document.getElementById("combo11").checked)
+				{
+					list.push(11);
+				}
+				if (document.getElementById("combo12").checked)
+				{
+					list.push(12);
+				}
+				if (document.getElementById("combo13").checked)
+				{
+					list.push(13);
+				}
 				gridMtx = comboMut(keep, list, gridStr);
 			}
 			else if (choice == 5)
@@ -3273,7 +3213,22 @@ function timeout(usrChc)
 			{
 				gridMtx = fixLShapes2(keep, gridStr);
 			}
-
+			else if (choice == 10)
+			{
+				gridStr = toStr(swapRows(keep, gridStr));
+			}
+			else if (choice == 11)
+			{
+				gridStr = toStr(swapClms(keep, gridStr));
+			}
+			else if (choice == 12)
+			{
+				gridStr = toStr(swapClms2(keep, gridStr));
+			}
+			else if (choice == 13)
+			{
+				gridStr = toStr(transpose(keep, gridStr));
+			}
 			gridMtx = randInst(gridMtx);
 			if (document.getElementById("grids").style.display != "none")
 			{
@@ -3292,6 +3247,10 @@ function timeout(usrChc)
 			out += "<td>Decriment</td>";
 			out += "<td>Restart</td>";
 			out += "<td>Fix L Shapes 2</td>";
+			out += "<td>Swap Rows</td>";
+			out += "<td>Swap Clms</td>";
+			out += "<td>Swap Clms2</td>";
+			out += "<td>Transpose</td>";
 			out += "</tr>";
 			out += "<tr>";
 			
@@ -3324,78 +3283,31 @@ function timeout(usrChc)
 				{
 					document.getElementById("maxSize").value = 1000;
 				}
-//				mxm = -1;
-//				mxms = [];
-//				mxlen = -1;
-//				for (var i = 0; i < sols.length; i++)
-//				{
-//					var tmpGrd = copyGrid(sols[i]);
-//					var poss = updatePoss(tmpGrd, initPoss());
-//					var currLen = sols[i].indexOf("_");
-//					var cnt = possPairs2(tmpGrd, poss, currLen);
-//					
-//					if (currLen > mxlen)
-//					{
-//						mxlen = currLen;
-//						mxm = cnt;
-//						mxms = [];
-//						mxms.push(i);
-//					}
-//					else if (currLen == mxlen)
-//					{
-//						if (cnt > mxm)
-//						{
-//							mxm = cnt;
-//							mxms = [];
-//							mxms.push(i);
-//						}
-//						else if (cnt == mxm && mxms.length < 100)
-//						{
-//							mxms.push(i);
-//						}
-//					}
-//				}
-//				
-//				var histMax = 0;
-//				for (var i = 0; i < hist.length; i++)
-//				{
-//					var tmp = hist[i].indexOf("_");
-//					if (tmp > histMax)
-//					{
-//						histMax = tmp;
-//					}
-//				}
-//				
-//				for (var i = 0; i < hist.length; i++)
-//				{
-//					var tmp = hist[i].indexOf("_");
-//					if (tmp != histMax)
-//					{
-//						hist.splice(i, 1);
-//						i--;
-//					}
-//				}
-//			
+
 				var plc = Math.floor(Math.random() * 100) + 1;
 				var tmp = [];
-//				for (var i = 0; i < mxms.length; i++)
-//				{
-//					tmp.push(sols[mxms[i]]);
-//				}
-//				document.getElementById("finished").innerHTML = mxms.length + " - " + mxlen + " - " + mxm + ", " + histMax + "<br>";
-//				for (var i = 0; i < hist.length; i++)
-//				{
-//					document.getElementById("finished").innerHTML += hist[i].indexOf("_") + " - " + hist[i] + "<br>";
-//				}
 				
 				for (var i = 0; i < plc; i++)
 				{
 					var loc = Math.floor(Math.random() * sols.length);
 					
 					var currGrid = copyGrid(sols[loc]);
-					tmp.push(sols[loc]);
+					if (!hasRect(gridMtx))
+					{
+						tmp.push(sols[loc]);
+					}
 					sols.splice(loc, 1);
 				}
+				
+				for (var i = 0; i < sols.length; i++)
+				{
+					var currGrid = copyGrid(sols[i]);
+					if (eqDist(currGrid) && !hasRect(gridMtx))
+					{
+						tmp.push(sols[i]);
+					}
+				}
+				
 				if (tmp.length == 0)
 				{
 					tmp.push(sols[0]);
@@ -3645,7 +3557,11 @@ function dedupe(arr)
 <input type="button" id="mut6" onclick="clearTimeout(myVar);timeout(6)" value="Incriment">
 <input type="button" id="mut7" onclick="clearTimeout(myVar);timeout(7)" value="Decriment">
 <input type="button" id="mut8" onclick="clearTimeout(myVar);timeout(8)" value="Try Restart">
-<input type="button" id="mut9" onclick="clearTimeout(myVar);timeout(9)" value="Fix L Shapes 2"><br>
+<input type="button" id="mut9" onclick="clearTimeout(myVar);timeout(9)" value="Fix L Shapes 2">
+<input type="button" id="mut10" onclick="clearTimeout(myVar);timeout(10)" value="Swap Rows">
+<input type="button" id="mut11" onclick="clearTimeout(myVar);timeout(11)" value="Swap Clms">
+<input type="button" id="mut12" onclick="clearTimeout(myVar);timeout(12)" value="Swap Clms 2">
+<input type="button" id="mut13" onclick="clearTimeout(myVar);timeout(13)" value="Transpose"><br>
 <input type="button" id="btn9" onclick="clearTimeout(myVar);timeout(-1);" value="Repeat Random Change">
 <input type="button" id="btn10" onclick="clearTimeout(myVar);" value="Stop Timeout"><br>
 <label>Iterations for Combo Mutation</label><select id="comboMutIters">
@@ -3669,19 +3585,22 @@ function dedupe(arr)
 <input type="checkbox" id="combo7" checked><label>Decriment</label><br>
 <input type="checkbox" id="combo8" checked><label>Try Restart</label><br>
 <input type="checkbox" id="combo9" checked><label>Fix L Shapes 2</label><br>
+<input type="checkbox" id="combo10" checked><label>Swap Rows</label><br>
+<input type="checkbox" id="combo11" checked><label>Swap Clms</label><br>
+<input type="checkbox" id="combo12" checked><label>Swap Clms 2</label><br>
+<input type="checkbox" id="combo13" checked><label>Transpose</label><br>
 </td></tr>
 <tr><td colspan="2"><span onclick=showHideDiv('boxes2');>Checkboxes 2</span></td></tr>
 <tr id="boxes2" style="display:none"><td>
 <input type="checkbox" id="chk1"><label>Equal Distribution? </label><br>
-<input type="checkbox" id="chk2" checked><label>Allow for row and column swaps?</label><br>
-<input type="checkbox" id="chk3" checked><label>Allow for transpose?</label><br>
+<!--<input type="checkbox" id="chk2" checked><label>Allow for row and column swaps?</label><br>
+<input type="checkbox" id="chk3" checked><label>Allow for transpose?</label><br>-->
 <input type="checkbox" id="chk4"><label>Use Rectangle Free Sets</label><br>
 </td></tr>
 <tr><td span=2 id="metrics"></td></tr></table>
 <input id="maxSize" value="1000">
 <p id="finished"></p>
 <table id="finGds"></table>
-<!--<canvas name="myCanvas"  id="myCanvas" width=550 height=550 style="border:1px solid #000000;">your browser does not support the canvas tag</canvas>-->
 <script type="text/javascript">
 var progress = [];
 var total = [];
@@ -3710,6 +3629,10 @@ progress[6] = 1;
 progress[7] = 1;
 progress[8] = 1;
 progress[9] = 1;
+progress[10] = 1;
+progress[11] = 1;
+progress[12] = 1;
+progress[13] = 1;
 
 total[0] = 1;
 total[1] = 1;
@@ -3721,6 +3644,10 @@ total[6] = 1;
 total[7] = 1;
 total[8] = 1;
 total[9] = 1;
+total[10] = 1;
+total[11] = 1;
+total[12] = 1;
+total[13] = 1;
 
 help[0] = 0;
 help[1] = 0;
@@ -3732,6 +3659,10 @@ help[6] = 0;
 help[7] = 0;
 help[8] = 0;
 help[9] = 0;
+help[10] = 0;
+help[11] = 0;
+help[12] = 0;
+help[13] = 0;
 sols = [];
 hist = [];
 //fails = [];
