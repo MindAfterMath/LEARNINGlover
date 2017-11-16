@@ -2780,7 +2780,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 		
 		if (gridMtx != -1)
 		{
-			for (var i = len2 - 1; i >= len1; i--)
+			for (var i = len2 - 1; i >= len; i--)
 			{
 				var gridStr3 = gridStr2.substr(0, i) + '_' + Array(numRows * numClms - i).join("_") ;
 				hist.push(gridStr3);
@@ -2819,16 +2819,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 		if (diffs2 < diffs1 || pairs2 > pairs1 || pairs22 < pairs12 || lshapes2 < lshapes1 || pairs23 > pairs13 || ns2 >= ns1 || eqDist(gridMtx2))
 		{
 			sols.push(gridStr2);
-			added++;
-		}
-		else
-		{
-			return false;
-		}
-		
-		sols = dedupe(sols);
-		if (added > 0)
-		{
+			sols = dedupe(sols);
 			return true;
 		}
 		else
