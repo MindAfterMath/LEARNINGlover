@@ -3320,7 +3320,16 @@ function timeout(usrChc)
 				sols = sols.concat(hist);
 			}
 			
-			if (total[0] > 1000)
+			var stop = false;
+			for (var i = 0; i < total.length; i++)
+			{
+				if (total[i] > 1000)
+				{
+					stop = true;
+				}
+			}
+			
+			if (stop)
 			{
 				for (var i = 0; i < help.length; i++)
 				{
