@@ -2020,22 +2020,24 @@ function shuffClrs2(keep, gridStr)
 	}
 	
 	var len2 = len1 - (Math.floor(Math.random() * 5) + 1);
-	var gridMtx2 = [];
+	var gridMtx2 = copyGrid(gridStr);
 	
-	for (var i = 0; i < numRows; i++)
+	var sub = [];
+	for (var i = 0; i < len1; i++)
 	{
-		gridMtx2[i] = [];
-		for (var j = 0; j < numClms; j++)
+		for (var j = 0; j < i; j++)
 		{
-			if (lookup2[i][j] < len2)
-			{
-				gridMtx2[i][j] = gridMtx[i][j];
-			}
-			else
-			{
-				gridMtx2[i][j] = -1;
-			}
+			sub.push(i);
 		}
+	}
+	
+	var subLen = sub[Math.floor(Math.random() * sub.length)];
+	
+	for (var i = subLen; i <= len1; i++)
+	{
+		var row = lookup[i][0];
+		var clm = lookup[i][1];
+		gridMtx2[row][clm] = -1;
 	}
 	
 	var poss = updatePoss(gridMtx2, initPoss());
@@ -2045,15 +2047,16 @@ function shuffClrs2(keep, gridStr)
 		var row = lookup[cell][0];
 		var clm = lookup[cell][1];
 		var clrs = [];
+		var old = gridMtx2[row][clm];
+
 		for (var clr = 0; clr < numClrs; clr++)
 		{
-			var old = gridMtx[row][clm];
-			gridMtx[row][clm] = clr;
-			if (!hasRect(gridMtx) && old != clr)
+			gridMtx2[row][clm] = clr;
+			if (!hasRect(gridMtx2) && old != clr)
 			{
 				clrs.push(clr);
 			}
-			gridMtx[row][clm] = old;
+			gridMtx2[row][clm] = old;
 		}
 		
 		if (clrs.length >= 1 && gridMtx2[row][clm] != -1)
@@ -2827,12 +2830,12 @@ function feas(gridMtx, gridMtx2, keep=0)
 			return false;
 		}
 	}
-//	else if (eqDist(gridMtx2))
-//	{
-//		sols.push(gridStr2);
-//		sols = dedupe(sols);
-//		return false;
-//	}
+	else if (eqDist(gridMtx2))
+	{
+		sols.push(gridStr2);
+		sols = dedupe(sols);
+		return false;
+	}
 	else
 	{
 		return false;
@@ -2869,11 +2872,24 @@ function timeout(usrChc)
 	(
 		function () 
 		{
-			var loc = Math.floor(Math.random() * (sols.length));
-			var gridStr = sols[loc];
-			var gridStr2 = sols[loc];
+				var loc; 
+				var gridStr;
+				var gridStr2;
+
+			if (!document.getElementById("chk3").checked)
+			{
+				loc = Math.floor(Math.random() * (sols.length));
+				gridStr = sols[loc];
+				gridStr2 = sols[loc];
+			}
+			else
+			{
+				gridStr = getGrid();
+				gridStr2 = getGrid();
+			}
+			
 			gridMtx = copyGrid(gridStr);
-			len1 = sols[loc].indexOf("_");
+			len1 = gridStr.indexOf("_");
 			
 			if (usrChc == -1)
 			{
@@ -3151,6 +3167,7 @@ function timeout(usrChc)
 					progress[i] = 1;
 					total[i] = 1;
 				}
+				document.getElementById("chk3").checked = !document.getElementById("chk3").checked;
 			}
 			
 			var len = getGrid().indexOf("_");
@@ -3159,7 +3176,8 @@ function timeout(usrChc)
 			{
 				clearTimeout(myVar);
 			}
-			dispGrid(gridMtx);
+		
+			dispGrid(gridMtx2);
 			timeout(usrChc);
 		}
 	, tmo);
@@ -3416,7 +3434,7 @@ function dedupe(arr)
 <tr id="boxes2" style="display:none"><td>
 <input type="checkbox" id="chk1"><label>Equal Distribution? </label><br>
 <input type="checkbox" id="chk2"><label>Use Rectangle Free Sets</label><br>
-<input type="checkbox" id="chk3"><label>Use Rectangle Free Sets</label><br>
+<input type="checkbox" id="chk3" checked><label>Keep Same Grid</label><br>
 </td></tr>
 <tr><td span=2 id="metrics"></td></tr></table>
 <input id="maxSize" value="1000">
