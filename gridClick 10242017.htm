@@ -2922,35 +2922,118 @@ function timeout(usrChc)
 			}
 			if (choice == 0)
 			{
-				gridStr2 = swapRows(keep, gridStr2);
-				gridStr2 = swapClms(keep, gridStr2);
-				gridStr2 = swapClms2(keep, gridStr2);
-				gridStr2 = transpose(keep, gridStr2);
-				gridStr2 = chgRdmSub(keep, gridStr2);
+				var gridStr3 = swapRows(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms2(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = transpose(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = chgRdmSub(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				console.log("0 - " + gridStr);
+				console.log("1 - " + gridStr2);
+				console.log("2 - " + gridStr3);
 			}
 			else if (choice == 1)
 			{
-				gridStr2 = swapRows(keep, gridStr2);
-				gridStr2 = swapClms(keep, gridStr2);
-				gridStr2 = swapClms2(keep, gridStr2);
-				gridStr2 = transpose(keep, gridStr2);
-				gridStr2 = clrSwaps(keep, gridStr2);
+				var gridStr3 = swapRows(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms2(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = transpose(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = clrSwaps(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
 			}
 			else if (choice == 2)
 			{
-				gridStr2 = swapRows(keep, gridStr2);
-				gridStr2 = swapClms(keep, gridStr2);
-				gridStr2 = swapClms2(keep, gridStr2);
-				gridStr2 = transpose(keep, gridStr2);
-				gridStr2 = fixLShapes(keep, gridStr2);
+				var gridStr3 = swapRows(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms2(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = transpose(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = fixLShapes(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
 			}
 			else if (choice == 3)
 			{
-				gridStr2 = swapRows(keep, gridStr2);
-				gridStr2 = swapClms(keep, gridStr2);
-				gridStr2 = swapClms2(keep, gridStr2);
-				gridStr2 = transpose(keep, gridStr2);
-				gridStr2 = shuffClrs(keep, gridStr2);
+				var gridStr3 = swapRows(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms2(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = transpose(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = shuffClrs(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
 			}
 			else if (choice == 4)
 			{
@@ -3011,27 +3094,87 @@ function timeout(usrChc)
 			}
 			else if (choice == 5)
 			{
-				gridStr2 = swapRows(keep, gridStr2);
-				gridStr2 = swapClms(keep, gridStr2);
-				gridStr2 = swapClms2(keep, gridStr2);
-				gridStr2 = transpose(keep, gridStr2);
-				gridStr2 = shuffClrs2(keep, gridStr2);
+				var gridStr3 = swapRows(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms2(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = transpose(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = shuffClrs2(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
 			}
 			else if (choice == 6)
 			{
-				gridStr2 = swapRows(keep, gridStr2);
-				gridStr2 = swapClms(keep, gridStr2);
-				gridStr2 = swapClms2(keep, gridStr2);
-				gridStr2 = transpose(keep, gridStr2);
-				gridStr2 = incr(keep, gridStr2);
+				var gridStr3 = swapRows(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms2(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = transpose(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = incr(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
 			}
 			else if (choice == 7)
 			{
-				gridStr2 = swapRows(keep, gridStr2);
-				gridStr2 = swapClms(keep, gridStr2);
-				gridStr2 = swapClms2(keep, gridStr2);
-				gridStr2 = transpose(keep, gridStr2);
-				gridStr2 = decr(keep, gridStr2);
+				var gridStr3 = swapRows(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms2(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = transpose(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = decr(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
 			}
 			else if (choice == 8)
 			{
@@ -3039,11 +3182,31 @@ function timeout(usrChc)
 			}
 			else if (choice == 9)
 			{
-				gridStr2 = swapRows(keep, gridStr2);
-				gridStr2 = swapClms(keep, gridStr2);
-				gridStr2 = swapClms2(keep, gridStr2);
-				gridStr2 = transpose(keep, gridStr2);
-				gridStr2 = fixLShapes2(keep, gridStr2);
+				var gridStr3 = swapRows(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = swapClms2(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = transpose(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
+				gridStr3 = fixLShapes2(keep, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
 			}
 			else if (choice == 10)
 			{
@@ -3065,13 +3228,15 @@ function timeout(usrChc)
 			var gridMtx2 = copyGrid(gridStr2);
 			gridMtx2 = randInst(gridMtx2);
 			
-			if (feas(gridMtx, gridMtx2, keep))
+			if (gridStr2.indexOf("_") >= gridStr.indexOf("_") && gridStr.indexOf("_") != -1)
 			{
+				dispGrid(gridMtx2);
 				progress[choice]++;
 				total[choice]++;
 			}
 			else
 			{
+				dispGrid(gridMtx);
 				total[choice]++;
 			}
 			
@@ -3178,7 +3343,6 @@ function timeout(usrChc)
 				clearTimeout(myVar);
 			}
 		
-			dispGrid(gridMtx2);
 			timeout(usrChc);
 		}
 	, tmo);
