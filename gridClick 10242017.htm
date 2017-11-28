@@ -2163,16 +2163,17 @@ function comboMut(keep, list, gridStr)
 		
 		var newLen = gridStr.indexOf("_");
 //		
-		if (newLen >= currLen)
+//		if (newLen >= currLen)
+//		{
+//			progress[choice2]++;
+//			total[choice2]++;
+//		}
+			
+		if (feas(gridMtx, copyGrid(gridStr), keep))
 		{
 			progress[choice2]++;
 			total[choice2]++;
 		}
-			
-//		if (feas(gridMtx, copyGrid(gridStr), keep))
-//		{
-//			progress[choice2]++;
-//		}
 		
 		if (newLen == -1)
 		{
@@ -2800,6 +2801,13 @@ function feas(gridMtx, gridMtx2, keep=0)
 		sols = dedupe(sols);
 		return true;
 	}
+	else if (len2 > len1)
+	{
+		document.getElementById("maxSize").value = 1000;
+		sols.push(gridStr2);
+		
+		return true;
+	}
 	else if (len2 == len)
 	{
 		var poss = updatePoss(gridMtx, initPoss());
@@ -2920,59 +2928,38 @@ function timeout(usrChc)
 			{
 				choice = usrChc;
 			}
+			
+			var gridStr3 = swapRows(keep, gridStr2);
+			if (feas(gridMtx, copyGrid(gridStr3), keep))
+			{
+				gridStr2 = gridStr3;
+			}
+			gridStr3 = swapClms(keep, gridStr2);
+			if (feas(gridMtx, copyGrid(gridStr3), keep))
+			{
+				gridStr2 = gridStr3;
+			}
+			gridStr3 = swapClms2(keep, gridStr2);
+			if (feas(gridMtx, copyGrid(gridStr3), keep))
+			{
+				gridStr2 = gridStr3;
+			}
+			gridStr3 = transpose(keep, gridStr2);
+			if (feas(gridMtx, copyGrid(gridStr3), keep))
+			{
+				gridStr2 = gridStr3;
+			}
+
 			if (choice == 0)
 			{
-				var gridStr3 = swapRows(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms2(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = transpose(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
 				gridStr3 = chgRdmSub(keep, gridStr2);
 				if (feas(gridMtx, copyGrid(gridStr3), keep))
 				{
 					gridStr2 = gridStr3;
 				}
-				console.log("0 - " + gridStr);
-				console.log("1 - " + gridStr2);
-				console.log("2 - " + gridStr3);
 			}
 			else if (choice == 1)
 			{
-				var gridStr3 = swapRows(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms2(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = transpose(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
 				gridStr3 = clrSwaps(keep, gridStr2);
 				if (feas(gridMtx, copyGrid(gridStr3), keep))
 				{
@@ -2981,26 +2968,6 @@ function timeout(usrChc)
 			}
 			else if (choice == 2)
 			{
-				var gridStr3 = swapRows(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms2(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = transpose(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
 				gridStr3 = fixLShapes(keep, gridStr2);
 				if (feas(gridMtx, copyGrid(gridStr3), keep))
 				{
@@ -3009,26 +2976,6 @@ function timeout(usrChc)
 			}
 			else if (choice == 3)
 			{
-				var gridStr3 = swapRows(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms2(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = transpose(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
 				gridStr3 = shuffClrs(keep, gridStr2);
 				if (feas(gridMtx, copyGrid(gridStr3), keep))
 				{
@@ -3090,30 +3037,14 @@ function timeout(usrChc)
 				{
 					list.push(13);
 				}
-				gridStr2 = comboMut(keep, list, gridStr2);
+				gridStr3 = comboMut(keep, list, gridStr2);
+				if (feas(gridMtx, copyGrid(gridStr3), keep))
+				{
+					gridStr2 = gridStr3;
+				}
 			}
 			else if (choice == 5)
 			{
-				var gridStr3 = swapRows(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms2(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = transpose(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
 				gridStr3 = shuffClrs2(keep, gridStr2);
 				if (feas(gridMtx, copyGrid(gridStr3), keep))
 				{
@@ -3122,26 +3053,6 @@ function timeout(usrChc)
 			}
 			else if (choice == 6)
 			{
-				var gridStr3 = swapRows(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms2(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = transpose(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
 				gridStr3 = incr(keep, gridStr2);
 				if (feas(gridMtx, copyGrid(gridStr3), keep))
 				{
@@ -3150,26 +3061,6 @@ function timeout(usrChc)
 			}
 			else if (choice == 7)
 			{
-				var gridStr3 = swapRows(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms2(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = transpose(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
 				gridStr3 = decr(keep, gridStr2);
 				if (feas(gridMtx, copyGrid(gridStr3), keep))
 				{
@@ -3182,26 +3073,6 @@ function timeout(usrChc)
 			}
 			else if (choice == 9)
 			{
-				var gridStr3 = swapRows(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = swapClms2(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
-				gridStr3 = transpose(keep, gridStr2);
-				if (feas(gridMtx, copyGrid(gridStr3), keep))
-				{
-					gridStr2 = gridStr3;
-				}
 				gridStr3 = fixLShapes2(keep, gridStr2);
 				if (feas(gridMtx, copyGrid(gridStr3), keep))
 				{
