@@ -2864,12 +2864,12 @@ function feas(gridMtx, gridMtx2, keep=0)
 			return false;
 		}
 	}
-//	else if (document.getElementById("chk4").checked && eqDist(gridMtx2))
-//	{
-//		sols.push(gridStr2);
-//		sols = dedupe(sols);
-//		return false;
-//	}
+	else if (document.getElementById("chk4").checked && eqDist(gridMtx2))
+	{
+		sols.push(gridStr2);
+		sols = dedupe(sols);
+		return false;
+	}
 	else
 	{
 		return false;
