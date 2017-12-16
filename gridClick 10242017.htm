@@ -2191,9 +2191,13 @@ function comboMut(keep, list, gridStr)
 //			total[choice2]++;
 //		}
 			
-		if (feas(gridMtx, copyGrid(gridStr), keep))
+		if (feas(gridMtx, copyGrid(gridStr), keep) || newLen == len1)
 		{
 			progress[choice2]++;
+			total[choice2]++;
+		}
+		else
+		{
 			total[choice2]++;
 		}
 		
@@ -2799,7 +2803,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 	}
 	if (len2 > len)
 	{
-		document.getElementById("maxSize").value = 500;
+		document.getElementById("maxSize").value = 100;
 		help[choice]++;
 		sols = [];
 		sols.push(gridStr2);
@@ -2825,7 +2829,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 	}
 	else if (len2 > len1)
 	{
-		document.getElementById("maxSize").value = 500;
+		document.getElementById("maxSize").value = 100;
 		sols.push(gridStr2);
 		
 		return true;
@@ -2853,7 +2857,7 @@ function feas(gridMtx, gridMtx2, keep=0)
 		var possAvg1 = getMean(possPairsHist(gridMtx));
 		var possAvg2 = getMean(possPairsHist(gridMtx2));
 //		if (diffs2 < diffs1 || pairs2 > pairs1 || pairs22 < pairs12 || lshapes2 < lshapes1 || pairs23 > pairs13 || ns2 >= ns1 || eqDist(gridMtx2))
-		if (possAvg2 >= possAvg1)
+		if (possAvg2 >= possAvg1 || eqDist(gridMtx2))
 		{
 			sols.push(gridStr2);
 			sols = dedupe(sols);
@@ -3185,49 +3189,67 @@ function timeout(usrChc)
 			
 			if (sols.length > parseInt(document.getElementById("maxSize").value))
 			{
-				document.getElementById("maxSize").value = parseInt(document.getElementById("maxSize").value) + 25;
-				if (document.getElementById("maxSize").value > 2500)
+				if (document.getElementById("maxSize").value > 2100)
 				{
-					document.getElementById("maxSize").value = 500;
+					document.getElementById("maxSize").value = 100;
 				}
 				var plc = 100;
 				var tmp = [];
 				
 				var mean = 0;
+				var maxLen = -1;
+				var cnt = 0;
 				
 				for (var i = 0; i < sols.length; i++)
 				{
-					var vali = getMean(possPairsHist(copyGrid(sols[i])));
-					mean += vali;
+					if (maxLen == -1 || sols[i].indexOf("_") > maxLen)
+					{
+						maxLen = sols[i].indexOf("_");
+						var vali = getMean(possPairsHist(copyGrid(sols[i])));
+						mean = vali;
+						cnt = 1;
+					}
+					else if (sols[i].indexOf("_") == maxLen)
+					{
+						var vali = getMean(possPairsHist(copyGrid(sols[i])));
+						mean += vali;
+						cnt++;
+					}
 				}
 				
-				mean /= sols.length;
+				mean /= cnt;
+				document.getElementById("finished").innerHTML += maxLen + " - " + mean.toFixed(2) + "<br>";
 				
 				for (var i = 0; i < sols.length; i++)
 				{
 					var vali = getMean(possPairsHist(copyGrid(sols[i])));
-						
+					var leni = sols[i].indexOf("_");
 					if (vali < mean)
 					{
 						sols.splice(i, 1);
 						i--;
 					}
+					else if (leni < maxLen)
+					{
+						sols.splice(i, 1);
+						i--;
+					}
 				}
-
+				document.getElementById("maxSize").value = sols.length + 100;
 				
-				for (var i = 0; i < plc; i++)
-				{
-					var currGrid = copyGrid(sols[i]);
-					tmp.push(sols[loc]);
-				}
-				
-				if (tmp.length == 0)
-				{
-					tmp.push(sols[0]);
-				}
-				sols = tmp;
+//				for (var i = 0; i < plc; i++)
+//				{
+//					var currGrid = copyGrid(sols[i]);
+//					tmp.push(sols[loc]);
+//				}
+//				
+//				if (tmp.length == 0)
+//				{
+//					tmp.push(sols[0]);
+//				}
+//				sols = tmp;
 //				sols = sols.concat(hist);
-				document.getElementById("chk4").checked = !document.getElementById("chk4").checked;
+				document.getElementById("chk4").checked = false;
 			}
 			
 			var stop = false;
@@ -3266,7 +3288,7 @@ function stopTimeout()
 }
 function restart()
 {
-	document.getElementById("maxSize").value = 500;
+	document.getElementById("maxSize").value = 100;
 	sols = [];
 	hist = [];
 	
@@ -3531,7 +3553,7 @@ function dedupe(arr)
 <input type="checkbox" id="chk4"><label>Keep All Equally Balanced Grids</label><br>
 </td></tr>
 <tr><td span=2 id="metrics"></td></tr></table>
-<input id="maxSize" value="500">
+<input id="maxSize" value="100">
 <p id="finished"></p>
 <table id="finGds"></table>
 <script type="text/javascript">
