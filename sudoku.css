@@ -1,0 +1,48 @@
+td.c 
+{
+	font-size: 15pt;
+	text-align: center;
+}
+
+td.hnt
+{
+	font-size: 8pt;
+	text-align: center;
+	overflow: hidden;
+	resize: none;
+	
+}
+
+td.d 
+{
+	BACKGROUND-COLOR: #dcdcdc; 
+}
+
+td.d 
+{
+	BACKGROUND-COLOR: #dcdcdc; 
+}
+
+.c 
+{
+	border: 1px black solid;
+	width: 3em;
+	height: 3em;
+}
+
+.hnt 
+{
+	border: 1px black solid;
+	width: 3em;
+	height: 3em;
+}
+
+.vtc 
+{
+	border-right: 0;
+}
+
+.hzl 
+{
+	border-bottom: 0;
+}

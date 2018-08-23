@@ -1,0 +1,115 @@
+
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="styles.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="http://www.learninglover.com/bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puzzles</title>
+<script type="text/javascript">
+function randPuzz()
+{
+	var elts = document.getElementById("pgrm").options;
+	var loc = Math.floor(Math.random() * elts.length);
+	document.getElementById("pgrm").options[loc].selected = true;
+	loadScript(document.getElementById("pgrm").value);
+}
+
+function load(files)
+{
+	files = files.split("_");
+	var refs = [];
+	document.getElementById("pgrmHTML").innerHTML = "";
+	for (var i = 0; i < files.length; i++)
+	{
+		if (files[i].indexOf(".js") != -1)
+		{
+			refs[i] = document.createElement('script');
+			refs[i].setAttribute('type', 'text/javascript');
+			refs[i].setAttribute('src', files[i]);
+			refs[i].setAttribute('id', 'puzzJs');
+		}
+		else if (files[i].indexOf(".css") != -1 && document.getElementById("puzzCss") == null)
+		{
+			refs[i] = document.createElement('link');
+			refs[i].setAttribute('id', 'puzzCss');
+			refs[i].setAttribute('rel', 'stylesheet');
+			refs[i].setAttribute('type', 'text/css');
+			refs[i].setAttribute('href', files[i]);
+		}
+		else if (files[i].indexOf(".css") != -1 && document.getElementById("puzzCss") != null)
+		{
+			refs[i] = document.getElementById("puzzCss");
+			refs[i].setAttribute('id', 'puzzCss');
+			refs[i].setAttribute('rel', 'stylesheet');
+			refs[i].setAttribute('type', 'text/css');
+			refs[i].setAttribute('href', files[i]);
+		}
+	}
+	
+	return refs;
+}
+
+function buildMenu()
+{
+	var sel = document.getElementById("pgrm");
+	for (var i = 0; i < sel.options.length; i++)
+	{
+		document.getElementById("mySidenav").innerHTML += "<span onclick=\"document.getElementById('pgrm').options[" + i + "].selected = true;loadScript(document.getElementById('pgrm').value)\">" + document.getElementById("pgrm").options[i].label + "</a>";
+	}
+}
+
+function loadScript(files)
+{
+	var elts = load(files);
+	document.getElementById("pgrmHTML").appendChild(elts[0]);
+	document.getElementsByTagName("head")[0].appendChild(elts[1]);
+}
+
+function openNav() {
+    document.getElementById("mySidenav").style.width = "250px";
+}
+
+function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
+}
+</script>
+</head>
+<body>
+<span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776;</span>
+<center>
+<input type=button onclick="randPuzz()" value="Random Puzzle"><br>
+<div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+<!--  <a href="#">About</a>
+  <a href="#">Services</a>
+  <a href="#">Clients</a>
+  <a href="#">Contact</a>-->
+</div>
+<select id="pgrm" onchange="loadScript(document.getElementById('pgrm').value)">
+  <option value="arrows.js_arrows.css">Arrows</option>
+  <option value="binary.js_binary.css">Binary</option>
+  <option value="bridge.js_bridge.css">The Bridge Crossing Problem</option>
+  <option value="chaos.js_chaos.css">Chaos</option>
+  <option value="clique.js_clique.css">Clique Problem Puzzles</option>
+  <option value="corral.js_corral.css">Corral Puzzles</option>
+  <option value="corral2.js_slitherlink.css">Corral Puzzles 2</option>
+  <option value="fillomino.js_fillomino.css">Fillomino</option>
+  <option value="harrowingArrows.js_harrowingArrows.css">Harrowing Arrows</option>
+  <option value="magical.js_magical.css">Magical Squares</option>
+  <option value="indset.js_indset.css">Maximum Independent Set</option>
+  <option value="tripath.js_tripath.css">Maximum Triangle Path</option>
+  <option value="nonogram.js_nonogram.css">Nonograms</option>
+  <option value="range.js_range.css">Range Puzzles</option>
+  <option value="shade.js_shade.css">Shade the Cells</option>
+  <option value="slitherlink.js_slitherlink.css">Slitherlink</option>
+  <option value="sudoku.js_sudoku.css">Sudoku</option>
+  <option value="unitsp.js_unitsp.css">Unidirectional TSP</option>
+</select>
+<script type="text/javascript">
+buildMenu();
+</script>
+<input type=button onclick="loadScript(document.getElementById('pgrm').value)" value="New Puzzle">
+<div id="pgrmHTML"></div>
+</center>
+</body>
+</html>

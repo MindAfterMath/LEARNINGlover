@@ -1,0 +1,41 @@
+.c 
+{
+	font-size: 15pt;
+	width: 2.0em;
+	height: 2.0em;
+	text-align: center;
+	border: 1px solid black;
+	padding: 0px;
+}
+
+.goal
+{
+	font-size: 15pt;
+	width: 2.0em;
+	height: 2.0em;
+	background: #AB82FF;
+	text-align: center;
+	border: 1px solid black;
+	padding: 0px;
+}
+
+.curr
+{
+	font-size: 15pt;
+	width: 2.0em;
+	height: 2.0em;
+	background: #42C0FB;
+	text-align: center;
+	border: 1px solid black;
+	padding: 0px;
+}
+
+.emp
+{
+	font-size: 15pt;
+	width: 2.0em;
+	height: 2.0em;
+	text-align: center;
+	border: 0px solid black;
+	padding: 0px;
+}

@@ -1,43 +1,3 @@
-<html>
-<head>
-<style type="text/css">
-table.grid
-{
-	border: 0.1em solid;
-	border-collapse:collapse;
-}
-
-td.grid
-{
-	border: 0.1em solid;
-	width: 2em;
-}
-
-th.grid
-{
-	border: 0.1em solid;
-}
-
-span
-{
-	cursor:pointer;
-	color:blue;
-	text-decoration:underline;
-}
-
-table
-{
-    border: 0.1em;
-    width: 100%;
-    font-size:4vh;
-    height:100%;
-    min-width: 1000px;
-    margin:0 auto;
-    color:#c9c9c9;
-    text-align:center;
-}
-</style>
-<script type="text/javascript">
 function generate(rows, clms)
 {
 //Begin with an empty grid
@@ -472,7 +432,14 @@ function removeCells(grid)
 	{
 		for (var j = 0; j < clms; j++)
 		{
-			poss.push(i + "\t" + j);
+			if (grid[i][j] == 1)
+			{
+				poss.push(i + "\t" + j);
+			}
+			else
+			{
+				newGrid[i][j] = -1;
+			}
 		}
 	}
 	
@@ -565,17 +532,80 @@ function checkAns()
 		alert("Sorry, you have an error somewhere");
 	}
 }
-</script>
-</head>
-<body>
-<center><H3>Range Puzzles</h3></center>
-<table id="wrapper">
-  <tr>
-    <td id="content"></td>
-  </tr>
-</table>
-<p id="output"></p>
-<script type="text/javascript">
+
+function hint(ans)
+{
+	var userAns = [];
+	rem = [];
+	
+	for (var i = 0; i < size[0]; i++)
+	{
+		userAns[i] = [];
+		for (var j = 0; j < size[1]; j++)
+		{	
+			var id = i + "_" + j;
+			if (document.getElementById(id).style.background == "#0066FF" ||
+			    document.getElementById(id).style.background == "rgb(0, 102, 255)" ||
+			    document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 102, 255)" ||
+			    document.getElementById(id).style.background == "rgb(0, 102, 255) none repeat scroll 0% 0%")
+			{
+				if (document.getElementById(id).innerHTML == "")
+				{
+					userAns[i][j] = 1;
+				}
+				else
+				{
+					userAns[i][j] = parseInt(document.getElementById(id).innerHTML);
+				}
+			}
+			else if (document.getElementById(id).style.background == "#666666" ||
+					 document.getElementById(id).style.background == "rgb(102, 102, 102)" ||
+					 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(102, 102, 102)" ||
+					 document.getElementById(id).style.background == "rgb(102, 102, 102) none repeat scroll 0% 0%")
+			{
+				userAns[i][j] = 0;
+			}
+			else
+			{
+				rem.push(i + "\t" + j);
+				userAns[i][j] = -1;
+			}
+		}
+	}
+	
+	if (feas(userAns) && rem.length > 0)
+	{
+		var vals = rem[Math.floor(Math.random() * rem.length)].split("\t");
+		document.getElementById(vals[0] + "_" + vals[1]).innerHTML = ans[vals[0]][vals[1]];
+		if (ans[vals[0]][vals[1]] != 0)
+		{
+			document.getElementById(vals[0] + "_" + vals[1]).style.background = "#0066FF";
+		}
+		else
+		{
+			document.getElementById(vals[0] + "_" + vals[1]).style.background = "#666666"
+		}
+	}
+	else if (!feas(userAns))
+	{
+		alert("Sorry, you have an error somewhere");
+	}
+}
+var out = "";
+out += '<center><H3>Range Puzzles</h3></center>'; 
+out += '<table id="wrapper">'; 
+out += '  <tr>'; 
+out += '    <td id="content"></td>'; 
+out += '  </tr>'; 
+out += '</table>'; 
+out += '<p id="output"></p>';
+out += '<input type="button" value="Check" onclick="checkAns()">'; 
+out += '<input type="button" value="Hint" onclick="hint(ans)">';
+newTag = document.createElement('div');
+newTag.setAttribute('id', 'newPuzz');
+newTag.innerHTML += out;
+document.getElementById('pgrmHTML').append(newTag);
+
 var sizeArr = [];
 sizeArr.push("7\t7");
 sizeArr.push("8\t10");
@@ -632,9 +662,10 @@ for (var i = 0; i < size[0]; i++)
 			document.getElementById(i + "_" + j).style.background = "#0066FF";
 			document.getElementById(i + "_" + j).innerHTML = ans[i][j];
 		}
+		else if (prob[i][j] == 0)
+		{
+			document.getElementById(i + "_" + j).style.backgroundColor = "#666666";
+			document.getElementById(i + "_" + j).style.background = "#666666";
+		}
 	}
 }
-</script>
-<input type="button" value="Check" onclick="checkAns()">
-</body>
-</html>

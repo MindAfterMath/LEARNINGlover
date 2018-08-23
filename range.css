@@ -1,0 +1,35 @@
+table.grid
+{
+	border: 0.1em solid;
+	border-collapse:collapse;
+}
+
+td.grid
+{
+	border: 0.1em solid;
+	width: 2em;
+}
+
+th.grid
+{
+	border: 0.1em solid;
+}
+
+span
+{
+	cursor:pointer;
+	color:blue;
+	text-decoration:underline;
+}
+
+table
+{
+    border: 0.1em;
+    width: 100%;
+    font-size:4vh;
+    height:100%;
+    min-width: 1000px;
+    margin:0 auto;
+    color:#c9c9c9;
+    text-align:center;
+}

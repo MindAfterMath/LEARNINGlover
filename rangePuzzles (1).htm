@@ -472,7 +472,14 @@ function removeCells(grid)
 	{
 		for (var j = 0; j < clms; j++)
 		{
-			poss.push(i + "\t" + j);
+			if (grid[i][j] == 1)
+			{
+				poss.push(i + "\t" + j);
+			}
+			else
+			{
+				newGrid[i][j] = -1;
+			}
 		}
 	}
 	
@@ -565,6 +572,65 @@ function checkAns()
 		alert("Sorry, you have an error somewhere");
 	}
 }
+
+function hint(ans)
+{
+	var userAns = [];
+	rem = [];
+	
+	for (var i = 0; i < size[0]; i++)
+	{
+		userAns[i] = [];
+		for (var j = 0; j < size[1]; j++)
+		{	
+			var id = i + "_" + j;
+			if (document.getElementById(id).style.background == "#0066FF" ||
+			    document.getElementById(id).style.background == "rgb(0, 102, 255)" ||
+			    document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(0, 102, 255)" ||
+			    document.getElementById(id).style.background == "rgb(0, 102, 255) none repeat scroll 0% 0%")
+			{
+				if (document.getElementById(id).innerHTML == "")
+				{
+					userAns[i][j] = 1;
+				}
+				else
+				{
+					userAns[i][j] = parseInt(document.getElementById(id).innerHTML);
+				}
+			}
+			else if (document.getElementById(id).style.background == "#666666" ||
+					 document.getElementById(id).style.background == "rgb(102, 102, 102)" ||
+					 document.getElementById(id).style.background == "none repeat scroll 0% 0% rgb(102, 102, 102)" ||
+					 document.getElementById(id).style.background == "rgb(102, 102, 102) none repeat scroll 0% 0%")
+			{
+				userAns[i][j] = 0;
+			}
+			else
+			{
+				rem.push(i + "\t" + j);
+				userAns[i][j] = -1;
+			}
+		}
+	}
+	
+	if (feas(userAns) && rem.length > 0)
+	{
+		var vals = rem[Math.floor(Math.random() * rem.length)].split("\t");
+		document.getElementById(vals[0] + "_" + vals[1]).innerHTML = ans[vals[0]][vals[1]];
+		if (ans[vals[0]][vals[1]] != 0)
+		{
+			document.getElementById(vals[0] + "_" + vals[1]).style.background = "#0066FF";
+		}
+		else
+		{
+			document.getElementById(vals[0] + "_" + vals[1]).style.background = "#666666"
+		}
+	}
+	else if (!feas(userAns))
+	{
+		alert("Sorry, you have an error somewhere");
+	}
+}
 </script>
 </head>
 <body>
@@ -632,9 +698,15 @@ for (var i = 0; i < size[0]; i++)
 			document.getElementById(i + "_" + j).style.background = "#0066FF";
 			document.getElementById(i + "_" + j).innerHTML = ans[i][j];
 		}
+		else if (prob[i][j] == 0)
+		{
+			document.getElementById(i + "_" + j).style.backgroundColor = "#666666";
+			document.getElementById(i + "_" + j).style.background = "#666666";
+		}
 	}
 }
 </script>
 <input type="button" value="Check" onclick="checkAns()">
+<input type="button" value="Hint" onclick="hint(ans)">
 </body>
 </html>

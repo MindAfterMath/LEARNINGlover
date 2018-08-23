@@ -1,0 +1,48 @@
+<html>
+<head>
+<script type="text/javascript">
+function resetPoss()
+{
+	var poss = [];
+	var vals = ["U", "D", "L", "R", "X"];
+	numrows = document.getElementById("numrows").value;
+	numclms = document.getElementById("numclms").value;
+	
+	for (var i = 0; i < numrows; i++)
+	{
+		for (var j = 0; j < numclms; j++)
+		{
+			poss[i][j] = [];
+			for (var k = 0; k < vals.length; k++)
+			{
+				poss[i][j].push(k);
+			}
+		}
+	}
+	
+	return poss;
+}
+
+function updatePoss()
+{
+	numrows = document.getElementById("numrows").value;
+	numclms = document.getElementById("numclms").value;
+	poss = resetPoss();
+	for (var i = 0; i < numrows; i++)
+	{
+		for (var j = 0; j < numclms; j++)
+		{
+			val = document.getElementById("cell_" + i + "_" + j).innerHTML;
+			if (val != "_" && val != "X")
+			{
+				poss[i][j] = val;
+				for (i2 = 0; i2 < numrows; i2++)
+				{
+					if (i2 == i)
+						continue;
+				}
+			}
+		}
+	}
+}
+</script>

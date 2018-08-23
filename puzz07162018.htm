@@ -1,0 +1,581 @@
+<html>
+<head>
+<style type="text/css">
+table
+{
+	table-layout: auto
+}
+
+td
+{
+	border: 1px solid #999;
+	font-size: 16pt;
+	text-align: center;
+	overflow: hidden;
+	resize: none;
+	width: 1.2em;
+	height: 1.2em;
+}
+</style>
+<script type="text/javascript">
+function resetPoss(grid)
+{
+	var poss = {};
+	var numrows = parseInt(document.getElementById("rows").value);
+	var numclms = parseInt(document.getElementById("clms").value);
+	
+	for (var i = 0; i < numrows; i++)
+	{
+		for (var j = 0; j < numclms; j++)
+		{
+			if (grid[i][j] != -1)
+			{
+				poss[i + ", " + j] = [grid[i][j]];
+			}
+			else
+			{
+				var vals = [1, 2, 3];
+				poss[i + ", " + j] = [];
+				for (var k = 0; vals.length > 0; k++)
+				{
+					var loc = Math.floor(Math.random() * vals.length);
+					poss[i + ", " + j].push(vals[loc]);
+					vals.splice(loc, 1);
+				}
+			}
+		}
+	}
+	
+	return poss;
+}
+
+function feas(grid)
+{
+	var numrows = parseInt(document.getElementById("rows").value);
+	var numclms = parseInt(document.getElementById("clms").value);
+	
+	for (var i = 0; i < numrows; i++)
+	{
+		for (var j = 0; j < numclms; j++)
+		{
+			if (grid[i][j] == -1)
+			{
+				continue;
+			}
+			
+			var cnt = 1;
+			var unf = 0;
+			if (i < grid.length - 1 && grid[i+1][j] == grid[i][j])
+			{
+				cnt++;
+				if (i < grid.length - 2 && grid[i+2][j] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (i < grid.length - 2 && grid[i+2][j] == -1)
+				{
+					unf++;
+				}
+				
+				if (j < grid[i+1].length - 1 && grid[i+1][j+1] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (j < grid[i+1].length - 1 && grid[i+1][j+1] == -1)
+				{
+					unf++;
+				}
+				if (j > 0 && grid[i+1][j-1] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (j > 0 && grid[i+1][j-1] == -1)
+				{
+					unf++;
+				}
+			}
+			else if (i < grid.length - 1 && grid[i+1][j] == -1)
+			{
+				unf++;
+			}
+			
+			if (i > 0 && grid[i-1][j] == grid[i][j])
+			{
+				cnt++;
+				if (i > 1 && grid[i-2][j] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (i > 1 && grid[i-2][j] == -1)
+				{
+					unf++;
+				}
+				
+				//differences in the next 4
+				if (j < grid[i-1].length - 1 && grid[i-1][j+1] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (j < grid[i-1].length - 1 && grid[i-1][j+1] == -1)
+				{
+					unf++;
+				}
+				if (j > 0 && grid[i-1][j-1] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (j > 0 && grid[i-1][j-1] == -1)
+				{
+					unf++;
+				}
+			}
+			else if (i > 0 && grid[i-1][j] == -1)
+			{
+				unf++;
+			}
+			
+			if (j < grid[i].length - 1 && grid[i][j+1] == grid[i][j])
+			{
+				cnt++;
+				if (j < grid[i].length - 2 && grid[i][j+2] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (j < grid[i].length - 2 && grid[i][j+2] == -1)
+				{
+					unf++;
+				}
+				
+				if (i < grid.length - 1 && grid[i+1][j+1] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (i < grid.length - 1 && grid[i+1][j+1] == -1)
+				{
+					unf++;
+				}
+				if (i > 0 && grid[i-1][j+1] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (i > 0 && grid[i-1][j+1] == -1)
+				{
+					unf++;
+				}
+			}
+			else if (j < grid[i].length - 1 && grid[i][j+1] == -1)
+			{
+				unf++;
+			}
+			
+			if (j > 0 && grid[i][j-1] == grid[i][j])
+			{
+				cnt++;
+				if (j > 1 && grid[i][j-2] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (j > 1 && grid[i][j-2] == -1)
+				{
+					unf++;
+				}
+				
+				if (i < grid.length - 1 && grid[i+1][j-1] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (i < grid.length - 1 && grid[i+1][j-1] == -1)
+				{
+					unf++;
+				}
+				if (i > 0 && grid[i-1][j-1] == grid[i][j])
+				{
+					cnt++;
+				}
+				else if (i > 0 && grid[i-1][j-1] == -1)
+				{
+					unf++;
+				}
+			}
+			else if (j > 0 && grid[i][j-1] == -1)
+			{
+				unf++;
+			}
+			
+			if (cnt > grid[i][j])
+			{
+//				print(cnt + " vs " + grid[i][j]);
+				return false;
+			}
+			if (cnt < grid[i][j] && unf == 0)
+			{
+//				print(cnt + " vs " + grid[i][j] + " with unf=" + unf);
+				return false;
+			}
+		}
+	}
+	
+	return true;
+}
+
+function fillBlank(m, n)
+{
+	var grid = [];
+	for (var i = 0; i < m; i++)
+	{
+		grid[i] = [];
+		for (var j = 0; j < n; j++)
+		{
+			grid[i][j] = -1;
+		}
+	}
+	
+	return grid;
+}
+
+function toString(puzz)
+{
+	var out = "<table>"
+	for (var i = 0; i < puzz.length; i++)
+	{
+		out += "<tr>";
+		for (var j = 0; j < puzz[i].length; j++)
+		{
+			if (puzz[i][j] != -1)
+			{
+				out += "<td>" + puzz[i][j] + "</td>";
+			}
+			else
+			{
+				out += "<td>.</td>";
+			}
+		}
+		out += "</tr>";
+	}
+	out += "</table>";
+	
+	return out;
+}
+
+function toString2(puzz)
+{
+	var out = "";
+	for (var i = 0; i < puzz.length; i++)
+	{
+		for (var j = 0; j < puzz[i].length; j++)
+		{
+			if (puzz[i][j] != -1)
+			{
+				out += puzz[i][j] + "";
+			}
+			else
+			{
+				out += ".";
+			}
+		}
+	}
+	
+	return out;
+}
+
+function setValue(puzz, x, y, val)
+{
+	if (val != 1 && val != 2 && val != 3 && val != -1)
+	{
+		return;
+	}
+	
+	if (x < 0 || x >= puzz.length || y < 0 || y >= puzz[0].length)
+	{
+		return;
+	}
+	
+	puzz[x][y] = val;
+	
+	return puzz;
+}
+
+function getValues(puzz)
+{
+	var arr = [];
+	
+	for (var i = 0; i < puzz.length; i++)
+	{
+		arr[i] = [];
+		for (var j = 0; j < puzz[i].length; j++)
+		{
+			arr[i][j] = puzz[i][j];
+		}
+	}
+	
+	return arr;
+}
+
+function solve(puzz, all)
+{
+	var grid = getValues(puzz);
+	var poss = resetPoss(grid);
+	var sols = [];
+
+	return [solveRec(poss, 0, grid, sols, all), sols];
+}
+
+function solveRec(poss, cell, grid, sols, all)
+{
+//	print(toString(grid));
+	var rows = grid.length;
+	var clms = grid[0].length;
+	var currRow = Math.floor(cell / clms);
+	var currClm = cell % clms;
+	
+	var rem = [];
+	for (var i2 = 0; i2 < grid.length; i2++)
+	{
+		for (var j2 = 0; j2 < grid[i2].length; j2++)
+		{
+			if (grid[i2][j2] == -1)
+			{
+				rem.push(i2 * clms + j2);
+			}
+		}
+	}
+	
+	if (rem.length == 0)
+	{
+		if (feas(grid))
+		{
+			sols.push(grid);
+			return true;
+		}
+		return false;
+	}
+	
+	var grid2 = getValues(grid);
+	
+//	print("0 - " + cell);
+//	print("1 - " + currRow + ", " + currClm);
+//	print("2 - " + rem.length);
+	for (var i = 0; i < poss[currRow + ", " + currClm].length; i++)
+	{
+//		print("2 - " + i + " - " + rem.length);
+		grid2[currRow][currClm] = poss[currRow + ", " + currClm][i];
+		var feasvar = feas(grid2);
+		
+		if (!feasvar)
+		{
+			continue;
+		}
+		
+//		print("3 - [" + rem + "]");
+		var next = Math.floor(Math.random() * rem.length);
+//		print("4 - " + next);
+		var ans = solveRec(poss, rem[next], grid2, sols, all);
+		if (!ans)
+		{
+			continue;
+		}
+		else if (!all && ans)
+		{
+			return true;
+		}
+	}
+	
+	if (sols.length > 0)
+	{
+		return true;
+	}
+		
+	return false;
+}
+
+function print(text)
+{
+	document.getElementById("output").innerHTML += text + "<br>";
+}
+
+function newPuzz(m, n)
+{
+	var puzz = fillBlank(m, n);
+	var sol = solve(puzz, 0);
+	puzz = getValues(sol[1][0]);
+	var rem = [];
+	var hist = [];
+	var cntr = 0;
+	
+	for (var i = 0; i < m * n; i++)
+	{
+		rem.push(i);
+	}
+	
+	var ans = 0;
+	for (var i = 0; i < m * n && rem.length > 0; i++)
+	{
+		var loc = Math.floor(Math.random() * rem.length);
+		var row = Math.floor(rem[loc] / n);
+		var clm = rem[loc] % n;
+		hist.push(row + "-" + clm + "-"+ puzz[row][clm]);
+		
+		setValue(puzz, row, clm, -1);
+		ans = solve(puzz, 1);
+		if (ans[0] && ans[1].length > 1)
+		{
+			cntr++;
+			hist.length--;
+			setValue(puzz, row, clm, sol[1][0][row][clm]);
+		}
+		
+		if (cntr >= 10)
+		{
+			break;
+		}
+		rem.splice(loc, 1);
+	}
+	
+	var last = hist[hist.length-1].split("-");
+	setValue(puzz, parseInt(last[0]), parseInt(last[1]), parseInt(last[2]));
+	
+	return [puzz, sol[1][0]];
+}
+
+function buildGrid(puzz, place, ctr)
+{
+	var numrows = parseInt(document.getElementById("rows").value);
+	var numclms = parseInt(document.getElementById("clms").value);
+	
+	out = "<table>";
+	for (var i = 0; i < numrows; i++)
+	{
+		out += "<tr>";
+		for (var j = 0; j < numclms; j++)
+		{
+			if (puzz[i][j] != -1)
+			{
+				out += "<td id=cell" + ctr + "_" + i + "_" + j + " style='background:#aaaaaa'>" + puzz[i][j] + "</td>";
+			}
+			else
+			{
+				out += "<td id=cell" + ctr + "_" + i + "_" + j + " onclick=chValue('cell" + ctr + "_" + i + "_" + j + "');></td>";
+			}
+		}
+		out += "</tr>";
+	}
+	out += "</table>";
+	
+	document.getElementById(place).innerHTML = out;
+}
+
+function init()
+{
+	document.getElementById("input").innerHTML = "";
+	document.getElementById("output").innerHTML = "";
+	document.getElementById("solution").innerHTML = "";
+	
+	var numrows = parseInt(document.getElementById("rows").value);
+	var numclms = parseInt(document.getElementById("clms").value);
+	
+	var puzz = newPuzz(numrows, numclms);
+	buildGrid(puzz[0], "input", '');
+	
+	poss = resetPoss(puzz[0]);
+//	buildGrid(poss, 'hint', 2);
+
+	return puzz;
+}
+
+function checkAns(sol)
+{
+	var numrows = parseInt(document.getElementById("rows").value);
+	var numclms = parseInt(document.getElementById("clms").value);
+	var userAns = [];
+	
+	for (var i = 0; i < numrows; i++)
+	{
+		userAns[i] = [];
+		for (var j = 0; j < numclms; j++)
+		{
+			userAns[i][j] = document.getElementById("cell_" + i + "_" + j).innerHTML;
+//			if (parseInt(userAns[i][j]) != sol[i][j])
+//			{
+//				alert("Sorry, you have an incorrect answer somewhere");
+//				return false;
+//			}
+		}
+	}
+	
+	if (!feas(userAns))
+	{
+		alert("Sorry, you have a mistake");
+		return false;
+	}
+	
+	alert("Congratulations, you have solved the puzzle!\nNow try another. ");
+	return true;
+}
+
+function chValue(cell)
+{
+	var row = cell.split("_")[1];
+	var clm = cell.split("_")[2];
+	var value = document.getElementById(cell).innerHTML;
+	
+	if (value == "1")
+	{
+		value = "2";
+		document.getElementById(cell).style.background = "rgba(102, 249, 181, 1)" ;
+	}
+	else if (value == "2")
+	{
+		value = "3";
+		document.getElementById(cell).style.background = "rgba(244, 249, 122, 1)";
+	}
+	else if (value == "3")
+	{
+		value = "";
+		document.getElementById(cell).style.background = "rgba(255, 255, 255, 1)";
+	}
+	else if (value == "")
+	{
+		value = "1";
+		document.getElementById(cell).style.background = "rgba(254, 130, 206, 1)";
+	}
+	
+	document.getElementById(cell).innerHTML = value;
+}
+</script>
+</head>
+<body>
+<div id="app-container">
+<div id="app-header">
+</div>
+<div id="main-content">
+<p id="output"></p>
+<select id="rows">
+  <option value="3">4</option>
+  <option value="4" selected>4</option>
+  <option value="5">5</option>
+  <option value="6">6</option>
+  <option value="7">7</option>
+  <option value="8">8</option>
+  <option value="9">9</option>
+  <option value="10">10</option>
+</select>
+<select id="clms">
+  <option value="3">4</option>
+  <option value="4" selected>4</option>
+  <option value="5">5</option>
+  <option value="6">6</option>
+  <option value="7">7</option>
+  <option value="8">8</option>
+  <option value="9">9</option>
+  <option value="10">10</option>
+</select>
+<input type="button" onclick="puzz = init()" value="New">
+<input type="button" onclick="buildGrid(puzz[1], 'solution', 3)" value="Solution">
+<input type="button" onclick="buildGrid(puzz[0], 'input', ''); poss=resetPoss(puzz[0]); buildGrid(poss, 'hint', 2); updatePoss(puzz[0])" value="Restart">
+<input type="button" onclick="checkAns(puzz[1])" value="Check">
+<input type="button" onclick="buildGrid(fillBlank(document.getElementById('rows').value, document.getElementById('clms').value), 'input', '')" value="Clear">
+<p id="input"></p>
+<p id="hint"></p>
+<p id="solution"></p>
+<body>
+</html>

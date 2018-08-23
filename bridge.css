@@ -1,0 +1,36 @@
+.chidd
+{
+	width: 1.2em;
+	height: 1.2em;
+	text-align: center; 
+	border: 1px solid black;
+	padding: 0px;
+	hidden;
+}
+
+.csum
+{
+	width: 1.2em;
+	height: 1.2em;
+	text-align: center; 
+	border: 1px solid black;
+	padding: 0px;
+}
+
+.cleft 
+{
+	width: 1.2em;
+	height: 1.2em;
+	text-align: center; 
+	border: 1px solid black;
+	padding: 0px;
+}
+
+.cright
+{
+	width: 1.2em;
+	height: 1.2em;
+	text-align: center; 
+	border: 1px solid black;
+	padding: 0px;
+}

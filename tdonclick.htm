@@ -1,0 +1,55 @@
+<html>
+<head>
+<style>
+.dot
+{
+    width: 0.1em;
+	height: 0.1em;
+	background:rgb(0, 0 ,0);
+}
+
+.hbar
+{
+    width: 3.0em;
+	height: 0.1em;
+}
+
+.vbar
+{
+    width: 0.1em;
+	height: 3.0em;
+}
+
+.val
+{
+    width: 3.0em;
+	height: 3.0em;
+	background:rgb(255, 255, 255);
+}
+</style>
+<script>
+function chcolor(id)
+{
+	if (document.getElementById(id).className == "vbar" || document.getElementById(id).className == "hbar")
+	{
+//		for (i in document.getElementById(id).style)
+//			document.getElementById("output").innerHTML += i + " - " + (document.getElementById(id).style[i]) + "<br>";
+		if (document.getElementById(id).style.background == "rgb(0, 0, 0)")
+			document.getElementById(id).style.background = "rgb(255, 255, 255)";
+		else if (document.getElementById(id).style.background == "rgb(255, 255, 255)")
+			document.getElementById(id).style.background = "rgb(0, 0, 0)";
+	}
+}
+</script>
+</head>
+<body>
+<table>
+<tr><td class="dot"></td><td id=b11 class="hbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td><td class="dot"></td><td id=b12 class="hbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td><td class="dot"></td></tr>
+<tr><td id=b21 class="vbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td><td class="val"></td><td id=b22 class="vbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td><td class="val"></td><td id=b23 class="vbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td></tr>
+<tr><td class="dot"></td><td id=b31 class="hbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td><td class="dot"></td><td id=b32 class="hbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td><td class="dot"></td></tr>
+<tr><td id=b41 class="vbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td><td class="val"></td><td id=b42 class="vbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td><td class="val"></td><td id=b43 class="vbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td></tr>
+<tr><td class="dot"></td><td id=b51 class="hbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td><td class="dot"></td><td id=b52 class="hbar" onclick="chcolor(this.id)" style="background:rgb(0, 0, 0)"></td><td class="dot"></td></tr>
+</table>
+<p id="output"></p>
+</body>
+</html>

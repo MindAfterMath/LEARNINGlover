@@ -1,0 +1,24 @@
+NonogramPuzzles<style type="text/css">
+.c {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.rbeg {
+	border: 1px black solid;
+	white-space:nowrap;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+.cbeg {
+	border: 1px black solid;
+	width: 1.2em;
+	height: 1.2em;
+}
+
+p
+{
+        display: inline;
+}
