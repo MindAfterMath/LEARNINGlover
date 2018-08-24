@@ -338,131 +338,50 @@ function newPuzz(m, n)
 	return [puzz, sol[1][0]];
 }
 
-function updatePoss(grid)
+function updatePoss()
 {
-	var numrows = parseInt(document.getElementById("rows").value);
-	var numclms = parseInt(document.getElementById("clms").value);
-	var blankrows = numrows - 4;
-	var blankclms = numclms - 4;
-	var poss = resetPoss(grid);
-	var blankR = [];
-	var blankC = [];
-	
-	for (var i = 0; i < numrows; i++)
-	{
-		blankR[i] = 0;
-	}
-	
-	for (var j = 0; j < numclms; j++)
-	{
-		blankC[j] = 0;
-	}
-	
-	for (var i = 0; i < numrows; i++)
-	{
-		for (var j = 0; j < numclms; j++)
-		{
-			var val = document.getElementById("cell_" + i + "_" + j).innerHTML;
-			if (val != "" && val != "X")
-			{
-				if (poss[i + ", " + j].indexOf(val) != -1)
-				{
-					poss[i + ", " + j] = [val];
-					document.getElementById("cell2_" + i + "_" + j).style.background = "#00FF00";
-				}
-				else
-				{
-					document.getElementById("cell2_" + i + "_" + j).style.background = "#FF0000";
-				}
-				
-				for (var i2 = 0; i2 < numrows; i2++)
-				{
-					if (i2 == i)
-						continue;
-					var loc = poss[i2 + ", " + j].indexOf(val);
-					if (loc >= 0)
-						poss[i2 + ", " + j].splice(loc, 1);
-				}
-				
-				for (var j2 = 0; j2 < numclms; j2++)
-				{
-					if (j2 == j)
-						continue;
-					var loc = poss[i + ", " + j2].indexOf(val);
-					if (loc >= 0)
-						poss[i + ", " + j2].splice(loc, 1);
-				}
-				
-				if (val == "U" && i > 0)
-					poss[(i-1) + ", " + j] = ["X"];
-				if (val == "D" && i < numrows - 1)
-					poss[(i+1) + ", " + j] = ["X"];
-				if (val == "L" && j > 0)
-					poss[i + ", " + (j-1)] = ["X"];
-				if (val == "R" && j < numclms - 1)
-					poss[i + ", " + (j+1)] = ["X"];
-				
-				if (i > 0 && poss[(i-1) + ", " + j].indexOf("D") != -1)
-					poss[(i-1) + ", " + j].splice(poss[(i-1) + ", " + j].indexOf("D"), 1);
-				if (i < numrows-1 && poss[(i+1) + ", " + j].indexOf("U") != -1)
-					poss[(i+1) + ", " + j].splice(poss[(i+1) + ", " + j].indexOf("U"), 1);
-				if (j > 0 && poss[i + ", " + (j-1)].indexOf("R") != -1)
-					poss[i + ", " + (j-1)].splice(poss[i + ", " + (j-1)].indexOf("R"), 1);
-				if (j < numclms-1 && poss[i + ", " + (j+1)].indexOf("L") != -1)
-					poss[i + ", " + (j+1)].splice(poss[i + ", " + (j+1)].indexOf("L"), 1);
-			}
-			else if (val == "X")
-			{
-				if (poss[i + ", " + j].indexOf(val) != -1)
-				{
-					poss[i + ", " + j] = [val];
-					blankR[i]++;
-					blankC[j]++;
-					document.getElementById("cell2_" + i + "_" + j).style.background = "#00FF00";
-				}
-			}
-			else if (val == "")
-			{
-				document.getElementById("cell2_" + i + "_" + j).style.background = "#FFFFFF";
-			}
-		}
-	}
-	
-	for (var i = 0; i < numrows; i++)
-	{
-		for (var j = 0; j < numclms; j++)
-		{
-			var val = document.getElementById("cell_" + i + "_" + j).innerHTML;
-			if (val == "" && (blankR[i] >= blankrows || blankC >= blankclms))
-			{
-				var loc = poss[i + ", " + j].indexOf("X");
-				if (loc != -1)
-				{
-					poss[i + ", " + j].splice(loc, 1);
-				}
-			}
-		}
-	}
-	
-	for (var i = 0; i < numrows; i++)
-	{
-		for (var j = 0; j <= numclms; j++)
-		{
-			if (j < numclms)
-			{
-				document.getElementById("cell2_" + i + "_" + j).innerHTML = poss[i + ", " + j];
-			}
-			else
-			{
-				document.getElementById("cell2_" + i + "_" + j).innerHTML = blankR[i];
-			}
-		}
-	}
-	
-	for (var j = 0; j < numclms; j++)
-	{
-		document.getElementById("cell2_" + i + "_" + j).innerHTML = blankC[j];
-	}
+    var grid = [];
+    var numrows = parseInt(document.getElementById("rows").value);
+    var numclms = parseInt(document.getElementById("clms").value);
+    
+    for (var i = 0; i < numrows; i++)
+    {
+        grid[i] = [];
+        for (var j = 0; j < numclms; j++)
+        {
+            grid[i][j] = document.getElementById("cell_" + i + "_" + j).innerHTML;
+            if (grid[i][j] == "")
+            {
+                grid[i][j] = -1;
+            }
+        }
+    }
+    
+    var poss = resetPoss(grid);
+    
+    for (var i = 0; i < grid.length; i++)
+    {
+        for (var j = 0; j < grid[i].length; j++)
+        {
+            if (grid[i][j] != -1)
+            {
+                continue;
+            }
+            var rem = [];
+            for (var k = 0; k < poss[i + ", " + j].length; k++)
+            {
+                grid[i][j] = poss[i + ", " + j][k];
+                if (feas(grid))
+                {
+                    rem.push(grid[i][j]);
+                }
+                grid[i][j] = -1;
+            }
+            poss[i + ", " + j] = rem;
+        }
+    }
+    
+    buildGrid(poss, 'hint', 2);
 }
 
 function buildGrid(puzz, place, ctr)
@@ -508,7 +427,7 @@ function buildGrid(puzz, place, ctr)
 			}
 			else
 			{
-				out += "<td id=cell" + ctr + "_" + i + "_" + j + " onclick=chValue('cell" + ctr + "_" + i + "_" + j + "');updatePoss(puzz[0])></td>";
+				out += "<td id=cell" + ctr + "_" + i + "_" + j + " onclick=chValue(this.id);updatePoss()></td>";
 			}
 		}
 		out += "</tr>";
@@ -601,6 +520,23 @@ function chValue(cell)
 	
 	document.getElementById(cell).innerHTML = value;
 }
+
+function showHideDiv(id)
+{
+    var val = document.getElementById(id).style.display;
+    if (val == "none")
+    {
+        document.getElementById(id).style.display = "block";
+        document.getElementById(id).focus();
+    }
+    else
+    {
+        document.getElementById(id).style.display = "none";
+        document.getElementById(id).blur();
+    }
+}
+
+
 var out = "";
 out += '<div id="app-container">'; 
 out += '<div id="app-header">'; 
@@ -629,11 +565,26 @@ out += '  <option value="10">10</option>';
 out += '</select>'; 
 out += '<input type="button" onclick="puzz = init()" value="New">'; 
 out += '<input type="button" onclick="buildGrid(puzz[1], \'solution\', 3)" value="Solution">'; 
-out += '<input type="button" onclick="buildGrid(puzz[0], \'input\', \'\'); poss=resetPoss(puzz[0]); buildGrid(poss, \'hint\', 2); updatePoss(puzz[0])" value="Restart">'; 
+out += '<input type="button" onclick="buildGrid(puzz[0], \'input\', \'\'); poss=resetPoss(puzz[0]); buildGrid(poss, \'hint\', 2); updatePoss()" value="Restart">'; 
 out += '<input type="button" onclick="checkAns(puzz[1])" value="Check">'; 
-out += '<input type="button" onclick="buildGrid(fillBlank(document.getElementById(\'rows\').value, document.getElementById(\'clms\').value), \'input\', \'\')" value="Clear">'; 
-out += '<p id="input"></p>'; 
-out += '<p id="hint"></p>'; 
+out += '<input type="button" onclick="buildGrid(fillBlank(document.getElementById(\'rows\').value, document.getElementById(\'clms\').value), \'input\', \'\')" value="Clear"><br>'; 
+out += '<span onclick=showHideDiv(\'instr\')>Show Instructions</span><br>'
+out += '<div id="instr" style="display:none"><p>We are initially given a partially filled grid, where each value in a cell represents an arrow pointing in the given directoin: </p>';
+out += '<ul>';
+out += ' <li>D represents down';
+out += ' <li>U represents up';
+out += ' <li>L represents left';
+out += ' <li>R represents right';
+out += '</ul>';
+out += '<p>Your goal is to fill in the remaining cells with arrows and blank spaces such that the following two conditions are met: </p>';
+out += '<ol>';
+out += ' <li>Every cell must have a U, D, L, R, or X (representing an empty cell)';
+out += ' <li>Arrows can only directly point to empty cells. ';
+out += '</ol>';
+out += '</div>';
+out += '<div id="input"></div>'; 
+out += '<span onclick=showHideDiv(\'hint\')>Show Hint</span><br>'
+out += '<div id="hint" style="display:none"></div>'; 
 out += '<p id="solution"></p>'; 
 out += '</div>'; 
 out += '</div>'; 
