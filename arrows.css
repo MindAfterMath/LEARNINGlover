@@ -1,3 +1,15 @@
+html {
+height: 100%;
+width: 100%;
+}
+
+body {
+min-height: 100%;
+margin: 0;
+padding: 0;
+}
+
+
 table
 {
 	table-layout: auto
@@ -10,6 +22,13 @@ td
 	text-align: center;
 	overflow: hidden;
 	resize: none;
-	width: 1.2em;
-	height: 1.2em;
+	width: 3.0em;
+	height: 3.0em;
+}
+
+span
+{
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
 }
