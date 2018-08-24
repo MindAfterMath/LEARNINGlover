@@ -610,7 +610,7 @@ function buildGrid(puzz, place, ctr)
 			}
 			else
 			{
-				out += "<td id=cell" + ctr + "_" + i + "_" + j + " onclick='chValue(this.id);updatePoss()'></td>";
+				out += "<td id=cell" + ctr + "_" + i + "_" + j + " onclick='chValue(this.id);updatePoss()'>&nbsp;</td>";
 			}
 		}
 		out += "</tr>";
@@ -890,6 +890,14 @@ function showHideDiv(id)
 	}
 }
 
+function randomSize()
+{
+	var size = document.getElementById("rows").options;
+	var loc = Math.floor(Math.random() * size.length);
+	document.getElementById("rows").options[loc].selected = true;
+	document.getElementById("clms").options[loc].selected = true;
+}
+
 var out = ""; 
 out += '<div id="app-container">'; 
 out += '<div id="app-header">'; 
@@ -942,4 +950,5 @@ var newTag = document.createElement('div');
 newTag.setAttribute('id', 'newPuzz');
 newTag.innerHTML += out;
 document.getElementById('pgrmHTML').append(newTag);
+randomSize();
 var puzz = init();
